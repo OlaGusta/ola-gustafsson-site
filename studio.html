@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Studio | Ola Gustafsson Akvarell</title>
+    <meta name="description" content="Studio för att redigera galleriinnehåll, metadata och bilder." />
+    <meta name="robots" content="noindex,nofollow" />
+    <link rel="icon" href="/favicon.ico?v=20260222-10" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=20260222-10" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=20260222-10" />
+    <link rel="manifest" href="/site.webmanifest?v=20260222-10" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,300..800&family=Lora:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Source+Sans+3:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css?v=20260222-12" />
+    <script src="overrides.js?v=20260212-01"></script>
+    <script src="content.js?v=20260222-06" defer></script>
+    <script src="vendor/qrcode.min.js?v=20260216-01" defer></script>
+    <script src="studio.js?v=20260222-01" defer></script>
+  </head>
+  <body id="page-top" data-page="studio">
+    <header class="site-header" id="top">
+      <div class="container header-inner">
+        <a class="brand" href="index.html#top">
+          <img
+            class="brand-logo"
+            src="/brand-logo-blue.png?v=20260222-01"
+            alt=""
+            aria-hidden="true"
+            loading="eager"
+            decoding="async"
+          />
+          <span class="brand-text">
+            <span>Ola Gustafsson</span>
+            <span>Studio</span>
+          </span>
+        </a>
+        <nav class="main-nav" aria-label="Huvudmeny">
+          <a href="index.html#hem">Hem</a>
+          <a href="gallery.html#galleri">Galleri</a>
+          <a href="studio.html" aria-current="page">Studio</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section id="studio-auth" class="section studio-auth">
+        <div class="container">
+          <article class="studio-card surface-soft studio-auth-card">
+            <p class="eyebrow">Säker Studio</p>
+            <h1>Logga in med 2FA</h1>
+            <p class="studio-note">Inloggning kräver lösenord och autentiseringskod (TOTP) eller recovery-kod.</p>
+            <div id="studio-auth-status" class="studio-status" data-kind="info" aria-live="polite">
+              Laddar säkerhetsstatus...
+            </div>
+
+            <section id="studio-auth-view-login" class="studio-auth-view" hidden>
+              <form id="studio-login-form" class="studio-grid" autocomplete="on">
+                <label>E-post
+                  <input type="email" id="studio-login-email" autocomplete="username" required />
+                </label>
+                <label>Lösenord
+                  <input type="password" id="studio-login-password" autocomplete="current-password" required />
+                </label>
+                <label>2FA-kod (6 siffror)
+                  <input type="text" id="studio-login-totp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="123456" />
+                </label>
+                <label>Recovery-kod (om 2FA saknas)
+                  <input type="text" id="studio-login-recovery" autocomplete="one-time-code" placeholder="ABCD-EFGH" />
+                </label>
+                <div class="studio-actions">
+                  <button type="submit" class="btn btn-primary">Logga in</button>
+                  <button type="button" class="btn btn-ghost" id="studio-show-reset">Glömt lösenord</button>
+                </div>
+              </form>
+            </section>
+
+            <section id="studio-auth-view-bootstrap" class="studio-auth-view" hidden>
+              <form id="studio-bootstrap-start-form" class="studio-grid" autocomplete="off">
+                <label>Admin e-post
+                  <input type="email" id="studio-bootstrap-email" autocomplete="username" required />
+                </label>
+                <label>Nytt lösenord
+                  <input type="password" id="studio-bootstrap-password" autocomplete="new-password" required />
+                </label>
+                <label id="studio-bootstrap-key-wrap" hidden>Bootstrap-nyckel (från serverkonfiguration)
+                  <input type="password" id="studio-bootstrap-key" autocomplete="one-time-code" />
+                </label>
+                <button type="submit" class="btn btn-primary">Starta säker setup</button>
+              </form>
+
+              <form id="studio-bootstrap-finish-form" class="studio-grid" hidden autocomplete="off">
+                <label>TOTP secret (lägg in i authenticator-app)
+                  <input type="text" id="studio-bootstrap-secret" readonly />
+                </label>
+                <div id="studio-bootstrap-qr-wrap" class="studio-qr-wrap" hidden>
+                  <p class="studio-note">Skanna QR-koden i din authenticator-app.</p>
+                  <div id="studio-bootstrap-qr" class="studio-qr" aria-label="QR-kod för TOTP setup"></div>
+                </div>
+                <label>Verifieringskod från app
+                  <input type="text" id="studio-bootstrap-totp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required />
+                </label>
+                <button type="submit" class="btn btn-primary">Verifiera och aktivera konto</button>
+                <p id="studio-bootstrap-recovery" class="studio-note"></p>
+              </form>
+            </section>
+
+            <section id="studio-auth-view-reset" class="studio-auth-view" hidden>
+              <form id="studio-reset-request-form" class="studio-grid" autocomplete="on">
+                <label>E-post för återställning
+                  <input type="email" id="studio-reset-email" autocomplete="email" required />
+                </label>
+                <div class="studio-actions">
+                  <button type="submit" class="btn btn-primary">Skicka återställningslänk</button>
+                  <button type="button" class="btn btn-ghost" id="studio-back-login">Tillbaka till login</button>
+                </div>
+              </form>
+
+              <form id="studio-reset-password-form" class="studio-grid" hidden autocomplete="off">
+                <label>Nytt lösenord
+                  <input type="password" id="studio-reset-password" autocomplete="new-password" required />
+                </label>
+                <div class="studio-actions">
+                  <button type="submit" class="btn btn-primary">Sätt nytt lösenord</button>
+                  <button type="button" class="btn btn-ghost" id="studio-back-login-2">Tillbaka till login</button>
+                </div>
+              </form>
+            </section>
+          </article>
+        </div>
+      </section>
+
+      <section id="studio-app" class="section studio-page" hidden>
+        <div class="container studio-layout">
+          <div class="studio-head">
+            <p class="eyebrow">Studio</p>
+            <h1>Redigera galleri och bilder</h1>
+            <p class="section-lead">
+              Ändringar sparas i denna webbläsare och används direkt av sajten. Publicera sedan filerna när du är nöjd.
+            </p>
+            <div class="studio-lang-switch" role="group" aria-label="Välj språk för textredigering">
+              <button type="button" class="studio-lang-btn is-active" data-studio-lang="sv" aria-pressed="true">
+                Svenska texter
+              </button>
+              <button type="button" class="studio-lang-btn" data-studio-lang="en" aria-pressed="false">
+                English texts
+              </button>
+            </div>
+            <div class="studio-lang-tools" id="studio-lang-tools" hidden>
+              <button type="button" class="btn btn-ghost" id="translate-missing-en-titles">
+                Autoöversätt saknade EN-titlar
+              </button>
+              <button type="button" class="btn btn-ghost" id="translate-en-from-sv">
+                Synka EN-texter från svenska (AI)
+              </button>
+            </div>
+            <p class="studio-note studio-lang-note" id="studio-lang-note">
+              Du redigerar svenska grundtexter.
+            </p>
+          </div>
+
+          <div id="studio-status" class="studio-status" aria-live="polite"></div>
+
+          <section class="studio-card surface-soft">
+            <h2>Hero</h2>
+            <div class="studio-grid">
+              <label>Hero-läge
+                <select id="hero-mode">
+                  <option value="still">Stillbild</option>
+                  <option value="slideshow">Slideshow</option>
+                </select>
+              </label>
+              <label>Standard slide-längd (ms)
+                <input type="number" id="hero-slide-duration" min="1000" step="500" />
+              </label>
+              <label>Titel <input type="text" id="hero-title" /></label>
+              <label>Intro <textarea id="hero-intro" rows="3"></textarea></label>
+              <label>Budskapsrad (under intro)
+                <textarea id="hero-line" rows="2" placeholder="Jag vill att betraktaren ska känna närvaro i ett landskap som glider mellan konkret form och diffust flöde."></textarea>
+              </label>
+              <label class="checkbox-row">
+                <input type="checkbox" id="hero-overlay-enabled" />
+                <span>Visa overlay över hero-bilden</span>
+              </label>
+              <label>Overlay-opacitet (0-100)
+                <input type="range" id="hero-overlay-opacity" min="0" max="100" step="1" />
+              </label>
+              <label>Textplatta mörkhet (0-100)
+                <input type="range" id="hero-copy-panel-opacity" min="0" max="100" step="1" />
+              </label>
+              <label>Hero bild (src, används i stillbildsläge) <input type="text" id="hero-image" placeholder="images/ola-01.jpg eller data:image/..." /></label>
+              <label>Hero alt-text <input type="text" id="hero-image-alt" /></label>
+              <label>Ladda upp hero-bild <input type="file" id="hero-image-upload" accept="image/*" /></label>
+            </div>
+            <div class="studio-slides-wrap">
+              <div class="studio-row">
+                <h3>Slides</h3>
+                <button type="button" class="btn btn-ghost" id="add-hero-slide">Lägg till slide</button>
+              </div>
+              <div class="studio-grid studio-grid-2">
+                <label>Välj från verk
+                  <select id="hero-slide-from-artwork"></select>
+                </label>
+                <label>&nbsp;
+                  <button type="button" class="btn btn-ghost" id="add-hero-slide-from-artwork">Lägg till vald bild</button>
+                </label>
+              </div>
+              <div id="hero-slides-editor" class="hero-slides-editor"></div>
+            </div>
+          </section>
+
+          <section class="studio-card surface-soft">
+            <div class="studio-row">
+              <h2>Verk i galleriet</h2>
+            </div>
+            <div class="studio-grid studio-grid-2">
+              <label>
+                Ladda upp en eller flera bilder
+                <input type="file" id="gallery-upload" accept="image/*" multiple />
+              </label>
+              <label>
+                Standardkategori för uppladdade
+                <select id="upload-category"></select>
+              </label>
+            </div>
+            <p class="studio-note">Uppladdade filer sparas som inbäddad data i webbläsaren. För många stora bilder kan lagringsutrymmet ta slut.</p>
+            <p class="studio-note">Klicka på en miniatyr för att redigera just det verket.</p>
+            <div id="artworks-editor" class="artworks-editor"></div>
+          </section>
+
+          <section class="studio-card surface-soft">
+            <h2>Artist Statement</h2>
+            <div class="studio-grid">
+              <label>Rubrik <input type="text" id="about-heading" /></label>
+              <label>Brödtext (separera stycken med tom rad)
+                <textarea id="about-paragraphs" rows="8"></textarea>
+              </label>
+              <label>Kort rad om jobbet (Om-sidan)
+                <textarea id="about-dayjob-line" rows="3"></textarea>
+              </label>
+              <label>Sidonotis <textarea id="about-side-note" rows="3"></textarea></label>
+            </div>
+            <div class="studio-grid studio-subsection">
+              <h3>Porträttbild</h3>
+              <input type="hidden" id="about-portrait-image" />
+              <label>Välj porträttbild
+                <select id="about-portrait-image-pick"></select>
+              </label>
+              <div id="about-portrait-image-preview" class="section-image-preview" aria-live="polite"></div>
+              <label>&nbsp;
+                <button type="button" class="btn btn-ghost" data-upload-target="about-portrait-image" data-upload-label="porträttbild">
+                  Ladda upp porträttbild
+                </button>
+              </label>
+              <label>Porträtt alt-text
+                <input type="text" id="about-portrait-alt" />
+              </label>
+            </div>
+            <div class="studio-grid studio-subsection">
+              <h3>Material</h3>
+              <label>Rubrik
+                <input type="text" id="materials-heading" placeholder="Material" />
+              </label>
+              <label>Text
+                <textarea id="materials-body" rows="5"></textarea>
+              </label>
+              <input type="hidden" id="materials-image" />
+              <label>Välj materialbild
+                <select id="materials-image-pick"></select>
+              </label>
+              <div id="materials-image-preview" class="section-image-preview" aria-live="polite"></div>
+              <label>&nbsp;
+                <button type="button" class="btn btn-ghost" data-upload-target="materials-image" data-upload-label="materialbild">
+                  Ladda upp materialbild
+                </button>
+              </label>
+              <label>Materialbild alt-text
+                <input type="text" id="materials-image-alt" />
+              </label>
+            </div>
+            <div class="studio-grid studio-subsection">
+              <h3>Helbildssektion (Sandemar)</h3>
+              <input type="hidden" id="about-feature-image" />
+              <label>Välj helbild
+                <select id="about-feature-image-pick"></select>
+              </label>
+              <div id="about-feature-image-preview" class="section-image-preview" aria-live="polite"></div>
+              <label>&nbsp;
+                <button type="button" class="btn btn-ghost" data-upload-target="about-feature-image" data-upload-label="helbild">
+                  Ladda upp helbild
+                </button>
+              </label>
+              <label>Helbild alt-text
+                <input type="text" id="about-feature-alt" />
+              </label>
+            </div>
+            <div class="studio-grid studio-subsection">
+              <h3>Utmärkelser &amp; utställningar</h3>
+              <label>Rubrik
+                <input type="text" id="recognition-heading" placeholder="Utmärkelser & utställningar" />
+              </label>
+              <label>Punkter (en punkt per rad)
+                <textarea id="recognition-lines" rows="6"></textarea>
+              </label>
+            </div>
+          </section>
+
+          <section class="studio-card surface-soft">
+            <h2>Projekt</h2>
+            <div class="studio-grid">
+              <label>Eyebrow
+                <input type="text" id="project-eyebrow" placeholder="Projekt" />
+              </label>
+              <label>Rubrik
+                <input type="text" id="project-heading" />
+              </label>
+              <label>Brödtext
+                <textarea id="project-description" rows="5"></textarea>
+              </label>
+              <input type="hidden" id="project-collage-image" />
+              <label>Välj kollagebild
+                <select id="project-collage-image-pick"></select>
+              </label>
+              <div id="project-collage-image-preview" class="section-image-preview" aria-live="polite"></div>
+              <label>&nbsp;
+                <button type="button" class="btn btn-ghost" data-upload-target="project-collage-image" data-upload-label="kollagebild">
+                  Ladda upp kollagebild
+                </button>
+              </label>
+              <label>Kollage alt-text
+                <input type="text" id="project-collage-alt" />
+              </label>
+              <label>Underrubrik för exempel
+                <input type="text" id="project-sample-heading" placeholder="Exempel från serien" />
+              </label>
+              <input type="hidden" id="project-sample-1-src" />
+              <label>Välj exempelbild 1
+                <select id="project-sample-1-pick"></select>
+              </label>
+              <div id="project-sample-1-preview" class="section-image-preview" aria-live="polite"></div>
+              <label>&nbsp;
+                <button type="button" class="btn btn-ghost" data-upload-target="project-sample-1-src" data-upload-label="exempelbild 1">
+                  Ladda upp exempelbild 1
+                </button>
+              </label>
+              <label>Exempelbild 1 alt-text
+                <input type="text" id="project-sample-1-alt" />
+              </label>
+              <input type="hidden" id="project-sample-2-src" />
+              <label>Välj exempelbild 2
+                <select id="project-sample-2-pick"></select>
+              </label>
+              <div id="project-sample-2-preview" class="section-image-preview" aria-live="polite"></div>
+              <label>&nbsp;
+                <button type="button" class="btn btn-ghost" data-upload-target="project-sample-2-src" data-upload-label="exempelbild 2">
+                  Ladda upp exempelbild 2
+                </button>
+              </label>
+              <label>Exempelbild 2 alt-text
+                <input type="text" id="project-sample-2-alt" />
+              </label>
+              <input type="hidden" id="project-sample-3-src" />
+              <label>Välj exempelbild 3
+                <select id="project-sample-3-pick"></select>
+              </label>
+              <div id="project-sample-3-preview" class="section-image-preview" aria-live="polite"></div>
+              <label>&nbsp;
+                <button type="button" class="btn btn-ghost" data-upload-target="project-sample-3-src" data-upload-label="exempelbild 3">
+                  Ladda upp exempelbild 3
+                </button>
+              </label>
+              <label>Exempelbild 3 alt-text
+                <input type="text" id="project-sample-3-alt" />
+              </label>
+              <input type="hidden" id="project-sample-4-src" />
+              <label>Välj exempelbild 4
+                <select id="project-sample-4-pick"></select>
+              </label>
+              <div id="project-sample-4-preview" class="section-image-preview" aria-live="polite"></div>
+              <label>&nbsp;
+                <button type="button" class="btn btn-ghost" data-upload-target="project-sample-4-src" data-upload-label="exempelbild 4">
+                  Ladda upp exempelbild 4
+                </button>
+              </label>
+              <label>Exempelbild 4 alt-text
+                <input type="text" id="project-sample-4-alt" />
+              </label>
+            </div>
+          </section>
+
+          <section class="studio-card surface-soft">
+            <h2>Ambitioner Framåt</h2>
+            <div class="studio-grid">
+              <label>Rubrik <input type="text" id="ambitions-heading" /></label>
+              <label>Punkter (en punkt per rad)
+                <textarea id="ambitions-lines" rows="6"></textarea>
+              </label>
+            </div>
+          </section>
+
+          <section class="studio-card surface-soft">
+            <h2>Kontakt</h2>
+            <div class="studio-grid">
+              <label>Eyebrow <input type="text" id="contact-eyebrow" /></label>
+              <label>Rubrik <input type="text" id="contact-heading" /></label>
+              <label>Text <textarea id="contact-body" rows="3"></textarea></label>
+            </div>
+            <div class="studio-grid studio-grid-2">
+              <label>E-post <input type="email" id="contact-email" /></label>
+              <label>Knapptext e-post <input type="text" id="contact-email-label" placeholder="Skicka e-post" /></label>
+            </div>
+            <div class="studio-grid">
+              <label class="checkbox-row">
+                <input type="checkbox" id="contact-email-public" />
+                <span>Visa e-postknappen publikt</span>
+              </label>
+            </div>
+            <div class="studio-row">
+              <h3>Sociala kanaler</h3>
+              <button type="button" class="btn btn-ghost" id="add-contact-social">Lägg till kanal</button>
+            </div>
+            <div id="contact-social-editor" class="contact-social-editor"></div>
+          </section>
+
+          <section class="studio-card surface-soft">
+            <h2>Tema</h2>
+            <div class="studio-grid studio-grid-3">
+              <label>Bakgrund <input type="color" id="theme-background" /></label>
+              <label>Yta <input type="color" id="theme-surface" /></label>
+              <label>Text <input type="color" id="theme-ink" /></label>
+              <label>Mjuk text <input type="color" id="theme-soft-ink" /></label>
+              <label>Primär <input type="color" id="theme-primary" /></label>
+              <label>Accent <input type="color" id="theme-accent" /></label>
+            </div>
+            <div class="studio-grid studio-grid-2 studio-subsection">
+              <label>Rubriktypsnitt
+                <select id="theme-font-display">
+                  <option value="fraunces">Fraunces (nuvarande)</option>
+                  <option value="playfair">Playfair Display</option>
+                  <option value="cormorant">Cormorant Garamond</option>
+                  <option value="georgia">Georgia</option>
+                  <option value="baskerville">Baskerville</option>
+                  <option value="times">Times New Roman</option>
+                </select>
+              </label>
+              <label>Brödtext-typsnitt
+                <select id="theme-font-body">
+                  <option value="jakarta">Plus Jakarta Sans (nuvarande)</option>
+                  <option value="sourcesans">Source Sans 3</option>
+                  <option value="lora">Lora</option>
+                  <option value="avenir">Avenir Next</option>
+                  <option value="system">System UI</option>
+                  <option value="helvetica">Helvetica Neue</option>
+                </select>
+              </label>
+              <label>Rubrik-vikt
+                <select id="theme-font-display-weight">
+                  <option value="300">Light (300)</option>
+                  <option value="400">Regular (400)</option>
+                  <option value="500">Medium (500)</option>
+                  <option value="600">Semibold (600)</option>
+                  <option value="700" selected>Bold (700)</option>
+                  <option value="800">Extrabold (800)</option>
+                </select>
+              </label>
+              <label>Brödtext-vikt
+                <select id="theme-font-body-weight">
+                  <option value="300">Light (300)</option>
+                  <option value="400" selected>Regular (400)</option>
+                  <option value="500">Medium (500)</option>
+                  <option value="600">Semibold (600)</option>
+                  <option value="700">Bold (700)</option>
+                  <option value="800">Extrabold (800)</option>
+                </select>
+              </label>
+            </div>
+          </section>
+
+          <section class="studio-card surface-soft studio-card-compact">
+            <h2>Galleriinställningar</h2>
+            <div class="studio-grid studio-grid-3">
+              <label>Rubrik på gallerisidan
+                <input type="text" id="gallery-page-heading" placeholder="Hela galleriet" />
+              </label>
+              <label class="checkbox-row">
+                <input type="checkbox" id="auto-discover-enabled" />
+                <span>Auto-upptäck bilder (ola-01.jpg, ola-02.jpg...)</span>
+              </label>
+              <label>Auto kategori
+                <select id="auto-default-category"></select>
+              </label>
+            </div>
+            <details class="studio-collapsible">
+              <summary>Kategori-redigering</summary>
+              <div class="studio-grid studio-compact-content">
+                <p class="studio-note" id="category-editor-hint">
+                  Lägg till/ta bort kategorier i Svenska-läget. Engelska etiketter kan redigeras i English-läget.
+                </p>
+                <label>
+                  Filteretikett för "Alla"
+                  <input type="text" id="category-all-label" placeholder="Alla" />
+                </label>
+                <div id="category-editor" class="contact-social-editor"></div>
+                <div class="studio-grid studio-grid-3">
+                  <label>Kategori-nyckel (valfritt, t.ex. abstract)
+                    <input type="text" id="add-category-key" placeholder="auto från namn" />
+                  </label>
+                  <label>Kategorinamn
+                    <input type="text" id="add-category-label" placeholder="Ny kategori" />
+                  </label>
+                  <label>&nbsp;
+                    <button type="button" class="btn btn-ghost" id="add-category-button">Lägg till kategori</button>
+                  </label>
+                </div>
+              </div>
+            </details>
+          </section>
+
+          <section class="studio-card surface-soft">
+            <h2>SEO &amp; delning (startsida)</h2>
+            <div class="studio-grid">
+              <label>SEO-titel
+                <input type="text" id="seo-home-title" placeholder="Ola Gustafsson | Akvarellkonstnär" />
+              </label>
+              <label>SEO-beskrivning
+                <textarea id="seo-home-description" rows="3" placeholder="Kort text som visas när hemsidan delas."></textarea>
+              </label>
+              <label>Välj delningsbild från galleriet
+                <select id="seo-home-image-select"></select>
+              </label>
+              <label>Delningsbild (thumbnail)
+                <input type="text" id="seo-home-image" placeholder="images/ola-02.jpg eller https://..." />
+              </label>
+              <label>&nbsp;
+                <button type="button" class="btn btn-ghost" data-upload-target="seo-home-image" data-upload-label="delningsbild">
+                  Ladda upp delningsbild
+                </button>
+              </label>
+              <div id="seo-home-image-preview" class="seo-share-image-preview" aria-live="polite"></div>
+              <label>Bildens alt-text
+                <input type="text" id="seo-home-image-alt" placeholder="Akvarellmålning av Ola Gustafsson" />
+              </label>
+            </div>
+            <p class="studio-note">Används för länkar till hemsidan (og:title, og:description, og:image, twitter:*).</p>
+          </section>
+
+          <section class="studio-card surface-soft">
+            <h2>Analys</h2>
+            <div class="studio-grid studio-grid-2">
+              <label>Google Analytics ID (GA4)
+                <input type="text" id="analytics-ga-id" placeholder="G-XXXXXXXXXX" />
+              </label>
+              <label class="checkbox-row">
+                <input type="checkbox" id="analytics-anonymize-ip" />
+                <span>Maskera IP-adress (anonymize_ip)</span>
+              </label>
+            </div>
+            <p class="studio-note">Lämna tomt för att stänga av Analytics.</p>
+          </section>
+
+          <section class="studio-card surface-soft analytics-panel-card">
+            <div class="studio-row">
+              <h2>Analyspanel (Google Analytics)</h2>
+              <div class="analytics-toolbar">
+                <label>Period
+                  <select id="analytics-panel-days">
+                    <option value="7">Senaste 7 dagarna</option>
+                    <option value="28" selected>Senaste 28 dagarna</option>
+                    <option value="90">Senaste 90 dagarna</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-ghost" id="analytics-panel-refresh">Uppdatera</button>
+              </div>
+            </div>
+            <p class="studio-note">
+              Kräver GA4 Data API-konfiguration på servern (Property ID + service account).
+            </p>
+            <div id="analytics-panel-status" class="analytics-panel-status" data-kind="info" aria-live="polite">
+              Väntar på uppdatering...
+            </div>
+
+            <div class="analytics-top-grid">
+              <article class="analytics-block">
+                <p class="analytics-label">Alla besökare</p>
+                <p id="analytics-visitors-value" class="analytics-big-number">-</p>
+                <p id="analytics-visitors-delta" class="analytics-delta">-</p>
+                <svg id="analytics-trend-chart" class="analytics-trend-chart" viewBox="0 0 640 240" aria-label="Besökartrend">
+                  <path class="analytics-trend-grid" d="M20 20 H620 M20 80 H620 M20 140 H620 M20 200 H620"></path>
+                  <path id="analytics-trend-path" class="analytics-trend-path" d=""></path>
+                  <g id="analytics-trend-axis" class="analytics-trend-axis" aria-hidden="true"></g>
+                </svg>
+              </article>
+
+              <article class="analytics-block">
+                <div class="analytics-breakdown-tabs" role="tablist" aria-label="Fördelning">
+                  <button type="button" class="analytics-tab is-active" data-analytics-tab="channels" aria-selected="true">Kanaler</button>
+                  <button type="button" class="analytics-tab" data-analytics-tab="locations" aria-selected="false">Länder</button>
+                  <button type="button" class="analytics-tab" data-analytics-tab="devices" aria-selected="false">Enheter</button>
+                </div>
+                <div class="analytics-donut-wrap">
+                  <div id="analytics-donut" class="analytics-donut">
+                    <div class="analytics-donut-center">
+                      <strong id="analytics-donut-total">-</strong>
+                      <span id="analytics-donut-label">Sessions</span>
+                    </div>
+                  </div>
+                </div>
+                <ul id="analytics-breakdown-legend" class="analytics-legend"></ul>
+              </article>
+            </div>
+
+            <div class="analytics-kpi-grid">
+              <article class="analytics-kpi">
+                <p class="analytics-kpi-label">Sessions</p>
+                <p id="analytics-kpi-sessions" class="analytics-kpi-value">-</p>
+                <p id="analytics-kpi-sessions-delta" class="analytics-kpi-delta">-</p>
+              </article>
+              <article class="analytics-kpi">
+                <p class="analytics-kpi-label">Aktiva användare</p>
+                <p id="analytics-kpi-active-users" class="analytics-kpi-value">-</p>
+                <p id="analytics-kpi-active-users-delta" class="analytics-kpi-delta">-</p>
+              </article>
+              <article class="analytics-kpi">
+                <p class="analytics-kpi-label">Engagerade sessioner</p>
+                <p id="analytics-kpi-engaged" class="analytics-kpi-value">-</p>
+                <p id="analytics-kpi-engaged-delta" class="analytics-kpi-delta">-</p>
+              </article>
+              <article class="analytics-kpi">
+                <p class="analytics-kpi-label">Händelser</p>
+                <p id="analytics-kpi-events" class="analytics-kpi-value">-</p>
+                <p id="analytics-kpi-events-delta" class="analytics-kpi-delta">-</p>
+              </article>
+            </div>
+          </section>
+
+          <section class="studio-card surface-soft">
+            <div class="studio-actions">
+              <button type="button" class="btn btn-primary" id="save-studio">Spara ändringar</button>
+              <button type="button" class="btn btn-ghost" id="restore-from-server">Hämta från server</button>
+              <button type="button" class="btn btn-ghost" id="restore-sv-from-en">Återskapa svenska titlar</button>
+              <button type="button" class="btn btn-ghost" id="export-overrides-js">Exportera overrides.js</button>
+              <button type="button" class="btn btn-ghost" id="export-json">Exportera JSON</button>
+              <button type="button" class="btn btn-ghost" id="import-json-trigger">Importera JSON</button>
+              <button type="button" class="btn btn-ghost" id="reset-studio">Återställ till content.js</button>
+              <input type="file" id="import-json" accept="application/json" hidden />
+            </div>
+          </section>
+          <input type="file" id="section-image-upload" accept="image/*" hidden />
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p>Studio</p>
+        <div class="footer-tools">
+          <button id="studio-logout-btn" class="footer-auth-btn" type="button">Logga ut Studio</button>
+          <a href="#page-top" data-scroll-top>Till toppen</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

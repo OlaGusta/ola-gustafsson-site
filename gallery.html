@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hela Galleriet | Ola Gustafsson Akvarell</title>
+    <meta name="description" content="Hela galleriet med akvareller av Ola Gustafsson." />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,300..800&family=Lora:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Source+Sans+3:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css?v=20260219-06" />
+    <script src="overrides.js?v=20260212-01"></script>
+    <script src="content.js?v=20260219-04" defer></script>
+    <script src="script.js?v=20260219-06" defer></script>
+  </head>
+  <body id="page-top" data-page="gallery">
+    <header class="site-header" id="top">
+      <div class="container header-inner">
+        <a class="brand" href="index.html#top" data-lang-link>
+          <span data-bind="site.brandName">Ola Gustafsson</span>
+          <span data-bind="site.brandTag">Akvarell</span>
+        </a>
+        <nav id="main-nav" class="main-nav" aria-label="Huvudmeny" data-bind-aria="ui.navAriaLabel">
+          <a href="index.html#hem" data-bind="ui.navHome" data-lang-link>Hem</a>
+          <a href="#galleri" data-bind="ui.navGallery">Galleri</a>
+          <a href="index.html#om" data-bind="ui.navAbout" data-lang-link>Om</a>
+          <a href="index.html#kontakt" data-bind="ui.navContact" data-lang-link>Kontakt</a>
+        </nav>
+        <div class="lang-switch" role="group" aria-label="Välj språk" data-bind-aria="ui.languageSwitcherAria">
+          <button type="button" class="lang-switch-btn" data-lang-option="sv" aria-label="Svenska">SV</button>
+          <button type="button" class="lang-switch-btn" data-lang-option="en" aria-label="English">EN</button>
+        </div>
+        <button
+          class="menu-toggle"
+          aria-expanded="false"
+          aria-controls="main-nav"
+          aria-label="Öppna meny"
+          data-bind="ui.menuButton"
+          data-bind-aria="ui.menuAriaLabel"
+        >
+          Meny
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section id="galleri" class="section reveal gallery-page">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <h1 data-bind="gallery.pageHeading">Hela galleriet</h1>
+            </div>
+          </div>
+          <div
+            id="gallery-controls"
+            class="gallery-controls"
+            aria-label="Filtrera och sortera galleri"
+            data-bind-aria="ui.galleryControlsAria"
+          ></div>
+          <div id="gallery-grid" class="gallery-grid"></div>
+          <div class="gallery-cta-row">
+            <a class="btn btn-ghost" href="index.html#galleri" data-bind="ui.galleryBackHome" data-lang-link>Tillbaka till startsidan</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p data-bind="site.footerText">© 2026 Ola Gustafsson Akvarell</p>
+        <div class="footer-tools">
+          <a id="studio-footer-link" class="footer-auth-btn" href="/studio.html">Studio</a>
+          <a href="#page-top" data-scroll-top data-bind="ui.scrollTop">Till toppen</a>
+        </div>
+      </div>
+    </footer>
+
+    <div
+      id="lightbox"
+      class="lightbox"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Bildvisning"
+      data-bind-aria="ui.lightboxAriaLabel"
+      aria-hidden="true"
+    >
+      <button
+        id="lightbox-close"
+        class="lightbox-close"
+        type="button"
+        aria-label="Stäng bildvisning"
+        data-bind="ui.lightboxClose"
+        data-bind-aria="ui.lightboxCloseAria"
+      >
+        Stäng
+      </button>
+      <button
+        id="lightbox-prev"
+        class="lightbox-nav lightbox-prev"
+        type="button"
+        aria-label="Föregående bild"
+        data-bind-aria="ui.lightboxPrevAria"
+      >
+        ◀
+      </button>
+      <figure class="lightbox-figure">
+        <img id="lightbox-image" src="" alt="" />
+        <figcaption id="lightbox-caption">
+          <div id="lightbox-caption-text" class="lightbox-caption-text"></div>
+          <div class="lightbox-caption-actions">
+            <a
+              id="lightbox-open-artwork"
+              class="btn btn-ghost"
+              href="#"
+              target="_blank"
+              rel="noreferrer"
+              data-bind="ui.openArtworkPage"
+            >
+              Öppna verk-sida
+            </a>
+            <button
+              id="lightbox-copy-artwork-link"
+              class="btn btn-primary"
+              type="button"
+              data-bind="ui.copyArtworkLink"
+              data-copy-link=""
+              data-copy-status-target="#lightbox-copy-status"
+            >
+              Kopiera länk
+            </button>
+          </div>
+          <div id="lightbox-copy-status" class="lightbox-copy-status" aria-live="polite"></div>
+        </figcaption>
+      </figure>
+      <button
+        id="lightbox-next"
+        class="lightbox-nav lightbox-next"
+        type="button"
+        aria-label="Nästa bild"
+        data-bind-aria="ui.lightboxNextAria"
+      >
+        ▶
+      </button>
+    </div>
+  </body>
+</html>

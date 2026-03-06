@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Ola Gustafsson favicon">
+  <rect width="512" height="512" fill="transparent"/>
+  <path d="M 256 256
+    C 260 256, 264 258, 266 262
+    C 270 269, 268 279, 259 285
+    C 245 295, 223 292, 210 274
+    C 192 249, 196 213, 227 192
+    C 271 162, 332 174, 368 223
+    C 417 290, 398 381, 322 430" 
+    fill="none" stroke="#0a0c14" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="256" cy="256" r="18" fill="#0a0c14"/>
+</svg>

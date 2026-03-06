@@ -1,0 +1,21 @@
+# Ola Gustafsson - Akvarellgalleri / Watercolor Gallery
+
+This site is the portfolio and online gallery of watercolor artist Ola Gustafsson.
+
+## Pages
+- Home: /
+- Gallery: /gallery.html
+- Studio (admin): /studio.html (not for indexing)
+
+## Language
+- Swedish (default): add `?lang=sv`
+- English: add `?lang=en`
+
+## Contact
+- Email: ola@olagustafsson.com
+- Instagram: https://www.instagram.com/holagustafsson/
+- Facebook: https://www.facebook.com/holagustafsson
+
+## Copyright
+Artwork images and texts are copyrighted by Ola Gustafsson. Do not reuse without permission.
+
