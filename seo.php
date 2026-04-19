@@ -85,6 +85,48 @@ function seo_overrides_payload(): array
   return $payload;
 }
 
+function seo_google_font_family_query(string $fontKey): string
+{
+  switch (strtolower(trim($fontKey))) {
+    case 'fraunces':
+      return 'family=Fraunces:opsz,wght@9..144,300..800';
+    case 'playfair':
+      return 'family=Playfair+Display:wght@400;500;600;700';
+    case 'cormorant':
+      return 'family=Cormorant+Garamond:wght@400;500;600;700';
+    case 'jakarta':
+      return 'family=Plus+Jakarta+Sans:wght@400;500;600;700';
+    case 'sourcesans':
+      return 'family=Source+Sans+3:wght@400;500;600;700';
+    case 'lora':
+      return 'family=Lora:wght@400;500;600;700';
+    default:
+      return '';
+  }
+}
+
+function seo_google_fonts_href(array $payload): string
+{
+  $displayKey = seo_array_get_path($payload, ['theme', 'fontDisplay']);
+  $bodyKey = seo_array_get_path($payload, ['theme', 'fontBody']);
+  $displayKey = is_string($displayKey) && trim($displayKey) !== '' ? $displayKey : 'fraunces';
+  $bodyKey = is_string($bodyKey) && trim($bodyKey) !== '' ? $bodyKey : 'jakarta';
+  $queries = [];
+
+  foreach ([$displayKey, $bodyKey] as $fontKey) {
+    $query = seo_google_font_family_query($fontKey);
+    if ($query !== '') {
+      $queries[$query] = true;
+    }
+  }
+
+  if ($queries === []) {
+    return '';
+  }
+
+  return 'https://fonts.googleapis.com/css2?' . implode('&', array_keys($queries)) . '&display=optional';
+}
+
 function seo_array_get_path(array $data, array $path)
 {
   $cursor = $data;
@@ -113,6 +155,513 @@ function seo_localized_payload_string(array $payload, string $lang, array $path)
   }
 
   return '';
+}
+
+function seo_localized_payload_array(array $payload, string $lang, array $path): array
+{
+  if ($lang !== 'sv') {
+    $translatedPath = array_merge(['translations', $lang], $path);
+    $translated = seo_array_get_path($payload, $translatedPath);
+    if (is_array($translated) && $translated !== []) {
+      return $translated;
+    }
+  }
+
+  $base = seo_array_get_path($payload, $path);
+  return is_array($base) ? $base : [];
+}
+
+function seo_escape_html(string $value): string
+{
+  return htmlspecialchars($value, ENT_QUOTES);
+}
+
+function seo_image_dimensions(string $imageValue): array
+{
+  $normalized = seo_normalize_image_value($imageValue);
+  if ($normalized === '' || preg_match('/^https?:\/\//i', $normalized) === 1) {
+    return [];
+  }
+
+  $filePath = seo_local_file_path_from_web_path($normalized);
+  if ($filePath === '' || !is_file($filePath)) {
+    return [];
+  }
+
+  $meta = @getimagesize($filePath);
+  if (!is_array($meta)) {
+    return [];
+  }
+
+  $width = isset($meta[0]) ? (int) $meta[0] : 0;
+  $height = isset($meta[1]) ? (int) $meta[1] : 0;
+  if ($width <= 0 || $height <= 0) {
+    return [];
+  }
+
+  return [
+    'width' => $width,
+    'height' => $height,
+  ];
+}
+
+function seo_base_image_source(string $imageValue): string
+{
+  $normalized = seo_normalize_image_value($imageValue);
+  if ($normalized === '' || preg_match('/^https?:\/\//i', $normalized) === 1) {
+    return $normalized;
+  }
+
+  if (preg_match('#^/images/thumbs/([^/]+)$#i', $normalized, $matches) === 1) {
+    return '/images/' . $matches[1];
+  }
+
+  if (preg_match('#^/images/web/(.+)-hero(\.[^/.]+)$#i', $normalized, $matches) === 1) {
+    return '/images/' . $matches[1] . $matches[2];
+  }
+
+  if (preg_match('#^/images/web/([^/]+)$#i', $normalized, $matches) === 1) {
+    return '/images/' . $matches[1];
+  }
+
+  return $normalized;
+}
+
+function seo_local_variant_exists(string $imageValue): bool
+{
+  $normalized = seo_normalize_image_value($imageValue);
+  if ($normalized === '' || preg_match('/^https?:\/\//i', $normalized) === 1) {
+    return false;
+  }
+
+  $filePath = seo_local_file_path_from_web_path($normalized);
+  return $filePath !== '' && is_file($filePath);
+}
+
+function seo_named_image_variant_src(string $src, string $variant): string
+{
+  $trimmed = trim($src);
+  $variantName = trim($variant);
+  if ($trimmed === '' || $variantName === '') {
+    return '';
+  }
+
+  if (
+    preg_match('/^(data:|blob:)/i', $trimmed) === 1 ||
+    preg_match('/^https?:\/\//i', $trimmed) === 1 ||
+    preg_match('#^images/#', $trimmed) !== 1
+  ) {
+    return $trimmed;
+  }
+
+  $base = ltrim(seo_base_image_source($trimmed), '/');
+  $fileName = basename($base);
+  if ($fileName === '') {
+    return $trimmed;
+  }
+
+  if ($variantName === 'hero') {
+    $pathInfo = pathinfo($fileName);
+    $name = isset($pathInfo['filename']) ? trim((string) $pathInfo['filename']) : '';
+    $extension = isset($pathInfo['extension']) ? trim((string) $pathInfo['extension']) : '';
+    if ($name === '' || $extension === '') {
+      return $trimmed;
+    }
+
+    return 'images/web/' . $name . '-hero.' . $extension;
+  }
+
+  return 'images/' . trim($variantName, '/') . '/' . $fileName;
+}
+
+function seo_preferred_hero_image_src(string $src): string
+{
+  $hero = seo_named_image_variant_src($src, 'hero');
+  if ($hero !== '' && seo_local_variant_exists($hero)) {
+    return $hero;
+  }
+
+  $web = seo_image_variant_src($src, false);
+  if ($web !== '' && seo_local_variant_exists($web)) {
+    return $web;
+  }
+
+  $thumb = seo_image_variant_src($src, true);
+  if ($thumb !== '' && seo_local_variant_exists($thumb)) {
+    return $thumb;
+  }
+
+  return trim($src);
+}
+
+function seo_responsive_image_sources(string $imageValue): array
+{
+  $normalized = seo_base_image_source($imageValue);
+  if ($normalized === '' || preg_match('/^https?:\/\//i', $normalized) === 1) {
+    return [];
+  }
+
+  $sources = [];
+  $variantBase = ltrim($normalized, '/');
+  $thumb = seo_image_variant_src($variantBase, true);
+  $hero = seo_named_image_variant_src($variantBase, 'hero');
+  $web = seo_image_variant_src($variantBase, false);
+
+  foreach ([$thumb, $hero, $web] as $candidate) {
+    $candidate = seo_normalize_image_value($candidate);
+    if ($candidate === '' || isset($sources[$candidate])) {
+      continue;
+    }
+    if (!seo_local_variant_exists($candidate)) {
+      continue;
+    }
+
+    $dimensions = seo_image_dimensions($candidate);
+    $width = isset($dimensions['width']) ? (int) $dimensions['width'] : 0;
+    $height = isset($dimensions['height']) ? (int) $dimensions['height'] : 0;
+    if ($width <= 0 || $height <= 0) {
+      continue;
+    }
+    $sources[$candidate] = [
+      'src' => $candidate,
+      'width' => $width,
+      'height' => $height,
+    ];
+  }
+
+  return array_values($sources);
+}
+
+function seo_render_multiline_html(string $value): string
+{
+  $trimmed = trim($value);
+  if ($trimmed === '') {
+    return '';
+  }
+
+  return nl2br(seo_escape_html($trimmed), false);
+}
+
+function seo_render_linkified_html(string $value): string
+{
+  $input = trim($value);
+  if ($input === '') {
+    return '';
+  }
+
+  $pattern = '/\[([^\]]+)\]\s*\((https?:\/\/[^\s)]+)\)/';
+  $offset = 0;
+  $output = '';
+
+  if (preg_match_all($pattern, $input, $matches, PREG_OFFSET_CAPTURE) !== false) {
+    foreach ($matches[0] as $index => $fullMatch) {
+      [$matchedText, $matchOffset] = $fullMatch;
+      $matchOffset = (int) $matchOffset;
+      if ($matchOffset > $offset) {
+        $output .= seo_escape_html(substr($input, $offset, $matchOffset - $offset));
+      }
+
+      $label = isset($matches[1][$index][0]) ? trim((string) $matches[1][$index][0]) : '';
+      $href = isset($matches[2][$index][0]) ? trim((string) $matches[2][$index][0]) : '';
+      $safeHref = '';
+      if ($href !== '') {
+        $validated = filter_var($href, FILTER_VALIDATE_URL);
+        if (is_string($validated) && preg_match('/^https?:\/\//i', $validated) === 1) {
+          $safeHref = $validated;
+        }
+      }
+
+      if ($label !== '' && $safeHref !== '') {
+        $output .= '<a href="' . seo_escape_html($safeHref) . '" target="_blank" rel="noopener noreferrer">'
+          . seo_escape_html($label)
+          . '</a>';
+      } else {
+        $output .= seo_escape_html($matchedText);
+      }
+
+      $offset = $matchOffset + strlen($matchedText);
+    }
+  }
+
+  if ($offset < strlen($input)) {
+    $output .= seo_escape_html(substr($input, $offset));
+  }
+
+  return $output;
+}
+
+function seo_image_variant_src(string $src, bool $preferThumb = false): string
+{
+  $trimmed = trim($src);
+  if ($trimmed === '') {
+    return '';
+  }
+
+  if (
+    preg_match('/^(data:|blob:)/i', $trimmed) === 1 ||
+    preg_match('/^https?:\/\//i', $trimmed) === 1 ||
+    preg_match('#^images/#', $trimmed) !== 1
+  ) {
+    return $trimmed;
+  }
+
+  return seo_named_image_variant_src($trimmed, $preferThumb ? 'thumbs' : 'web');
+}
+
+function seo_normalize_artwork_category(string $value): string
+{
+  $normalized = strtolower(trim($value));
+  if ($normalized === '' || $normalized === 'all') {
+    return 'nature';
+  }
+  return $normalized === 'forest' ? 'nature' : $normalized;
+}
+
+function seo_normalize_artwork_availability(?string $value): string
+{
+  $normalized = strtolower(trim((string) $value));
+  return in_array($normalized, ['available', 'reserved', 'sold', 'nfs'], true) ? $normalized : '';
+}
+
+function seo_artwork_availability_meta(string $lang, string $key): array
+{
+  $key = seo_normalize_artwork_availability($key);
+  if ($key === '') {
+    return ['label' => '', 'tone' => 'default'];
+  }
+
+  $labels = $lang === 'en'
+    ? [
+        'available' => 'Available',
+        'reserved' => 'Reserved',
+        'sold' => 'Sold',
+        'nfs' => 'Not for sale',
+      ]
+    : [
+        'available' => 'Tillgänglig',
+        'reserved' => 'Reserverad',
+        'sold' => 'Såld',
+        'nfs' => 'Ej till salu',
+      ];
+
+  return [
+    'label' => $labels[$key] ?? '',
+    'tone' => $key,
+  ];
+}
+
+function seo_normalize_string_list(array $value): array
+{
+  $output = [];
+  foreach ($value as $entry) {
+    if (!is_string($entry)) {
+      continue;
+    }
+    $trimmed = trim($entry);
+    if ($trimmed !== '') {
+      $output[] = $trimmed;
+    }
+  }
+  return $output;
+}
+
+function seo_localized_image_entries(array $payload, string $lang, array $path): array
+{
+  $baseEntries = seo_localized_payload_array($payload, 'sv', $path);
+  if ($baseEntries === []) {
+    return [];
+  }
+
+  $output = [];
+  $localizedAltBySrc = [];
+  if ($lang !== 'sv') {
+    $translatedEntries = seo_localized_payload_array($payload, $lang, $path);
+    foreach ($translatedEntries as $entry) {
+      if (!is_array($entry)) {
+        continue;
+      }
+      $src = isset($entry['src']) && is_string($entry['src']) ? trim($entry['src']) : '';
+      $alt = isset($entry['alt']) && is_string($entry['alt']) ? trim($entry['alt']) : '';
+      if ($src !== '' && $alt !== '') {
+        $localizedAltBySrc[$src] = $alt;
+      }
+    }
+  }
+
+  foreach ($baseEntries as $entry) {
+    if (!is_array($entry)) {
+      continue;
+    }
+    $src = isset($entry['src']) && is_string($entry['src']) ? trim($entry['src']) : '';
+    if ($src === '') {
+      continue;
+    }
+    $alt = isset($entry['alt']) && is_string($entry['alt']) ? trim($entry['alt']) : '';
+    if (isset($localizedAltBySrc[$src])) {
+      $alt = $localizedAltBySrc[$src];
+    }
+    $output[] = ['src' => $src, 'alt' => $alt];
+  }
+
+  return $output;
+}
+
+function seo_gallery_items(array $payload, string $lang): array
+{
+  $gallery = isset($payload['gallery']) && is_array($payload['gallery']) ? $payload['gallery'] : [];
+  $artworks = isset($gallery['artworks']) && is_array($gallery['artworks']) ? $gallery['artworks'] : [];
+  $items = [];
+
+  foreach ($artworks as $index => $item) {
+    if (!is_array($item)) {
+      continue;
+    }
+
+    $src = isset($item['src']) && is_string($item['src']) ? trim($item['src']) : '';
+    if ($src === '') {
+      continue;
+    }
+
+    $textOverride = portfolio_artwork_translation($payload, $lang, $src);
+    $title = isset($textOverride['title']) && is_string($textOverride['title']) && trim($textOverride['title']) !== ''
+      ? trim($textOverride['title'])
+      : (isset($item['title']) && is_string($item['title']) ? trim($item['title']) : '');
+    if ($title === '') {
+      $title = $lang === 'en' ? 'Artwork' : 'Verk';
+    }
+
+    $rawSlug = isset($item['slug']) && is_string($item['slug']) ? trim($item['slug']) : '';
+    $slug = $rawSlug !== '' ? portfolio_slugify($rawSlug) : portfolio_slugify($title);
+    if ($slug === '') {
+      $slug = portfolio_slugify(pathinfo($src, PATHINFO_FILENAME));
+    }
+
+    $format = isset($textOverride['format']) && is_string($textOverride['format']) && trim($textOverride['format']) !== ''
+      ? trim($textOverride['format'])
+      : (isset($item['format']) && is_string($item['format']) ? trim($item['format']) : '');
+    $alt = isset($textOverride['alt']) && is_string($textOverride['alt']) && trim($textOverride['alt']) !== ''
+      ? trim($textOverride['alt'])
+      : (isset($item['alt']) && is_string($item['alt']) ? trim($item['alt']) : $title);
+    $priceLabel = isset($textOverride['priceLabel']) && is_string($textOverride['priceLabel']) && trim($textOverride['priceLabel']) !== ''
+      ? trim($textOverride['priceLabel'])
+      : (isset($item['priceLabel']) && is_string($item['priceLabel']) ? trim($item['priceLabel']) : '');
+    $categoryKey = seo_normalize_artwork_category(isset($item['category']) && is_string($item['category']) ? $item['category'] : '');
+    $categoryLabel = portfolio_category_label($payload, $lang, $categoryKey);
+    $availabilityKey = seo_normalize_artwork_availability(isset($item['availability']) && is_string($item['availability']) ? $item['availability'] : '');
+    $availabilityMeta = seo_artwork_availability_meta($lang, $availabilityKey);
+    if ($priceLabel !== '' && $availabilityMeta['label'] !== '' && $priceLabel === $availabilityMeta['label']) {
+      $priceLabel = '';
+    }
+
+    $year = isset($item['year']) && is_numeric($item['year']) ? (int) $item['year'] : 0;
+    $order = isset($item['order']) && is_numeric($item['order']) ? (int) $item['order'] : ($index + 1);
+    $metaParts = [];
+    if ($format !== '') {
+      $metaParts[] = $format;
+    }
+    if ($categoryLabel !== '') {
+      $metaParts[] = $categoryLabel;
+    }
+    if ($year > 0) {
+      $metaParts[] = (string) $year;
+    }
+
+    $items[] = [
+      'slug' => $slug,
+      'href' => seo_artwork_url($slug, $lang),
+      'src' => seo_image_variant_src($src, true),
+      'title' => $title,
+      'alt' => $alt,
+      'meta_line' => implode(' · ', $metaParts),
+      'price_label' => $priceLabel,
+      'price_prefix' => $lang === 'en' ? 'Price:' : 'Pris:',
+      'featured' => !empty($item['featured']),
+      'order' => $order,
+      'year' => $year,
+      'availability_label' => $availabilityMeta['label'],
+      'availability_tone' => $availabilityMeta['tone'],
+    ];
+  }
+
+  usort(
+    $items,
+    static function (array $a, array $b): int {
+      return ($a['order'] <=> $b['order']);
+    }
+  );
+
+  return $items;
+}
+
+function seo_home_gallery_items(array $payload, string $lang): array
+{
+  $items = seo_gallery_items($payload, $lang);
+  $featured = array_values(array_filter($items, static fn(array $item): bool => $item['featured'] === true));
+  if ($featured !== []) {
+    return $featured;
+  }
+
+  return array_slice($items, 0, 6);
+}
+
+function seo_sorted_gallery_page_items(array $payload, string $lang): array
+{
+  $items = seo_gallery_items($payload, $lang);
+  usort(
+    $items,
+    static function (array $a, array $b): int {
+      $yearDiff = ($b['year'] <=> $a['year']);
+      if ($yearDiff !== 0) {
+        return $yearDiff;
+      }
+      $orderDiff = ($a['order'] <=> $b['order']);
+      if ($orderDiff !== 0) {
+        return $orderDiff;
+      }
+      return strcmp($a['title'], $b['title']);
+    }
+  );
+
+  return $items;
+}
+
+function seo_render_gallery_card_html(array $item, int $index = 0, string $pageType = 'gallery'): string
+{
+  $title = seo_escape_html((string) ($item['title'] ?? ''));
+  $href = seo_escape_html((string) ($item['href'] ?? '#'));
+  $src = seo_escape_html((string) ($item['src'] ?? ''));
+  $alt = seo_escape_html((string) ($item['alt'] ?? ''));
+  $metaLine = seo_escape_html((string) ($item['meta_line'] ?? ''));
+  $priceLabel = seo_escape_html((string) ($item['price_label'] ?? ''));
+  $pricePrefix = seo_escape_html((string) ($item['price_prefix'] ?? ''));
+  $availabilityLabel = seo_escape_html((string) ($item['availability_label'] ?? ''));
+  $availabilityTone = preg_replace('/[^a-z-]/', '', (string) ($item['availability_tone'] ?? 'default')) ?: 'default';
+  $pageType = strtolower(trim($pageType));
+  $eagerLimit = $pageType === 'home' ? 0 : 2;
+  $loading = $index < $eagerLimit ? 'eager' : 'lazy';
+  $fetchPriority = $pageType !== 'home' && $index === 0 ? 'high' : 'auto';
+
+  $badgeHtml = $availabilityLabel !== ''
+    ? '<span class="artwork-status-badge is-' . seo_escape_html($availabilityTone) . '">' . $availabilityLabel . '</span>'
+    : '';
+  $metaHtml = $metaLine !== ''
+    ? '<p>' . $metaLine . '</p>'
+    : '';
+  $priceHtml = $priceLabel !== ''
+    ? '<p class="work-price">' . ($pricePrefix !== '' ? $pricePrefix . ' ' : '') . $priceLabel . '</p>'
+    : '';
+
+  return '<a class="work-card" href="' . $href . '">'
+    . '<figure class="work-image">'
+    . '<img class="artwork-photo" src="' . $src . '" alt="' . $alt . '" loading="' . $loading . '" fetchpriority="' . $fetchPriority . '" decoding="async" />'
+    . $badgeHtml
+    . '</figure>'
+    . '<div class="work-meta">'
+    . '<h3>' . $title . '</h3>'
+    . $metaHtml
+    . $priceHtml
+    . '</div>'
+    . '</a>';
 }
 
 function seo_normalize_image_value(string $value): string

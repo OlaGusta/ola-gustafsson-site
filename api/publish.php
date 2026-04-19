@@ -67,6 +67,7 @@ if (!is_array($payload)) {
 }
 
 publish_ensure_artwork_slugs($payload);
+portfolio_sanitize_payload($payload);
 
 $jsonForDb = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 $jsonForJs = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);

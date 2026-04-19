@@ -63,6 +63,239 @@ $mimeToExt = [
   'image/avif' => 'avif'
 ];
 
+function upload_copy_variant(string $sourcePath, string $targetPath): bool
+{
+  if (!@copy($sourcePath, $targetPath)) {
+    return false;
+  }
+
+  @chmod($targetPath, 0644);
+  return true;
+}
+
+function upload_create_gd_image(string $sourcePath, string $mimeType)
+{
+  switch ($mimeType) {
+    case 'image/jpeg':
+      return function_exists('imagecreatefromjpeg') ? @imagecreatefromjpeg($sourcePath) : false;
+    case 'image/png':
+      return function_exists('imagecreatefrompng') ? @imagecreatefrompng($sourcePath) : false;
+    case 'image/webp':
+      return function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($sourcePath) : false;
+    case 'image/gif':
+      return function_exists('imagecreatefromgif') ? @imagecreatefromgif($sourcePath) : false;
+    case 'image/avif':
+      return function_exists('imagecreatefromavif') ? @imagecreatefromavif($sourcePath) : false;
+    default:
+      return false;
+  }
+}
+
+function upload_write_gd_image($image, string $targetPath, string $mimeType, int $quality): bool
+{
+  switch ($mimeType) {
+    case 'image/jpeg':
+      return function_exists('imagejpeg') ? @imagejpeg($image, $targetPath, max(45, min(92, $quality))) : false;
+    case 'image/png':
+      if (!function_exists('imagepng')) {
+        return false;
+      }
+      $compression = max(0, min(9, 9 - (int) round(($quality / 100) * 9)));
+      return @imagepng($image, $targetPath, $compression);
+    case 'image/webp':
+      return function_exists('imagewebp') ? @imagewebp($image, $targetPath, max(45, min(92, $quality))) : false;
+    case 'image/gif':
+      return function_exists('imagegif') ? @imagegif($image, $targetPath) : false;
+    default:
+      return false;
+  }
+}
+
+function upload_render_webp_variant(string $sourcePath, string $targetPath, string $mimeType, int $maxEdge, int $quality): bool
+{
+  if (!function_exists('imagewebp')) {
+    return false;
+  }
+
+  $imageInfo = @getimagesize($sourcePath);
+  if (!is_array($imageInfo) || empty($imageInfo[0]) || empty($imageInfo[1])) {
+    return false;
+  }
+
+  $sourceWidth = (int) $imageInfo[0];
+  $sourceHeight = (int) $imageInfo[1];
+  if ($sourceWidth <= 0 || $sourceHeight <= 0) {
+    return false;
+  }
+
+  $sourceImage = upload_create_gd_image($sourcePath, $mimeType);
+  if (!$sourceImage) {
+    return false;
+  }
+
+  $scale = min($maxEdge / max($sourceWidth, $sourceHeight), 1);
+  $targetWidth = max(1, (int) round($sourceWidth * $scale));
+  $targetHeight = max(1, (int) round($sourceHeight * $scale));
+  $targetImage = function_exists('imagecreatetruecolor') ? @imagecreatetruecolor($targetWidth, $targetHeight) : false;
+
+  if (!$targetImage) {
+    imagedestroy($sourceImage);
+    return false;
+  }
+
+  imagealphablending($targetImage, false);
+  imagesavealpha($targetImage, true);
+  $transparent = imagecolorallocatealpha($targetImage, 0, 0, 0, 127);
+  imagefill($targetImage, 0, 0, $transparent);
+
+  $resampled = @imagecopyresampled(
+    $targetImage,
+    $sourceImage,
+    0,
+    0,
+    0,
+    0,
+    $targetWidth,
+    $targetHeight,
+    $sourceWidth,
+    $sourceHeight
+  );
+
+  imagedestroy($sourceImage);
+  if ($resampled !== true) {
+    imagedestroy($targetImage);
+    return false;
+  }
+
+  $written = @imagewebp($targetImage, $targetPath, max(45, min(92, $quality)));
+  imagedestroy($targetImage);
+  if ($written !== true) {
+    return false;
+  }
+
+  @chmod($targetPath, 0644);
+  return true;
+}
+
+function upload_resize_variant(string $sourcePath, string $targetPath, string $mimeType, int $maxEdge, int $quality): bool
+{
+  $imageInfo = @getimagesize($sourcePath);
+  if (!is_array($imageInfo) || empty($imageInfo[0]) || empty($imageInfo[1])) {
+    return upload_copy_variant($sourcePath, $targetPath);
+  }
+
+  $sourceWidth = (int) $imageInfo[0];
+  $sourceHeight = (int) $imageInfo[1];
+  if ($sourceWidth <= 0 || $sourceHeight <= 0) {
+    return upload_copy_variant($sourcePath, $targetPath);
+  }
+
+  if (max($sourceWidth, $sourceHeight) <= $maxEdge) {
+    return upload_copy_variant($sourcePath, $targetPath);
+  }
+
+  $sourceImage = upload_create_gd_image($sourcePath, $mimeType);
+  if (!$sourceImage) {
+    return upload_copy_variant($sourcePath, $targetPath);
+  }
+
+  $scale = $maxEdge / max($sourceWidth, $sourceHeight);
+  $targetWidth = max(1, (int) round($sourceWidth * $scale));
+  $targetHeight = max(1, (int) round($sourceHeight * $scale));
+  $targetImage = function_exists('imagecreatetruecolor') ? @imagecreatetruecolor($targetWidth, $targetHeight) : false;
+
+  if (!$targetImage) {
+    imagedestroy($sourceImage);
+    return upload_copy_variant($sourcePath, $targetPath);
+  }
+
+  if (in_array($mimeType, ['image/png', 'image/webp', 'image/gif'], true)) {
+    imagealphablending($targetImage, false);
+    imagesavealpha($targetImage, true);
+    $transparent = imagecolorallocatealpha($targetImage, 0, 0, 0, 127);
+    imagefill($targetImage, 0, 0, $transparent);
+  }
+
+  $resampled = @imagecopyresampled(
+    $targetImage,
+    $sourceImage,
+    0,
+    0,
+    0,
+    0,
+    $targetWidth,
+    $targetHeight,
+    $sourceWidth,
+    $sourceHeight
+  );
+
+  if ($resampled !== true) {
+    imagedestroy($targetImage);
+    imagedestroy($sourceImage);
+    return upload_copy_variant($sourcePath, $targetPath);
+  }
+
+  $written = upload_write_gd_image($targetImage, $targetPath, $mimeType, $quality);
+  imagedestroy($targetImage);
+  imagedestroy($sourceImage);
+
+  if ($written !== true) {
+    return upload_copy_variant($sourcePath, $targetPath);
+  }
+
+  @chmod($targetPath, 0644);
+  return true;
+}
+
+function upload_generate_image_variants(string $sourcePath, string $filename, string $imagesDir, string $mimeType): void
+{
+  $variants = [
+    'hero' => ['maxEdge' => 1280, 'quality' => 76],
+    'web' => ['maxEdge' => 1800, 'quality' => 82],
+    'thumbs' => ['maxEdge' => 900, 'quality' => 72]
+  ];
+
+  foreach ($variants as $variant => $config) {
+    $variantDir = $variant === 'hero' ? $imagesDir . '/web' : $imagesDir . '/' . $variant;
+    if (!is_dir($variantDir)) {
+      @mkdir($variantDir, 0755, true);
+    }
+    if (!is_dir($variantDir) || !is_writable($variantDir)) {
+      continue;
+    }
+
+    $targetFilename = $filename;
+    if ($variant === 'hero') {
+      $pathInfo = pathinfo($filename);
+      $name = isset($pathInfo['filename']) ? trim((string) $pathInfo['filename']) : '';
+      $extension = isset($pathInfo['extension']) ? trim((string) $pathInfo['extension']) : '';
+      if ($name === '' || $extension === '') {
+        continue;
+      }
+      $targetFilename = $name . '-hero.' . $extension;
+    }
+
+    $targetPath = $variantDir . '/' . $targetFilename;
+    upload_resize_variant(
+      $sourcePath,
+      $targetPath,
+      $mimeType,
+      (int) $config['maxEdge'],
+      (int) $config['quality']
+    );
+
+    if (strtolower(pathinfo($filename, PATHINFO_EXTENSION)) !== 'webp') {
+      upload_render_webp_variant(
+        $targetPath,
+        $targetPath . '.webp',
+        $mimeType,
+        (int) $config['maxEdge'],
+        (int) $config['quality']
+      );
+    }
+  }
+}
+
 if (!array_key_exists($mimeType, $mimeToExt)) {
   api_respond_json(400, [
     'ok' => false,
@@ -121,6 +354,7 @@ if (!@move_uploaded_file($tmpPath, $targetPath)) {
 }
 
 @chmod($targetPath, 0644);
+upload_generate_image_variants($targetPath, $filename, $imagesDir, $mimeType);
 
 api_respond_json(200, [
   'ok' => true,
@@ -130,4 +364,3 @@ api_respond_json(200, [
   'mimeType' => $mimeType,
   'size' => $size
 ]);
-

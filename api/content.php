@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require __DIR__ . '/bootstrap.php';
+require dirname(__DIR__) . '/portfolio_core.php';
 
 api_require_method('GET');
 
@@ -33,6 +34,7 @@ try {
 if (!is_array($payload)) {
   $payload = [];
 }
+portfolio_sanitize_payload($payload);
 
 api_respond_json(200, [
   'ok' => true,
@@ -40,4 +42,3 @@ api_respond_json(200, [
   'payloadHash' => (string) ($row['payload_hash'] ?? ''),
   'updatedAt' => (string) ($row['updated_at'] ?? '')
 ]);
-

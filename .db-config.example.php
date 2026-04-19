@@ -32,12 +32,15 @@ return [
     'resetWindowSeconds' => 900,
     'resetBlockSeconds' => 1800,
     'resetTokenTtlSeconds' => 1800,
+    // Set this explicitly in production, e.g. https://example.com/studio.html
     'resetBaseUrl' => '',
+    // Generate with `openssl rand -hex 32` and keep stable across deploys.
     'appSecret' => '',
     'bootstrapAccessKey' => '',
     'mailerFrom' => '',
     'mailerReplyTo' => '',
     'contactRecipient' => '',
+    // Public contact form is only enabled when BOTH Turnstile values are set.
     'turnstileSiteKey' => '',
     'turnstileSecret' => '',
     'contactMaxRequests' => 3,

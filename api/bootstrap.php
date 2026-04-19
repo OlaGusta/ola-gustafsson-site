@@ -2,6 +2,9 @@
 declare(strict_types=1);
 
 header('X-Content-Type-Options: nosniff');
+if (function_exists('header_remove')) {
+  header_remove('X-Powered-By');
+}
 
 function api_respond_json(int $status, array $payload): never
 {
@@ -71,6 +74,33 @@ function api_get_pdo(): PDO
   }
 
   return $pdo;
+}
+
+function api_schema_has_column(PDO $pdo, string $table, string $column): bool
+{
+  $stmt = $pdo->query(sprintf("SHOW COLUMNS FROM `%s` LIKE %s", $table, $pdo->quote($column)));
+  if (!$stmt instanceof PDOStatement) {
+    return false;
+  }
+  $row = $stmt->fetch();
+  return is_array($row);
+}
+
+function api_schema_add_column_if_missing(PDO $pdo, string $table, string $column, string $definition): void
+{
+  if (api_schema_has_column($pdo, $table, $column)) {
+    return;
+  }
+  $pdo->exec(sprintf("ALTER TABLE `%s` ADD COLUMN `%s` %s", $table, $column, $definition));
+}
+
+function api_schema_add_index_if_missing(PDO $pdo, string $table, string $indexName, string $definition): void
+{
+  $stmt = $pdo->query(sprintf("SHOW INDEX FROM `%s` WHERE Key_name = %s", $table, $pdo->quote($indexName)));
+  if ($stmt instanceof PDOStatement && $stmt->fetch()) {
+    return;
+  }
+  $pdo->exec(sprintf("ALTER TABLE `%s` ADD INDEX `%s` %s", $table, $indexName, $definition));
 }
 
 function api_ensure_schema(PDO $pdo): void
@@ -149,16 +179,39 @@ SQL
     <<<SQL
 CREATE TABLE IF NOT EXISTS contact_messages (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  lead_kind VARCHAR(32) NOT NULL DEFAULT 'general',
   name VARCHAR(120) NOT NULL,
   email VARCHAR(190) NOT NULL,
   message TEXT NOT NULL,
+  inquiry_slug VARCHAR(190) NULL,
+  inquiry_title VARCHAR(255) NULL,
+  inquiry_status VARCHAR(32) NULL,
+  inquiry_price_label VARCHAR(255) NULL,
+  inquiry_source_url VARCHAR(512) NULL,
+  inquiry_language VARCHAR(16) NULL,
+  follow_up_status VARCHAR(32) NOT NULL DEFAULT 'new',
   ip_hash CHAR(64) NOT NULL,
   user_agent_hash CHAR(64) NOT NULL,
   mail_delivered TINYINT(1) NOT NULL DEFAULT 0,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX contact_messages_lead_kind_idx (lead_kind, created_at),
+  INDEX contact_messages_follow_up_idx (follow_up_status, created_at),
+  INDEX contact_messages_inquiry_slug_idx (inquiry_slug)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 SQL
   );
+
+  api_schema_add_column_if_missing($pdo, 'contact_messages', 'lead_kind', "VARCHAR(32) NOT NULL DEFAULT 'general'");
+  api_schema_add_column_if_missing($pdo, 'contact_messages', 'inquiry_slug', 'VARCHAR(190) NULL');
+  api_schema_add_column_if_missing($pdo, 'contact_messages', 'inquiry_title', 'VARCHAR(255) NULL');
+  api_schema_add_column_if_missing($pdo, 'contact_messages', 'inquiry_status', 'VARCHAR(32) NULL');
+  api_schema_add_column_if_missing($pdo, 'contact_messages', 'inquiry_price_label', 'VARCHAR(255) NULL');
+  api_schema_add_column_if_missing($pdo, 'contact_messages', 'inquiry_source_url', 'VARCHAR(512) NULL');
+  api_schema_add_column_if_missing($pdo, 'contact_messages', 'inquiry_language', 'VARCHAR(16) NULL');
+  api_schema_add_column_if_missing($pdo, 'contact_messages', 'follow_up_status', "VARCHAR(32) NOT NULL DEFAULT 'new'");
+  api_schema_add_index_if_missing($pdo, 'contact_messages', 'contact_messages_lead_kind_idx', '(lead_kind, created_at)');
+  api_schema_add_index_if_missing($pdo, 'contact_messages', 'contact_messages_follow_up_idx', '(follow_up_status, created_at)');
+  api_schema_add_index_if_missing($pdo, 'contact_messages', 'contact_messages_inquiry_slug_idx', '(inquiry_slug)');
 }
 
 function api_decode_request_json(): array

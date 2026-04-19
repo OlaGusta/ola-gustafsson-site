@@ -3,7 +3,7 @@ const STUDIO_AUTH_KEY = 'olaStudioUnlockedV1';
 const STUDIO_LANGUAGE_STORAGE_KEY = 'olaStudioEditLanguageV1';
 const STUDIO_SECTION_COLLAPSE_STORAGE_KEY = 'olaStudioSectionCollapseV1';
 const STUDIO_EDIT_LANGUAGES = ['sv', 'en'];
-const ASSET_REV = '20260219-08';
+const ASSET_REV = '20260321-01';
 
 const DEFAULT_CONTENT = {
   theme: {
@@ -14,6 +14,11 @@ const DEFAULT_CONTENT = {
     primary: '#123a62',
     accent: '#b98c56',
     border: 'rgba(16, 19, 27, 0.12)',
+    headerBackground: '#f3efe6',
+    footerBackground: '#f3efe6',
+    headerOpacity: 84,
+    buttonGradientStart: '#123a62',
+    buttonGradientEnd: '#b98c56',
     fontDisplay: 'fraunces',
     fontBody: 'jakarta',
     fontDisplayWeight: 700,
@@ -25,6 +30,15 @@ const DEFAULT_CONTENT = {
     line: '',
     mode: 'still',
     slideDurationMs: 8000,
+    autoSlides: {
+      enabled: false,
+      count: 4,
+      periodDays: 7,
+      landscapeOnly: true,
+      excludeSrcs: [],
+      seedNonce: '',
+      lastForcedAt: ''
+    },
     slides: [],
     overlayEnabled: true,
     overlayOpacity: 55,
@@ -33,7 +47,9 @@ const DEFAULT_CONTENT = {
     imageAlt: ''
   },
   gallery: {
+    heading: 'Galleri',
     pageHeading: 'Hela galleriet',
+    subheading: '',
     autoDiscover: {
       enabled: true,
       defaultCategory: 'nature'
@@ -93,7 +109,8 @@ const DEFAULT_CONTENT = {
   analytics: {
     gaMeasurementId: '',
     anonymizeIp: true,
-    trackStudio: false
+    trackStudio: false,
+    allowedHosts: ['olagustafsson.com', 'www.olagustafsson.com']
   },
   seo: {
     home: {
@@ -134,7 +151,31 @@ const deepMerge = (base, override) => {
 
 const DISPLAY_FONT_KEYS = ['fraunces', 'playfair', 'cormorant', 'georgia', 'baskerville', 'times'];
 const BODY_FONT_KEYS = ['jakarta', 'sourcesans', 'lora', 'avenir', 'system', 'helvetica'];
+const DISPLAY_FONT_STACKS = {
+  fraunces: '"Fraunces", "Iowan Old Style", "Times New Roman", serif',
+  playfair: '"Playfair Display", "Times New Roman", serif',
+  cormorant: '"Cormorant Garamond", "Times New Roman", serif',
+  georgia: 'Georgia, "Times New Roman", serif',
+  baskerville: '"Baskerville", "Palatino Linotype", Palatino, serif',
+  times: '"Times New Roman", Times, serif'
+};
+const BODY_FONT_STACKS = {
+  jakarta: '"Plus Jakarta Sans", "Avenir Next", "Segoe UI", sans-serif',
+  sourcesans: '"Source Sans 3", "Segoe UI", sans-serif',
+  lora: '"Lora", "Avenir Next", serif',
+  avenir: '"Avenir Next", "Segoe UI", sans-serif',
+  system: 'system-ui, -apple-system, "Segoe UI", sans-serif',
+  helvetica: '"Helvetica Neue", Helvetica, Arial, sans-serif'
+};
 const FONT_WEIGHT_VALUES = [300, 400, 500, 600, 700, 800];
+
+const normalizePercentageValue = (value, fallback = null) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) {
+    return fallback;
+  }
+  return Math.max(0, Math.min(100, numeric));
+};
 
 const normalizeStudioLanguage = (value) => {
   if (typeof value !== 'string') {
@@ -235,11 +276,24 @@ const resizeDataUrl = async (src, options = {}) => {
 
   ctx.drawImage(img, 0, 0, width, height);
 
+  const preferredMimeType = typeof options.outputMimeType === 'string' && options.outputMimeType.trim() !== ''
+    ? options.outputMimeType.trim()
+    : 'image/webp';
+  const encodeCanvas = (mimeType, quality) => {
+    const encoded = canvas.toDataURL(mimeType, quality);
+    return typeof encoded === 'string' && encoded.startsWith(`data:${mimeType}`)
+      ? encoded
+      : '';
+  };
+
   let quality = initialQuality;
-  let output = canvas.toDataURL('image/jpeg', quality);
+  let output = encodeCanvas(preferredMimeType, quality);
+  if (!output) {
+    output = canvas.toDataURL('image/jpeg', quality);
+  }
   while (output.length > maxBytes && quality > minQuality) {
     quality -= 0.08;
-    output = canvas.toDataURL('image/jpeg', quality);
+    output = encodeCanvas(preferredMimeType, quality) || canvas.toDataURL('image/jpeg', quality);
   }
 
   return output;
@@ -500,6 +554,57 @@ const escapeHtml = (value) =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 
+const sanitizeStudioSameOriginUrl = (value) => {
+  const raw = typeof value === 'string' ? value.trim() : '';
+  if (!raw) {
+    return '';
+  }
+
+  try {
+    const url = new URL(raw, window.location.origin);
+    if (!['http:', 'https:'].includes(url.protocol)) {
+      return '';
+    }
+    if (url.origin !== window.location.origin) {
+      return '';
+    }
+    return url.href;
+  } catch (error) {
+    return '';
+  }
+};
+
+const normalizeArtworkPreviewUrlForStudio = (value) => {
+  const raw = sanitizeStudioSameOriginUrl(value);
+  if (!raw) {
+    return '';
+  }
+
+  try {
+    const url = new URL(raw, window.location.origin);
+    const artworkMatch = url.pathname.match(/^\/verk\/([^/]+)\/?$/i);
+    if (artworkMatch && artworkMatch[1]) {
+      return url.href;
+    }
+
+    const previewMatch = url.pathname.match(/^\/artwork-preview\.html$/i);
+    const previewSlug = previewMatch ? String(url.searchParams.get('slug') || '').trim() : '';
+    if (!previewMatch || !previewSlug) {
+      return url.href;
+    }
+
+    const canonical = new URL(`/verk/${encodeURIComponent(decodeURIComponent(previewSlug))}`, window.location.origin);
+    const lang = String(url.searchParams.get('lang') || 'sv').trim().toLowerCase();
+    canonical.searchParams.set('lang', lang === 'en' ? 'en' : 'sv');
+    if (url.hash) {
+      canonical.hash = url.hash.replace(/^#/, '');
+    }
+    return canonical.href;
+  } catch (error) {
+    return raw;
+  }
+};
+
 const getPath = (obj, path) => {
   if (!obj || typeof obj !== 'object' || typeof path !== 'string' || path.trim() === '') {
     return undefined;
@@ -542,18 +647,21 @@ const addRevToSrc = (src) => {
   return `${src}${separator}v=${ASSET_REV}`;
 };
 
-const getThumbCandidateSrc = (src) => {
+const getImageVariantCandidateSrc = (src, variant) => {
   if (typeof src !== 'string') {
     return '';
   }
 
   const trimmed = src.trim();
+  const normalizedVariant = typeof variant === 'string' ? variant.trim().replace(/^\/+|\/+$/g, '') : '';
   if (
     !trimmed ||
     trimmed.startsWith('data:') ||
     trimmed.startsWith('blob:') ||
+    /^https?:\/\//i.test(trimmed) ||
     !trimmed.startsWith('images/') ||
-    trimmed.includes('/thumbs/')
+    !normalizedVariant ||
+    trimmed.includes(`/${normalizedVariant}/`)
   ) {
     return '';
   }
@@ -564,8 +672,12 @@ const getThumbCandidateSrc = (src) => {
     return '';
   }
 
-  return `images/thumbs/${fileName}`;
+  return `images/${normalizedVariant}/${fileName}`;
 };
+
+const getThumbCandidateSrc = (src) => getImageVariantCandidateSrc(src, 'thumbs');
+
+const getWebCandidateSrc = (src) => getImageVariantCandidateSrc(src, 'web');
 
 const getArtworkPreviewSrc = (item) => {
   if (!item || typeof item !== 'object') {
@@ -577,7 +689,7 @@ const getArtworkPreviewSrc = (item) => {
     return manual;
   }
 
-  return getThumbCandidateSrc(item.src) || (typeof item.src === 'string' ? item.src : '');
+  return getThumbCandidateSrc(item.src) || getWebCandidateSrc(item.src) || (typeof item.src === 'string' ? item.src : '');
 };
 
 const normalizeComparableImageSrc = (value) => {
@@ -900,6 +1012,33 @@ const mergeMissingGalleryItems = (storedGallery, fileGallery) => {
       .map((item) => (item && typeof item.src === 'string' ? item.src.trim() : ''))
       .filter(Boolean)
   );
+  const fileBySrc = new Map(
+    fileArtworks
+      .filter((item) => item && typeof item.src === 'string')
+      .map((item) => [item.src.trim(), item])
+  );
+
+  storedGallery.artworks = storedArtworks.map((item) => {
+    if (!item || typeof item !== 'object') {
+      return item;
+    }
+
+    const src = typeof item.src === 'string' ? item.src.trim() : '';
+    const fileItem = src ? fileBySrc.get(src) : null;
+    if (!fileItem) {
+      return item;
+    }
+
+    const merged = deepMerge(deepMerge({}, fileItem), item);
+    ['availability', 'priceLabel', 'collectorNote'].forEach((field) => {
+      const mergedValue = typeof merged[field] === 'string' ? merged[field].trim() : merged[field];
+      const fileValue = typeof fileItem[field] === 'string' ? fileItem[field].trim() : fileItem[field];
+      if ((mergedValue === '' || mergedValue === null || typeof mergedValue === 'undefined') && fileValue) {
+        merged[field] = fileItem[field];
+      }
+    });
+    return merged;
+  });
 
   const missing = fileArtworks
     .filter((item) => item && typeof item.src === 'string')
@@ -978,12 +1117,16 @@ const state = {
 };
 const uiState = {
   selectedArtworkIndex: 0,
+  artworkListScrollTop: 0,
   selectedHeroSlideIndex: 0,
+  englishSyncSourceSnapshot: {},
   editLanguage: readStoredStudioLanguage() || 'sv',
   collapsedSections: readStoredSectionCollapseMap(),
   analyticsDays: 28,
   analyticsTab: 'channels',
   analyticsData: null,
+  inquiriesFilter: 'all',
+  inquiriesData: [],
   saveButtonResetTimer: null,
   pendingSectionUploadTarget: '',
   pendingSectionUploadLabel: 'bild'
@@ -1007,6 +1150,70 @@ const normalizeCategoryKey = (value) =>
     .replace(/^-+|-+$/g, '')
     .slice(0, 40);
 
+const normalizeArtworkCategoryValue = (value) => {
+  const normalized = normalizeCategoryKey(value);
+  if (!normalized || normalized === 'all') {
+    return '';
+  }
+  if (normalized === 'forest') {
+    return 'nature';
+  }
+  return normalized;
+};
+
+const normalizeArtworkCategoryList = (value, fallback = '') => {
+  const rawValues = Array.isArray(value)
+    ? value
+    : typeof value === 'string'
+      ? value.split(',')
+      : value != null
+        ? [value]
+        : [];
+
+  const categories = [];
+  rawValues.forEach((entry) => {
+    const normalized = normalizeArtworkCategoryValue(entry);
+    if (normalized && !categories.includes(normalized)) {
+      categories.push(normalized);
+    }
+  });
+
+  const fallbackKey = normalizeArtworkCategoryValue(fallback);
+  if (categories.length === 0 && fallbackKey) {
+    categories.push(fallbackKey);
+  }
+
+  return categories;
+};
+
+const getArtworkCategoryKeys = (item, fallback = 'nature') => {
+  if (!item || typeof item !== 'object') {
+    return normalizeArtworkCategoryList([], fallback);
+  }
+
+  const categories = normalizeArtworkCategoryList(item.categories, '');
+  const primary = normalizeArtworkCategoryValue(item.category);
+  if (primary && !categories.includes(primary)) {
+    categories.unshift(primary);
+  }
+
+  if (categories.length === 0) {
+    return normalizeArtworkCategoryList([], fallback);
+  }
+
+  return categories;
+};
+
+const setArtworkCategoryKeys = (item, values, fallback = 'nature') => {
+  if (!item || typeof item !== 'object') {
+    return [];
+  }
+  const categories = normalizeArtworkCategoryList(values, fallback);
+  item.categories = categories.slice();
+  item.category = categories[0] || normalizeArtworkCategoryValue(fallback) || '';
+  return categories;
+};
+
 const humanizeCategoryKey = (value) => {
   const key = String(value || '').trim();
   if (!key) {
@@ -1026,9 +1233,55 @@ const createSocialChannel = (overrides = {}) => ({
 
 const getEditingLanguage = () => (uiState.editLanguage === 'en' ? 'en' : 'sv');
 const isEditingDefaultLanguage = () => getEditingLanguage() === 'sv';
-const ARTWORK_TRANSLATABLE_FIELDS = ['title', 'format', 'alt', 'seoTitle', 'seoDescription'];
+const ARTWORK_TRANSLATABLE_FIELDS = ['title', 'format', 'alt', 'priceLabel', 'collectorNote', 'seoTitle', 'seoDescription'];
 const SEO_HOME_IMAGE_OPTION_HERO = '__hero__';
 const SEO_HOME_IMAGE_OPTION_CUSTOM = '__custom__';
+const ENGLISH_SYNC_METADATA_KEY = '_studioSyncFromSv';
+const EN_SYNC_STRING_JOBS = [
+  { path: 'site.title', field: 'seotitle' },
+  { path: 'site.metaDescription', field: 'seodescription' },
+  { path: 'hero.eyebrow', field: 'generic' },
+  { path: 'hero.title', field: 'title' },
+  { path: 'hero.intro', field: 'generic' },
+  { path: 'hero.line', field: 'generic' },
+  { path: 'hero.imageAlt', field: 'alt' },
+  { path: 'gallery.eyebrow', field: 'generic' },
+  { path: 'gallery.heading', field: 'title' },
+  { path: 'gallery.pageHeading', field: 'title' },
+  { path: 'gallery.subheading', field: 'generic' },
+  { path: 'about.heading', field: 'title' },
+  { path: 'about.portraitAlt', field: 'alt' },
+  { path: 'about.dayJobLine', field: 'generic' },
+  { path: 'about.materialsHeading', field: 'title' },
+  { path: 'about.materialsBody', field: 'generic' },
+  { path: 'about.materialImageAlt', field: 'alt' },
+  { path: 'about.inspirationHeading', field: 'title' },
+  { path: 'about.inspirationBody', field: 'generic' },
+  { path: 'about.featureImageAlt', field: 'alt' },
+  { path: 'about.ambitionsHeading', field: 'title' },
+  { path: 'about.recognitionHeading', field: 'title' },
+  { path: 'project.eyebrow', field: 'generic' },
+  { path: 'project.heading', field: 'title' },
+  { path: 'project.description', field: 'generic' },
+  { path: 'project.collageAlt', field: 'alt' },
+  { path: 'project.sampleHeading', field: 'title' },
+  { path: 'contact.eyebrow', field: 'generic' },
+  { path: 'contact.heading', field: 'title' },
+  { path: 'contact.body', field: 'generic' },
+  { path: 'contact.emailLabel', field: 'generic' },
+  { path: 'seo.home.title', field: 'seotitle' },
+  { path: 'seo.home.description', field: 'seodescription' },
+  { path: 'seo.home.imageAlt', field: 'alt' }
+];
+const EN_SYNC_ARRAY_JOBS = [
+  { path: 'about.paragraphs', field: 'generic' },
+  { path: 'about.ambitions', field: 'generic' },
+  { path: 'about.recognitionItems', field: 'generic' }
+];
+const EN_SYNC_IMAGE_ENTRY_JOBS = [
+  { path: 'about.processImages', field: 'alt' },
+  { path: 'project.samples', field: 'alt' }
+];
 
 const getLanguageLabel = (language) => (language === 'en' ? 'English' : 'Svenska');
 
@@ -1077,10 +1330,11 @@ const getCategoryKeys = () => {
 
   const artworks = Array.isArray(state.content.gallery?.artworks) ? state.content.gallery.artworks : [];
   artworks.forEach((item) => {
-    const normalized = normalizeCategoryKey(item && item.category);
-    if (normalized && normalized !== 'all') {
-      keys.add(normalized);
-    }
+    getArtworkCategoryKeys(item, '').forEach((category) => {
+      if (category && category !== 'all') {
+        keys.add(category);
+      }
+    });
   });
 
   const defaultCategory = normalizeCategoryKey(state.content.gallery?.autoDiscover?.defaultCategory || '');
@@ -1139,6 +1393,8 @@ const getLocalizedArtworksForEditor = (language = getEditingLanguage()) => {
       title: typeof textOverride.title === 'string' ? textOverride.title : item.title,
       format: typeof textOverride.format === 'string' ? textOverride.format : item.format,
       alt: typeof textOverride.alt === 'string' ? textOverride.alt : item.alt,
+      priceLabel: typeof textOverride.priceLabel === 'string' ? textOverride.priceLabel : item.priceLabel,
+      collectorNote: typeof textOverride.collectorNote === 'string' ? textOverride.collectorNote : item.collectorNote,
       seoTitle: typeof textOverride.seoTitle === 'string' ? textOverride.seoTitle : item.seoTitle,
       seoDescription: typeof textOverride.seoDescription === 'string' ? textOverride.seoDescription : item.seoDescription,
       shareImage: typeof textOverride.shareImage === 'string' ? textOverride.shareImage : item.shareImage
@@ -1170,6 +1426,169 @@ const ensureArtworkTranslationEntry = (language, src) => {
   return pack.gallery.artworkTextBySrc[normalizedSrc];
 };
 
+const hashSyncSource = (value) => {
+  const input = typeof value === 'string' ? value.trim() : '';
+  let hash = 2166136261;
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16);
+};
+
+const getEnglishSyncMetadataStore = (language = 'en', create = false) => {
+  const pack = create ? ensureLanguageOverridePack(language) : getLanguageOverridePack(language);
+  if (!pack || typeof pack !== 'object') {
+    return null;
+  }
+  if (!pack[ENGLISH_SYNC_METADATA_KEY] || typeof pack[ENGLISH_SYNC_METADATA_KEY] !== 'object' || Array.isArray(pack[ENGLISH_SYNC_METADATA_KEY])) {
+    if (!create) {
+      return null;
+    }
+    pack[ENGLISH_SYNC_METADATA_KEY] = { entries: {} };
+  }
+  const meta = pack[ENGLISH_SYNC_METADATA_KEY];
+  if (!meta.entries || typeof meta.entries !== 'object' || Array.isArray(meta.entries)) {
+    if (!create) {
+      return null;
+    }
+    meta.entries = {};
+  }
+  return meta.entries;
+};
+
+const buildEnglishSyncMetaKey = (entry) => {
+  if (!entry || typeof entry !== 'object') {
+    return '';
+  }
+  if (entry.target === 'string' && entry.path) {
+    return `string:${entry.path}`;
+  }
+  if (entry.target === 'array' && entry.arrayPath && Number.isInteger(entry.index)) {
+    return `array:${entry.arrayPath}[${entry.index}]`;
+  }
+  if (entry.target === 'imageEntry' && entry.imagePath && Number.isInteger(entry.index)) {
+    return `image:${entry.imagePath}[${entry.index}]`;
+  }
+  if (entry.target === 'categoryLabel' && entry.categoryKey) {
+    return `category:${entry.categoryKey}`;
+  }
+  if (entry.target === 'artworkField' && entry.artworkSrc && entry.artworkField) {
+    return `artwork:${entry.artworkSrc}::${entry.artworkField}`;
+  }
+  return '';
+};
+
+const getEnglishSyncMetaRecord = (key, language = 'en') => {
+  const store = getEnglishSyncMetadataStore(language, false);
+  if (!store || !key || !Object.prototype.hasOwnProperty.call(store, key)) {
+    return null;
+  }
+  const record = store[key];
+  return record && typeof record === 'object' && !Array.isArray(record) ? record : null;
+};
+
+const rememberEnglishSyncMetaRecord = (key, sourceSv, translatedEn, language = 'en') => {
+  if (!key) {
+    return;
+  }
+  const store = getEnglishSyncMetadataStore(language, true);
+  if (!store) {
+    return;
+  }
+  store[key] = {
+    sourceHash: hashSyncSource(sourceSv),
+    translatedValue: typeof translatedEn === 'string' ? translatedEn.trim() : '',
+    updatedAt: new Date().toISOString()
+  };
+  if (!uiState.englishSyncSourceSnapshot || typeof uiState.englishSyncSourceSnapshot !== 'object') {
+    uiState.englishSyncSourceSnapshot = {};
+  }
+  uiState.englishSyncSourceSnapshot[key] = hashSyncSource(sourceSv);
+};
+
+const buildEnglishSyncSourceSnapshot = () => {
+  const snapshot = {};
+  const sv = state.content || {};
+
+  EN_SYNC_STRING_JOBS.forEach((job) => {
+    const source = getPath(sv, job.path);
+    if (typeof source !== 'string' || source.trim() === '') {
+      return;
+    }
+    const key = buildEnglishSyncMetaKey({ target: 'string', path: job.path });
+    snapshot[key] = hashSyncSource(source);
+  });
+
+  EN_SYNC_ARRAY_JOBS.forEach((job) => {
+    const sourceItems = getPath(sv, job.path);
+    if (!Array.isArray(sourceItems)) {
+      return;
+    }
+    sourceItems.forEach((item, index) => {
+      if (typeof item !== 'string' || item.trim() === '') {
+        return;
+      }
+      const key = buildEnglishSyncMetaKey({ target: 'array', arrayPath: job.path, index });
+      snapshot[key] = hashSyncSource(item);
+    });
+  });
+
+  EN_SYNC_IMAGE_ENTRY_JOBS.forEach((job) => {
+    const sourceEntries = getPath(sv, job.path);
+    if (!Array.isArray(sourceEntries)) {
+      return;
+    }
+    sourceEntries.forEach((item, index) => {
+      const alt = item && typeof item.alt === 'string' ? item.alt.trim() : '';
+      if (!alt) {
+        return;
+      }
+      const key = buildEnglishSyncMetaKey({ target: 'imageEntry', imagePath: job.path, index });
+      snapshot[key] = hashSyncSource(alt);
+    });
+  });
+
+  const categoryLabels = sv.gallery && sv.gallery.categoryLabels && typeof sv.gallery.categoryLabels === 'object'
+    ? sv.gallery.categoryLabels
+    : {};
+  Object.keys(categoryLabels).forEach((rawKey) => {
+    const key = normalizeCategoryKey(rawKey);
+    const label = typeof categoryLabels[rawKey] === 'string' ? categoryLabels[rawKey].trim() : '';
+    if (!key || !label || key === 'all') {
+      return;
+    }
+    const metaKey = buildEnglishSyncMetaKey({ target: 'categoryLabel', categoryKey: key });
+    snapshot[metaKey] = hashSyncSource(label);
+  });
+
+  const artworks = Array.isArray(sv.gallery?.artworks) ? sv.gallery.artworks : [];
+  artworks.forEach((item) => {
+    const src = item && typeof item.src === 'string' ? item.src.trim() : '';
+    if (!src) {
+      return;
+    }
+    ARTWORK_TRANSLATABLE_FIELDS.forEach((fieldName) => {
+      const source = item && typeof item[fieldName] === 'string' ? item[fieldName].trim() : '';
+      if (!source) {
+        return;
+      }
+      const key = buildEnglishSyncMetaKey({
+        target: 'artworkField',
+        artworkSrc: src,
+        artworkField: fieldName
+      });
+      snapshot[key] = hashSyncSource(source);
+    });
+  });
+
+  return snapshot;
+};
+
+const captureEnglishSyncSourceSnapshot = () => {
+  uiState.englishSyncSourceSnapshot = buildEnglishSyncSourceSnapshot();
+};
+
 const autoTranslateSvToEn = (value, field) => {
   if (typeof value !== 'string') {
     return '';
@@ -1186,6 +1605,17 @@ const autoTranslateSvToEn = (value, field) => {
 
   if (field === 'medium' && /^Akvarell på papper$/i.test(out)) {
     return 'Watercolor on paper';
+  }
+  if (field === 'priceLabel') {
+    if (/^Pris på förfrågan$/i.test(out)) {
+      return 'Price on request';
+    }
+    if (/^Såld$/i.test(out)) {
+      return 'Sold';
+    }
+    if (/^Ej till salu$/i.test(out)) {
+      return 'Not for sale';
+    }
   }
 
   out = out.replace(/\bAkvarell på papper\b/gi, 'Watercolor on paper');
@@ -1216,7 +1646,7 @@ const autoTranslateSvToEn = (value, field) => {
 };
 
 const OPENAI_TRANSLATION_DEBOUNCE_MS = 650;
-const OPENAI_TRANSLATION_MAX_CONCURRENCY = 2;
+const OPENAI_TRANSLATION_MAX_CONCURRENCY = 1;
 const openAiArtworkTranslationJobs = new Map();
 const openAiArtworkTranslationQueue = [];
 const openAiArtworkTranslationQueueKeys = new Set();
@@ -1378,7 +1808,12 @@ const drainOpenAiArtworkTranslationQueue = () => {
         const message = error instanceof Error && error.message ? error.message : 'Kunde inte autoöversätta via OpenAI.';
         if (!openAiTranslationErrorShown) {
           openAiTranslationErrorShown = true;
-          setStatus(`Autoöversättning: ${message}`, 'error');
+          setStatus(
+            /för många översättningsförsök/i.test(message)
+              ? 'Autoöversättning pausad tillfälligt för att inte slå i gränsen. Vänta en stund och försök igen.'
+              : `Autoöversättning: ${message}`,
+            /för många översättningsförsök/i.test(message) ? 'info' : 'error'
+          );
         }
         stopOpenAiArtworkTranslations();
       } finally {
@@ -1468,7 +1903,7 @@ const shouldQueueArtworkFieldTranslation = (field, svValue, currentEn) => {
 
 const queueArtworkEnglishTranslationsFromSwedish = (options = {}) => {
   const titlesOnly = options.titlesOnly === true;
-  const fields = titlesOnly ? ['title'] : ['title', 'format', 'medium', 'alt'];
+  const fields = titlesOnly ? ['title'] : ['title', 'format', 'medium', 'alt', 'priceLabel', 'collectorNote'];
   const baseItems = Array.isArray(state.content.gallery?.artworks) ? state.content.gallery.artworks : [];
   if (!Array.isArray(baseItems) || baseItems.length === 0) {
     return 0;
@@ -1515,7 +1950,91 @@ const queueArtworkEnglishTranslationsFromSwedish = (options = {}) => {
   return queued;
 };
 
-const queueMissingArtworkEnglishTitles = () => queueArtworkEnglishTranslationsFromSwedish({ titlesOnly: true });
+const translateMissingArtworkEnglishTitlesViaApi = async () => {
+  const baseItems = Array.isArray(state.content.gallery?.artworks) ? state.content.gallery.artworks : [];
+  if (!Array.isArray(baseItems) || baseItems.length === 0) {
+    setStatus('Hittade inga verk att översätta.', 'info');
+    return;
+  }
+
+  if (!authState.csrfToken) {
+    setStatus('Saknar säkerhetstoken. Ladda om sidan och logga in igen.', 'error');
+    return;
+  }
+
+  const jobs = [];
+  baseItems.forEach((item) => {
+    const src = item && typeof item.src === 'string' ? item.src.trim() : '';
+    const svTitle = item && typeof item.title === 'string' ? item.title.trim() : '';
+    if (!src || !svTitle) {
+      return;
+    }
+
+    const entry = ensureArtworkTranslationEntry('en', src);
+    if (!entry) {
+      return;
+    }
+
+    const manual = entry._manual && typeof entry._manual === 'object' ? entry._manual : null;
+    if (manual && manual.title) {
+      return;
+    }
+
+    const currentEn = typeof entry.title === 'string' ? entry.title.trim() : '';
+    if (!shouldQueueArtworkFieldTranslation('title', svTitle, currentEn)) {
+      return;
+    }
+
+    jobs.push({
+      src,
+      field: 'title',
+      source: svTitle,
+      fallback: autoTranslateSvToEn(svTitle, 'title') || svTitle
+    });
+  });
+
+  if (jobs.length === 0) {
+    setStatus('Inga saknade titlar att autoöversätta (eller titlarna är manuellt låsta).', 'success');
+    return;
+  }
+
+  setStatus(`Översätter ${jobs.length} titel/titlar till engelska...`, 'info');
+
+  let translatedCount = 0;
+  let failedCount = 0;
+  await processSvEntriesToEnInBatches(jobs, {
+    onSuccess(job, translated) {
+      const entry = ensureArtworkTranslationEntry('en', job.src);
+      if (!entry) {
+        failedCount += 1;
+        return;
+      }
+      entry.title = translated;
+      translatedCount += 1;
+      applyArtworkEnglishTranslationToUi(job.src, 'title', translated);
+    },
+    onError(job) {
+      const entry = ensureArtworkTranslationEntry('en', job.src);
+      if (entry && (!entry.title || entry.title.trim() === '' || shouldQueueArtworkFieldTranslation('title', job.source, entry.title))) {
+        entry.title = job.fallback;
+        applyArtworkEnglishTranslationToUi(job.src, 'title', job.fallback);
+      }
+      failedCount += 1;
+    }
+  });
+
+  renderArtworksEditor();
+  if (translatedCount === 0 && failedCount > 0) {
+    setStatus('Kunde inte autoöversätta titlarna just nu. Vänta en stund och försök igen.', 'error');
+    return;
+  }
+
+  const failureSuffix = failedCount > 0 ? ` ${failedCount} titel/titlar behöll tidigare eller preliminärt värde.` : '';
+  setStatus(
+    `Översatte ${translatedCount} titel/titlar till engelska.${failureSuffix} Klicka "Spara ändringar" för att publicera.`,
+    failedCount > 0 ? 'info' : 'success'
+  );
+};
 
 const syncArtworkTextToEnglish = (src, field, previousSvValue, nextSvValue) => {
   const normalizedSrc = typeof src === 'string' ? src.trim() : '';
@@ -1604,6 +2123,70 @@ const updateArtworkSourceAcrossTranslations = (fromSrc, toSrc) => {
       });
     }
   });
+};
+
+const sanitizeArtworkTranslationMaps = () => {
+  if (!state.translations || typeof state.translations !== 'object') {
+    return { pruned: 0, remapped: 0 };
+  }
+
+  const activeSrcs = (Array.isArray(state.content.gallery?.artworks) ? state.content.gallery.artworks : [])
+    .map((item) => (item && typeof item.src === 'string' ? item.src.trim() : ''))
+    .filter(Boolean);
+  if (activeSrcs.length === 0) {
+    return { pruned: 0, remapped: 0 };
+  }
+
+  const activeSet = new Set(activeSrcs);
+  const lookup = buildServerImageLookup(activeSrcs);
+  let pruned = 0;
+  let remapped = 0;
+
+  Object.keys(state.translations).forEach((language) => {
+    const pack = state.translations[language];
+    const map = getPath(pack, 'gallery.artworkTextBySrc');
+    if (!pack || typeof pack !== 'object' || !map || typeof map !== 'object' || Array.isArray(map)) {
+      return;
+    }
+
+    const nextMap = {};
+    Object.keys(map).forEach((rawSrc) => {
+      const entry = map[rawSrc];
+      if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
+        pruned += 1;
+        return;
+      }
+
+      const src = typeof rawSrc === 'string' ? rawSrc.trim() : '';
+      if (!src) {
+        pruned += 1;
+        return;
+      }
+
+      const targetSrc = activeSet.has(src)
+        ? src
+        : /^(data:|blob:)/i.test(src)
+          ? ''
+          : chooseClosestServerImage(src, lookup);
+      if (!targetSrc) {
+        pruned += 1;
+        return;
+      }
+
+      if (targetSrc !== src) {
+        remapped += 1;
+      }
+
+      nextMap[targetSrc] =
+        nextMap[targetSrc] && typeof nextMap[targetSrc] === 'object'
+          ? { ...nextMap[targetSrc], ...entry }
+          : entry;
+    });
+
+    pack.gallery.artworkTextBySrc = nextMap;
+  });
+
+  return { pruned, remapped };
 };
 
 const removeArtworkFromTranslations = (src) => {
@@ -1695,6 +2278,16 @@ const getStudioAccessMode = () => {
   return studioAccess.mode || 'local-password';
 };
 
+const isLocalStaticStudioPreview = () => {
+  const protocol = String(window.location.protocol || '').toLowerCase();
+  if (protocol === 'file:') {
+    return true;
+  }
+
+  const hostname = String(window.location.hostname || '').toLowerCase();
+  return hostname === '127.0.0.1' || hostname === 'localhost' || hostname === '::1' || hostname === '[::1]';
+};
+
 const isSecureAuthStudio = () => getStudioAccessMode() === 'secure-auth';
 const isServerProtectedStudio = () => getStudioAccessMode() === 'server-auth';
 const canPublishToServer = () =>
@@ -1737,12 +2330,18 @@ const el = {
   studioLangTools: document.getElementById('studio-lang-tools'),
   translateMissingEnTitles: document.getElementById('translate-missing-en-titles'),
   translateEnFromSv: document.getElementById('translate-en-from-sv'),
+  translateEnFromSvForce: document.getElementById('translate-en-from-sv-force'),
   themeBackground: document.getElementById('theme-background'),
   themeSurface: document.getElementById('theme-surface'),
   themeInk: document.getElementById('theme-ink'),
   themeSoftInk: document.getElementById('theme-soft-ink'),
   themePrimary: document.getElementById('theme-primary'),
   themeAccent: document.getElementById('theme-accent'),
+  themeHeaderBackground: document.getElementById('theme-header-background'),
+  themeHeaderOpacity: document.getElementById('theme-header-opacity'),
+  themeButtonGradientStart: document.getElementById('theme-button-gradient-start'),
+  themeButtonGradientEnd: document.getElementById('theme-button-gradient-end'),
+  themeFooterBackground: document.getElementById('theme-footer-background'),
   themeFontDisplay: document.getElementById('theme-font-display'),
   themeFontBody: document.getElementById('theme-font-body'),
   themeFontDisplayWeight: document.getElementById('theme-font-display-weight'),
@@ -1770,11 +2369,18 @@ const el = {
   analyticsKpiEngagedDelta: document.getElementById('analytics-kpi-engaged-delta'),
   analyticsKpiEvents: document.getElementById('analytics-kpi-events'),
   analyticsKpiEventsDelta: document.getElementById('analytics-kpi-events-delta'),
+  inquiriesPanelFilter: document.getElementById('inquiries-panel-filter'),
+  inquiriesPanelRefresh: document.getElementById('inquiries-panel-refresh'),
+  inquiriesPanelStatus: document.getElementById('inquiries-panel-status'),
+  inquiriesPanelList: document.getElementById('inquiries-panel-list'),
   heroTitle: document.getElementById('hero-title'),
   heroIntro: document.getElementById('hero-intro'),
   heroLine: document.getElementById('hero-line'),
   heroMode: document.getElementById('hero-mode'),
   heroSlideDuration: document.getElementById('hero-slide-duration'),
+  heroAutoSlidesEnabled: document.getElementById('hero-auto-slides-enabled'),
+  heroAutoSlidesForceRefresh: document.getElementById('hero-auto-slides-force-refresh'),
+  heroAutoSlidesForceMeta: document.getElementById('hero-auto-slides-force-meta'),
   heroOverlayEnabled: document.getElementById('hero-overlay-enabled'),
   heroOverlayOpacity: document.getElementById('hero-overlay-opacity'),
   heroCopyPanelOpacity: document.getElementById('hero-copy-panel-opacity'),
@@ -1791,7 +2397,9 @@ const el = {
   heroSlideFromArtwork: document.getElementById('hero-slide-from-artwork'),
   addHeroSlide: document.getElementById('add-hero-slide'),
   addHeroSlideFromArtwork: document.getElementById('add-hero-slide-from-artwork'),
+  galleryHeading: document.getElementById('gallery-heading'),
   galleryPageHeading: document.getElementById('gallery-page-heading'),
+  gallerySubheading: document.getElementById('gallery-subheading'),
   autoDiscoverEnabled: document.getElementById('auto-discover-enabled'),
   autoDefaultCategory: document.getElementById('auto-default-category'),
   categoryEditorHint: document.getElementById('category-editor-hint'),
@@ -2506,6 +3114,178 @@ const initAnalyticsDashboard = () => {
   fetchAnalyticsDashboard();
 };
 
+const setInquiriesPanelStatus = (text, kind = 'info') => {
+  if (!el.inquiriesPanelStatus) {
+    return;
+  }
+  el.inquiriesPanelStatus.textContent = text;
+  el.inquiriesPanelStatus.dataset.kind = kind;
+};
+
+const getFollowUpStatusLabel = (value) => {
+  switch (String(value || '').trim()) {
+    case 'replied':
+      return 'Besvarad';
+    case 'closed':
+      return 'Stängd';
+    default:
+      return 'Ny';
+  }
+};
+
+const getInquiryAvailabilityLabel = (value) => {
+  switch (String(value || '').trim()) {
+    case 'available':
+      return 'Tillgänglig';
+    case 'reserved':
+      return 'Reserverad';
+    case 'sold':
+      return 'Såld';
+    case 'nfs':
+      return 'Ej till salu';
+    default:
+      return String(value || '').trim();
+  }
+};
+
+const formatInquiryTimestamp = (value) => {
+  const raw = typeof value === 'string' ? value.trim() : '';
+  if (!raw) {
+    return '';
+  }
+  const parsed = new Date(raw.replace(' ', 'T'));
+  if (Number.isNaN(parsed.getTime())) {
+    return raw;
+  }
+  return parsed.toLocaleString('sv-SE');
+};
+
+const renderInquiriesPanel = () => {
+  if (!el.inquiriesPanelList) {
+    return;
+  }
+
+  const items = Array.isArray(uiState.inquiriesData) ? uiState.inquiriesData : [];
+  if (items.length === 0) {
+    el.inquiriesPanelList.innerHTML = '<p class="gallery-empty">Inga intresseanmälningar för valt filter ännu.</p>';
+    return;
+  }
+
+  el.inquiriesPanelList.innerHTML = items
+    .map((item) => {
+      const id = Number(item && item.id);
+      const leadKind = typeof item?.lead_kind === 'string' ? item.lead_kind.trim() : 'general';
+      const title = typeof item?.inquiry_title === 'string' && item.inquiry_title.trim() !== '' ? item.inquiry_title.trim() : 'Allmän kontakt';
+      const name = typeof item?.name === 'string' ? item.name.trim() : '';
+      const email = typeof item?.email === 'string' ? item.email.trim() : '';
+      const message = typeof item?.message === 'string' ? item.message.trim() : '';
+      const inquiryStatus = typeof item?.inquiry_status === 'string' ? item.inquiry_status.trim() : '';
+      const priceLabel = typeof item?.inquiry_price_label === 'string' ? item.inquiry_price_label.trim() : '';
+      const sourceUrl = normalizeArtworkPreviewUrlForStudio(
+        typeof item?.inquiry_source_url === 'string' ? item.inquiry_source_url : ''
+      );
+      const followUpStatus = typeof item?.follow_up_status === 'string' ? item.follow_up_status.trim() : 'new';
+      const delivered = Number(item?.mail_delivered || 0) === 1;
+      const createdAt = formatInquiryTimestamp(item?.created_at);
+
+      return `<article class="inquiry-card" data-id="${id}">
+        <div class="inquiry-card-head">
+          <div>
+            <h3>${escapeHtml(title)}</h3>
+            <p class="inquiry-meta">${escapeHtml([name, email, createdAt].filter(Boolean).join(' · '))}</p>
+          </div>
+          <label class="inquiry-follow-up-select">
+            <span>Uppföljning</span>
+            <select data-action="follow-up">
+              <option value="new" ${followUpStatus === 'new' ? 'selected' : ''}>Ny</option>
+              <option value="replied" ${followUpStatus === 'replied' ? 'selected' : ''}>Besvarad</option>
+              <option value="closed" ${followUpStatus === 'closed' ? 'selected' : ''}>Stängd</option>
+            </select>
+          </label>
+        </div>
+        <div class="inquiry-badges">
+          <span class="artwork-status-badge is-${followUpStatus === 'new' ? 'reserved' : followUpStatus === 'closed' ? 'sold' : 'available'}">${escapeHtml(getFollowUpStatusLabel(followUpStatus))}</span>
+          <span class="inquiry-chip">${escapeHtml(leadKind === 'artwork' ? 'Verksförfrågan' : 'Kontakt')}</span>
+          ${inquiryStatus ? `<span class="inquiry-chip">${escapeHtml(getInquiryAvailabilityLabel(inquiryStatus))}</span>` : ''}
+          ${priceLabel ? `<span class="inquiry-chip">${escapeHtml(priceLabel)}</span>` : ''}
+          <span class="inquiry-chip">${delivered ? 'Mail skickat' : 'Mail ej skickat'}</span>
+        </div>
+        ${message ? `<p class="inquiry-message">${escapeHtml(message)}</p>` : ''}
+        ${sourceUrl ? `<p class="inquiry-link-row"><a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer">Öppna verk-sida</a></p>` : ''}
+      </article>`;
+    })
+    .join('');
+
+  el.inquiriesPanelList.querySelectorAll('[data-action="follow-up"]').forEach((selectNode) => {
+    selectNode.addEventListener('change', async () => {
+      const wrapper = selectNode.closest('.inquiry-card');
+      const id = Number(wrapper && wrapper.getAttribute('data-id'));
+      const nextStatus = String(selectNode.value || '').trim();
+      if (!Number.isFinite(id) || !['new', 'replied', 'closed'].includes(nextStatus)) {
+        return;
+      }
+      try {
+        setInquiriesPanelStatus('Uppdaterar uppföljningsstatus...', 'info');
+        await apiJson('api/inquiries.php', {
+          method: 'POST',
+          withCsrf: isSecureAuthStudio(),
+          body: {
+            id,
+            followUpStatus: nextStatus
+          }
+        });
+        uiState.inquiriesData = uiState.inquiriesData.map((item) =>
+          Number(item && item.id) === id ? { ...item, follow_up_status: nextStatus } : item
+        );
+        renderInquiriesPanel();
+        setInquiriesPanelStatus('Uppföljningsstatus uppdaterad.', 'success');
+      } catch (error) {
+        const message = error instanceof Error && error.message ? error.message : 'Kunde inte uppdatera uppföljningsstatus.';
+        setInquiriesPanelStatus(message, 'error');
+      }
+    });
+  });
+};
+
+const fetchInquiriesPanel = async () => {
+  if (!el.inquiriesPanelList) {
+    return;
+  }
+
+  setInquiriesPanelStatus('Hämtar intresseanmälningar...', 'info');
+  try {
+    const query =
+      uiState.inquiriesFilter && uiState.inquiriesFilter !== 'all'
+        ? `?followUpStatus=${encodeURIComponent(uiState.inquiriesFilter)}`
+        : '';
+    const response = await apiJson(`api/inquiries.php${query}`, {
+      method: 'GET',
+      withCsrf: isSecureAuthStudio()
+    });
+    uiState.inquiriesData = Array.isArray(response.inquiries) ? response.inquiries : [];
+    renderInquiriesPanel();
+    setInquiriesPanelStatus(`Uppdaterad: ${new Date().toLocaleString('sv-SE')}`, 'success');
+  } catch (error) {
+    const message = error instanceof Error && error.message ? error.message : 'Kunde inte hämta intresseanmälningar.';
+    setInquiriesPanelStatus(message, 'error');
+  }
+};
+
+const initInquiriesPanel = () => {
+  if (!el.inquiriesPanelRefresh || !el.inquiriesPanelFilter || !el.inquiriesPanelList) {
+    return;
+  }
+  el.inquiriesPanelFilter.value = uiState.inquiriesFilter;
+  el.inquiriesPanelRefresh.addEventListener('click', () => {
+    fetchInquiriesPanel();
+  });
+  el.inquiriesPanelFilter.addEventListener('change', () => {
+    uiState.inquiriesFilter = String(el.inquiriesPanelFilter.value || 'all');
+    fetchInquiriesPanel();
+  });
+  fetchInquiriesPanel();
+};
+
 const clearBootstrapQr = () => {
   if (el.bootstrapQr) {
     el.bootstrapQr.innerHTML = '';
@@ -2907,6 +3687,11 @@ const initSecureAuthGate = async () => {
     return true;
   }
 
+  if (isLocalStaticStudioPreview()) {
+    showStudioApp();
+    return true;
+  }
+
   showStudioAuthGate();
   bindSecureAuthEvents();
 
@@ -3162,22 +3947,16 @@ const ensureGallery = () => {
   if (typeof state.content.gallery.pageHeading !== 'string' || state.content.gallery.pageHeading.trim() === '') {
     state.content.gallery.pageHeading = 'Hela galleriet';
   }
+  if (typeof state.content.gallery.heading !== 'string' || state.content.gallery.heading.trim() === '') {
+    state.content.gallery.heading = 'Galleri';
+  }
+  if (typeof state.content.gallery.subheading !== 'string') {
+    state.content.gallery.subheading = '';
+  }
 
   if (!Array.isArray(state.content.gallery.artworks)) {
     state.content.gallery.artworks = [];
   }
-
-  const remapCategoryKey = (value) => {
-    const normalized = normalizeCategoryKey(value);
-    if (!normalized || normalized === 'all') {
-      return '';
-    }
-    // Legacy migration: "forest" merged into "nature".
-    if (normalized === 'forest') {
-      return 'nature';
-    }
-    return normalized;
-  };
 
   const nextLabels = {};
   const currentLabels =
@@ -3222,11 +4001,13 @@ const ensureGallery = () => {
     if (!item || typeof item !== 'object') {
       return;
     }
-    const category = remapCategoryKey(item.category) || fallbackCategory();
-    item.category = category;
-    if (!nextLabels[category]) {
-      nextLabels[category] = humanizeCategoryKey(category);
-    }
+    item.heroExclude = item.heroExclude === true || item.excludeFromHero === true || item.excludeFromHeroAuto === true;
+    const categories = setArtworkCategoryKeys(item, getArtworkCategoryKeys(item, fallbackCategory()), fallbackCategory());
+    categories.forEach((category) => {
+      if (!nextLabels[category]) {
+        nextLabels[category] = humanizeCategoryKey(category);
+      }
+    });
   });
 
   const preferredOrder = ['all', 'nature', 'sea', 'portrait', 'city'];
@@ -3243,7 +4024,7 @@ const ensureGallery = () => {
   });
   state.content.gallery.categoryLabels = orderedLabels;
 
-  let defaultCategory = remapCategoryKey(state.content.gallery.autoDiscover.defaultCategory);
+  let defaultCategory = normalizeArtworkCategoryValue(state.content.gallery.autoDiscover.defaultCategory);
   if (!defaultCategory) {
     defaultCategory = fallbackCategory();
   }
@@ -3275,6 +4056,31 @@ const ensureHeroSlides = () => {
     state.content.hero = {};
   }
 
+  if (!state.content.hero.autoSlides || typeof state.content.hero.autoSlides !== 'object') {
+    state.content.hero.autoSlides = {};
+  }
+  if (typeof state.content.hero.autoSlides.enabled !== 'boolean') {
+    state.content.hero.autoSlides.enabled = false;
+  }
+  if (!Number(state.content.hero.autoSlides.count)) {
+    state.content.hero.autoSlides.count = 4;
+  }
+  if (!Number(state.content.hero.autoSlides.periodDays)) {
+    state.content.hero.autoSlides.periodDays = 7;
+  }
+  if (typeof state.content.hero.autoSlides.landscapeOnly !== 'boolean') {
+    state.content.hero.autoSlides.landscapeOnly = true;
+  }
+  if (!Array.isArray(state.content.hero.autoSlides.excludeSrcs)) {
+    state.content.hero.autoSlides.excludeSrcs = [];
+  }
+  if (typeof state.content.hero.autoSlides.seedNonce !== 'string') {
+    state.content.hero.autoSlides.seedNonce = '';
+  }
+  if (typeof state.content.hero.autoSlides.lastForcedAt !== 'string') {
+    state.content.hero.autoSlides.lastForcedAt = '';
+  }
+
   if (!Array.isArray(state.content.hero.slides)) {
     state.content.hero.slides = [];
   }
@@ -3290,6 +4096,37 @@ const ensureHeroSlides = () => {
   if (Number.isNaN(Number(state.content.hero.copyPanelOpacity))) {
     state.content.hero.copyPanelOpacity = 40;
   }
+};
+
+const formatStudioDateTime = (value) => {
+  if (typeof value !== 'string' || value.trim() === '') {
+    return '';
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+  try {
+    return new Intl.DateTimeFormat('sv-SE', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date);
+  } catch (error) {
+    return '';
+  }
+};
+
+const updateHeroAutoSlidesForceMeta = () => {
+  if (!el.heroAutoSlidesForceMeta) {
+    return;
+  }
+  const autoSlides = state.content?.hero?.autoSlides;
+  const stamp = autoSlides && typeof autoSlides.lastForcedAt === 'string' ? autoSlides.lastForcedAt.trim() : '';
+  const formatted = formatStudioDateTime(stamp);
+  el.heroAutoSlidesForceMeta.textContent = formatted ? `Senast force update: ${formatted}` : 'Ingen force update gjord ännu';
 };
 
 const ensureAboutContact = () => {
@@ -3389,6 +4226,17 @@ const ensureAboutContact = () => {
   if (!state.content.theme || typeof state.content.theme !== 'object') {
     state.content.theme = {};
   }
+  if (typeof state.content.theme.headerBackground !== 'string' || state.content.theme.headerBackground.trim() === '') {
+    state.content.theme.headerBackground = state.content.theme.background || '#f3efe6';
+  }
+  state.content.theme.footerBackground = state.content.theme.headerBackground;
+  state.content.theme.headerOpacity = normalizePercentageValue(state.content.theme.headerOpacity, 84);
+  if (typeof state.content.theme.buttonGradientStart !== 'string' || state.content.theme.buttonGradientStart.trim() === '') {
+    state.content.theme.buttonGradientStart = state.content.theme.primary || '#123a62';
+  }
+  if (typeof state.content.theme.buttonGradientEnd !== 'string' || state.content.theme.buttonGradientEnd.trim() === '') {
+    state.content.theme.buttonGradientEnd = state.content.theme.accent || '#b98c56';
+  }
   state.content.theme.fontDisplay = normalizeFontKey(state.content.theme.fontDisplay, DISPLAY_FONT_KEYS, 'fraunces');
   state.content.theme.fontBody = normalizeFontKey(state.content.theme.fontBody, BODY_FONT_KEYS, 'jakarta');
   state.content.theme.fontDisplayWeight = normalizeFontWeight(state.content.theme.fontDisplayWeight, 700);
@@ -3459,6 +4307,75 @@ const ensureSeo = () => {
   }
 };
 
+const applyStudioThemePreview = () => {
+  const theme = state.content && state.content.theme && typeof state.content.theme === 'object' ? state.content.theme : {};
+  const root = document.documentElement;
+  const sharedHeaderFooterColor =
+    (typeof theme.headerBackground === 'string' && theme.headerBackground.trim() !== ''
+      ? theme.headerBackground
+      : typeof theme.footerBackground === 'string' && theme.footerBackground.trim() !== ''
+        ? theme.footerBackground
+        : theme.background);
+  const map = {
+    '--color-bg': theme.background,
+    '--color-surface': theme.surface,
+    '--color-ink': theme.ink,
+    '--color-soft-ink': theme.softInk,
+    '--color-primary': theme.primary,
+    '--color-accent': theme.accent,
+    '--color-border': theme.border,
+    '--color-header-bg': sharedHeaderFooterColor,
+    '--color-footer-bg': sharedHeaderFooterColor
+  };
+
+  Object.entries(map).forEach(([cssVar, value]) => {
+    if (typeof value === 'string' && value.trim() !== '') {
+      root.style.setProperty(cssVar, value);
+    }
+  });
+
+  const optionalThemeVarMap = {
+    '--button-gradient-start': theme.buttonGradientStart,
+    '--button-gradient-end': theme.buttonGradientEnd
+  };
+
+  Object.entries(optionalThemeVarMap).forEach(([cssVar, value]) => {
+    if (typeof value === 'string' && value.trim() !== '') {
+      root.style.setProperty(cssVar, value);
+    } else {
+      root.style.removeProperty(cssVar);
+    }
+  });
+
+  const headerOpacity = normalizePercentageValue(theme.headerOpacity);
+  if (headerOpacity === null) {
+    root.style.removeProperty('--header-bg-opacity');
+  } else {
+    root.style.setProperty('--header-bg-opacity', String(headerOpacity));
+  }
+
+  const displayKey = typeof theme.fontDisplay === 'string' ? theme.fontDisplay.trim().toLowerCase() : 'fraunces';
+  const bodyKey = typeof theme.fontBody === 'string' ? theme.fontBody.trim().toLowerCase() : 'jakarta';
+  root.style.setProperty('--font-display', DISPLAY_FONT_STACKS[displayKey] || DISPLAY_FONT_STACKS.fraunces);
+  root.style.setProperty('--font-body', BODY_FONT_STACKS[bodyKey] || BODY_FONT_STACKS.jakarta);
+
+  const normalizeWeight = (value, fallback) => {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) {
+      return fallback;
+    }
+    const rounded = Math.round(numeric);
+    return FONT_WEIGHT_VALUES.includes(rounded) ? rounded : fallback;
+  };
+
+  const displayWeight = normalizeWeight(theme.fontDisplayWeight, 700);
+  const bodyWeight = normalizeWeight(theme.fontBodyWeight, 400);
+  const bodyStrongWeight = Math.max(500, Math.min(800, bodyWeight + 200));
+  root.style.setProperty('--font-display-weight', String(displayWeight));
+  root.style.setProperty('--font-body-weight', String(bodyWeight));
+  root.style.setProperty('--font-body-strong-weight', String(bodyStrongWeight));
+};
+
 const syncFormFromState = () => {
   const localized = getLocalizedContentForEditor();
   const { theme, hero, gallery, about, project, contact, analytics, seo } = state.content;
@@ -3478,6 +4395,18 @@ const syncFormFromState = () => {
   el.themeSoftInk.value = toHex(theme.softInk, '#4f5766');
   el.themePrimary.value = toHex(theme.primary, '#123a62');
   el.themeAccent.value = toHex(theme.accent, '#b98c56');
+  if (el.themeHeaderBackground) {
+    el.themeHeaderBackground.value = toHex(theme.headerBackground || theme.footerBackground || theme.background, '#f3efe6');
+  }
+  if (el.themeHeaderOpacity) {
+    el.themeHeaderOpacity.value = String(normalizePercentageValue(theme.headerOpacity, 84));
+  }
+  if (el.themeButtonGradientStart) {
+    el.themeButtonGradientStart.value = toHex(theme.buttonGradientStart || theme.primary, '#123a62');
+  }
+  if (el.themeButtonGradientEnd) {
+    el.themeButtonGradientEnd.value = toHex(theme.buttonGradientEnd || theme.accent, '#b98c56');
+  }
   if (el.themeFontDisplay) {
     el.themeFontDisplay.value = normalizeFontKey(theme.fontDisplay, DISPLAY_FONT_KEYS, 'fraunces');
   }
@@ -3504,6 +4433,10 @@ const syncFormFromState = () => {
   }
   el.heroMode.value = hero.mode || 'still';
   el.heroSlideDuration.value = String(numberOrFallback(hero.slideDurationMs, 8000));
+  if (el.heroAutoSlidesEnabled) {
+    el.heroAutoSlidesEnabled.checked = Boolean(hero.autoSlides && hero.autoSlides.enabled === true);
+  }
+  updateHeroAutoSlidesForceMeta();
   el.heroOverlayEnabled.checked = hero.overlayEnabled !== false;
   el.heroOverlayOpacity.value = String(numberOrFallback(hero.overlayOpacity, 55));
   el.heroCopyPanelOpacity.value = String(numberOrFallback(hero.copyPanelOpacity, 40));
@@ -3522,10 +4455,18 @@ const syncFormFromState = () => {
   if (el.seoHomeImageAlt) {
     el.seoHomeImageAlt.value = localizedSeoHome.imageAlt || seoHome.imageAlt || localizedHero.imageAlt || '';
   }
+
+  applyStudioThemePreview();
   renderSeoHomeImageControls();
 
+  if (el.galleryHeading) {
+    el.galleryHeading.value = localizedGallery.heading || gallery.heading || 'Galleri';
+  }
   if (el.galleryPageHeading) {
     el.galleryPageHeading.value = localizedGallery.pageHeading || gallery.pageHeading || 'Hela galleriet';
+  }
+  if (el.gallerySubheading) {
+    el.gallerySubheading.value = localizedGallery.subheading || gallery.subheading || '';
   }
   el.autoDiscoverEnabled.checked = Boolean(gallery.autoDiscover.enabled);
   renderCategoryEditor();
@@ -3870,7 +4811,7 @@ const renderHeroSlidesEditor = () => {
 
 const createArtworkItem = (overrides = {}) => {
   const nextOrder = state.content.gallery.artworks.length + 1;
-  return {
+  const item = {
     src: '',
     title: '',
     format: '',
@@ -3880,23 +4821,33 @@ const createArtworkItem = (overrides = {}) => {
     seoDescription: '',
     shareImage: '',
     category: 'nature',
+    categories: ['nature'],
     featured: false,
+    heroExclude: false,
     year: new Date().getFullYear(),
     order: nextOrder,
     zoom: 1,
     objectPosition: 'center center',
     ...overrides
   };
+  setArtworkCategoryKeys(item, Array.isArray(item.categories) ? item.categories : item.category, 'nature');
+  return item;
 };
 
 const getArtworkCategoryLabel = (value, language = getEditingLanguage()) => {
-  const key = normalizeCategoryKey(value);
+  const key = normalizeArtworkCategoryValue(value);
   if (!key) {
     return 'Okänd';
   }
   const labels = getLocalizedCategoryLabelsForEditor(language);
   return labels[key] || humanizeCategoryKey(key);
 };
+
+const getArtworkCategoryLabelText = (item, language = getEditingLanguage()) =>
+  getArtworkCategoryKeys(item, '')
+    .map((category) => getArtworkCategoryLabel(category, language))
+    .filter(Boolean)
+    .join(', ');
 
 const buildCategoryOptionMarkup = (selectedValue, language = getEditingLanguage()) =>
   getCategoryKeys()
@@ -3906,6 +4857,25 @@ const buildCategoryOptionMarkup = (selectedValue, language = getEditingLanguage(
       return `<option value="${key}" ${selected}>${escapeHtml(label)}</option>`;
     })
     .join('');
+
+const buildCategoryCheckboxMarkup = (selectedValues, language = getEditingLanguage()) => {
+  const selected = new Set(normalizeArtworkCategoryList(selectedValues, ''));
+  return getCategoryKeys()
+    .map((key) => {
+      const label = getArtworkCategoryLabel(key, language);
+      const checked = selected.has(key) ? 'checked' : '';
+      return `
+        <label
+          class="artwork-category-option"
+          style="display:flex;align-items:center;gap:0.5rem;margin:0;color:var(--color-ink);font-size:0.92rem;"
+        >
+          <input type="checkbox" data-field="categories" value="${escapeHtml(key)}" ${checked} />
+          <span>${escapeHtml(label)}</span>
+        </label>
+      `;
+    })
+    .join('');
+};
 
 const ensureCategoryLabelsOverrideMap = (language) => {
   if (language === 'sv') {
@@ -3944,7 +4914,7 @@ const renderCategorySelects = () => {
 };
 
 const removeCategoryEverywhere = (rawCategoryKey) => {
-  const categoryKey = normalizeCategoryKey(rawCategoryKey);
+  const categoryKey = normalizeArtworkCategoryValue(rawCategoryKey);
   if (!categoryKey || categoryKey === 'all') {
     return false;
   }
@@ -3972,12 +4942,14 @@ const removeCategoryEverywhere = (rawCategoryKey) => {
     if (!item || typeof item !== 'object') {
       return;
     }
-    if (normalizeCategoryKey(item.category) === categoryKey) {
-      item.category = fallback;
+    const remainingCategories = getArtworkCategoryKeys(item, '')
+      .filter((category) => category !== categoryKey);
+    if (remainingCategories.length !== getArtworkCategoryKeys(item, '').length) {
+      setArtworkCategoryKeys(item, remainingCategories, fallback);
     }
   });
 
-  if (normalizeCategoryKey(state.content.gallery?.autoDiscover?.defaultCategory) === categoryKey) {
+  if (normalizeArtworkCategoryValue(state.content.gallery?.autoDiscover?.defaultCategory) === categoryKey) {
     state.content.gallery.autoDiscover.defaultCategory = fallback;
   }
 
@@ -4162,9 +5134,14 @@ const renderArtworksEditor = () => {
   const baseItems = Array.isArray(state.content.gallery?.artworks) ? state.content.gallery.artworks : [];
   const language = getEditingLanguage();
   const items = getLocalizedArtworksForEditor(language);
+  const existingThumbList = el.artworksEditor ? el.artworksEditor.querySelector('.artwork-thumb-list') : null;
 
   if (!el.artworksEditor) {
     return;
+  }
+
+  if (existingThumbList) {
+    uiState.artworkListScrollTop = existingThumbList.scrollTop;
   }
 
   if (!Array.isArray(baseItems) || baseItems.length === 0) {
@@ -4186,9 +5163,10 @@ const renderArtworksEditor = () => {
     .map((item, index) => {
       const title = (item.title || '').trim() || `Verk ${index + 1}`;
       const isActive = index === selectedIndex;
-      const categoryLabel = getArtworkCategoryLabel(item.category);
+      const categoryLabel = getArtworkCategoryLabelText(item);
       const featureTag = item.featured ? 'Utvald' : '';
-      const meta = featureTag ? `${categoryLabel} · ${featureTag}` : categoryLabel;
+      const heroExcludeTag = item.heroExclude ? 'Ej hero-auto' : '';
+      const meta = [categoryLabel, featureTag, heroExcludeTag].filter(Boolean).join(' · ');
       const thumbSrc = getArtworkPreviewSrc(item);
       const fullSrc = typeof item.src === 'string' ? item.src : '';
 
@@ -4223,15 +5201,32 @@ const renderArtworksEditor = () => {
             ${selectedPreview}
           </figure>
 
-          <div class="artwork-detail-fields">
-            <label>Titel <input type="text" data-field="title" value="${escapeHtml(selectedItem.title || '')}" /></label>
-            <label>Bildkälla (src) <input type="text" data-field="src" value="${escapeHtml(selectedItem.src || '')}" /></label>
-            <label>Format (t.ex. 56 × 76 cm) <input type="text" data-field="format" value="${escapeHtml(selectedItem.format || '')}" /></label>
-            <label>Alt-text <input type="text" data-field="alt" value="${escapeHtml(selectedItem.alt || '')}" /></label>
-            <label>SEO-titel för delning (valfritt) <input type="text" data-field="seoTitle" value="${escapeHtml(selectedItem.seoTitle || '')}" /></label>
-            <label class="artwork-field-wide">
-              SEO-beskrivning för delning (valfritt)
-              <textarea data-field="seoDescription" rows="3">${escapeHtml(selectedItem.seoDescription || '')}</textarea>
+	          <div class="artwork-detail-fields">
+	            <label>Titel <input type="text" data-field="title" value="${escapeHtml(selectedItem.title || '')}" /></label>
+	            <label>Bildkälla (src) <input type="text" data-field="src" value="${escapeHtml(selectedItem.src || '')}" /></label>
+	            <label>Format (t.ex. 56 × 76 cm) <input type="text" data-field="format" value="${escapeHtml(selectedItem.format || '')}" /></label>
+	            <label>Tillgänglighet
+	              <select data-field="availability">
+	                <option value="" ${!selectedItem.availability ? 'selected' : ''}>Ingen status</option>
+	                <option value="available" ${selectedItem.availability === 'available' ? 'selected' : ''}>Tillgänglig</option>
+	                <option value="reserved" ${selectedItem.availability === 'reserved' ? 'selected' : ''}>Reserverad</option>
+	                <option value="sold" ${selectedItem.availability === 'sold' ? 'selected' : ''}>Såld</option>
+	                <option value="nfs" ${selectedItem.availability === 'nfs' ? 'selected' : ''}>Ej till salu</option>
+	              </select>
+	            </label>
+	            <label>Pris / etikett
+	              <input type="text" data-field="priceLabel" value="${escapeHtml(selectedItem.priceLabel || '')}" placeholder="14 500 SEK eller Pris på förfrågan" />
+	            </label>
+	            <label>Alt-text <input type="text" data-field="alt" value="${escapeHtml(selectedItem.alt || '')}" /></label>
+	            <label class="artwork-field-wide">
+	              Samlarnotis / inquiry-copy
+	              <textarea data-field="collectorNote" rows="3">${escapeHtml(selectedItem.collectorNote || '')}</textarea>
+	              <small class="field-hint">Visas på verk-sidan för att ge trygg kontext inför en förfrågan.</small>
+	            </label>
+	            <label>SEO-titel för delning (valfritt) <input type="text" data-field="seoTitle" value="${escapeHtml(selectedItem.seoTitle || '')}" /></label>
+	            <label class="artwork-field-wide">
+	              SEO-beskrivning för delning (valfritt)
+	              <textarea data-field="seoDescription" rows="3">${escapeHtml(selectedItem.seoDescription || '')}</textarea>
               <small class="field-hint">Visas i länkförhandsvisning på sociala medier och i sökresultat.</small>
             </label>
             <label class="artwork-field-wide">
@@ -4239,18 +5234,31 @@ const renderArtworksEditor = () => {
               <input type="text" data-field="shareImage" value="${escapeHtml(selectedItem.shareImage || '')}" />
               <small class="field-hint">Lämna tomt för att använda verkets huvudbild.</small>
             </label>
-            <label>Kategori
-              <select data-field="category">
-                ${buildCategoryOptionMarkup(selectedItem.category || 'nature')}
-              </select>
+            <label class="artwork-field-wide">Kategorier
+              <div
+                class="artwork-category-grid"
+                style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0.5rem 0.75rem;padding:0.7rem 0.8rem;border:1px solid var(--color-border);background:#fff;"
+              >
+                ${buildCategoryCheckboxMarkup(selectedItem.categories || selectedItem.category)}
+              </div>
             </label>
             <label>År <input type="number" data-field="year" value="${Number(selectedItem.year || 0)}" /></label>
             <label>Ordning <input type="number" data-field="order" value="${Number(selectedItem.order || selectedIndex + 1)}" /></label>
-            <label class="checkbox-row">
+            <label
+              class="checkbox-row artwork-field-wide"
+              style="display:flex;align-items:center;gap:0.56rem;width:100%;max-width:none;line-height:1.22;"
+            >
               <input type="checkbox" data-field="featured" ${selectedItem.featured ? 'checked' : ''}/>
               <span>Utvald på startsidan</span>
             </label>
-            <label>Byt bildfil
+            <label
+              class="checkbox-row artwork-field-wide"
+              style="display:flex;align-items:center;gap:0.56rem;width:100%;max-width:none;line-height:1.22;"
+            >
+              <input type="checkbox" data-field="heroExclude" ${selectedItem.heroExclude ? 'checked' : ''}/>
+              <span>Exkludera från hero auto-slider</span>
+            </label>
+            <label class="artwork-field-wide">Byt bildfil
               <input type="file" data-action="replace-image" accept="image/*" />
             </label>
           </div>
@@ -4269,10 +5277,27 @@ const renderArtworksEditor = () => {
       if (Number.isNaN(index)) {
         return;
       }
+      const thumbList = button.closest('.artwork-thumb-list');
+      if (thumbList) {
+        uiState.artworkListScrollTop = thumbList.scrollTop;
+      }
       uiState.selectedArtworkIndex = index;
       renderArtworksEditor();
     });
   });
+
+  const thumbListNode = el.artworksEditor.querySelector('.artwork-thumb-list');
+  if (thumbListNode) {
+    const targetScrollTop = Math.max(0, Number(uiState.artworkListScrollTop || 0));
+    thumbListNode.scrollTop = targetScrollTop;
+    thumbListNode.addEventListener('scroll', () => {
+      uiState.artworkListScrollTop = thumbListNode.scrollTop;
+    });
+
+    window.requestAnimationFrame(() => {
+      thumbListNode.scrollTop = targetScrollTop;
+    });
+  }
 
   el.artworksEditor.querySelectorAll('.artwork-thumb-image img[data-full-src]').forEach((img) => {
     img.addEventListener('load', () => {
@@ -4325,6 +5350,14 @@ const renderArtworksEditor = () => {
 	        return;
 	      }
 
+        if (field === 'categories') {
+          const selectedCategories = Array.from(detailNode.querySelectorAll('[data-field="categories"]:checked'))
+            .map((node) => (node instanceof HTMLInputElement ? node.value : ''))
+            .filter(Boolean);
+          setArtworkCategoryKeys(item, selectedCategories, getFirstGalleryCategoryKey());
+          return;
+        }
+
 	      if (!isEditingDefaultLanguage() && ARTWORK_TRANSLATABLE_FIELDS.includes(field)) {
 	        const src = typeof item.src === 'string' ? item.src.trim() : '';
 	        if (!src) {
@@ -4344,6 +5377,8 @@ const renderArtworksEditor = () => {
 
 	      if (field === 'featured') {
 	        item.featured = fieldNode.checked;
+	      } else if (field === 'heroExclude') {
+	        item.heroExclude = fieldNode.checked;
 	      } else if (field === 'year' || field === 'order') {
 	        item[field] = Number(fieldNode.value || 0);
 	      } else {
@@ -4366,7 +5401,14 @@ const renderArtworksEditor = () => {
     fieldNode.addEventListener('input', updateField);
     fieldNode.addEventListener('change', () => {
       updateField();
-      if (field === 'title' || field === 'category' || field === 'featured' || field === 'src') {
+      if (
+        field === 'title' ||
+        field === 'categories' ||
+        field === 'featured' ||
+        field === 'heroExclude' ||
+        field === 'src' ||
+        field === 'availability'
+      ) {
         renderArtworksEditor();
       } else {
         renderHeroSlideArtworkOptions();
@@ -4476,6 +5518,20 @@ const pullFormToState = () => {
   state.content.theme.softInk = el.themeSoftInk.value;
   state.content.theme.primary = el.themePrimary.value;
   state.content.theme.accent = el.themeAccent.value;
+  if (el.themeHeaderBackground) {
+    state.content.theme.headerBackground = el.themeHeaderBackground.value;
+  }
+  state.content.theme.headerOpacity = normalizePercentageValue(
+    el.themeHeaderOpacity ? el.themeHeaderOpacity.value : state.content.theme.headerOpacity,
+    84
+  );
+  if (el.themeButtonGradientStart) {
+    state.content.theme.buttonGradientStart = el.themeButtonGradientStart.value;
+  }
+  if (el.themeButtonGradientEnd) {
+    state.content.theme.buttonGradientEnd = el.themeButtonGradientEnd.value;
+  }
+  state.content.theme.footerBackground = state.content.theme.headerBackground;
   state.content.theme.fontDisplay = normalizeFontKey(
     el.themeFontDisplay ? el.themeFontDisplay.value : state.content.theme.fontDisplay,
     DISPLAY_FONT_KEYS,
@@ -4501,6 +5557,8 @@ const pullFormToState = () => {
     state.content.analytics.anonymizeIp = el.analyticsAnonymizeIp.checked;
   }
 
+  applyStudioThemePreview();
+
   setPath(localizedTarget, 'hero.title', el.heroTitle.value.trim());
   setPath(localizedTarget, 'hero.intro', el.heroIntro.value.trim());
   if (el.heroLine) {
@@ -4509,6 +5567,28 @@ const pullFormToState = () => {
   state.content.hero.mode = el.heroMode.value;
   state.content.hero.modeUpdatedAt = Date.now();
   state.content.hero.slideDurationMs = numberOrFallback(el.heroSlideDuration.value, 8000);
+  if (!state.content.hero.autoSlides || typeof state.content.hero.autoSlides !== 'object') {
+    state.content.hero.autoSlides = {};
+  }
+  state.content.hero.autoSlides.enabled = el.heroAutoSlidesEnabled ? el.heroAutoSlidesEnabled.checked : false;
+  if (!Number(state.content.hero.autoSlides.count)) {
+    state.content.hero.autoSlides.count = 4;
+  }
+  if (!Number(state.content.hero.autoSlides.periodDays)) {
+    state.content.hero.autoSlides.periodDays = 7;
+  }
+  if (typeof state.content.hero.autoSlides.landscapeOnly !== 'boolean') {
+    state.content.hero.autoSlides.landscapeOnly = true;
+  }
+  if (!Array.isArray(state.content.hero.autoSlides.excludeSrcs)) {
+    state.content.hero.autoSlides.excludeSrcs = [];
+  }
+  if (typeof state.content.hero.autoSlides.seedNonce !== 'string') {
+    state.content.hero.autoSlides.seedNonce = '';
+  }
+  if (typeof state.content.hero.autoSlides.lastForcedAt !== 'string') {
+    state.content.hero.autoSlides.lastForcedAt = '';
+  }
   state.content.hero.overlayEnabled = el.heroOverlayEnabled.checked;
   state.content.hero.overlayOpacity = numberOrFallback(el.heroOverlayOpacity.value, 55);
   state.content.hero.copyPanelOpacity = numberOrFallback(el.heroCopyPanelOpacity.value, 40);
@@ -4527,12 +5607,26 @@ const pullFormToState = () => {
     setPath(localizedTarget, 'seo.home.imageAlt', el.seoHomeImageAlt.value.trim());
   }
 
+  const fallbackGalleryHeading =
+    getPath(localizedBeforeSave, 'gallery.heading') || state.content.gallery.heading || 'Galleri';
+  setPath(
+    localizedTarget,
+    'gallery.heading',
+    el.galleryHeading ? el.galleryHeading.value.trim() || fallbackGalleryHeading : fallbackGalleryHeading
+  );
   const fallbackPageHeading =
     getPath(localizedBeforeSave, 'gallery.pageHeading') || state.content.gallery.pageHeading || 'Hela galleriet';
   setPath(
     localizedTarget,
     'gallery.pageHeading',
     el.galleryPageHeading ? el.galleryPageHeading.value.trim() || fallbackPageHeading : fallbackPageHeading
+  );
+  const fallbackGallerySubheading =
+    getPath(localizedBeforeSave, 'gallery.subheading') || state.content.gallery.subheading || '';
+  setPath(
+    localizedTarget,
+    'gallery.subheading',
+    el.gallerySubheading ? el.gallerySubheading.value.trim() || fallbackGallerySubheading : fallbackGallerySubheading
   );
   state.content.gallery.autoDiscover.enabled = el.autoDiscoverEnabled.checked;
   state.content.gallery.autoDiscover.defaultCategory =
@@ -5154,7 +6248,16 @@ const saveToStorage = async () => {
   let migratedEmbeddedCount = 0;
   let repairedMissingImageRefs = 0;
   let unresolvedImageRefs = 0;
+  let prunedArtworkTranslationKeys = 0;
+  let remappedArtworkTranslationKeys = 0;
   const stamp = getClockStamp();
+
+  const translationCleanup = sanitizeArtworkTranslationMaps();
+  prunedArtworkTranslationKeys = Number(translationCleanup.pruned || 0);
+  remappedArtworkTranslationKeys = Number(translationCleanup.remapped || 0);
+  if (prunedArtworkTranslationKeys > 0 || remappedArtworkTranslationKeys > 0) {
+    payload = getPayload();
+  }
 
   const saveDraftToLocalStorage = async (required) => {
     try {
@@ -5219,14 +6322,18 @@ const saveToStorage = async () => {
         repairedMissingImageRefs > 0 ? ` Lagade bildsökvägar: ${repairedMissingImageRefs}.` : '';
       const unresolvedSuffix =
         unresolvedImageRefs > 0 ? ` Kunde inte matcha ${unresolvedImageRefs} bildsökvägar automatiskt.` : '';
+      const translationCleanupSuffix =
+        prunedArtworkTranslationKeys > 0 || remappedArtworkTranslationKeys > 0
+          ? ` Städade översättningsnycklar: ${prunedArtworkTranslationKeys} borttagna, ${remappedArtworkTranslationKeys} ompekade.`
+          : '';
       if (localDraftSaved) {
         setStatus(
-          `Sparat ${stamp}${compressionSuffix} och publicerat live för alla besökare.${migrationSuffix}${repairedSuffix}${unresolvedSuffix}`,
+          `Sparat ${stamp}${compressionSuffix} och publicerat live för alla besökare.${migrationSuffix}${repairedSuffix}${unresolvedSuffix}${translationCleanupSuffix}`,
           unresolvedImageRefs > 0 ? 'error' : 'success'
         );
       } else {
         setStatus(
-          `Sparat ${stamp}${compressionSuffix} och publicerat live för alla besökare.${migrationSuffix}${repairedSuffix}${unresolvedSuffix} Lokal utkast-cache kunde inte sparas (webbläsarens lagring är full).`,
+          `Sparat ${stamp}${compressionSuffix} och publicerat live för alla besökare.${migrationSuffix}${repairedSuffix}${unresolvedSuffix}${translationCleanupSuffix} Lokal utkast-cache kunde inte sparas (webbläsarens lagring är full).`,
           unresolvedImageRefs > 0 ? 'error' : 'success'
         );
       }
@@ -5256,7 +6363,11 @@ const saveToStorage = async () => {
 
   flashSaveButtons();
   const compressionSuffix = optimizedCount > 0 ? ` efter komprimering av ${optimizedCount} bild(er)` : '';
-  setStatus(`Sparat ${stamp}${compressionSuffix}. Ändringarna är lagrade i Studio.`, 'success');
+  const translationCleanupSuffix =
+    prunedArtworkTranslationKeys > 0 || remappedArtworkTranslationKeys > 0
+      ? ` Städade översättningsnycklar: ${prunedArtworkTranslationKeys} borttagna, ${remappedArtworkTranslationKeys} ompekade.`
+      : '';
+  setStatus(`Sparat ${stamp}${compressionSuffix}.${translationCleanupSuffix} Ändringarna är lagrade i Studio.`, 'success');
   } finally {
     window.requestAnimationFrame(() => {
       const maxScrollTop = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
@@ -5280,6 +6391,7 @@ const resetStorage = () => {
   state.translations = deepMerge({}, baseTranslationOverrides);
   ensureGallery();
   ensureSeo();
+  captureEnglishSyncSourceSnapshot();
   clampSelectedArtworkIndex(state.content.gallery.artworks);
   syncFormFromState();
   renderArtworksEditor();
@@ -5330,6 +6442,7 @@ const importJson = async (file) => {
     state.translations = deepMerge(baseTranslationOverrides, parsedTranslations);
     ensureGallery();
     ensureSeo();
+    captureEnglishSyncSourceSnapshot();
     syncFormFromState();
     renderArtworksEditor();
     setStatus('JSON importerad. Klicka "Spara ändringar" för att tillämpa.', 'success');
@@ -5383,6 +6496,136 @@ const looksLikeSwedishSeedText = (value) => {
   return hints.some((hint) => text.includes(hint));
 };
 
+const translationUtf8ByteLength = (value) => {
+  const input = typeof value === 'string' ? value : String(value || '');
+  if (typeof TextEncoder !== 'undefined') {
+    return new TextEncoder().encode(input).length;
+  }
+  try {
+    return unescape(encodeURIComponent(input)).length;
+  } catch (error) {
+    return input.length;
+  }
+};
+
+const waitForTranslationMs = (ms) =>
+  new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+
+const TRANSLATE_BATCH_MAX_ITEMS = 12;
+const TRANSLATE_BATCH_MAX_BYTES = 4200;
+
+const splitTranslationEntriesIntoBatches = (entries, options = {}) => {
+  const maxItems = Math.max(1, Number(options.maxItems || TRANSLATE_BATCH_MAX_ITEMS));
+  const maxBytes = Math.max(400, Number(options.maxBytes || TRANSLATE_BATCH_MAX_BYTES));
+  const batches = [];
+  let currentBatch = [];
+  let currentBytes = 0;
+
+  entries.forEach((entry) => {
+    const source = typeof entry.source === 'string' ? entry.source.trim() : '';
+    if (!source) {
+      return;
+    }
+
+    const entryBytes = translationUtf8ByteLength(source);
+    const wouldOverflowItems = currentBatch.length >= maxItems;
+    const wouldOverflowBytes = currentBatch.length > 0 && (currentBytes + entryBytes) > maxBytes;
+    if (wouldOverflowItems || wouldOverflowBytes) {
+      batches.push(currentBatch);
+      currentBatch = [];
+      currentBytes = 0;
+    }
+
+    currentBatch.push(entry);
+    currentBytes += entryBytes;
+  });
+
+  if (currentBatch.length > 0) {
+    batches.push(currentBatch);
+  }
+
+  return batches;
+};
+
+const translateSvEntriesBatchToEnViaApi = async (entries) => {
+  const normalizedEntries = entries
+    .map((entry) => ({
+      text: typeof entry.source === 'string' ? entry.source.trim() : '',
+      field: typeof entry.field === 'string' ? entry.field.trim() : 'generic'
+    }))
+    .filter((entry) => entry.text);
+
+  if (normalizedEntries.length === 0) {
+    return [];
+  }
+
+  const MAX_RETRIES = 2;
+  let lastError = null;
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
+    try {
+      const result = await apiJson('api/translate.php', {
+        method: 'POST',
+        withCsrf: true,
+        body: {
+          from: 'sv',
+          to: 'en',
+          items: normalizedEntries
+        }
+      });
+
+      const translations = Array.isArray(result.translations) ? result.translations : [];
+      if (translations.length !== normalizedEntries.length) {
+        throw new Error('OpenAI returnerade ofullständiga översättningar.');
+      }
+
+      return translations.map((translation) => (typeof translation === 'string' ? translation.trim() : ''));
+    } catch (error) {
+      lastError = error;
+      if (attempt >= MAX_RETRIES) {
+        break;
+      }
+      await waitForTranslationMs((attempt + 1) * 450);
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error('Kunde inte översätta texterna via OpenAI.');
+};
+
+const processSvEntriesToEnInBatches = async (entries, handlers = {}) => {
+  const batches = splitTranslationEntriesIntoBatches(entries);
+  for (let batchIndex = 0; batchIndex < batches.length; batchIndex += 1) {
+    const batch = batches[batchIndex];
+    try {
+      const translations = await translateSvEntriesBatchToEnViaApi(batch);
+      batch.forEach((entry, index) => {
+        const translated = typeof translations[index] === 'string' ? translations[index].trim() : '';
+        if (!translated) {
+          if (typeof handlers.onError === 'function') {
+            handlers.onError(entry, 'tom översättning');
+          }
+          return;
+        }
+        if (typeof handlers.onSuccess === 'function') {
+          handlers.onSuccess(entry, translated);
+        }
+      });
+    } catch (error) {
+      const reason = error instanceof Error && error.message ? error.message : 'okänt fel';
+      batch.forEach((entry) => {
+        if (typeof handlers.onError === 'function') {
+          handlers.onError(entry, reason);
+        }
+      });
+    }
+
+    if (batchIndex < batches.length - 1) {
+      await waitForTranslationMs(120);
+    }
+  }
+};
+
 const translateSvTextToEnViaApi = async (text, field = 'generic') => {
   const source = typeof text === 'string' ? text.trim() : '';
   if (!source) {
@@ -5391,21 +6634,6 @@ const translateSvTextToEnViaApi = async (text, field = 'generic') => {
 
   const MAX_DIRECT_BYTES = 760;
   const MAX_RETRIES = 2;
-  const utf8ByteLength = (value) => {
-    const input = typeof value === 'string' ? value : String(value || '');
-    if (typeof TextEncoder !== 'undefined') {
-      return new TextEncoder().encode(input).length;
-    }
-    try {
-      return unescape(encodeURIComponent(input)).length;
-    } catch (error) {
-      return input.length;
-    }
-  };
-  const wait = (ms) =>
-    new Promise((resolve) => {
-      window.setTimeout(resolve, ms);
-    });
   const requestTranslate = async (chunk) => {
     let lastError = null;
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
@@ -5430,13 +6658,13 @@ const translateSvTextToEnViaApi = async (text, field = 'generic') => {
         if (attempt >= MAX_RETRIES) {
           break;
         }
-        await wait((attempt + 1) * 400);
+        await waitForTranslationMs((attempt + 1) * 400);
       }
     }
     throw lastError instanceof Error ? lastError : new Error('Kunde inte översätta texten via OpenAI.');
   };
 
-  if (utf8ByteLength(source) <= MAX_DIRECT_BYTES) {
+  if (translationUtf8ByteLength(source) <= MAX_DIRECT_BYTES) {
     return requestTranslate(source);
   }
 
@@ -5446,7 +6674,7 @@ const translateSvTextToEnViaApi = async (text, field = 'generic') => {
     if (!raw) {
       return segments;
     }
-    if (utf8ByteLength(raw) <= maxBytes) {
+    if (translationUtf8ByteLength(raw) <= maxBytes) {
       segments.push(raw);
       return segments;
     }
@@ -5454,7 +6682,7 @@ const translateSvTextToEnViaApi = async (text, field = 'generic') => {
     let current = '';
     for (const char of raw) {
       const candidate = current + char;
-      if (utf8ByteLength(candidate) <= maxBytes) {
+      if (translationUtf8ByteLength(candidate) <= maxBytes) {
         current = candidate;
         continue;
       }
@@ -5499,7 +6727,7 @@ const translateSvTextToEnViaApi = async (text, field = 'generic') => {
     if (sentenceParts.length > 0) {
       let current = '';
       sentenceParts.forEach((part) => {
-        if (utf8ByteLength(part) > MAX_DIRECT_BYTES) {
+        if (translationUtf8ByteLength(part) > MAX_DIRECT_BYTES) {
           if (current) {
             pushChunk(current);
             current = '';
@@ -5508,7 +6736,7 @@ const translateSvTextToEnViaApi = async (text, field = 'generic') => {
           return;
         }
         const candidate = current ? `${current} ${part}` : part;
-        if (utf8ByteLength(candidate) > MAX_DIRECT_BYTES) {
+        if (translationUtf8ByteLength(candidate) > MAX_DIRECT_BYTES) {
           pushChunk(current);
           current = part;
         } else {
@@ -5537,7 +6765,7 @@ const translateSvTextToEnViaApi = async (text, field = 'generic') => {
     const translated = await requestTranslate(chunk);
     translatedChunks.push(translated || chunk);
     if (chunks.length > 1) {
-      await wait(80);
+      await waitForTranslationMs(80);
     }
   }
   return translatedChunks.join('\n\n').trim();
@@ -5545,15 +6773,14 @@ const translateSvTextToEnViaApi = async (text, field = 'generic') => {
 
 let englishTextSyncInFlight = false;
 
-const shouldSyncEnglishField = (currentEn, sourceSv, field, onlyMissing) => {
-  if (!onlyMissing) {
-    return true;
-  }
-
+const shouldSyncEnglishField = (currentEn, sourceSv, field, syncMode = 'smart', metaRecord = null, metaKey = '') => {
   const current = typeof currentEn === 'string' ? currentEn.trim() : '';
   const source = typeof sourceSv === 'string' ? sourceSv.trim() : '';
   if (!source) {
     return false;
+  }
+  if (syncMode === 'force') {
+    return true;
   }
   if (!current) {
     return true;
@@ -5567,14 +6794,83 @@ const shouldSyncEnglishField = (currentEn, sourceSv, field, onlyMissing) => {
   if (field === 'title' && (/^Work\s+\d+$/i.test(current) || isGenericSwedishArtworkTitle(current))) {
     return true;
   }
+  if (syncMode === 'missing') {
+    return false;
+  }
+
+  const record = metaRecord && typeof metaRecord === 'object' ? metaRecord : null;
+  if (!record) {
+    const snapshot = uiState.englishSyncSourceSnapshot && typeof uiState.englishSyncSourceSnapshot === 'object'
+      ? uiState.englishSyncSourceSnapshot
+      : null;
+    const currentSourceHash = hashSyncSource(source);
+    const previousSessionHash =
+      snapshot && typeof snapshot[metaKey] === 'string' ? snapshot[metaKey].trim() : '';
+    return Boolean(previousSessionHash && previousSessionHash !== currentSourceHash);
+  }
+
+  const currentSourceHash = hashSyncSource(source);
+  const previousSourceHash = typeof record.sourceHash === 'string' ? record.sourceHash.trim() : '';
+  if (!previousSourceHash || previousSourceHash === currentSourceHash) {
+    return false;
+  }
+
+  const lastTranslated = typeof record.translatedValue === 'string' ? record.translatedValue.trim() : '';
+  if (!lastTranslated) {
+    return false;
+  }
+  if (current === lastTranslated) {
+    return true;
+  }
   return false;
+};
+
+const shouldRespectManualEnglishValue = (currentEn, sourceSv, field, syncMode = 'smart', metaRecord = null) => {
+  const current = typeof currentEn === 'string' ? currentEn.trim() : '';
+  const source = typeof sourceSv === 'string' ? sourceSv.trim() : '';
+  if (!current) {
+    return false;
+  }
+  if (syncMode === 'force') {
+    return false;
+  }
+
+  // If the current EN value still looks like seed text, let sync overwrite it
+  // even when the field was manually touched earlier.
+  if (current === source) {
+    return false;
+  }
+  if (looksLikeSwedishSeedText(current)) {
+    return false;
+  }
+  if (field === 'title' && (/^Work\s+\d+$/i.test(current) || isGenericSwedishArtworkTitle(current))) {
+    return false;
+  }
+
+  if (syncMode === 'missing') {
+    return true;
+  }
+
+  const record = metaRecord && typeof metaRecord === 'object' ? metaRecord : null;
+  const lastTranslated = record && typeof record.translatedValue === 'string' ? record.translatedValue.trim() : '';
+  if (lastTranslated && current === lastTranslated) {
+    return false;
+  }
+
+  return true;
 };
 
 const syncEnglishTextsFromSwedish = async (options = {}) => {
   const askConfirmation = options.askConfirmation === true;
-  const onlyMissing = options.onlyMissing === true;
+  const syncMode =
+    options.syncMode === 'force' ? 'force' : options.syncMode === 'missing' ? 'missing' : 'smart';
   const flashStatus = options.flash !== false;
-  const statusPrefix = onlyMissing ? 'Synkar saknade EN-texter från svenska via AI...' : 'Synkar EN-texter från svenska via AI...';
+  const statusPrefix =
+    syncMode === 'force'
+      ? 'Synkar om alla EN-texter från svenska via AI...'
+      : syncMode === 'missing'
+        ? 'Synkar saknade EN-texter från svenska via AI...'
+        : 'Synkar EN-texter från svenska (nya + ändrade) via AI...';
 
   if (englishTextSyncInFlight) {
     setStatus('EN-synk pågår redan. Vänta tills den är klar.', 'info', { flash: flashStatus });
@@ -5583,7 +6879,9 @@ const syncEnglishTextsFromSwedish = async (options = {}) => {
 
   if (askConfirmation) {
     const proceed = window.confirm(
-      'Synka engelska texter från svenska via AI?\n\nDetta uppdaterar engelska texter för hero, galleri, om, kontakt, SEO och kategorinamn. Du kan granska resultatet innan du klickar "Spara ändringar".'
+      syncMode === 'force'
+        ? 'Synka om alla engelska texter från svenska via AI?\n\nDetta skriver om engelska texter för hero, galleri, om, kontakt, SEO, kategorinamn och verkfält, även om de redan har engelskt innehåll. Du kan granska resultatet innan du klickar "Spara ändringar".'
+        : 'Synka engelska texter från svenska via AI?\n\nDetta uppdaterar engelska texter för hero, galleri, om, kontakt, SEO och kategorinamn när de saknas eller när svenskan ändrats sedan senaste synk. Du kan granska resultatet innan du klickar "Spara ändringar".'
     );
     if (!proceed) {
       return;
@@ -5603,61 +6901,22 @@ const syncEnglishTextsFromSwedish = async (options = {}) => {
   const enPack = ensureLanguageOverridePack('en');
   const sv = state.content;
 
-  const stringJobs = [
-    { path: 'site.title', field: 'seotitle' },
-    { path: 'site.metaDescription', field: 'seodescription' },
-    { path: 'hero.eyebrow', field: 'generic' },
-    { path: 'hero.title', field: 'title' },
-    { path: 'hero.intro', field: 'generic' },
-    { path: 'hero.line', field: 'generic' },
-    { path: 'hero.imageAlt', field: 'alt' },
-    { path: 'gallery.eyebrow', field: 'generic' },
-    { path: 'gallery.heading', field: 'title' },
-    { path: 'gallery.pageHeading', field: 'title' },
-    { path: 'gallery.subheading', field: 'generic' },
-    { path: 'about.heading', field: 'title' },
-    { path: 'about.portraitAlt', field: 'alt' },
-    { path: 'about.dayJobLine', field: 'generic' },
-    { path: 'about.materialsHeading', field: 'title' },
-    { path: 'about.materialsBody', field: 'generic' },
-    { path: 'about.materialImageAlt', field: 'alt' },
-    { path: 'about.inspirationHeading', field: 'title' },
-    { path: 'about.inspirationBody', field: 'generic' },
-    { path: 'about.featureImageAlt', field: 'alt' },
-    { path: 'about.ambitionsHeading', field: 'title' },
-    { path: 'about.recognitionHeading', field: 'title' },
-    { path: 'project.eyebrow', field: 'generic' },
-    { path: 'project.heading', field: 'title' },
-    { path: 'project.description', field: 'generic' },
-    { path: 'project.collageAlt', field: 'alt' },
-    { path: 'project.sampleHeading', field: 'title' },
-    { path: 'contact.eyebrow', field: 'generic' },
-    { path: 'contact.heading', field: 'title' },
-    { path: 'contact.body', field: 'generic' },
-    { path: 'contact.emailLabel', field: 'generic' },
-    { path: 'seo.home.title', field: 'seotitle' },
-    { path: 'seo.home.description', field: 'seodescription' },
-    { path: 'seo.home.imageAlt', field: 'alt' }
-  ];
-
-  const arrayJobs = [
-    { path: 'about.paragraphs', field: 'generic' },
-    { path: 'about.ambitions', field: 'generic' },
-    { path: 'about.recognitionItems', field: 'generic' }
-  ];
-
-  const imageEntryJobs = [
-    { path: 'about.processImages', field: 'alt' },
-    { path: 'project.samples', field: 'alt' }
-  ];
+  const stringJobs = EN_SYNC_STRING_JOBS;
+  const arrayJobs = EN_SYNC_ARRAY_JOBS;
+  const imageEntryJobs = EN_SYNC_IMAGE_ENTRY_JOBS;
 
   setStatus(statusPrefix, 'info', { flash: flashStatus });
 
   englishTextSyncInFlight = true;
   let translatedFields = 0;
   let translatedArrayItems = 0;
+  let translatedArtworkFields = 0;
   let failedFields = 0;
   const failedDetails = [];
+  const pendingEntries = [];
+  const translatedArrayBuffers = new Map();
+  const translatedImageEntryBuffers = new Map();
+  const translatedCategoryLabels = {};
 
   try {
     for (const job of stringJobs) {
@@ -5666,23 +6925,20 @@ const syncEnglishTextsFromSwedish = async (options = {}) => {
         continue;
       }
       const currentEn = getPath(enPack, job.path);
-      if (!shouldSyncEnglishField(currentEn, source, job.field, onlyMissing)) {
+      const metaKey = buildEnglishSyncMetaKey({ target: 'string', path: job.path });
+      const metaRecord = getEnglishSyncMetaRecord(metaKey, 'en');
+      if (!shouldSyncEnglishField(currentEn, source, job.field, syncMode, metaRecord, metaKey)) {
         continue;
       }
-      try {
-        const translated = await translateSvTextToEnViaApi(source, job.field);
-        if (!translated) {
-          failedFields += 1;
-          failedDetails.push(`${job.path} (tom översättning)`);
-          continue;
-        }
-        setPath(enPack, job.path, translated);
-        translatedFields += 1;
-      } catch (error) {
-        failedFields += 1;
-        const reason = error instanceof Error && error.message ? error.message : 'okänt fel';
-        failedDetails.push(`${job.path} (${reason})`);
-      }
+      pendingEntries.push({
+        target: 'string',
+        label: job.path,
+        path: job.path,
+        field: job.field,
+        source,
+        metaKey,
+        metaRecord
+      });
     }
 
     for (const job of arrayJobs) {
@@ -5693,34 +6949,32 @@ const syncEnglishTextsFromSwedish = async (options = {}) => {
       const currentEnItems = getPath(enPack, job.path);
       const currentArray = Array.isArray(currentEnItems) ? currentEnItems : [];
       const translatedItems = [];
+      translatedArrayBuffers.set(job.path, translatedItems);
       for (let index = 0; index < sourceItems.length; index += 1) {
         const item = sourceItems[index];
         if (typeof item !== 'string' || item.trim() === '') {
           continue;
         }
         const currentEnItem = typeof currentArray[index] === 'string' ? currentArray[index] : '';
-        if (!shouldSyncEnglishField(currentEnItem, item, job.field, onlyMissing)) {
+        const metaKey = buildEnglishSyncMetaKey({ target: 'array', arrayPath: job.path, index });
+        const metaRecord = getEnglishSyncMetaRecord(metaKey, 'en');
+        if (!shouldSyncEnglishField(currentEnItem, item, job.field, syncMode, metaRecord, metaKey)) {
           translatedItems.push(currentEnItem || item);
           continue;
         }
-        try {
-          const translated = await translateSvTextToEnViaApi(item, job.field);
-          if (!translated) {
-            translatedItems.push(item);
-            failedFields += 1;
-            failedDetails.push(`${job.path}[${index + 1}] (tom översättning)`);
-          } else {
-            translatedItems.push(translated);
-            translatedArrayItems += 1;
-          }
-        } catch (error) {
-          translatedItems.push(item);
-          failedFields += 1;
-          const reason = error instanceof Error && error.message ? error.message : 'okänt fel';
-          failedDetails.push(`${job.path}[${index + 1}] (${reason})`);
-        }
+        translatedItems.push(item);
+        pendingEntries.push({
+          target: 'array',
+          label: `${job.path}[${index + 1}]`,
+          arrayPath: job.path,
+          index,
+          field: job.field,
+          source: item,
+          fallback: item,
+          metaKey,
+          metaRecord
+        });
       }
-      setPath(enPack, job.path, translatedItems);
     }
 
     for (const job of imageEntryJobs) {
@@ -5731,6 +6985,7 @@ const syncEnglishTextsFromSwedish = async (options = {}) => {
       const currentEnEntries = getPath(enPack, job.path);
       const currentEntries = Array.isArray(currentEnEntries) ? currentEnEntries : [];
       const translatedEntries = [];
+      translatedImageEntryBuffers.set(job.path, translatedEntries);
       for (let index = 0; index < sourceEntries.length; index += 1) {
         const item = sourceEntries[index];
         if (!item || typeof item !== 'object') {
@@ -5748,28 +7003,30 @@ const syncEnglishTextsFromSwedish = async (options = {}) => {
           translatedEntries.push({ src, alt: '' });
           continue;
         }
-        if (!shouldSyncEnglishField(currentAlt, alt, job.field, onlyMissing)) {
+        const metaKey = buildEnglishSyncMetaKey({ target: 'imageEntry', imagePath: job.path, index });
+        const metaRecord = getEnglishSyncMetaRecord(metaKey, 'en');
+        if (!shouldSyncEnglishField(currentAlt, alt, job.field, syncMode, metaRecord, metaKey)) {
           translatedEntries.push({ src, alt: currentAlt || alt });
           continue;
         }
-        try {
-          const translated = await translateSvTextToEnViaApi(alt, job.field);
-          translatedEntries.push({ src, alt: translated || alt });
-          translatedArrayItems += 1;
-        } catch (error) {
-          translatedEntries.push({ src, alt });
-          failedFields += 1;
-          const reason = error instanceof Error && error.message ? error.message : 'okänt fel';
-          failedDetails.push(`${job.path}[${index + 1}] (${reason})`);
-        }
+        translatedEntries.push({ src, alt });
+        pendingEntries.push({
+          target: 'imageEntry',
+          label: `${job.path}[${index + 1}]`,
+          imagePath: job.path,
+          index,
+          field: job.field,
+          source: alt,
+          fallback: alt,
+          metaKey,
+          metaRecord
+        });
       }
-      setPath(enPack, job.path, translatedEntries);
     }
 
     const categoryLabels = sv.gallery && sv.gallery.categoryLabels && typeof sv.gallery.categoryLabels === 'object'
       ? sv.gallery.categoryLabels
       : {};
-    const translatedCategoryLabels = {};
     for (const rawKey of Object.keys(categoryLabels)) {
       const key = normalizeCategoryKey(rawKey);
       const label = typeof categoryLabels[rawKey] === 'string' ? categoryLabels[rawKey].trim() : '';
@@ -5780,22 +7037,164 @@ const syncEnglishTextsFromSwedish = async (options = {}) => {
         translatedCategoryLabels[key] = 'All';
         continue;
       }
-      try {
-        const translated = await translateSvTextToEnViaApi(label, 'generic');
-        translatedCategoryLabels[key] = translated || humanizeCategoryKey(key);
-        translatedFields += 1;
-      } catch (error) {
-        translatedCategoryLabels[key] = humanizeCategoryKey(key);
-        failedFields += 1;
-        const reason = error instanceof Error && error.message ? error.message : 'okänt fel';
-        failedDetails.push(`gallery.categoryLabels.${key} (${reason})`);
+      pendingEntries.push({
+        target: 'categoryLabel',
+        label: `gallery.categoryLabels.${key}`,
+        categoryKey: key,
+        field: 'generic',
+        source: label,
+        fallback: humanizeCategoryKey(key),
+        metaKey: buildEnglishSyncMetaKey({ target: 'categoryLabel', categoryKey: key }),
+        metaRecord: getEnglishSyncMetaRecord(buildEnglishSyncMetaKey({ target: 'categoryLabel', categoryKey: key }), 'en')
+      });
+    }
+
+    const artworkFields = ARTWORK_TRANSLATABLE_FIELDS.slice();
+    const artworkItems = Array.isArray(sv.gallery?.artworks) ? sv.gallery.artworks : [];
+    for (const item of artworkItems) {
+      const src = item && typeof item.src === 'string' ? item.src.trim() : '';
+      if (!src) {
+        continue;
+      }
+
+      const entry = ensureArtworkTranslationEntry('en', src);
+      if (!entry) {
+        continue;
+      }
+
+      const manual = entry._manual && typeof entry._manual === 'object' ? entry._manual : null;
+      for (const fieldName of artworkFields) {
+        const source = item && typeof item[fieldName] === 'string' ? item[fieldName].trim() : '';
+        if (!source) {
+          continue;
+        }
+
+        const currentEn = typeof entry[fieldName] === 'string' ? entry[fieldName].trim() : '';
+        const metaKey = buildEnglishSyncMetaKey({
+          target: 'artworkField',
+          artworkSrc: src,
+          artworkField: fieldName
+        });
+        const metaRecord = getEnglishSyncMetaRecord(metaKey, 'en');
+        if (manual && manual[fieldName] && shouldRespectManualEnglishValue(currentEn, source, fieldName, syncMode, metaRecord)) {
+          continue;
+        }
+        if (!shouldSyncEnglishField(currentEn, source, fieldName, syncMode, metaRecord, metaKey)) {
+          continue;
+        }
+
+        pendingEntries.push({
+          target: 'artworkField',
+          label: `artwork.${src}.${fieldName}`,
+          artworkSrc: src,
+          artworkField: fieldName,
+          field: fieldName,
+          source,
+          previous: currentEn,
+          metaKey,
+          metaRecord
+        });
       }
     }
+
+    await processSvEntriesToEnInBatches(pendingEntries, {
+      onSuccess(entry, translated) {
+        if (entry.target === 'string' && entry.path) {
+          setPath(enPack, entry.path, translated);
+          rememberEnglishSyncMetaRecord(entry.metaKey, entry.source, translated, 'en');
+          translatedFields += 1;
+          return;
+        }
+        if (entry.target === 'array' && entry.arrayPath && Number.isInteger(entry.index)) {
+          const buffer = translatedArrayBuffers.get(entry.arrayPath);
+          if (Array.isArray(buffer)) {
+            buffer[entry.index] = translated;
+          }
+          rememberEnglishSyncMetaRecord(entry.metaKey, entry.source, translated, 'en');
+          translatedArrayItems += 1;
+          return;
+        }
+        if (entry.target === 'imageEntry' && entry.imagePath && Number.isInteger(entry.index)) {
+          const buffer = translatedImageEntryBuffers.get(entry.imagePath);
+          if (Array.isArray(buffer)) {
+            const current = buffer[entry.index] && typeof buffer[entry.index] === 'object' ? buffer[entry.index] : {};
+            buffer[entry.index] = {
+              ...current,
+              src: current.src || '',
+              alt: translated
+            };
+          }
+          rememberEnglishSyncMetaRecord(entry.metaKey, entry.source, translated, 'en');
+          translatedArrayItems += 1;
+          return;
+        }
+        if (entry.target === 'categoryLabel' && entry.categoryKey) {
+          translatedCategoryLabels[entry.categoryKey] = translated || entry.fallback || humanizeCategoryKey(entry.categoryKey);
+          rememberEnglishSyncMetaRecord(entry.metaKey, entry.source, translated || entry.fallback || humanizeCategoryKey(entry.categoryKey), 'en');
+          translatedFields += 1;
+          return;
+        }
+        if (entry.target === 'artworkField' && entry.artworkSrc && entry.artworkField) {
+          const artworkEntry = ensureArtworkTranslationEntry('en', entry.artworkSrc);
+          if (!artworkEntry) {
+            return;
+          }
+          artworkEntry[entry.artworkField] = translated;
+          applyArtworkEnglishTranslationToUi(entry.artworkSrc, entry.artworkField, translated);
+          rememberEnglishSyncMetaRecord(entry.metaKey, entry.source, translated, 'en');
+          translatedArtworkFields += 1;
+        }
+      },
+      onError(entry, reason) {
+        failedFields += 1;
+        failedDetails.push(`${entry.label} (${reason})`);
+        if (entry.target === 'array' && entry.arrayPath && Number.isInteger(entry.index)) {
+          const buffer = translatedArrayBuffers.get(entry.arrayPath);
+          if (Array.isArray(buffer)) {
+            buffer[entry.index] = entry.fallback || entry.source || '';
+          }
+          return;
+        }
+        if (entry.target === 'imageEntry' && entry.imagePath && Number.isInteger(entry.index)) {
+          const buffer = translatedImageEntryBuffers.get(entry.imagePath);
+          if (Array.isArray(buffer)) {
+            const current = buffer[entry.index] && typeof buffer[entry.index] === 'object' ? buffer[entry.index] : {};
+            buffer[entry.index] = {
+              ...current,
+              src: current.src || '',
+              alt: entry.fallback || entry.source || ''
+            };
+          }
+          return;
+        }
+        if (entry.target === 'categoryLabel' && entry.categoryKey) {
+          translatedCategoryLabels[entry.categoryKey] = entry.fallback || humanizeCategoryKey(entry.categoryKey);
+          return;
+        }
+        if (entry.target === 'artworkField' && entry.artworkSrc && entry.artworkField) {
+          const artworkEntry = ensureArtworkTranslationEntry('en', entry.artworkSrc);
+          if (!artworkEntry) {
+            return;
+          }
+          if (typeof entry.previous === 'string' && entry.previous.trim() !== '') {
+            artworkEntry[entry.artworkField] = entry.previous;
+            applyArtworkEnglishTranslationToUi(entry.artworkSrc, entry.artworkField, entry.previous);
+          }
+        }
+      }
+    });
+
+    translatedArrayBuffers.forEach((items, path) => {
+      setPath(enPack, path, items);
+    });
+    translatedImageEntryBuffers.forEach((items, path) => {
+      setPath(enPack, path, items);
+    });
+
     if (Object.keys(translatedCategoryLabels).length > 0) {
       setPath(enPack, 'gallery.categoryLabels', translatedCategoryLabels);
     }
 
-    const queuedArtworkFields = queueArtworkEnglishTranslationsFromSwedish({ titlesOnly: onlyMissing });
     syncFormFromState();
     renderCategoryEditor();
     renderCategorySelects();
@@ -5803,13 +7202,9 @@ const syncEnglishTextsFromSwedish = async (options = {}) => {
     renderHeroSlideArtworkOptions();
     renderHeroSlidesEditor();
 
-    const totalTranslated = translatedFields + translatedArrayItems;
-    const titleNote =
-      queuedArtworkFields > 0
-        ? ` Autoöversätter även ${queuedArtworkFields} verkfält (titel/format/medium/alt) i bakgrunden.`
-        : '';
+    const totalTranslated = translatedFields + translatedArrayItems + translatedArtworkFields;
     const noChangeNote =
-      totalTranslated === 0 && queuedArtworkFields === 0 && failedFields === 0
+      totalTranslated === 0 && failedFields === 0
         ? ' Inga fält behövde uppdateras.'
         : '';
     const failureNote =
@@ -5818,9 +7213,9 @@ const syncEnglishTextsFromSwedish = async (options = {}) => {
       failedDetails.length > 0
         ? ` Misslyckade fält: ${failedDetails.slice(0, 3).join('; ')}${failedDetails.length > 3 ? ' ...' : ''}`
         : '';
-    const hasOnlyFailures = totalTranslated === 0 && queuedArtworkFields === 0 && failedFields > 0;
+    const hasOnlyFailures = totalTranslated === 0 && failedFields > 0;
     setStatus(
-      `Synkade EN-texter: ${translatedFields} fält och ${translatedArrayItems} listpunkter.${titleNote}${noChangeNote}${failureNote}${failureDetailsNote} Klicka "Spara ändringar" för att publicera.`,
+      `Synkade EN-texter: ${translatedFields} fält, ${translatedArrayItems} listpunkter och ${translatedArtworkFields} verkfält.${noChangeNote}${failureNote}${failureDetailsNote} Klicka "Spara ändringar" för att publicera.`,
       hasOnlyFailures ? 'error' : 'success',
       { flash: flashStatus }
     );
@@ -6078,6 +7473,22 @@ const bindEvents = () => {
       addCategoryFromEditor();
     });
   }
+
+  if (el.heroAutoSlidesForceRefresh) {
+    el.heroAutoSlidesForceRefresh.addEventListener('click', () => {
+      if (!state.content.hero.autoSlides || typeof state.content.hero.autoSlides !== 'object') {
+        state.content.hero.autoSlides = {};
+      }
+      const stamp = new Date().toISOString();
+      state.content.hero.autoSlides.seedNonce = stamp;
+      state.content.hero.autoSlides.lastForcedAt = stamp;
+      updateHeroAutoSlidesForceMeta();
+      setStatus(
+        'Force update förberedd. Klicka "Spara ändringar" för att publicera nytt auto-urval direkt.',
+        'success'
+      );
+    });
+  }
   if (el.addCategoryKey) {
     el.addCategoryKey.addEventListener('keydown', (event) => {
       if (event.key === 'Enter') {
@@ -6118,10 +7529,9 @@ const bindEvents = () => {
         renderHeroSlidesEditor();
         if (nextLanguage === 'en') {
           setStatus(
-            `Bytte textredigering till ${getLanguageLabel(nextLanguage)}. Synkar saknade EN-texter i bakgrunden...`,
+            `Bytte textredigering till ${getLanguageLabel(nextLanguage)}. Använd "Synka EN från SV" om du vill autofylla eller uppdatera engelska texter.`,
             'info'
           );
-          void syncEnglishTextsFromSwedish({ askConfirmation: false, onlyMissing: true, flash: false });
         } else {
           setStatus(`Bytte textredigering till ${getLanguageLabel(nextLanguage)}.`, 'info');
         }
@@ -6136,19 +7546,19 @@ const bindEvents = () => {
         return;
       }
 
-      const queued = queueMissingArtworkEnglishTitles();
-      if (queued > 0) {
-        setStatus(`Autoöversätter ${queued} titel/titlar i bakgrunden... Klicka "Spara" när du är nöjd.`, 'info');
-        return;
-      }
-
-      setStatus('Inga saknade titlar att autoöversätta (eller titlarna är manuellt låsta).', 'success');
+      void translateMissingArtworkEnglishTitlesViaApi();
     });
   }
 
   if (el.translateEnFromSv) {
     el.translateEnFromSv.addEventListener('click', () => {
-      void syncEnglishTextsFromSwedish({ askConfirmation: false, onlyMissing: false, flash: true });
+      void syncEnglishTextsFromSwedish({ askConfirmation: false, syncMode: 'smart', flash: true });
+    });
+  }
+
+  if (el.translateEnFromSvForce) {
+    el.translateEnFromSvForce.addEventListener('click', () => {
+      void syncEnglishTextsFromSwedish({ askConfirmation: true, syncMode: 'force', flash: true });
     });
   }
 
@@ -6167,6 +7577,33 @@ const bindEvents = () => {
       renderSeoHomeImageControls();
     });
   }
+
+  [
+    el.themeBackground,
+    el.themeSurface,
+    el.themeInk,
+    el.themeSoftInk,
+    el.themePrimary,
+    el.themeAccent,
+    el.themeHeaderBackground,
+    el.themeHeaderOpacity,
+    el.themeButtonGradientStart,
+    el.themeButtonGradientEnd,
+    el.themeFooterBackground,
+    el.themeFontDisplay,
+    el.themeFontBody,
+    el.themeFontDisplayWeight,
+    el.themeFontBodyWeight
+  ]
+    .filter(Boolean)
+    .forEach((node) => {
+      node.addEventListener('input', () => {
+        pullFormToState();
+      });
+      node.addEventListener('change', () => {
+        pullFormToState();
+      });
+    });
 
   const sectionImagePickerPairs = [
     { select: el.aboutPortraitImagePick, input: el.aboutPortraitImage },
@@ -6381,7 +7818,9 @@ const bindEvents = () => {
   });
 
   if (el.studioLogoutBtn) {
-    if (isSecureAuthStudio()) {
+    if (isLocalStaticStudioPreview()) {
+      el.studioLogoutBtn.hidden = true;
+    } else if (isSecureAuthStudio()) {
       el.studioLogoutBtn.hidden = false;
       el.studioLogoutBtn.addEventListener('click', async () => {
         try {
@@ -6432,6 +7871,7 @@ const init = async () => {
   ensureAboutContact();
   ensureAnalytics();
   ensureSeo();
+  captureEnglishSyncSourceSnapshot();
   syncFormFromState();
   injectSectionSaveButtons();
   injectSectionCollapseControls();
@@ -6440,12 +7880,28 @@ const init = async () => {
   renderHeroSlidesEditor();
   bindEvents();
   await loadServerImageCandidates();
-  initAnalyticsDashboard();
-  if (canPublishToServer()) {
-    setStatus('Studio laddad. Spara publicerar nu direkt till live via MySQL + overrides.js.', 'info', { flash: false });
+  if (!isLocalStaticStudioPreview()) {
+    initAnalyticsDashboard();
+    initInquiriesPanel();
+  } else {
+    if (typeof setAnalyticsPanelStatus === 'function') {
+      setAnalyticsPanelStatus('Lokalt previewläge: analytics kräver PHP-backend.', 'info');
+    }
+    if (typeof setInquiriesPanelStatus === 'function') {
+      setInquiriesPanelStatus('Lokalt previewläge: inbox kräver PHP-backend.', 'info');
+    }
+  }
+  if (isLocalStaticStudioPreview()) {
+    setStatus(
+      'Studio laddad i previewläge. Ändringar visas lokalt tills du publicerar.',
+      'info',
+      { flash: false }
+    );
+  } else if (canPublishToServer()) {
+    setStatus('Studio laddad. Spara publicerar direkt till live.', 'info', { flash: false });
   } else {
     setStatus(
-      'Studio laddad. Exportera overrides.js och ladda upp filen för att publicera ändringar för alla besökare.',
+      'Studio laddad. Exportera filen för att publicera ändringarna.',
       'info',
       { flash: false }
     );

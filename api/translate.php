@@ -10,12 +10,66 @@ $pdo = api_get_pdo();
 api_ensure_schema($pdo);
 
 $request = api_decode_request_json();
+$itemsRaw = isset($request['items']) && is_array($request['items']) ? $request['items'] : null;
 $text = isset($request['text']) && is_string($request['text']) ? trim($request['text']) : '';
 $from = isset($request['from']) && is_string($request['from']) ? strtolower(trim($request['from'])) : 'sv';
 $to = isset($request['to']) && is_string($request['to']) ? strtolower(trim($request['to'])) : 'en';
-$field = isset($request['field']) && is_string($request['field']) ? strtolower(trim($request['field'])) : 'generic';
+$field = translate_normalize_field(isset($request['field']) && is_string($request['field']) ? $request['field'] : 'generic');
 
-if ($text === '') {
+$items = [];
+if (is_array($itemsRaw)) {
+  if (count($itemsRaw) > 12) {
+    api_respond_json(413, [
+      'ok' => false,
+      'error' => 'too_many_items',
+      'message' => 'För många texter i samma översättningsanrop (max 12).'
+    ]);
+  }
+
+  $totalBytes = 0;
+  foreach ($itemsRaw as $rawItem) {
+    if (!is_array($rawItem)) {
+      api_respond_json(400, [
+        'ok' => false,
+        'error' => 'invalid_items',
+        'message' => 'Alla översättningsposter måste vara objekt med text.'
+      ]);
+    }
+
+    $itemText = isset($rawItem['text']) && is_string($rawItem['text']) ? trim($rawItem['text']) : '';
+    if ($itemText === '') {
+      api_respond_json(400, [
+        'ok' => false,
+        'error' => 'missing_text',
+        'message' => 'Text saknas.'
+      ]);
+    }
+
+    if (strlen($itemText) > 800) {
+      api_respond_json(413, [
+        'ok' => false,
+        'error' => 'text_too_long',
+        'message' => 'En eller flera texter är för långa för autoöversättning (max 800 tecken per text).'
+      ]);
+    }
+
+    $totalBytes += strlen($itemText);
+    if ($totalBytes > 4800) {
+      api_respond_json(413, [
+        'ok' => false,
+        'error' => 'batch_too_large',
+        'message' => 'Översättningspaketet är för stort. Dela upp det i mindre delar.'
+      ]);
+    }
+
+    $items[] = [
+      'text' => $itemText,
+      'field' => translate_normalize_field(isset($rawItem['field']) && is_string($rawItem['field']) ? $rawItem['field'] : 'generic')
+    ];
+  }
+}
+
+if ($items === [] && $text === '') {
   api_respond_json(400, [
     'ok' => false,
     'error' => 'missing_text',
@@ -23,7 +77,7 @@ if ($text === '') {
   ]);
 }
 
-if (strlen($text) > 800) {
+if ($items === [] && strlen($text) > 800) {
   api_respond_json(413, [
     'ok' => false,
     'error' => 'text_too_long',
@@ -40,11 +94,6 @@ if (!(($from === 'sv' && $to === 'en') || ($from === 'en' && $to === 'sv'))) {
   ]);
 }
 
-$allowedFields = ['title', 'alt', 'format', 'medium', 'seotitle', 'seodescription', 'generic'];
-if (!in_array($field, $allowedFields, true)) {
-  $field = 'generic';
-}
-
 $cfg = openai_config();
 if ($cfg['apiKey'] === '') {
   api_respond_json(400, [
@@ -56,7 +105,11 @@ if ($cfg['apiKey'] === '') {
 
 // Protect against accidental runaway costs.
 $rateScope = 'openai_translate';
-$rateKey = api_security_client_ip() . '|' . $direction . '|' . $field;
+$rateField = $items !== [] ? 'batch' : $field;
+$rateKey = api_security_client_ip() . '|' . $direction . '|' . $rateField;
+$maxRateHits = 60;
+$rateWindowSeconds = 300;
+$rateBlockSeconds = 600;
 api_security_require_not_rate_limited(
   $pdo,
   $rateScope,
@@ -65,20 +118,37 @@ api_security_require_not_rate_limited(
 );
 
 try {
+  if ($items !== []) {
+    $translations = openai_translate_batch($cfg, $items, $from, $to);
+    api_security_rate_limit_register_hit($pdo, $rateScope, $rateKey, $maxRateHits, $rateWindowSeconds, $rateBlockSeconds);
+
+    api_respond_json(200, [
+      'ok' => true,
+      'translations' => $translations
+    ]);
+  }
+
   $translation = openai_translate_text($cfg, $text, $field, $from, $to);
-  api_security_rate_limit_clear($pdo, $rateScope, $rateKey);
+  api_security_rate_limit_register_hit($pdo, $rateScope, $rateKey, $maxRateHits, $rateWindowSeconds, $rateBlockSeconds);
 
   api_respond_json(200, [
     'ok' => true,
     'translation' => $translation
   ]);
 } catch (Throwable $error) {
-  api_security_rate_limit_register_failure($pdo, $rateScope, $rateKey, 20, 300, 600);
+  api_security_rate_limit_register_hit($pdo, $rateScope, $rateKey, $maxRateHits, $rateWindowSeconds, $rateBlockSeconds);
   api_respond_json(502, [
     'ok' => false,
     'error' => 'openai_translate_failed',
     'message' => $error->getMessage() !== '' ? $error->getMessage() : 'Kunde inte översätta texten via OpenAI.'
   ]);
+}
+
+function translate_normalize_field(string $field): string
+{
+  $normalized = strtolower(trim($field));
+  $allowedFields = ['title', 'alt', 'format', 'medium', 'pricelabel', 'collectornote', 'seotitle', 'seodescription', 'generic'];
+  return in_array($normalized, $allowedFields, true) ? $normalized : 'generic';
 }
 
 function openai_config(): array
@@ -181,6 +251,14 @@ function openai_field_instructions(string $field, string $from, string $to): str
       return $svToEn
         ? "Translate an artwork medium line from Swedish to English. Keep it concise."
         : "Translate an artwork medium line from English to Swedish. Keep it concise.";
+    case 'pricelabel':
+      return $svToEn
+        ? "Translate a short artwork pricing label from Swedish to English. Preserve currency, numbers, and concise tone."
+        : "Translate a short artwork pricing label from English to Swedish. Preserve currency, numbers, and concise tone.";
+    case 'collectornote':
+      return $svToEn
+        ? "Translate a short collector-facing note about availability, reservation, or viewing details from Swedish to English. Keep it warm and concise."
+        : "Translate a short collector-facing note about availability, reservation, or viewing details from English to Swedish. Keep it warm and concise.";
     case 'seotitle':
       return $svToEn
         ? "Translate a short SEO title for an artwork page from Swedish to natural English. Keep key terms and proper nouns. No quotes."
@@ -284,6 +362,141 @@ function openai_translate_text(array $cfg, string $text, string $field, string $
           return $translation;
         }
         $lastError = 'OpenAI returnerade en tom översättning.';
+      }
+    } else {
+      $errorText = openai_extract_error($body);
+      $lastError = 'OpenAI API-fel (' . $status . ')' . ($errorText !== '' ? ': ' . $errorText : '.');
+    }
+
+    $hasNextModel = $modelIndex < (count($modelsToTry) - 1);
+    if (!$hasNextModel) {
+      break;
+    }
+
+    if (!openai_should_try_fallback_model($status, $lastError)) {
+      break;
+    }
+  }
+
+  $attemptedModels = implode(', ', $modelsToTry);
+  throw new RuntimeException(
+    $lastError . ($lastStatus > 0 ? " [försökta modeller: {$attemptedModels}]" : '')
+  );
+}
+
+function openai_translate_batch(array $cfg, array $items, string $from, string $to): array
+{
+  if (count($items) === 0) {
+    return [];
+  }
+
+  $system = implode("\n", [
+    "You are a professional translation engine.",
+    "Return JSON only.",
+    "Output must be a single JSON object with exactly one key: translations (array of strings).",
+    "The translations array must contain exactly " . count($items) . " items in the same order as the input.",
+    "Do not wrap the JSON in markdown."
+  ]);
+
+  $fromLabel = $from === 'en' ? 'English' : 'Swedish';
+  $toLabel = $to === 'sv' ? 'Swedish' : 'English';
+
+  $lines = [
+    "Task: translate from {$fromLabel} to {$toLabel}.",
+    "Return only the translated strings in the translations array.",
+    ""
+  ];
+
+  foreach ($items as $index => $item) {
+    $field = translate_normalize_field((string) ($item['field'] ?? 'generic'));
+    $text = trim((string) ($item['text'] ?? ''));
+    $instructions = openai_field_instructions($field, $from, $to);
+    $lines[] = ($index + 1) . '.';
+    $lines[] = "Field: {$field}";
+    $lines[] = "Instructions: {$instructions}";
+    $lines[] = "Text:";
+    $lines[] = $text;
+    $lines[] = '---';
+  }
+
+  $user = implode("\n", $lines);
+
+  $headers = [
+    'Content-Type: application/json',
+    'Authorization: Bearer ' . $cfg['apiKey']
+  ];
+  if (isset($cfg['organizationId']) && is_string($cfg['organizationId']) && trim($cfg['organizationId']) !== '') {
+    $headers[] = 'OpenAI-Organization: ' . trim($cfg['organizationId']);
+  }
+  if (isset($cfg['projectId']) && is_string($cfg['projectId']) && trim($cfg['projectId']) !== '') {
+    $headers[] = 'OpenAI-Project: ' . trim($cfg['projectId']);
+  }
+
+  $modelsToTry = [];
+  $primaryModel = trim((string) ($cfg['model'] ?? ''));
+  if ($primaryModel !== '') {
+    $modelsToTry[] = $primaryModel;
+  }
+  $fallbackModel = trim((string) ($cfg['fallbackModel'] ?? ''));
+  if ($fallbackModel !== '' && !in_array($fallbackModel, $modelsToTry, true)) {
+    $modelsToTry[] = $fallbackModel;
+  }
+  if (count($modelsToTry) === 0) {
+    $modelsToTry[] = 'gpt-4o-mini';
+  }
+
+  $lastError = 'Kunde inte översätta texterna via OpenAI.';
+  $lastStatus = 0;
+
+  foreach ($modelsToTry as $modelIndex => $modelName) {
+    $payload = [
+      'model' => $modelName,
+      'temperature' => 0.2,
+      'response_format' => ['type' => 'json_object'],
+      'messages' => [
+        ['role' => 'system', 'content' => $system],
+        ['role' => 'user', 'content' => $user]
+      ]
+    ];
+
+    $json = json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    if (!is_string($json)) {
+      throw new RuntimeException('Kunde inte serialisera OpenAI payload.');
+    }
+
+    [$status, $body] = openai_http_request(
+      'https://api.openai.com/v1/chat/completions',
+      $headers,
+      $json,
+      (int) $cfg['timeoutSeconds']
+    );
+
+    $lastStatus = $status;
+    if ($status >= 200 && $status < 300) {
+      $decoded = json_decode($body, true);
+      $content = is_array($decoded) ? (string) (($decoded['choices'][0]['message']['content'] ?? '') ?: '') : '';
+      if (trim($content) === '') {
+        $lastError = 'OpenAI returnerade inga översättningar.';
+      } else {
+        $parsed = json_decode($content, true);
+        $translationsRaw = is_array($parsed) && isset($parsed['translations']) && is_array($parsed['translations'])
+          ? $parsed['translations']
+          : null;
+        if (is_array($translationsRaw)) {
+          $translations = [];
+          foreach ($items as $index => $_item) {
+            $candidate = isset($translationsRaw[$index]) ? trim((string) $translationsRaw[$index]) : '';
+            if ($candidate === '') {
+              $translations = [];
+              break;
+            }
+            $translations[] = $candidate;
+          }
+          if (count($translations) === count($items)) {
+            return $translations;
+          }
+        }
+        $lastError = 'OpenAI returnerade ofullständiga översättningar.';
       }
     } else {
       $errorText = openai_extract_error($body);

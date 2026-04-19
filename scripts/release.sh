@@ -27,6 +27,8 @@ readonly EXCLUDED_NAMES=(
 )
 
 readonly EXCLUDED_PREFIXES=(
+  ".claude/"
+  ".codex/"
   ".git/"
   "skills/"
   "scripts/"

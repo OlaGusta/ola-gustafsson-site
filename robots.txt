@@ -1,0 +1,23 @@
+# START YOAST BLOCK
+# ---------------------------
+User-agent: *
+Disallow: /wp-admin/
+Allow: /wp-admin/admin-ajax.php
+
+# Blockera irrelevanta sökvägar
+Disallow: /cgi-bin/
+Disallow: /?s=
+Disallow: /?p=
+Disallow: /search/
+Disallow: /tag/
+Disallow: /author/
+Disallow: /page/
+Disallow: /category/uncategorized/
+
+# Tillåt media och offentliga sidor
+Allow: /wp-content/uploads/
+
+# Sitemap skapad av Yoast SEO
+Sitemap: https://olagustafsson.com/sitemap_index.xml
+# ---------------------------
+# END YOAST BLOCK

@@ -6,34 +6,29 @@
     <title>Studio | Ola Gustafsson Akvarell</title>
     <meta name="description" content="Studio för att redigera galleriinnehåll, metadata och bilder." />
     <meta name="robots" content="noindex,nofollow" />
-    <link rel="icon" href="/favicon.ico?v=20260222-10" sizes="any" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=20260222-10" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=20260222-10" />
-    <link rel="manifest" href="/site.webmanifest?v=20260222-10" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-light-32x32.png?v=20260317-14" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-light-32x32.png?v=20260317-14" media="(prefers-color-scheme: light)" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-dark-32x32.png?v=20260317-14" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon-light.ico?v=20260317-14" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=20260317-14" />
+    <link rel="manifest" href="/site.webmanifest?v=20260317-14" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,300..800&family=Lora:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Source+Sans+3:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=20260222-12" />
-    <script src="overrides.js?v=20260212-01"></script>
+    <link rel="stylesheet" href="styles.css?v=20260323-06" />
+    <script src="overrides.js?v=20260323-04"></script>
     <script src="content.js?v=20260222-06" defer></script>
     <script src="vendor/qrcode.min.js?v=20260216-01" defer></script>
-    <script src="studio.js?v=20260222-01" defer></script>
+    <script src="studio.js?v=20260331-03" defer></script>
   </head>
   <body id="page-top" data-page="studio">
     <header class="site-header" id="top">
       <div class="container header-inner">
         <a class="brand" href="index.html#top">
-          <img
-            class="brand-logo"
-            src="/brand-logo-blue.png?v=20260222-01"
-            alt=""
-            aria-hidden="true"
-            loading="eager"
-            decoding="async"
-          />
+          <span class="brand-logo" aria-hidden="true"></span>
           <span class="brand-text">
             <span>Ola Gustafsson</span>
             <span>Studio</span>
@@ -155,7 +150,10 @@
                 Autoöversätt saknade EN-titlar
               </button>
               <button type="button" class="btn btn-ghost" id="translate-en-from-sv">
-                Synka EN-texter från svenska (AI)
+                Synka EN från SV
+              </button>
+              <button type="button" class="btn btn-ghost" id="translate-en-from-sv-force">
+                Synka om alla EN från SV
               </button>
             </div>
             <p class="studio-note studio-lang-note" id="studio-lang-note">
@@ -177,6 +175,14 @@
               <label>Standard slide-längd (ms)
                 <input type="number" id="hero-slide-duration" min="1000" step="500" />
               </label>
+              <label class="checkbox-row">
+                <input type="checkbox" id="hero-auto-slides-enabled" />
+                <span>Använd auto-slider från galleriet (4 bilder, veckovis byte)</span>
+              </label>
+              <div class="studio-row" style="align-items:center;gap:0.6rem;">
+                <button type="button" class="btn btn-ghost" id="hero-auto-slides-force-refresh">Force update auto-slider nu</button>
+                <small id="hero-auto-slides-force-meta" class="studio-note" style="margin:0;">Ingen force update gjord ännu</small>
+              </div>
               <label>Titel <input type="text" id="hero-title" /></label>
               <label>Intro <textarea id="hero-intro" rows="3"></textarea></label>
               <label>Budskapsrad (under intro)
@@ -283,6 +289,18 @@
               </label>
             </div>
             <div class="studio-grid studio-subsection">
+              <h3>Inspiration</h3>
+              <label>Rubrik
+                <input type="text" id="inspiration-heading" placeholder="Inspiration" />
+              </label>
+              <label>Text
+                <textarea id="inspiration-body" rows="5"></textarea>
+              </label>
+              <p class="studio-note">
+                Lägg in klickbara länkar med formatet <code>[namn](https://...)</code>.
+              </p>
+            </div>
+            <div class="studio-grid studio-subsection">
               <h3>Helbildssektion (Sandemar)</h3>
               <input type="hidden" id="about-feature-image" />
               <label>Välj helbild
@@ -306,6 +324,9 @@
               <label>Punkter (en punkt per rad)
                 <textarea id="recognition-lines" rows="6"></textarea>
               </label>
+              <p class="studio-note">
+                Även här kan du lägga in klickbara länkar med formatet <code>[namn](https://...)</code>.
+              </p>
             </div>
           </section>
 
@@ -435,6 +456,12 @@
               <label>Mjuk text <input type="color" id="theme-soft-ink" /></label>
               <label>Primär <input type="color" id="theme-primary" /></label>
               <label>Accent <input type="color" id="theme-accent" /></label>
+              <label>Header & footer <input type="color" id="theme-header-background" /></label>
+              <label>Header-opacitet
+                <input type="range" id="theme-header-opacity" min="0" max="100" step="1" />
+              </label>
+              <label>Knappgradient start <input type="color" id="theme-button-gradient-start" /></label>
+              <label>Knappgradient slut <input type="color" id="theme-button-gradient-end" /></label>
             </div>
             <div class="studio-grid studio-grid-2 studio-subsection">
               <label>Rubriktypsnitt
@@ -478,13 +505,22 @@
                 </select>
               </label>
             </div>
+            <p class="studio-note">
+              Header och footer delar samma temafärg. Primärknappar använder samma gradient över hela frontend och kan justeras här.
+            </p>
           </section>
 
           <section class="studio-card surface-soft studio-card-compact">
             <h2>Galleriinställningar</h2>
-            <div class="studio-grid studio-grid-3">
+            <div class="studio-grid studio-grid-2">
+              <label>Rubrik på startsidan
+                <input type="text" id="gallery-heading" placeholder="Akvarellmålningar" />
+              </label>
               <label>Rubrik på gallerisidan
                 <input type="text" id="gallery-page-heading" placeholder="Hela galleriet" />
+              </label>
+              <label>Ingress på gallerisidan
+                <textarea id="gallery-subheading" rows="3" placeholder="Här visas originalmålningar i akvarell med motiv från landskap, natur och stad."></textarea>
               </label>
               <label class="checkbox-row">
                 <input type="checkbox" id="auto-discover-enabled" />
@@ -494,6 +530,9 @@
                 <select id="auto-default-category"></select>
               </label>
             </div>
+            <p class="studio-note">
+              Här styr du både startsidans gallerirubrik och rubriken/ingressen på själva gallerisidan.
+            </p>
             <details class="studio-collapsible">
               <summary>Kategori-redigering</summary>
               <div class="studio-grid studio-compact-content">
@@ -638,14 +677,41 @@
           </section>
 
           <section class="studio-card surface-soft">
-            <div class="studio-actions">
+            <div class="studio-row">
+              <h2>Intresseanmälningar</h2>
+              <div class="analytics-toolbar">
+                <label>Status
+                  <select id="inquiries-panel-filter">
+                    <option value="all">Alla</option>
+                    <option value="new">Nya</option>
+                    <option value="replied">Besvarade</option>
+                    <option value="closed">Stängda</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-ghost" id="inquiries-panel-refresh">Uppdatera</button>
+              </div>
+            </div>
+            <p class="studio-note">Visar inkomna kontaktmeddelanden med extra fokus på verksförfrågningar.</p>
+            <div id="inquiries-panel-status" class="analytics-panel-status" data-kind="info" aria-live="polite">
+              Väntar på uppdatering...
+            </div>
+            <div id="inquiries-panel-list" class="inquiries-panel-list"></div>
+          </section>
+
+          <section class="studio-card surface-soft studio-publish-card">
+            <div class="studio-publish-row">
               <button type="button" class="btn btn-primary" id="save-studio">Spara ändringar</button>
-              <button type="button" class="btn btn-ghost" id="restore-from-server">Hämta från server</button>
-              <button type="button" class="btn btn-ghost" id="restore-sv-from-en">Återskapa svenska titlar</button>
-              <button type="button" class="btn btn-ghost" id="export-overrides-js">Exportera overrides.js</button>
-              <button type="button" class="btn btn-ghost" id="export-json">Exportera JSON</button>
-              <button type="button" class="btn btn-ghost" id="import-json-trigger">Importera JSON</button>
-              <button type="button" class="btn btn-ghost" id="reset-studio">Återställ till content.js</button>
+              <details class="studio-advanced-tools">
+                <summary>Fler verktyg</summary>
+                <div class="studio-actions studio-actions-advanced">
+                  <button type="button" class="btn btn-ghost" id="restore-from-server">Hämta från server</button>
+                  <button type="button" class="btn btn-ghost" id="restore-sv-from-en">Återskapa svenska titlar</button>
+                  <button type="button" class="btn btn-ghost" id="export-overrides-js">Exportera overrides.js</button>
+                  <button type="button" class="btn btn-ghost" id="export-json">Exportera JSON</button>
+                  <button type="button" class="btn btn-ghost" id="import-json-trigger">Importera JSON</button>
+                  <button type="button" class="btn btn-ghost" id="reset-studio">Återställ till content.js</button>
+                </div>
+              </details>
               <input type="file" id="import-json" accept="application/json" hidden />
             </div>
           </section>

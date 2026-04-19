@@ -5,28 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hela Galleriet | Ola Gustafsson Akvarell</title>
     <meta name="description" content="Hela galleriet med akvareller av Ola Gustafsson." />
-    <link rel="icon" href="/favicon.ico" sizes="any" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/site.webmanifest" />
+    <link id="favicon-png" rel="icon" type="image/png" sizes="32x32" href="/favicon-light-32x32.png?v=20260317-14" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-light-32x32.png?v=20260317-14" media="(prefers-color-scheme: light)" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-dark-32x32.png?v=20260317-14" media="(prefers-color-scheme: dark)" />
+    <link id="favicon-ico" rel="icon" href="/favicon-light.ico?v=20260317-14" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=20260317-14" />
+    <link rel="manifest" href="/site.webmanifest?v=20260317-14" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,300..800&family=Lora:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Source+Sans+3:wght@300;400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,300..800&family=Lora:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Source+Sans+3:wght@300;400;500;600;700;800&display=optional"
       rel="stylesheet"
+      media="print"
+      data-deferred-stylesheet="fonts"
     />
-    <link rel="stylesheet" href="styles.css?v=20260219-06" />
-    <script src="overrides.js?v=20260212-01"></script>
-    <script src="content.js?v=20260219-04" defer></script>
-    <script src="script.js?v=20260219-06" defer></script>
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,300..800&family=Lora:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Source+Sans+3:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" /></noscript>
+    <link rel="stylesheet" href="styles.css?v=20260323-06" />
+    <script src="overrides.js?v=20260323-04"></script>
+    <script src="content.js?v=20260222-06" defer></script>
+    <script src="script.js?v=20260323-05" defer></script>
   </head>
   <body id="page-top" data-page="gallery">
     <header class="site-header" id="top">
       <div class="container header-inner">
         <a class="brand" href="index.html#top" data-lang-link>
-          <span data-bind="site.brandName">Ola Gustafsson</span>
-          <span data-bind="site.brandTag">Akvarell</span>
+          <span class="brand-logo" aria-hidden="true"></span>
+          <span class="brand-text">
+            <span data-bind="site.brandName">Ola Gustafsson</span>
+            <span data-bind="site.brandTag">Akvarell</span>
+          </span>
         </a>
         <nav id="main-nav" class="main-nav" aria-label="Huvudmeny" data-bind-aria="ui.navAriaLabel">
           <a href="index.html#hem" data-bind="ui.navHome" data-lang-link>Hem</a>
@@ -37,6 +44,10 @@
         <div class="lang-switch" role="group" aria-label="Välj språk" data-bind-aria="ui.languageSwitcherAria">
           <button type="button" class="lang-switch-btn" data-lang-option="sv" aria-label="Svenska">SV</button>
           <button type="button" class="lang-switch-btn" data-lang-option="en" aria-label="English">EN</button>
+        </div>
+        <div class="theme-switch" role="group" aria-label="Välj färgläge" data-bind-aria="ui.themeSwitcherAria">
+          <button type="button" class="theme-switch-btn" data-theme-option="light" aria-label="Ljus" data-bind="ui.themeOptionLight">Ljus</button>
+          <button type="button" class="theme-switch-btn" data-theme-option="dark" aria-label="Mörk" data-bind="ui.themeOptionDark">Mörk</button>
         </div>
         <button
           class="menu-toggle"
@@ -57,6 +68,7 @@
           <div class="section-head">
             <div>
               <h1 data-bind="gallery.pageHeading">Hela galleriet</h1>
+              <p id="gallery-page-subheading" class="section-lead gallery-page-lead" data-bind="gallery.subheading"></p>
             </div>
           </div>
           <div
@@ -112,7 +124,9 @@
         ◀
       </button>
       <figure class="lightbox-figure">
-        <img id="lightbox-image" src="" alt="" />
+        <div class="lightbox-media">
+          <img id="lightbox-image" src="" alt="" />
+        </div>
         <figcaption id="lightbox-caption">
           <div id="lightbox-caption-text" class="lightbox-caption-text"></div>
           <div class="lightbox-caption-actions">
@@ -125,6 +139,16 @@
               data-bind="ui.openArtworkPage"
             >
               Öppna verk-sida
+            </a>
+            <a
+              id="lightbox-artwork-inquiry"
+              class="btn btn-ghost"
+              href="#"
+              target="_blank"
+              rel="noreferrer"
+              data-bind="ui.inquiryArtworkLink"
+            >
+              Intresserad av verket
             </a>
             <button
               id="lightbox-copy-artwork-link"

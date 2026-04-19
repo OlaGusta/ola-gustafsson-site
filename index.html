@@ -6,35 +6,31 @@
     <title>Ola Gustafsson Akvarell | Portfolio</title>
     <meta name="description" content="Portfolio för Ola Gustafsson, akvarellkonstnär." />
     <meta name="theme-color" content="#f3efe6" />
-    <link rel="icon" href="favicon.ico" sizes="any" />
-    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
-    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-    <link rel="manifest" href="site.webmanifest" />
+    <link id="favicon-png" rel="icon" type="image/png" sizes="32x32" href="favicon-light-32x32.png?v=20260317-14" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-light-32x32.png?v=20260317-14" media="(prefers-color-scheme: light)" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-dark-32x32.png?v=20260317-14" media="(prefers-color-scheme: dark)" />
+    <link id="favicon-ico" rel="icon" href="favicon-light.ico?v=20260317-14" sizes="any" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20260317-14" />
+    <link rel="manifest" href="site.webmanifest?v=20260317-14" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,300..800&family=Lora:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Source+Sans+3:wght@300;400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,300..800&family=Lora:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Source+Sans+3:wght@300;400;500;600;700;800&display=optional"
       rel="stylesheet"
+      media="print"
+      data-deferred-stylesheet="fonts"
     />
-    <script src="overrides.js?v=20260212-01"></script>
-    <script src="hero-preload.js?v=20260212-03"></script>
-    <link rel="stylesheet" href="styles.css?v=20260219-06" />
-    <script src="content.js?v=20260219-04" defer></script>
-    <script src="script.js?v=20260219-06" defer></script>
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,300..800&family=Lora:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Source+Sans+3:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" /></noscript>
+    <script src="overrides.js?v=20260323-04" defer></script>
+    <link rel="stylesheet" href="styles.css?v=20260323-06" />
+    <script src="content.js?v=20260222-06" defer></script>
+    <script src="script.js?v=20260323-05" defer></script>
   </head>
   <body id="page-top" data-page="home">
     <header class="site-header" id="top">
       <div class="container header-inner">
         <a class="brand" href="#top">
-          <img
-            class="brand-logo"
-            src="brand-logo-blue.png?v=20260222-01"
-            alt=""
-            aria-hidden="true"
-            loading="eager"
-            decoding="async"
-          />
+          <span class="brand-logo" aria-hidden="true"></span>
           <span class="brand-text">
             <span data-bind="site.brandName">Ola Gustafsson</span>
             <span data-bind="site.brandTag">Akvarell</span>
@@ -73,7 +69,7 @@
           <img
             id="hero-image"
             class="artwork-photo hero-background"
-            src="images/ola-01.jpg"
+            src="images/web/ola-01.jpg"
             alt="Akvarell i blå vintertoner"
             loading="eager"
           />
@@ -87,7 +83,7 @@
             <p data-bind="hero.intro"></p>
             <p class="hero-line" data-bind="hero.line"></p>
             <div class="hero-actions">
-              <a class="btn btn-primary" href="#galleri" data-bind="hero.ctaPrimaryLabel">Se målningarna</a>
+              <a class="btn btn-ghost" href="#galleri" data-bind="hero.ctaPrimaryLabel">Se målningarna</a>
               <a class="btn btn-ghost" href="#om" data-bind="hero.ctaSecondaryLabel">Läs artist statement</a>
             </div>
           </div>
@@ -131,7 +127,7 @@
               <img
                 id="about-portrait-image"
                 class="artwork-photo"
-                src="images/ola-portrait.jpg"
+                src="images/web/ola-portrait.jpg"
                 alt="Porträtt av Ola Gustafsson"
                 loading="lazy"
                 decoding="async"
@@ -139,9 +135,57 @@
             </figure>
           </div>
         </div>
+      </section>
 
-        <div class="container about-material-row">
-          <article class="about-material-layout surface-soft">
+      <section id="projekt" class="section reveal" hidden>
+        <div class="container">
+          <div class="project-flow">
+            <figure
+              id="about-feature-image-wrap"
+              class="project-process-figure"
+              data-fallback="Kunde inte ladda sektionsbilden."
+            >
+              <img
+                id="about-feature-image"
+                src="images/web/ola-plein-air-sandemar.jpg"
+                alt="Ola Gustafsson målar i Sandemar"
+                loading="lazy"
+                decoding="async"
+              />
+            </figure>
+
+            <article class="sun-project surface-soft">
+              <p class="eyebrow" data-bind="project.eyebrow">Projekt</p>
+              <div class="sun-project-layout">
+                <div class="sun-project-copy">
+                  <h2 data-bind="project.heading">100 dagar av sol</h2>
+                  <p data-bind="project.description"></p>
+                </div>
+                <figure
+                  id="sun-project-collage-wrap"
+                  class="sun-project-collage"
+                  data-fallback="Kunde inte ladda projektbilden."
+                >
+                  <img
+                    id="sun-project-collage"
+                    class="artwork-photo"
+                    src="images/web/monterade-solar.jpg"
+                    alt="Projektbild"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </figure>
+              </div>
+              <h3 class="sun-project-subheading" data-bind="project.sampleHeading">Exempel från serien</h3>
+              <div id="sun-project-samples" class="sun-project-samples"></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section reveal about-support-section">
+        <div class="container about-support-grid">
+          <article class="about-material-layout surface-soft about-support-primary">
             <figure
               id="about-material-image-wrap"
               class="about-material-media"
@@ -150,7 +194,7 @@
               <img
                 id="about-material-image"
                 class="artwork-photo"
-                src="images/ola-22.jpg"
+                src="images/web/ola-22.jpg"
                 alt="Material i ateljén"
                 loading="lazy"
                 decoding="async"
@@ -161,23 +205,21 @@
               <p data-bind="about.materialsBody"></p>
             </div>
           </article>
-        </div>
 
-        <div class="container about-inspiration-row">
           <article class="about-inspiration-card surface-soft">
             <h3 data-bind="about.inspirationHeading">Inspiration</h3>
-            <p data-bind="about.inspirationBody"></p>
+            <p id="about-inspiration-body" data-bind="about.inspirationBody"></p>
           </article>
-        </div>
 
-        <div class="container about-ambition-row">
           <aside class="ambition-card surface-soft">
             <h3 data-bind="about.ambitionsHeading">Ambitioner framåt</h3>
             <ul id="about-ambitions" class="ambitions-list"></ul>
             <p class="about-side-note" data-bind="about.sideNote"></p>
           </aside>
         </div>
+      </section>
 
+      <section class="section reveal about-recognition-section">
         <div class="container about-recognition-row">
           <aside class="recognition-card surface-soft">
             <h3 data-bind="about.recognitionHeading">Utmärkelser &amp; utställningar</h3>
@@ -186,62 +228,18 @@
         </div>
       </section>
 
-      <section id="atelje-bild" class="section atelier-feature reveal">
-        <figure
-          id="about-feature-image-wrap"
-          class="atelier-feature-image"
-          data-fallback="Kunde inte ladda sektionsbilden."
-        >
-          <img
-            id="about-feature-image"
-            src="images/ola-plein-air-sandemar.jpg"
-            alt="Ola Gustafsson målar i Sandemar"
-            loading="lazy"
-            decoding="async"
-          />
-        </figure>
-      </section>
-
-      <section id="projekt" class="section reveal" hidden>
-        <div class="container">
-          <article class="sun-project surface-soft">
-            <p class="eyebrow" data-bind="project.eyebrow">Projekt</p>
-            <div class="sun-project-layout">
-              <div class="sun-project-copy">
-                <h2 data-bind="project.heading">100 dagar av sol</h2>
-                <p data-bind="project.description"></p>
-              </div>
-              <figure
-                id="sun-project-collage-wrap"
-                class="sun-project-collage"
-                data-fallback="Kunde inte ladda projektbilden."
-              >
-                <img
-                  id="sun-project-collage"
-                  class="artwork-photo"
-                  src="images/monterade-solar.jpg"
-                  alt="Projektbild"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </figure>
-            </div>
-            <h3 class="sun-project-subheading" data-bind="project.sampleHeading">Exempel från serien</h3>
-            <div id="sun-project-samples" class="sun-project-samples"></div>
-          </article>
-        </div>
-      </section>
-
       <section id="kontakt" class="section reveal">
         <div class="container contact surface-soft">
-          <div>
+          <div class="contact-copy">
             <p class="eyebrow" data-bind="contact.eyebrow">Kontakt</p>
             <h2 data-bind="contact.heading">Original, uppdrag och samarbeten</h2>
             <p data-bind="contact.body"></p>
           </div>
-          <div class="contact-links">
+          <div class="contact-links-panel">
+            <div class="contact-links">
             <a id="contact-email-link" class="btn btn-primary" href="#">Skicka e-post</a>
             <div id="contact-social-links" class="contact-social-links"></div>
+            </div>
           </div>
         </div>
       </section>
@@ -250,13 +248,7 @@
     <footer class="site-footer">
       <div class="container footer-inner">
         <div class="footer-brand">
-          <img
-            class="footer-logo"
-            src="brand-logo-blue.png?v=20260222-01"
-            alt="Ola Gustafsson logotyp"
-            loading="lazy"
-            decoding="async"
-          />
+          <span class="footer-logo" aria-hidden="true"></span>
           <p data-bind="site.footerText">© 2026 Ola Gustafsson Akvarell</p>
         </div>
         <div class="footer-tools">
@@ -296,7 +288,9 @@
       </button>
 
       <figure class="lightbox-figure">
-        <img id="lightbox-image" src="" alt="" />
+        <div class="lightbox-media">
+          <img id="lightbox-image" src="" alt="" />
+        </div>
         <figcaption id="lightbox-caption">
           <div id="lightbox-caption-text" class="lightbox-caption-text"></div>
           <div class="lightbox-caption-actions">
@@ -309,6 +303,16 @@
               data-bind="ui.openArtworkPage"
             >
               Öppna verk-sida
+            </a>
+            <a
+              id="lightbox-artwork-inquiry"
+              class="btn btn-ghost"
+              href="#"
+              target="_blank"
+              rel="noreferrer"
+              data-bind="ui.inquiryArtworkLink"
+            >
+              Intresserad av verket
             </a>
             <button
               id="lightbox-copy-artwork-link"

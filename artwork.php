@@ -12,6 +12,8 @@ $overridesRev = (int) (@filemtime(__DIR__ . '/overrides.js') ?: 0);
 $overridesRevParam = $overridesRev > 0 ? (string) $overridesRev : '0';
 
 $payload = portfolio_load_overrides();
+$fontStylesheetHref = seo_google_fonts_href($payload);
+$publicContactConfig = portfolio_public_contact_config($payload);
 $slugMap = portfolio_build_artwork_slug_map($payload);
 
 $slug = isset($_GET['slug']) && is_string($_GET['slug']) ? trim($_GET['slug']) : '';
@@ -100,33 +102,28 @@ if (!$artwork) {
       <meta name="twitter:image:alt" content="<?= htmlspecialchars($ogImageAlt, ENT_QUOTES) ?>" />
 
       <meta name="theme-color" content="#f3efe6" />
-      <link rel="icon" href="/favicon.ico?v=20260222-10" sizes="any" />
-      <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=20260222-10" />
-      <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=20260222-10" />
-      <link rel="manifest" href="/site.webmanifest?v=20260222-10" />
+      <link id="favicon-png" rel="icon" type="image/png" sizes="32x32" href="/favicon-light-32x32.png?v=20260317-14" />
+      <link rel="icon" type="image/png" sizes="32x32" href="/favicon-light-32x32.png?v=20260317-14" media="(prefers-color-scheme: light)" />
+      <link rel="icon" type="image/png" sizes="32x32" href="/favicon-dark-32x32.png?v=20260317-14" media="(prefers-color-scheme: dark)" />
+      <link id="favicon-ico" rel="icon" href="/favicon-light.ico?v=20260317-14" sizes="any" />
+      <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=20260317-14" />
+      <link rel="manifest" href="/site.webmanifest?v=20260317-14" />
 
       <script type="application/ld+json"><?= $structuredJson ?></script>
 
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-      <link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,300..800&family=Lora:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Source+Sans+3:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet"
-      />
-      <link rel="stylesheet" href="/styles.css?v=20260222-12" />
+      <?php if ($fontStylesheetHref !== ''): ?>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
+        <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
+      <?php endif; ?>
+      <link rel="stylesheet" href="/styles.css?v=20260323-06" />
     </head>
     <body id="page-top" data-page="artwork">
       <header class="site-header" id="top">
         <div class="container header-inner">
           <a class="brand" href="/index.html#top" data-lang-link>
-            <img
-              class="brand-logo"
-              src="/brand-logo-blue.png?v=20260222-01"
-              alt=""
-              aria-hidden="true"
-              loading="eager"
-              decoding="async"
-            />
+            <span class="brand-logo" aria-hidden="true"></span>
             <span class="brand-text">
               <span data-bind="site.brandName">Ola Gustafsson</span>
               <span data-bind="site.brandTag">Akvarell</span>
@@ -175,7 +172,7 @@ if (!$artwork) {
       <footer class="site-footer">
         <div class="container footer-inner">
           <div class="footer-brand">
-            <img class="footer-logo" src="/brand-logo-blue.png?v=20260222-01" alt="Ola Gustafsson logotyp" loading="lazy" decoding="async" />
+            <span class="footer-logo" aria-hidden="true"></span>
             <p data-bind="site.footerText">© 2026 Ola Gustafsson Akvarell</p>
           </div>
           <div class="footer-tools">
@@ -187,7 +184,7 @@ if (!$artwork) {
 
       <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
       <script src="/content.js?v=20260222-06" defer></script>
-      <script src="/script.js?v=20260222-09" defer></script>
+      <script src="/script.js?v=20260323-05" defer></script>
     </body>
   </html>
   <?php
@@ -197,7 +194,21 @@ if (!$artwork) {
 $src = isset($artwork['src']) && is_string($artwork['src']) ? trim($artwork['src']) : '';
 $src = ltrim($src, '/');
 $imagePath = '/' . $src;
-$imageUrl = $baseUrl . $imagePath;
+$buildImageVariantPath = static function (string $value, string $variant): string {
+  $trimmed = trim($value);
+  if ($trimmed === '' || preg_match('/^https?:\\/\\//i', $trimmed) === 1) {
+    return $trimmed;
+  }
+
+  $normalized = '/' . ltrim((string) preg_replace('/[?#].*$/', '', $trimmed), '/');
+  if (preg_match('#^/images/#i', $normalized) !== 1 || preg_match('#^/images/(web|thumbs)/#i', $normalized) === 1) {
+    return $normalized;
+  }
+
+  return '/images/' . trim($variant, '/') . '/' . basename($normalized);
+};
+$displayImagePath = $buildImageVariantPath($imagePath, 'web');
+$imageUrl = $baseUrl . $displayImagePath;
 
 $translation = portfolio_artwork_translation($payload, $lang, $src);
 
@@ -223,9 +234,14 @@ $alt = isset($translation['alt']) && is_string($translation['alt']) && trim($tra
   : ($altSv !== '' ? $altSv : $title);
 
 $seoTitleSv = isset($artwork['seoTitle']) && is_string($artwork['seoTitle']) ? trim($artwork['seoTitle']) : '';
-$seoTitle = isset($translation['seoTitle']) && is_string($translation['seoTitle']) && trim($translation['seoTitle']) !== ''
-  ? trim($translation['seoTitle'])
-  : $seoTitleSv;
+$seoTitle = '';
+if ($lang === 'en') {
+  if (isset($translation['seoTitle']) && is_string($translation['seoTitle']) && trim($translation['seoTitle']) !== '') {
+    $seoTitle = trim($translation['seoTitle']);
+  }
+} else {
+  $seoTitle = $seoTitleSv;
+}
 
 $seoDescriptionSv = '';
 if (isset($artwork['seoDescription']) && is_string($artwork['seoDescription'])) {
@@ -238,7 +254,7 @@ if (isset($translation['seoDescription']) && is_string($translation['seoDescript
   $seoDescription = trim($translation['seoDescription']);
 } elseif (isset($translation['metaDescription']) && is_string($translation['metaDescription']) && trim($translation['metaDescription']) !== '') {
   $seoDescription = trim($translation['metaDescription']);
-} else {
+} elseif ($lang !== 'en') {
   $seoDescription = $seoDescriptionSv;
 }
 
@@ -252,7 +268,7 @@ $shareImage = isset($translation['shareImage']) && is_string($translation['share
   ? trim($translation['shareImage'])
   : $shareImageSv;
 
-$ogImageCandidate = $shareImage !== '' ? $shareImage : $imagePath;
+$ogImageCandidate = $shareImage !== '' ? $shareImage : $displayImagePath;
 $ogImageResolved = seo_choose_share_image($ogImageCandidate, '/images/ola-portrait.jpg');
 if (preg_match('/^https?:\\/\\//i', $ogImageResolved) === 1) {
   $ogImageUrl = $ogImageResolved;
@@ -281,7 +297,81 @@ if ($ogImagePath !== '') {
 
 $year = isset($artwork['year']) ? (int) $artwork['year'] : 0;
 $category = isset($artwork['category']) && is_string($artwork['category']) ? trim($artwork['category']) : '';
-$categoryLabel = portfolio_category_label($payload, $lang, $category);
+$categoryLabels = portfolio_category_labels(
+  $payload,
+  $lang,
+  isset($artwork['categories']) && is_array($artwork['categories']) ? $artwork['categories'] : [],
+  $category
+);
+$categoryLabel = implode(', ', $categoryLabels);
+$availability = isset($artwork['availability']) && is_string($artwork['availability'])
+  ? strtolower(trim($artwork['availability']))
+  : '';
+if (!in_array($availability, ['available', 'reserved', 'sold', 'nfs'], true)) {
+  $availability = '';
+}
+
+$availabilityMapSv = [
+  'available' => 'Tillgänglig',
+  'reserved' => 'Reserverad',
+  'sold' => 'Såld',
+  'nfs' => 'Ej till salu',
+];
+$availabilityMapEn = [
+  'available' => 'Available',
+  'reserved' => 'Reserved',
+  'sold' => 'Sold',
+  'nfs' => 'Not for sale',
+];
+$availabilityLabel = $availability !== ''
+  ? ($lang === 'en' ? ($availabilityMapEn[$availability] ?? '') : ($availabilityMapSv[$availability] ?? ''))
+  : '';
+$availabilityTone = $availability !== '' ? $availability : 'default';
+$inquiryMode = in_array($availability, ['sold', 'nfs'], true) ? 'similar' : 'artwork';
+$inquiryHeading = $lang === 'en'
+  ? ($inquiryMode === 'similar' ? 'Ask about similar work' : 'Ask about this artwork')
+  : ($inquiryMode === 'similar' ? 'Fråga om liknande verk' : 'Fråga om detta verk');
+$inquiryBody = $lang === 'en'
+  ? ($inquiryMode === 'similar'
+      ? 'This artwork is not currently available, but you are very welcome to ask about similar works or upcoming paintings.'
+      : 'Feel free to get in touch if you would like more details, to reserve the piece, or to receive additional images before deciding.')
+  : ($inquiryMode === 'similar'
+      ? 'Det här verket är inte tillgängligt just nu, men du kan gärna fråga om liknande verk eller kommande målningar.'
+      : 'Skriv gärna om du vill veta mer, reservera verket eller få fler bilder innan beslut.');
+$inquiryButtonLabel = $lang === 'en'
+  ? ($inquiryMode === 'similar' ? 'Ask about similar work' : 'Interested in this work')
+  : ($inquiryMode === 'similar' ? 'Fråga om liknande verk' : 'Intresserad av verket');
+$priceLabelSv = isset($artwork['priceLabel']) && is_string($artwork['priceLabel']) ? trim($artwork['priceLabel']) : '';
+$priceLabel = isset($translation['priceLabel']) && is_string($translation['priceLabel']) && trim($translation['priceLabel']) !== ''
+  ? trim($translation['priceLabel'])
+  : $priceLabelSv;
+if ($priceLabel !== '' && $availabilityLabel !== '' && strcasecmp($priceLabel, $availabilityLabel) === 0) {
+  $priceLabel = '';
+}
+$collectorNoteSv = isset($artwork['collectorNote']) && is_string($artwork['collectorNote']) ? trim($artwork['collectorNote']) : '';
+$collectorNote = isset($translation['collectorNote']) && is_string($translation['collectorNote']) && trim($translation['collectorNote']) !== ''
+  ? trim($translation['collectorNote'])
+  : $collectorNoteSv;
+$artworkInquiryFormEnabled = !empty($publicContactConfig['formEnabled']);
+$publicContactEmail = isset($publicContactConfig['email']) && is_string($publicContactConfig['email'])
+  ? trim($publicContactConfig['email'])
+  : '';
+$inquiryMailtoHref = '';
+if ($publicContactEmail !== '') {
+  $mailSubject = $lang === 'en'
+    ? sprintf('Inquiry about "%s"', $title)
+    : sprintf('Intresse för "%s"', $title);
+  $mailBody = $lang === 'en'
+    ? sprintf("Hello,\n\nI am interested in \"%s\".\n\nLink: %s\n\nBest regards,", $title, seo_artwork_url($slug, $lang))
+    : sprintf("Hej,\n\nJag är intresserad av \"%s\".\n\nLänk: %s\n\nVänliga hälsningar,", $title, seo_artwork_url($slug, $lang));
+  $inquiryMailtoHref = 'mailto:' . rawurlencode($publicContactEmail)
+    . '?subject=' . rawurlencode($mailSubject)
+    . '&body=' . rawurlencode($mailBody);
+}
+$inquiryPrimaryHref = $artworkInquiryFormEnabled ? '#artwork-inquiry' : ($inquiryMailtoHref !== '' ? $inquiryMailtoHref : '#artwork-inquiry');
+$inquiryFallbackBody = $lang === 'en'
+  ? 'For security reasons the web form is only shown when verified captcha protection is active. Please email me directly instead.'
+  : 'Av säkerhetsskäl visas webbformuläret bara när verifierad captcha är aktiverad. Mejla mig gärna direkt i stället.';
 
 $canonicalSlug = $slug;
 $canonical = seo_artwork_url($canonicalSlug, $lang);
@@ -309,7 +399,7 @@ if ($categoryLabel !== '') {
 }
 
 $descriptionLead = $title !== '' ? $title : ($lang === 'en' ? 'Watercolor painting' : 'Akvarellmålning');
-$descriptionTail = $lang === 'en' ? 'Watercolor by Ola Gustafsson.' : 'Akvarell av Ola Gustafsson.';
+$descriptionTail = $lang === 'en' ? 'Original watercolor painting by Ola Gustafsson.' : 'Originalmålning i akvarell av Ola Gustafsson.';
 $generatedDescription = $descriptionLead;
 if (count($pieces) > 0) {
   $generatedDescription .= '. ' . implode(' · ', $pieces) . '.';
@@ -321,8 +411,13 @@ $generatedDescription .= ' ' . $descriptionTail;
 $description = $seoDescription !== '' ? $seoDescription : $generatedDescription;
 $visibleDescription = $generatedDescription;
 
-$pageTitleSource = $seoTitle !== '' ? $seoTitle : $title;
-$pageTitle = $pageTitleSource !== '' ? "{$pageTitleSource} | {$text['site_name']}" : $text['site_name'];
+if ($seoTitle !== '') {
+  $pageTitle = $seoTitle;
+} else {
+  $pageTitleSource = $title !== '' ? $title : '';
+  $fallbackTitleSuffix = $lang === 'en' ? 'Watercolor by Ola Gustafsson' : 'Akvarell av Ola Gustafsson';
+  $pageTitle = $pageTitleSource !== '' ? "{$pageTitleSource} | {$fallbackTitleSuffix}" : $text['site_name'];
+}
 $ogLocale = seo_lang_og_locale($lang);
 $ogLocaleAlt = $lang === 'en' ? seo_lang_og_locale('sv') : seo_lang_og_locale('en');
 
@@ -383,6 +478,34 @@ if (isset($formatParts['width_cm'], $formatParts['height_cm'])) {
     'value' => $formatParts['height_cm'],
     'unitCode' => 'CMT'
   ];
+}
+
+$offerAvailabilityMap = [
+  'available' => 'https://schema.org/InStock',
+  'reserved' => 'https://schema.org/PreOrder',
+  'sold' => 'https://schema.org/SoldOut',
+  'nfs' => 'https://schema.org/Discontinued',
+];
+if ($availability !== '' && isset($offerAvailabilityMap[$availability])) {
+  $offer = [
+    '@type' => 'Offer',
+    'url' => $canonical,
+    'availability' => $offerAvailabilityMap[$availability],
+    'seller' => ['@id' => $personId],
+  ];
+
+  if ($priceLabel !== '' && preg_match('/([0-9][0-9\\s.,]*)\\s*(SEK|EUR|USD|GBP)/i', $priceLabel, $m) === 1) {
+    $numeric = str_replace(' ', '', $m[1]);
+    $numeric = str_replace(',', '.', $numeric);
+    $priceValue = (float) $numeric;
+    $currency = strtoupper($m[2]);
+    if ($priceValue > 0 && $currency !== '') {
+      $offer['price'] = number_format($priceValue, 2, '.', '');
+      $offer['priceCurrency'] = $currency;
+    }
+  }
+
+  $visualArtwork['offers'] = $offer;
 }
 $structuredData[] = $visualArtwork;
 
@@ -469,36 +592,31 @@ if (!is_string($structuredJson)) {
     <meta name="twitter:image:alt" content="<?= htmlspecialchars($alt, ENT_QUOTES) ?>" />
 
     <meta name="theme-color" content="#f3efe6" />
-    <link rel="icon" href="/favicon.ico?v=20260222-10" sizes="any" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=20260222-10" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=20260222-10" />
-    <link rel="manifest" href="/site.webmanifest?v=20260222-10" />
+    <link id="favicon-png" rel="icon" type="image/png" sizes="32x32" href="/favicon-light-32x32.png?v=20260317-14" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-light-32x32.png?v=20260317-14" media="(prefers-color-scheme: light)" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-dark-32x32.png?v=20260317-14" media="(prefers-color-scheme: dark)" />
+    <link id="favicon-ico" rel="icon" href="/favicon-light.ico?v=20260317-14" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=20260317-14" />
+    <link rel="manifest" href="/site.webmanifest?v=20260317-14" />
 
     <script type="application/ld+json"><?= $structuredJson ?></script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,300..800&family=Lora:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Source+Sans+3:wght@300;400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="/styles.css?v=20260222-12" />
+    <?php if ($fontStylesheetHref !== ''): ?>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+      <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
+      <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
+    <?php endif; ?>
+    <link rel="stylesheet" href="/styles.css?v=20260323-06" />
     <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="/content.js?v=20260222-06" defer></script>
-    <script src="/script.js?v=20260222-09" defer></script>
+    <script src="/script.js?v=20260323-05" defer></script>
   </head>
   <body id="page-top" data-page="artwork">
     <header class="site-header" id="top">
       <div class="container header-inner">
         <a class="brand" href="/index.html#top" data-lang-link>
-          <img
-            class="brand-logo"
-            src="/brand-logo-blue.png?v=20260222-01"
-            alt=""
-            aria-hidden="true"
-            loading="eager"
-            decoding="async"
-          />
+          <span class="brand-logo" aria-hidden="true"></span>
           <span class="brand-text">
             <span data-bind="site.brandName">Ola Gustafsson</span>
             <span data-bind="site.brandTag">Akvarell</span>
@@ -546,7 +664,7 @@ if (!is_string($structuredJson)) {
             <figure class="artwork-media surface-soft" data-fallback="<?= htmlspecialchars($lang === 'en' ? 'Could not load image.' : 'Kunde inte ladda bilden.', ENT_QUOTES) ?>">
               <img
                 class="artwork-photo"
-                src="<?= htmlspecialchars($imagePath, ENT_QUOTES) ?>"
+                src="<?= htmlspecialchars($displayImagePath, ENT_QUOTES) ?>"
                 alt="<?= htmlspecialchars($alt, ENT_QUOTES) ?>"
                 loading="eager"
                 decoding="async"
@@ -557,6 +675,25 @@ if (!is_string($structuredJson)) {
               <p class="eyebrow"><?= htmlspecialchars($lang === 'en' ? 'Artwork' : 'Verk', ENT_QUOTES) ?></p>
               <h1><?= htmlspecialchars($title, ENT_QUOTES) ?></h1>
               <p class="artwork-lead"><?= htmlspecialchars($visibleDescription, ENT_QUOTES) ?></p>
+
+              <?php if ($availabilityLabel !== '' || $priceLabel !== ''): ?>
+                <div class="artwork-market-strip">
+                  <?php if ($availabilityLabel !== ''): ?>
+                    <div class="artwork-market-block">
+                      <span class="artwork-market-label"><?= htmlspecialchars($lang === 'en' ? 'Availability' : 'Status', ENT_QUOTES) ?></span>
+                      <span class="artwork-status-badge is-<?= htmlspecialchars($availabilityTone, ENT_QUOTES) ?>">
+                        <?= htmlspecialchars($availabilityLabel, ENT_QUOTES) ?>
+                      </span>
+                    </div>
+                  <?php endif; ?>
+                  <?php if ($priceLabel !== ''): ?>
+                    <div class="artwork-market-block">
+                      <span class="artwork-market-label"><?= htmlspecialchars($lang === 'en' ? 'Price' : 'Pris', ENT_QUOTES) ?></span>
+                      <strong class="artwork-price-value"><?= htmlspecialchars($priceLabel, ENT_QUOTES) ?></strong>
+                    </div>
+                  <?php endif; ?>
+                </div>
+              <?php endif; ?>
 
               <dl class="artwork-facts">
                 <?php if ($medium !== ''): ?>
@@ -585,8 +722,16 @@ if (!is_string($structuredJson)) {
                 <?php endif; ?>
               </dl>
 
+              <?php if ($collectorNote !== ''): ?>
+                <section class="artwork-collector-note">
+                  <p class="artwork-market-label"><?= htmlspecialchars($lang === 'en' ? 'Collector note' : 'För samlare', ENT_QUOTES) ?></p>
+                  <p><?= htmlspecialchars($collectorNote, ENT_QUOTES) ?></p>
+                </section>
+              <?php endif; ?>
+
               <div class="artwork-actions">
-                <a class="btn btn-primary" href="/gallery.html" data-lang-link><?= $lang === 'en' ? 'Back to gallery' : 'Till galleriet' ?></a>
+                <a class="btn btn-primary" href="<?= htmlspecialchars($inquiryPrimaryHref, ENT_QUOTES) ?>"><?= htmlspecialchars($inquiryButtonLabel, ENT_QUOTES) ?></a>
+                <a class="btn btn-ghost" href="/gallery.html" data-lang-link><?= $lang === 'en' ? 'Back to gallery' : 'Till galleriet' ?></a>
                 <button
                   id="artwork-copy-link"
                   class="btn btn-ghost"
@@ -597,14 +742,83 @@ if (!is_string($structuredJson)) {
                 >
                   <?= htmlspecialchars($lang === 'en' ? 'Copy link' : 'Kopiera länk', ENT_QUOTES) ?>
                 </button>
-                <a class="btn btn-ghost" href="<?= htmlspecialchars($imagePath, ENT_QUOTES) ?>" target="_blank" rel="noreferrer">
-                  <?= htmlspecialchars($lang === 'en' ? 'Open image' : 'Öppna bild', ENT_QUOTES) ?>
-                </a>
               </div>
 
               <div id="artwork-copy-status" class="copy-status" aria-live="polite"></div>
             </aside>
           </div>
+
+          <section id="artwork-inquiry" class="artwork-inquiry-card surface-soft">
+            <div class="artwork-inquiry-copy">
+              <p class="eyebrow"><?= htmlspecialchars($lang === 'en' ? 'Inquiry' : 'Intresseanmälan', ENT_QUOTES) ?></p>
+              <h2><?= htmlspecialchars($inquiryHeading, ENT_QUOTES) ?></h2>
+              <p><?= htmlspecialchars($artworkInquiryFormEnabled ? $inquiryBody : $inquiryFallbackBody, ENT_QUOTES) ?></p>
+            </div>
+            <?php if ($artworkInquiryFormEnabled): ?>
+              <form
+                id="artwork-inquiry-form"
+                class="contact-form artwork-inquiry-form"
+                data-artwork-title="<?= htmlspecialchars($title, ENT_QUOTES) ?>"
+                data-inquiry-mode="<?= htmlspecialchars($inquiryMode, ENT_QUOTES) ?>"
+                data-form-enabled="true"
+                data-turnstile-site-key="<?= htmlspecialchars((string) ($publicContactConfig['turnstileSiteKey'] ?? ''), ENT_QUOTES) ?>"
+                novalidate
+              >
+                <input type="hidden" name="inquirySlug" value="<?= htmlspecialchars($canonicalSlug, ENT_QUOTES) ?>" />
+                <input type="hidden" name="inquiryTitle" value="<?= htmlspecialchars($title, ENT_QUOTES) ?>" />
+                <input type="hidden" name="inquiryAvailability" value="<?= htmlspecialchars($availability, ENT_QUOTES) ?>" />
+                <input type="hidden" name="inquiryPriceLabel" value="<?= htmlspecialchars($priceLabel, ENT_QUOTES) ?>" />
+                <input type="hidden" name="inquirySourceUrl" value="<?= htmlspecialchars($canonical, ENT_QUOTES) ?>" />
+                <input type="hidden" name="turnstileToken" value="" />
+
+                <label><?= htmlspecialchars($lang === 'en' ? 'Name' : 'Namn', ENT_QUOTES) ?>
+                  <input type="text" name="name" autocomplete="name" required />
+                </label>
+
+                <label><?= htmlspecialchars($lang === 'en' ? 'Email' : 'E-post', ENT_QUOTES) ?>
+                  <input type="email" name="email" autocomplete="email" required />
+                </label>
+
+                <label><?= htmlspecialchars($lang === 'en' ? 'Message' : 'Meddelande', ENT_QUOTES) ?>
+                  <textarea
+                    name="message"
+                    rows="6"
+                    placeholder="<?= htmlspecialchars($lang === 'en'
+                      ? 'Tell me what you would like to know more about: price, shipping, framing, or whether you would like to reserve the work.'
+                      : 'Berätta gärna vad du vill veta mer om: pris, frakt, inramning eller om du vill boka verket.', ENT_QUOTES) ?>"
+                    required
+                  ></textarea>
+                </label>
+
+                <label class="contact-honeypot" aria-hidden="true">
+                  Website
+                  <input type="text" name="website" tabindex="-1" autocomplete="off" />
+                </label>
+
+                <div id="artwork-inquiry-turnstile" class="contact-turnstile" hidden></div>
+
+                <div class="artwork-inquiry-actions">
+                  <button class="btn btn-primary" type="submit">
+                    <?= htmlspecialchars($lang === 'en'
+                      ? ($inquiryMode === 'similar' ? 'Ask about similar work' : 'Send inquiry')
+                      : ($inquiryMode === 'similar' ? 'Skicka förfrågan om liknande verk' : 'Skicka förfrågan'), ENT_QUOTES) ?>
+                  </button>
+                </div>
+
+                <p id="artwork-inquiry-status" class="contact-form-status" data-kind="info" aria-live="polite"></p>
+              </form>
+            <?php elseif ($inquiryMailtoHref !== ''): ?>
+              <div class="artwork-inquiry-actions">
+                <a class="btn btn-primary" href="<?= htmlspecialchars($inquiryMailtoHref, ENT_QUOTES) ?>">
+                  <?= htmlspecialchars($lang === 'en' ? 'Email about this artwork' : 'Mejla om verket', ENT_QUOTES) ?>
+                </a>
+              </div>
+            <?php else: ?>
+              <p id="artwork-inquiry-status" class="contact-form-status" data-kind="error" aria-live="polite">
+                <?= htmlspecialchars($lang === 'en' ? 'Direct contact is not configured yet.' : 'Direkt kontakt är inte konfigurerad ännu.', ENT_QUOTES) ?>
+              </p>
+            <?php endif; ?>
+          </section>
         </div>
       </section>
     </main>
@@ -612,7 +826,7 @@ if (!is_string($structuredJson)) {
     <footer class="site-footer">
       <div class="container footer-inner">
         <div class="footer-brand">
-          <img class="footer-logo" src="/brand-logo-blue.png?v=20260222-01" alt="Ola Gustafsson logotyp" loading="lazy" decoding="async" />
+          <span class="footer-logo" aria-hidden="true"></span>
           <p data-bind="site.footerText">© 2026 Ola Gustafsson Akvarell</p>
         </div>
         <div class="footer-tools">

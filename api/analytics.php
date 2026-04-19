@@ -26,6 +26,9 @@ if ($cfg['propertyId'] === '' || $cfg['clientEmail'] === '' || $cfg['privateKey'
 
 $rateScope = 'analytics_fetch';
 $rateKey = api_security_client_ip() . '|' . $cfg['propertyId'];
+$maxRateHits = 8;
+$rateWindowSeconds = 300;
+$rateBlockSeconds = 600;
 api_security_require_not_rate_limited(
   $pdo,
   $rateScope,
@@ -42,7 +45,7 @@ try {
     $cfg['timezone'],
     $cfg['includeToday']
   );
-  api_security_rate_limit_clear($pdo, $rateScope, $rateKey);
+  api_security_rate_limit_register_hit($pdo, $rateScope, $rateKey, $maxRateHits, $rateWindowSeconds, $rateBlockSeconds);
 
   api_respond_json(200, [
     'ok' => true,
@@ -51,7 +54,7 @@ try {
     'dashboard' => $dashboard
   ]);
 } catch (Throwable $error) {
-  api_security_rate_limit_register_failure($pdo, $rateScope, $rateKey, 8, 300, 600);
+  api_security_rate_limit_register_hit($pdo, $rateScope, $rateKey, $maxRateHits, $rateWindowSeconds, $rateBlockSeconds);
   api_respond_json(502, [
     'ok' => false,
     'error' => 'ga_fetch_failed',

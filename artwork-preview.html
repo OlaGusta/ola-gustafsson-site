@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Artwork Preview</title>
+    <meta name="description" content="Lokal preview av verk-sidan." />
+    <link id="favicon-png" rel="icon" type="image/png" sizes="32x32" href="/favicon-light-32x32.png?v=20260317-14" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-light-32x32.png?v=20260317-14" media="(prefers-color-scheme: light)" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-dark-32x32.png?v=20260317-14" media="(prefers-color-scheme: dark)" />
+    <link id="favicon-ico" rel="icon" href="/favicon-light.ico?v=20260317-14" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=20260317-14" />
+    <link rel="manifest" href="/site.webmanifest?v=20260317-14" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=optional"
+      rel="stylesheet"
+      media="print"
+      data-deferred-stylesheet="fonts"
+    />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=optional" rel="stylesheet" /></noscript>
+    <link rel="stylesheet" href="styles.css?v=20260318-08" />
+    <script src="overrides.js?v=20260212-01"></script>
+    <script src="content.js?v=20260222-06" defer></script>
+    <script src="script.js?v=20260321-03" defer></script>
+  </head>
+  <body id="page-top" data-page="artwork-preview">
+    <header class="site-header" id="top">
+      <div class="container header-inner">
+        <a class="brand" href="index.html#top" data-lang-link>
+          <span class="brand-logo" aria-hidden="true"></span>
+          <span class="brand-text">
+            <span data-bind="site.brandName">Ola Gustafsson</span>
+            <span data-bind="site.brandTag">Akvarell</span>
+          </span>
+        </a>
+        <nav id="main-nav" class="main-nav" aria-label="Huvudmeny" data-bind-aria="ui.navAriaLabel">
+          <a href="index.html#hem" data-bind="ui.navHome" data-lang-link>Hem</a>
+          <a href="gallery.html" data-bind="ui.navGallery" data-lang-link>Galleri</a>
+          <a href="index.html#om" data-bind="ui.navAbout" data-lang-link>Om</a>
+          <a href="index.html#kontakt" data-bind="ui.navContact" data-lang-link>Kontakt</a>
+        </nav>
+        <div class="lang-switch" role="group" aria-label="Välj språk" data-bind-aria="ui.languageSwitcherAria">
+          <button type="button" class="lang-switch-btn" data-lang-option="sv" aria-label="Svenska">SV</button>
+          <button type="button" class="lang-switch-btn" data-lang-option="en" aria-label="English">EN</button>
+        </div>
+        <div class="theme-switch" role="group" aria-label="Välj färgläge" data-bind-aria="ui.themeSwitcherAria">
+          <button type="button" class="theme-switch-btn" data-theme-option="light" aria-label="Ljus" data-bind="ui.themeOptionLight">Ljus</button>
+          <button type="button" class="theme-switch-btn" data-theme-option="dark" aria-label="Mörk" data-bind="ui.themeOptionDark">Mörk</button>
+        </div>
+        <button
+          class="menu-toggle"
+          aria-expanded="false"
+          aria-controls="main-nav"
+          aria-label="Öppna meny"
+          data-bind="ui.menuButton"
+          data-bind-aria="ui.menuAriaLabel"
+        >
+          Meny
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="section reveal artwork-page">
+        <div class="container">
+          <nav class="breadcrumb">
+            <a href="index.html#top" data-lang-link>Hem</a>
+            <span aria-hidden="true">/</span>
+            <a href="gallery.html" data-lang-link>Galleri</a>
+            <span aria-hidden="true">/</span>
+            <span id="artwork-preview-breadcrumb">Artwork preview</span>
+          </nav>
+
+          <div class="artwork-layout">
+            <figure class="artwork-media surface-soft">
+              <img id="artwork-preview-image" class="artwork-photo" src="images/web/ola-01.jpg" alt="" loading="eager" decoding="async" />
+            </figure>
+
+            <aside class="artwork-details surface-soft">
+              <p class="eyebrow">Preview</p>
+              <h1 id="artwork-preview-title">Verk</h1>
+              <p id="artwork-preview-lead" class="artwork-lead"></p>
+
+              <div id="artwork-preview-status-wrap" class="artwork-market-strip" hidden>
+                <div class="artwork-market-block">
+                  <span class="artwork-market-label">Status</span>
+                  <span id="artwork-preview-status" class="artwork-status-badge">Tillgänglig</span>
+                </div>
+                <div id="artwork-preview-price-wrap" class="artwork-market-block" hidden>
+                  <span class="artwork-market-label">Pris</span>
+                  <strong id="artwork-preview-price" class="artwork-price-value"></strong>
+                </div>
+              </div>
+
+              <dl class="artwork-facts">
+                <div id="artwork-preview-medium-row" hidden>
+                  <dt>Teknik</dt>
+                  <dd id="artwork-preview-medium"></dd>
+                </div>
+                <div id="artwork-preview-format-row" hidden>
+                  <dt>Storlek</dt>
+                  <dd id="artwork-preview-format"></dd>
+                </div>
+                <div id="artwork-preview-year-row" hidden>
+                  <dt>År</dt>
+                  <dd id="artwork-preview-year"></dd>
+                </div>
+                <div id="artwork-preview-category-row" hidden>
+                  <dt>Kategori</dt>
+                  <dd id="artwork-preview-category"></dd>
+                </div>
+              </dl>
+
+              <section id="artwork-preview-collector" class="artwork-collector-note" hidden>
+                <p class="artwork-market-label">För samlare</p>
+                <p id="artwork-preview-collector-text"></p>
+              </section>
+
+              <div class="artwork-actions">
+                <a class="btn btn-primary" href="#artwork-inquiry" id="artwork-preview-inquiry-button">Intresserad av verket</a>
+                <a class="btn btn-ghost" href="gallery.html" data-lang-link>Till galleriet</a>
+                <button
+                  id="artwork-preview-copy-link"
+                  class="btn btn-ghost"
+                  type="button"
+                  data-copy-link=""
+                  data-copy-status-target="#artwork-preview-copy-status"
+                >
+                  Kopiera länk
+                </button>
+              </div>
+
+              <div id="artwork-preview-copy-status" class="copy-status" aria-live="polite"></div>
+            </aside>
+          </div>
+
+          <section id="artwork-inquiry" class="artwork-inquiry-card surface-soft">
+            <div class="artwork-inquiry-copy">
+              <p class="eyebrow" data-bind="ui.inquiryEyebrow">Intresseanmälan</p>
+              <h2 id="artwork-preview-inquiry-heading">Fråga om detta verk</h2>
+              <p id="artwork-preview-inquiry-body"></p>
+            </div>
+
+            <form id="artwork-inquiry-form" class="contact-form artwork-inquiry-form" data-artwork-title="" data-inquiry-mode="artwork" novalidate>
+              <input type="hidden" name="inquirySlug" value="" />
+              <input type="hidden" name="inquiryTitle" value="" />
+              <input type="hidden" name="inquiryAvailability" value="" />
+              <input type="hidden" name="inquiryPriceLabel" value="" />
+              <input type="hidden" name="inquirySourceUrl" value="" />
+              <input type="hidden" name="turnstileToken" value="" />
+
+              <label>Namn
+                <input type="text" name="name" autocomplete="name" required />
+              </label>
+              <label>E-post
+                <input type="email" name="email" autocomplete="email" required />
+              </label>
+              <label>Meddelande
+                <textarea name="message" rows="6" data-bind-placeholder="ui.inquiryMessagePlaceholder" required></textarea>
+              </label>
+
+              <label class="contact-honeypot" aria-hidden="true">
+                Website
+                <input type="text" name="website" tabindex="-1" autocomplete="off" />
+              </label>
+
+              <div id="artwork-inquiry-turnstile" class="contact-turnstile" hidden></div>
+
+              <div class="artwork-inquiry-actions">
+                <button id="artwork-preview-submit" class="btn btn-primary" type="submit">Skicka förfrågan</button>
+              </div>
+
+              <p id="artwork-inquiry-status" class="contact-form-status" data-kind="info" aria-live="polite"></p>
+            </form>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <span class="footer-logo" aria-hidden="true"></span>
+          <p data-bind="site.footerText">© 2026 Ola Gustafsson Akvarell</p>
+        </div>
+        <div class="footer-tools">
+          <a id="studio-footer-link" class="footer-auth-btn" href="studio.html">Studio</a>
+          <a href="#page-top" data-scroll-top data-bind="ui.scrollTop">Till toppen</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

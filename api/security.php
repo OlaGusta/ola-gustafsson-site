@@ -209,6 +209,33 @@ function api_security_start_session(): void
   session_start();
 }
 
+function api_security_session_cookie_name(): string
+{
+  $cfg = api_security_config();
+  $name = isset($cfg['sessionName']) && is_string($cfg['sessionName']) ? trim($cfg['sessionName']) : '';
+  return $name !== '' ? $name : 'ola_studio_session';
+}
+
+function api_security_has_session_cookie(): bool
+{
+  $cookieName = api_security_session_cookie_name();
+  return isset($_COOKIE[$cookieName]) && is_string($_COOKIE[$cookieName]) && trim($_COOKIE[$cookieName]) !== '';
+}
+
+function api_security_start_session_if_cookie_present(): bool
+{
+  if (session_status() === PHP_SESSION_ACTIVE) {
+    return true;
+  }
+
+  if (!api_security_has_session_cookie()) {
+    return false;
+  }
+
+  api_security_start_session();
+  return session_status() === PHP_SESSION_ACTIVE;
+}
+
 function api_security_destroy_session(): void
 {
   if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -330,7 +357,9 @@ function api_security_logout(): void
 
 function api_security_authenticated_admin(PDO $pdo): ?array
 {
-  api_security_start_session();
+  if (session_status() !== PHP_SESSION_ACTIVE && !api_security_start_session_if_cookie_present()) {
+    return null;
+  }
 
   $userId = (int) ($_SESSION[API_AUTH_SESSION_KEY_USER_ID] ?? 0);
   $sessionVersion = (int) ($_SESSION[API_AUTH_SESSION_KEY_VERSION] ?? 0);
@@ -457,6 +486,17 @@ SQL
     'blocked' => $blockedUntilSql !== null,
     'retryAfterSeconds' => $blockedUntilSql !== null ? max(0, api_security_to_epoch($blockedUntilSql) - time()) : 0
   ];
+}
+
+function api_security_rate_limit_register_hit(
+  PDO $pdo,
+  string $scope,
+  string $rawKey,
+  int $maxHits,
+  int $windowSeconds,
+  int $blockSeconds
+): array {
+  return api_security_rate_limit_register_failure($pdo, $scope, $rawKey, $maxHits, $windowSeconds, $blockSeconds);
 }
 
 function api_security_rate_limit_clear(PDO $pdo, string $scope, string $rawKey): void
@@ -815,11 +855,100 @@ function api_security_contact_recipient(): string
   return '';
 }
 
+function api_security_contact_form_enabled(): bool
+{
+  $cfg = api_security_config();
+  $siteKey = isset($cfg['turnstileSiteKey']) && is_string($cfg['turnstileSiteKey']) ? trim($cfg['turnstileSiteKey']) : '';
+  $secret = isset($cfg['turnstileSecret']) && is_string($cfg['turnstileSecret']) ? trim($cfg['turnstileSecret']) : '';
+  return $siteKey !== '' && $secret !== '';
+}
+
+function api_security_current_host(): string
+{
+  $host = isset($_SERVER['HTTP_HOST']) && is_string($_SERVER['HTTP_HOST']) ? trim($_SERVER['HTTP_HOST']) : 'localhost';
+  $host = preg_replace('/[\x00-\x20\x7F]+/', '', $host) ?? '';
+  return $host !== '' ? $host : 'localhost';
+}
+
+function api_security_current_origin(): string
+{
+  return (api_security_is_https() ? 'https://' : 'http://') . api_security_current_host();
+}
+
+function api_security_normalize_same_origin_url(string $value): string
+{
+  $value = trim($value);
+  if ($value === '' || strlen($value) > 512 || preg_match('/[\x00-\x1F\x7F]/', $value) === 1) {
+    return '';
+  }
+
+  $currentOrigin = api_security_current_origin();
+  $currentParts = parse_url($currentOrigin);
+  $currentHost = strtolower((string) ($currentParts['host'] ?? ''));
+  $currentPort = isset($currentParts['port']) ? (int) $currentParts['port'] : 0;
+
+  if ($currentHost === '') {
+    return '';
+  }
+
+  if (str_starts_with($value, '/') && !str_starts_with($value, '//')) {
+    $relative = parse_url($currentOrigin . $value);
+    if (!is_array($relative)) {
+      return '';
+    }
+
+    $path = isset($relative['path']) && is_string($relative['path']) && $relative['path'] !== ''
+      ? $relative['path']
+      : '/';
+    $normalized = $currentOrigin . $path;
+    if (isset($relative['query']) && is_string($relative['query']) && $relative['query'] !== '') {
+      $normalized .= '?' . $relative['query'];
+    }
+    if (isset($relative['fragment']) && is_string($relative['fragment']) && $relative['fragment'] !== '') {
+      $normalized .= '#' . $relative['fragment'];
+    }
+    return $normalized;
+  }
+
+  if (preg_match('/^https?:\/\//i', $value) !== 1) {
+    return '';
+  }
+
+  $parts = parse_url($value);
+  if (!is_array($parts)) {
+    return '';
+  }
+
+  $scheme = strtolower((string) ($parts['scheme'] ?? ''));
+  $host = strtolower((string) ($parts['host'] ?? ''));
+  $port = isset($parts['port']) ? (int) $parts['port'] : 0;
+  if (!in_array($scheme, ['http', 'https'], true) || $host !== $currentHost) {
+    return '';
+  }
+
+  if ($port > 0 && $currentPort > 0 && $port !== $currentPort) {
+    return '';
+  }
+
+  $path = isset($parts['path']) && is_string($parts['path']) && $parts['path'] !== ''
+    ? $parts['path']
+    : '/';
+  $normalized = $currentOrigin . $path;
+  if (isset($parts['query']) && is_string($parts['query']) && $parts['query'] !== '') {
+    $normalized .= '?' . $parts['query'];
+  }
+  if (isset($parts['fragment']) && is_string($parts['fragment']) && $parts['fragment'] !== '') {
+    $normalized .= '#' . $parts['fragment'];
+  }
+
+  return $normalized;
+}
+
 function api_security_verify_turnstile(string $token): bool
 {
   $secret = (string) (api_security_config()['turnstileSecret'] ?? '');
-  if ($secret === '') {
-    return true;
+  if (!api_security_contact_form_enabled() || $secret === '') {
+    return false;
   }
 
   $token = trim($token);
@@ -938,16 +1067,43 @@ function api_security_save_contact_message(
   string $name,
   string $email,
   string $message,
-  bool $mailDelivered
+  bool $mailDelivered,
+  array $context = []
 ): void {
+  $leadKind = isset($context['leadKind']) && is_string($context['leadKind']) && trim($context['leadKind']) !== ''
+    ? trim($context['leadKind'])
+    : 'general';
+  $inquirySlug = isset($context['inquirySlug']) && is_string($context['inquirySlug']) ? trim($context['inquirySlug']) : '';
+  $inquiryTitle = isset($context['inquiryTitle']) && is_string($context['inquiryTitle']) ? trim($context['inquiryTitle']) : '';
+  $inquiryStatus = isset($context['inquiryStatus']) && is_string($context['inquiryStatus']) ? trim($context['inquiryStatus']) : '';
+  $inquiryPriceLabel = isset($context['inquiryPriceLabel']) && is_string($context['inquiryPriceLabel']) ? trim($context['inquiryPriceLabel']) : '';
+  $inquirySourceUrl = isset($context['inquirySourceUrl']) && is_string($context['inquirySourceUrl']) ? trim($context['inquirySourceUrl']) : '';
+  $inquiryLanguage = isset($context['inquiryLanguage']) && is_string($context['inquiryLanguage']) ? trim($context['inquiryLanguage']) : '';
+  $followUpStatus = isset($context['followUpStatus']) && is_string($context['followUpStatus']) && trim($context['followUpStatus']) !== ''
+    ? trim($context['followUpStatus'])
+    : 'new';
   $stmt = $pdo->prepare(
-    'INSERT INTO contact_messages (name, email, message, ip_hash, user_agent_hash, mail_delivered) VALUES (:name, :email, :message, :ip_hash, :user_agent_hash, :mail_delivered)'
+    'INSERT INTO contact_messages (
+      lead_kind, name, email, message, inquiry_slug, inquiry_title, inquiry_status, inquiry_price_label, inquiry_source_url,
+      inquiry_language, follow_up_status, ip_hash, user_agent_hash, mail_delivered
+    ) VALUES (
+      :lead_kind, :name, :email, :message, :inquiry_slug, :inquiry_title, :inquiry_status, :inquiry_price_label, :inquiry_source_url,
+      :inquiry_language, :follow_up_status, :ip_hash, :user_agent_hash, :mail_delivered
+    )'
   );
 
   $stmt->execute([
+    ':lead_kind' => $leadKind,
     ':name' => $name,
     ':email' => $email,
     ':message' => $message,
+    ':inquiry_slug' => $inquirySlug !== '' ? $inquirySlug : null,
+    ':inquiry_title' => $inquiryTitle !== '' ? $inquiryTitle : null,
+    ':inquiry_status' => $inquiryStatus !== '' ? $inquiryStatus : null,
+    ':inquiry_price_label' => $inquiryPriceLabel !== '' ? $inquiryPriceLabel : null,
+    ':inquiry_source_url' => $inquirySourceUrl !== '' ? $inquirySourceUrl : null,
+    ':inquiry_language' => $inquiryLanguage !== '' ? $inquiryLanguage : null,
+    ':follow_up_status' => $followUpStatus,
     ':ip_hash' => api_security_hash('ip:' . api_security_client_ip()),
     ':user_agent_hash' => api_security_hash('ua:' . api_security_user_agent()),
     ':mail_delivered' => $mailDelivered ? 1 : 0
@@ -963,8 +1119,7 @@ function api_security_public_status(PDO $pdo): array
     'adminExists' => $adminExists,
     'authenticated' => $admin !== null,
     'email' => $admin ? (string) $admin['email'] : '',
-    'csrfToken' => api_security_csrf_token(),
-    'bootstrapKeyRequired' => (!$adminExists && api_security_bootstrap_key_required()),
-    'turnstileSiteKey' => (string) (api_security_config()['turnstileSiteKey'] ?? '')
+    'csrfToken' => $admin ? api_security_csrf_token() : '',
+    'bootstrapKeyRequired' => (!$adminExists && api_security_bootstrap_key_required())
   ];
 }

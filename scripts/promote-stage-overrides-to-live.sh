@@ -15,6 +15,8 @@ fi
 FTP_HOST="${FTP_HOST:-ftp.magicspaceillustration.com}"
 FTP_USER="${FTP_USER:-magicspa}"
 FTP_PASS="${FTP_PASS:-}"
+tmp_stage=""
+tmp_live=""
 
 log() {
   printf '[promote-content] %s\n' "$*"
@@ -61,14 +63,17 @@ upload_remote_file() {
     -T "$local_path" "ftp://${FTP_HOST}${remote_path}" >/dev/null
 }
 
+cleanup_tmp_files() {
+  rm -f "${tmp_stage:-}" "${tmp_live:-}"
+}
+
 main() {
   require_tools
   require_env
 
-  local tmp_stage tmp_live
   tmp_stage="$(mktemp)"
   tmp_live="$(mktemp)"
-  trap 'rm -f "$tmp_stage" "$tmp_live"' EXIT
+  trap cleanup_tmp_files EXIT
 
   local stage_path="/stage.olagustafsson.com/overrides.js"
   local live_path="/public_html/olagustafsson.com/overrides.js"

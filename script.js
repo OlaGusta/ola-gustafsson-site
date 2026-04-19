@@ -1,5 +1,19 @@
 document.documentElement.classList.add('js-enabled');
 
+const activateDeferredStylesheets = () => {
+  document.querySelectorAll('link[data-deferred-stylesheet]').forEach((node) => {
+    if (!(node instanceof HTMLLinkElement)) {
+      return;
+    }
+    if (node.media === 'all') {
+      return;
+    }
+    node.media = 'all';
+  });
+};
+
+activateDeferredStylesheets();
+
 const DEFAULT_CONTENT = {
   site: {
     title: 'Ola Gustafsson | Akvarellkonstnär',
@@ -16,6 +30,11 @@ const DEFAULT_CONTENT = {
     primary: '#123a62',
     accent: '#b98c56',
     border: 'rgba(16, 19, 27, 0.12)',
+    headerBackground: '#f3efe6',
+    footerBackground: '#f3efe6',
+    headerOpacity: 84,
+    buttonGradientStart: '#123a62',
+    buttonGradientEnd: '#b98c56',
     fontDisplay: 'fraunces',
     fontBody: 'jakarta',
     fontDisplayWeight: 700,
@@ -30,6 +49,14 @@ const DEFAULT_CONTENT = {
     ctaSecondaryLabel: 'Läs om processen',
     mode: 'still',
     slideDurationMs: 8000,
+    autoSlides: {
+      enabled: false,
+      count: 4,
+      periodDays: 7,
+      landscapeOnly: true,
+      excludeSrcs: [],
+      seedNonce: ''
+    },
     slides: [],
     overlayEnabled: true,
     overlayOpacity: 55,
@@ -44,11 +71,13 @@ const DEFAULT_CONTENT = {
   analytics: {
     gaMeasurementId: '',
     anonymizeIp: true,
-    trackStudio: false
+    trackStudio: false,
+    allowedHosts: ['olagustafsson.com', 'www.olagustafsson.com']
   },
   gallery: {
     heading: 'Galleri',
     pageHeading: 'Hela galleriet',
+    subheading: '',
     categoryLabels: {
       all: 'Alla',
       sea: 'Hav',
@@ -177,7 +206,41 @@ const DEFAULT_CONTENT = {
     formSending: 'Skickar meddelande...',
     formSendFailed: 'Kunde inte skicka meddelandet. Försök igen.',
     formSendSuccess: 'Tack, ditt meddelande är skickat.',
-    formNetworkError: 'Nätverksfel. Försök igen om en stund.'
+    formNetworkError: 'Nätverksfel. Försök igen om en stund.',
+    availabilityLabel: 'Status',
+    availabilityAvailable: 'Tillgänglig',
+    availabilityReserved: 'Reserverad',
+    availabilitySold: 'Såld',
+    availabilityNfs: 'Ej till salu',
+    priceLabel: 'Pris',
+    collectorNoteLabel: 'För samlare',
+    inquiryArtworkLink: 'Intresserad av verket',
+    inquirySimilarLink: 'Fråga om liknande verk',
+    inquiryEyebrow: 'Intresseanmälan',
+    inquiryHeading: 'Fråga om detta verk',
+    inquiryHeadingSimilar: 'Fråga om liknande verk',
+    inquiryBodyAvailable:
+      'Skriv gärna om du vill veta mer, reservera verket eller få fler bilder innan beslut.',
+    inquiryBodySimilar:
+      'Det här verket är inte tillgängligt just nu, men du kan gärna fråga om liknande verk eller kommande målningar.',
+    inquiryNameLabel: 'Namn',
+    inquiryEmailLabel: 'E-post',
+    inquiryMessageLabel: 'Meddelande',
+    inquiryMessagePlaceholder:
+      'Berätta gärna vad du vill veta mer om: pris, frakt, inramning eller om du vill boka verket.',
+    inquirySubmit: 'Skicka förfrågan',
+    inquirySubmitSimilar: 'Skicka förfrågan om liknande verk',
+    inquirySuccess: 'Tack, din förfrågan är skickad.',
+    artworkWatermark: {
+      enabled: false,
+      text: '',
+      opacity: 18
+    },
+    inquiryFallbackStatus: 'Verksförfrågan kunde inte skickas. Försök igen.',
+    inquiryPrefillAvailable:
+      'Hej! Jag är intresserad av "{title}" och vill gärna veta mer om verket.',
+    inquiryPrefillSimilar:
+      'Hej! Jag såg att "{title}" inte längre är tillgänglig. Jag är gärna intresserad av liknande verk.'
   }
 };
 
@@ -234,13 +297,34 @@ const SUPPORTED_LANGUAGES = ['sv', 'en'];
 const COLOR_MODE_STORAGE_KEY = 'olaSiteColorModeV1';
 const SUPPORTED_COLOR_MODES = ['light', 'dark'];
 const STUDIO_AUTH_KEY = 'olaStudioUnlockedV1';
-const ASSET_REV = '20260219-04';
+const ASSET_REV = '20260317-07';
 const LEGACY_CACHE_CLEANUP_KEY = 'olaLegacyCleanupDoneV1';
 const CONTACT_FORM_MIN_DELAY_MS = 3000;
 const TURNSTILE_SCRIPT_ID = 'cf-turnstile-script';
+const HERO_ROTATION_TIMEZONE = 'Europe/Stockholm';
+const FAVICON_THEME_REV = '20260317-14';
+const FAVICON_THEME_ASSETS = {
+  light: {
+    png: `/favicon-light-32x32.png?v=${FAVICON_THEME_REV}`,
+    ico: `/favicon-light.ico?v=${FAVICON_THEME_REV}`
+  },
+  dark: {
+    png: `/favicon-dark-32x32.png?v=${FAVICON_THEME_REV}`,
+    ico: `/favicon-dark.ico?v=${FAVICON_THEME_REV}`
+  }
+};
 
 let contactTurnstileReadyPromise = null;
 let contactTurnstileWidgetId = null;
+let artworkInquiryTurnstileWidgetId = null;
+
+const normalizePercentageValue = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) {
+    return null;
+  }
+  return Math.max(0, Math.min(100, numeric));
+};
 
 const normalizeLanguageCode = (value) => {
   if (typeof value !== 'string') {
@@ -312,6 +396,35 @@ const resolveActiveColorMode = () => {
     // ignore media query errors
   }
   return 'light';
+};
+
+const resolveBrowserColorMode = () => {
+  try {
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
+    }
+  } catch (error) {
+    // ignore media query errors
+  }
+  return 'light';
+};
+
+const updateFaviconForColorMode = () => {
+  const mode = resolveBrowserColorMode();
+  const iconSet = FAVICON_THEME_ASSETS[mode];
+  if (!iconSet) {
+    return;
+  }
+
+  const pngLink = document.getElementById('favicon-png');
+  if (pngLink) {
+    pngLink.setAttribute('href', iconSet.png);
+  }
+
+  const icoLink = document.getElementById('favicon-ico');
+  if (icoLink) {
+    icoLink.setAttribute('href', iconSet.ico);
+  }
 };
 
 const loadTurnstileScript = () => {
@@ -417,6 +530,33 @@ const mergeMissingGalleryItems = (storedGallery, fileGallery) => {
       .map((item) => (item && typeof item.src === 'string' ? item.src.trim() : ''))
       .filter(Boolean)
   );
+  const fileBySrc = new Map(
+    fileArtworks
+      .filter((item) => item && typeof item.src === 'string')
+      .map((item) => [item.src.trim(), item])
+  );
+
+  storedGallery.artworks = storedArtworks.map((item) => {
+    if (!item || typeof item !== 'object') {
+      return item;
+    }
+
+    const src = typeof item.src === 'string' ? item.src.trim() : '';
+    const fileItem = src ? fileBySrc.get(src) : null;
+    if (!fileItem) {
+      return item;
+    }
+
+    const merged = deepMerge(deepMerge({}, fileItem), item);
+    ['availability', 'priceLabel', 'collectorNote'].forEach((field) => {
+      const mergedValue = typeof merged[field] === 'string' ? merged[field].trim() : merged[field];
+      const fileValue = typeof fileItem[field] === 'string' ? fileItem[field].trim() : fileItem[field];
+      if ((mergedValue === '' || mergedValue === null || typeof mergedValue === 'undefined') && fileValue) {
+        merged[field] = fileItem[field];
+      }
+    });
+    return merged;
+  });
 
   const missing = fileArtworks
     .filter((item) => item && typeof item.src === 'string')
@@ -486,9 +626,19 @@ const liveOverrides =
   window.PORTFOLIO_OVERRIDES && typeof window.PORTFOLIO_OVERRIDES === 'object' ? window.PORTFOLIO_OVERRIDES : null;
 const publishedContent = deepMerge(fileContent, liveOverrides || {});
 const pageType = (document.body && document.body.dataset && document.body.dataset.page) || 'home';
+const DEFAULT_ANALYTICS_ALLOWED_HOSTS = ['olagustafsson.com', 'www.olagustafsson.com'];
+const isLocalPreviewHost = (() => {
+  const protocol = String(window.location.protocol || '').toLowerCase();
+  if (protocol === 'file:') {
+    return true;
+  }
+
+  const hostname = String(window.location.hostname || '').toLowerCase();
+  return hostname === '127.0.0.1' || hostname === 'localhost' || hostname === '::1' || hostname === '[::1]';
+})();
 const colorModeEnabled = pageType !== 'studio';
 const storedContent =
-  pageType === 'studio' ? migrateStoredContent(loadStoredContent(), publishedContent) : null;
+  pageType === 'studio' || isLocalPreviewHost ? migrateStoredContent(loadStoredContent(), publishedContent) : null;
 const baseContent = deepMerge(publishedContent, storedContent || {});
 const activeLanguage = resolveActiveLanguage();
 let activeColorMode = resolveActiveColorMode();
@@ -508,6 +658,17 @@ const activeLanguagePack =
 const content = deepMerge(baseContent, activeLanguagePack || {});
 
 document.documentElement.lang = activeLanguage;
+
+const isLocalStaticPreviewHost = () => isLocalPreviewHost;
+
+const shouldUseLocalArtworkPreviewRoutes = () => {
+  if (!isLocalStaticPreviewHost()) {
+    return false;
+  }
+
+  const path = String(window.location.pathname || '').toLowerCase();
+  return path.endsWith('.html') || pageType === 'artwork-preview';
+};
 
 const menuButton = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.main-nav');
@@ -533,8 +694,13 @@ const heroSlideshowState = {
   currentIndex: 0,
   slides: []
 };
+const heroOrientationCache = new Map();
+let heroRenderSequence = 0;
 
 const warmCacheRefs = [];
+let warmImageCacheQueued = false;
+let warmImageCacheComplete = false;
+const localDirectoryListingCache = new Map();
 
 const getPath = (obj, path) => {
   if (!obj || !path) {
@@ -556,6 +722,50 @@ const getBoundString = (path, fallback = '') => {
 
 const getUiText = (key, fallback = '') => getBoundString(`ui.${key}`, fallback);
 
+const buildLinkedTextFragment = (value) => {
+  const fragment = document.createDocumentFragment();
+  const input = String(value || '');
+  const linkPattern = /\[([^\]]+)\]\s*\((https?:\/\/[^\s)]+)\)/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = linkPattern.exec(input)) !== null) {
+    const [fullMatch, label, href] = match;
+    if (match.index > lastIndex) {
+      fragment.appendChild(document.createTextNode(input.slice(lastIndex, match.index)));
+    }
+
+    let safeHref = '';
+    try {
+      const url = new URL(href);
+      if (url.protocol === 'http:' || url.protocol === 'https:') {
+        safeHref = url.href;
+      }
+    } catch (error) {
+      safeHref = '';
+    }
+
+    if (safeHref && label.trim() !== '') {
+      const link = document.createElement('a');
+      link.href = safeHref;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = label.trim();
+      fragment.appendChild(link);
+    } else {
+      fragment.appendChild(document.createTextNode(fullMatch));
+    }
+
+    lastIndex = match.index + fullMatch.length;
+  }
+
+  if (lastIndex < input.length) {
+    fragment.appendChild(document.createTextNode(input.slice(lastIndex)));
+  }
+
+  return fragment;
+};
+
 const DARK_THEME_OVERRIDES = {
   '--color-ink': '#e7edf8',
   '--color-soft-ink': '#b7c2d8',
@@ -565,6 +775,8 @@ const DARK_THEME_OVERRIDES = {
   '--color-primary': '#7ea9dc',
   '--color-primary-soft': '#21364f',
   '--color-accent': '#d0ab77',
+  '--color-header-bg': '#0f141d',
+  '--color-footer-bg': '#0f141d',
   '--shadow-sm': '0 14px 28px rgba(0, 0, 0, 0.28)',
   '--shadow-md': '0 26px 62px rgba(0, 0, 0, 0.44)'
 };
@@ -585,6 +797,14 @@ const bindAttributeContent = () => {
     const value = getBoundString(key);
     if (value !== '') {
       node.setAttribute('aria-label', value);
+    }
+  });
+
+  document.querySelectorAll('[data-bind-placeholder]').forEach((node) => {
+    const key = node.getAttribute('data-bind-placeholder');
+    const value = getBoundString(key);
+    if (value !== '') {
+      node.setAttribute('placeholder', value);
     }
   });
 };
@@ -689,6 +909,36 @@ const applyColorMode = () => {
     const color = getComputedStyle(root).getPropertyValue('--color-bg').trim() || (mode === 'dark' ? '#0f141d' : '#f3efe6');
     themeColorMeta.setAttribute('content', color);
   }
+
+  updateFaviconForColorMode();
+};
+
+const initSystemColorModeObserver = () => {
+  if (!window.matchMedia) {
+    updateFaviconForColorMode();
+    return;
+  }
+
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  const handleChange = (event) => {
+    updateFaviconForColorMode();
+    if (!colorModeEnabled) {
+      return;
+    }
+    if (readStoredColorMode()) {
+      return;
+    }
+    activeColorMode = event.matches ? 'dark' : 'light';
+    applyColorMode();
+  };
+
+  if (typeof mediaQuery.addEventListener === 'function') {
+    mediaQuery.addEventListener('change', handleChange);
+  } else if (typeof mediaQuery.addListener === 'function') {
+    mediaQuery.addListener(handleChange);
+  }
+
+  updateFaviconForColorMode();
 };
 
 const initColorModeSwitcher = () => {
@@ -739,10 +989,13 @@ const bindSiteMeta = () => {
 
   if (pageType === 'gallery') {
     const galleryLabel = getUiText('navGallery', isEnglish ? 'Gallery' : 'Galleri');
-    title = `${galleryLabel} | ${brandTitle}`;
-    description = isEnglish
-      ? "Complete gallery of Ola Gustafsson's watercolor paintings."
-      : 'Hela galleriet med akvareller av Ola Gustafsson.';
+    title = getBoundString('seo.gallery.title', `${galleryLabel} | ${brandTitle}`);
+    description = getBoundString(
+      'seo.gallery.description',
+      isEnglish
+        ? "Complete gallery of Ola Gustafsson's watercolor paintings."
+        : 'Hela galleriet med akvareller av Ola Gustafsson.'
+    );
   }
 
   if (pageType === 'studio') {
@@ -761,7 +1014,17 @@ const bindSiteMeta = () => {
 
 const applyTheme = () => {
   const theme = content.theme || {};
+  const overridesTheme =
+    window.PORTFOLIO_OVERRIDES && typeof window.PORTFOLIO_OVERRIDES === 'object' && window.PORTFOLIO_OVERRIDES.theme
+      ? window.PORTFOLIO_OVERRIDES.theme
+      : {};
   const root = document.documentElement;
+  const sharedHeaderFooterColor =
+    (typeof theme.headerBackground === 'string' && theme.headerBackground.trim() !== ''
+      ? theme.headerBackground
+      : typeof theme.footerBackground === 'string' && theme.footerBackground.trim() !== ''
+        ? theme.footerBackground
+        : theme.background);
 
   const map = {
     '--color-bg': theme.background,
@@ -770,7 +1033,9 @@ const applyTheme = () => {
     '--color-soft-ink': theme.softInk,
     '--color-primary': theme.primary,
     '--color-accent': theme.accent,
-    '--color-border': theme.border
+    '--color-border': theme.border,
+    '--color-header-bg': sharedHeaderFooterColor,
+    '--color-footer-bg': sharedHeaderFooterColor
   };
 
   Object.entries(map).forEach(([cssVar, value]) => {
@@ -778,6 +1043,40 @@ const applyTheme = () => {
       root.style.setProperty(cssVar, value);
     }
   });
+
+  const optionalThemeVarMap = {
+    '--button-gradient-start':
+      typeof overridesTheme.buttonGradientStart === 'string' && overridesTheme.buttonGradientStart.trim() !== ''
+        ? overridesTheme.buttonGradientStart
+        : typeof theme.buttonGradientStart === 'string' &&
+            theme.buttonGradientStart.trim() !== '' &&
+            theme.buttonGradientStart.trim().toLowerCase() !== DEFAULT_CONTENT.theme.buttonGradientStart.toLowerCase()
+          ? theme.buttonGradientStart
+        : theme.primary,
+    '--button-gradient-end':
+      typeof overridesTheme.buttonGradientEnd === 'string' && overridesTheme.buttonGradientEnd.trim() !== ''
+        ? overridesTheme.buttonGradientEnd
+        : typeof theme.buttonGradientEnd === 'string' &&
+            theme.buttonGradientEnd.trim() !== '' &&
+            theme.buttonGradientEnd.trim().toLowerCase() !== DEFAULT_CONTENT.theme.buttonGradientEnd.toLowerCase()
+          ? theme.buttonGradientEnd
+        : theme.accent
+  };
+
+  Object.entries(optionalThemeVarMap).forEach(([cssVar, value]) => {
+    if (typeof value === 'string' && value.trim() !== '') {
+      root.style.setProperty(cssVar, value);
+    } else {
+      root.style.removeProperty(cssVar);
+    }
+  });
+
+  const headerOpacity = normalizePercentageValue(theme.headerOpacity);
+  if (headerOpacity === null) {
+    root.style.removeProperty('--header-bg-opacity');
+  } else {
+    root.style.setProperty('--header-bg-opacity', String(headerOpacity));
+  }
 
   const displayKey = typeof theme.fontDisplay === 'string' ? theme.fontDisplay.trim().toLowerCase() : 'fraunces';
   const bodyKey = typeof theme.fontBody === 'string' ? theme.fontBody.trim().toLowerCase() : 'jakarta';
@@ -807,6 +1106,21 @@ const addImageFallback = (img) => {
   }
 
   img.addEventListener('error', () => {
+    const fallbackSrcs = String(img.dataset.fallbackSrcs || '')
+      .split('\n')
+      .map((value) => value.trim())
+      .filter(Boolean);
+    if (fallbackSrcs.length > 0) {
+      const currentIndex = Number(img.dataset.fallbackIndex || 0);
+      const nextIndex = Number.isFinite(currentIndex) ? currentIndex + 1 : 1;
+      const nextSrc = fallbackSrcs[nextIndex] || '';
+      if (nextSrc) {
+        img.dataset.fallbackIndex = String(nextIndex);
+        img.src = addRevToSrc(nextSrc);
+        return;
+      }
+    }
+
     // Some image flows intentionally trigger one error first (e.g. missing thumb)
     // and then swap to full-size image in the same tick.
     if (img.dataset.suppressErrorFallback === '1') {
@@ -858,12 +1172,27 @@ const isLikelyBlackPreview = (img) => {
 };
 
 const imageExists = async (src) => {
-  try {
-    const response = await fetch(src, { method: 'HEAD', cache: 'no-store' });
-    return response.ok;
-  } catch (error) {
-    return false;
+  const normalizedSrc = typeof src === 'string' ? src.trim() : '';
+  const probeCandidates = isLocalPreviewHost
+    ? [normalizedSrc]
+    : getImageFallbackSources(normalizedSrc, { preferThumb: true });
+
+  for (const candidate of probeCandidates) {
+    if (!candidate) {
+      continue;
+    }
+
+    try {
+      const response = await fetch(candidate, { method: 'HEAD', cache: 'no-store' });
+      if (response.ok) {
+        return true;
+      }
+    } catch (error) {
+      // try the next candidate
+    }
   }
+
+  return false;
 };
 
 const addRevToSrc = (src) => {
@@ -957,7 +1286,7 @@ const initCopyLinkButtons = () => {
   });
 };
 
-const getThumbCandidateSrc = (src) => {
+const getBaseImageFileName = (src) => {
   if (typeof src !== 'string') {
     return '';
   }
@@ -967,19 +1296,169 @@ const getThumbCandidateSrc = (src) => {
     !trimmed ||
     trimmed.startsWith('data:') ||
     trimmed.startsWith('blob:') ||
-    !trimmed.startsWith('images/') ||
-    trimmed.includes('/thumbs/')
+    /^https?:\/\//i.test(trimmed) ||
+    !trimmed.startsWith('images/')
   ) {
     return '';
   }
 
   const clean = trimmed.split('?')[0].split('#')[0];
-  const fileName = clean.split('/').pop() || '';
+  const fileName = (clean.split('/').pop() || '').replace(/-hero(?=\.[^.]+$)/i, '');
   if (!fileName) {
     return '';
   }
 
-  return `images/thumbs/${fileName}`;
+  return fileName;
+};
+
+const getImageVariantCandidateSrc = (src, variant) => {
+  const normalizedVariant = typeof variant === 'string' ? variant.trim().replace(/^\/+|\/+$/g, '') : '';
+  if (!normalizedVariant) {
+    return '';
+  }
+
+  const fileName = getBaseImageFileName(src);
+  if (!fileName) {
+    return '';
+  }
+
+  return `images/${normalizedVariant}/${fileName}`;
+};
+
+const getThumbCandidateSrc = (src) => getImageVariantCandidateSrc(src, 'thumbs');
+
+const getHeroCandidateSrc = (src) => {
+  const fileName = getBaseImageFileName(src);
+  if (!fileName) {
+    return '';
+  }
+
+  const extensionIndex = fileName.lastIndexOf('.');
+  if (extensionIndex <= 0) {
+    return '';
+  }
+
+  const stem = fileName.slice(0, extensionIndex);
+  const extension = fileName.slice(extensionIndex);
+  return `images/web/${stem}-hero${extension}`;
+};
+
+const getWebCandidateSrc = (src) => getImageVariantCandidateSrc(src, 'web');
+
+const getHeroResponsiveSources = (src) => {
+  if (typeof src !== 'string') {
+    return [];
+  }
+
+  const trimmed = src.trim();
+  if (
+    !trimmed ||
+    trimmed.startsWith('data:') ||
+    trimmed.startsWith('blob:') ||
+    /^https?:\/\//i.test(trimmed) ||
+    !trimmed.startsWith('images/')
+  ) {
+    return [];
+  }
+
+  const seen = new Set();
+  return [
+    { src: getThumbCandidateSrc(trimmed), width: 900 },
+    { src: getHeroCandidateSrc(trimmed), width: 1280 },
+    { src: getWebCandidateSrc(trimmed), width: 1800 }
+  ].filter((entry) => {
+    if (!entry.src || seen.has(entry.src)) {
+      return false;
+    }
+    seen.add(entry.src);
+    return true;
+  });
+};
+
+const getHeroDisplaySrc = (src) => {
+  if (typeof src !== 'string') {
+    return '';
+  }
+
+  const trimmed = src.trim();
+  if (!trimmed) {
+    return '';
+  }
+
+  if (
+    trimmed.startsWith('data:') ||
+    trimmed.startsWith('blob:') ||
+    /^https?:\/\//i.test(trimmed) ||
+    !trimmed.startsWith('images/')
+  ) {
+    return trimmed;
+  }
+
+  const orderedCandidates = shouldUseStaticHeroOnMobile()
+    ? [getHeroCandidateSrc(trimmed), getWebCandidateSrc(trimmed), getThumbCandidateSrc(trimmed), trimmed]
+    : [getWebCandidateSrc(trimmed), getHeroCandidateSrc(trimmed), getThumbCandidateSrc(trimmed), trimmed];
+
+  return orderedCandidates.find(Boolean) || trimmed;
+};
+
+const applyHeroImageSource = (image, src) => {
+  if (!image || typeof src !== 'string' || src.trim() === '') {
+    return;
+  }
+
+  const fallbackSrc = getHeroDisplaySrc(src);
+  if (fallbackSrc) {
+    image.src = addRevToSrc(fallbackSrc);
+  }
+
+  const responsiveSources = getHeroResponsiveSources(src);
+  if (responsiveSources.length === 0) {
+    image.removeAttribute('srcset');
+    image.removeAttribute('sizes');
+    return;
+  }
+
+  image.srcset = responsiveSources.map((entry) => `${addRevToSrc(entry.src)} ${entry.width}w`).join(', ');
+  image.sizes = '100vw';
+};
+
+const getImageFallbackSources = (src, options = {}) => {
+  if (typeof src !== 'string') {
+    return [];
+  }
+
+  const trimmed = src.trim();
+  if (!trimmed) {
+    return [];
+  }
+
+  if (
+    trimmed.startsWith('data:') ||
+    trimmed.startsWith('blob:') ||
+    /^https?:\/\//i.test(trimmed) ||
+    !trimmed.startsWith('images/')
+  ) {
+    return [trimmed];
+  }
+
+  if (trimmed.includes('/thumbs/') || trimmed.includes('/web/')) {
+    return [trimmed];
+  }
+
+  if (isLocalPreviewHost) {
+    return [trimmed];
+  }
+
+  const preferThumb = options && options.preferThumb === true;
+  const orderedCandidates = preferThumb
+    ? [getThumbCandidateSrc(trimmed), getWebCandidateSrc(trimmed), trimmed]
+    : [getWebCandidateSrc(trimmed), getThumbCandidateSrc(trimmed), trimmed];
+
+  return orderedCandidates.filter((value, index, array) => value && array.indexOf(value) === index);
+};
+
+const getDisplayImageSrc = (src, options = {}) => {
+  return getImageFallbackSources(src, options)[0] || '';
 };
 
 const slugifyArtworkValue = (value) => {
@@ -1069,6 +1548,228 @@ const localizeGenericArtworkMedium = (value) => {
   return trimmed;
 };
 
+const escapeHtml = (value) =>
+  String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+
+const normalizeArtworkAvailability = (value) => {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
+  if (['available', 'reserved', 'sold', 'nfs'].includes(normalized)) {
+    return normalized;
+  }
+  return '';
+};
+
+const getArtworkAvailabilityConfig = (item) => {
+  const key = normalizeArtworkAvailability(item && item.availability);
+  switch (key) {
+    case 'available':
+      return {
+        key,
+        label: getUiText('availabilityAvailable', 'Tillgänglig'),
+        tone: 'available',
+        canInquire: true,
+        inquiryMode: 'artwork',
+        inquiryLabel: getUiText('inquiryArtworkLink', 'Intresserad av verket')
+      };
+    case 'reserved':
+      return {
+        key,
+        label: getUiText('availabilityReserved', 'Reserverad'),
+        tone: 'reserved',
+        canInquire: true,
+        inquiryMode: 'artwork',
+        inquiryLabel: getUiText('inquiryArtworkLink', 'Intresserad av verket')
+      };
+    case 'sold':
+      return {
+        key,
+        label: getUiText('availabilitySold', 'Såld'),
+        tone: 'sold',
+        canInquire: true,
+        inquiryMode: 'similar',
+        inquiryLabel: getUiText('inquirySimilarLink', 'Fråga om liknande verk')
+      };
+    case 'nfs':
+      return {
+        key,
+        label: getUiText('availabilityNfs', 'Ej till salu'),
+        tone: 'nfs',
+        canInquire: true,
+        inquiryMode: 'similar',
+        inquiryLabel: getUiText('inquirySimilarLink', 'Fråga om liknande verk')
+      };
+    default:
+      return {
+        key: '',
+        label: '',
+        tone: '',
+        canInquire: true,
+        inquiryMode: 'artwork',
+        inquiryLabel: getUiText('inquiryArtworkLink', 'Intresserad av verket')
+      };
+  }
+};
+
+const getArtworkPriceLabel = (item, availability = getArtworkAvailabilityConfig(item)) => {
+  const priceLabel = typeof item?.priceLabel === 'string' ? item.priceLabel.trim() : '';
+  if (!priceLabel) {
+    return '';
+  }
+  if (availability && availability.label && priceLabel.localeCompare(availability.label, activeLanguage, { sensitivity: 'accent' }) === 0) {
+    return '';
+  }
+  return priceLabel;
+};
+
+const getArtworkCollectorNote = (item) =>
+  typeof item?.collectorNote === 'string' && item.collectorNote.trim() !== '' ? item.collectorNote.trim() : '';
+
+const normalizeArtworkWatermarkOpacity = (value, fallback = 12) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) {
+    return fallback;
+  }
+  if (numeric <= 0) {
+    return 0;
+  }
+  return Math.max(4, Math.min(100, Math.round(numeric)));
+};
+
+const getArtworkWatermarkConfig = () => {
+  const ui = content.ui && typeof content.ui === 'object' ? content.ui : {};
+  const watermark = ui.artworkWatermark && typeof ui.artworkWatermark === 'object' ? ui.artworkWatermark : {};
+  const site = content.site && typeof content.site === 'object' ? content.site : {};
+  const fallbackText =
+    typeof site.brandName === 'string' && site.brandName.trim() !== '' ? site.brandName.trim() : 'Ola Gustafsson';
+  const text = typeof watermark.text === 'string' && watermark.text.trim() !== '' ? watermark.text.trim() : fallbackText;
+  return {
+    enabled: watermark.enabled === true,
+    text,
+    opacity: normalizeArtworkWatermarkOpacity(watermark.opacity, 12)
+  };
+};
+
+const upsertArtworkWatermark = (host) => {
+  if (!(host instanceof HTMLElement)) {
+    return;
+  }
+
+  const config = getArtworkWatermarkConfig();
+  const existing = Array.from(host.children).find(
+    (node) => node instanceof HTMLElement && node.classList.contains('artwork-watermark-overlay')
+  );
+
+  if (!config.enabled) {
+    host.classList.remove('artwork-watermark-host');
+    host.style.removeProperty('--artwork-watermark-opacity');
+    if (existing) {
+      existing.remove();
+    }
+    return;
+  }
+
+  let overlay = existing;
+  if (!(overlay instanceof HTMLElement)) {
+    overlay = document.createElement('span');
+    overlay.className = 'artwork-watermark-overlay';
+    overlay.setAttribute('aria-hidden', 'true');
+    host.appendChild(overlay);
+  }
+
+  overlay.textContent = '';
+  overlay.dataset.watermarkLabel = config.text;
+  host.classList.add('artwork-watermark-host');
+  host.style.setProperty('--artwork-watermark-opacity', String(config.opacity / 100));
+};
+
+const applyArtworkWatermarks = (root = document) => {
+  const selector = '.work-image, .artwork-media, .lightbox-media';
+  const nodes = [];
+  if (root instanceof HTMLElement && root.matches(selector)) {
+    nodes.push(root);
+  }
+  if (root && typeof root.querySelectorAll === 'function') {
+    nodes.push(...Array.from(root.querySelectorAll(selector)));
+  }
+  nodes.forEach((node) => upsertArtworkWatermark(node));
+};
+
+const buildInquiryPrefillMessage = (item, availability = getArtworkAvailabilityConfig(item)) => {
+  const title =
+    item && typeof item.title === 'string' && item.title.trim() !== ''
+      ? item.title.trim()
+      : getUiText('artworkDefaultPrefix', 'Verk');
+  const templateKey = availability.inquiryMode === 'similar' ? 'inquiryPrefillSimilar' : 'inquiryPrefillAvailable';
+  const fallback =
+    availability.inquiryMode === 'similar'
+      ? 'Hej! Jag såg att "{title}" inte längre är tillgänglig. Jag är gärna intresserad av liknande verk.'
+      : 'Hej! Jag är intresserad av "{title}" och vill gärna veta mer om verket.';
+  return getUiText(templateKey, fallback).replaceAll('{title}', title);
+};
+
+const normalizeArtworkCategoryKey = (value) => {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
+  if (!normalized || normalized === 'all') {
+    return '';
+  }
+  if (normalized === 'forest') {
+    return 'nature';
+  }
+  return normalized;
+};
+
+const normalizeArtworkCategoryList = (value, fallback = '') => {
+  const rawValues = Array.isArray(value)
+    ? value
+    : typeof value === 'string'
+      ? value.split(',')
+      : value != null
+        ? [value]
+        : [];
+
+  const categories = [];
+  rawValues.forEach((entry) => {
+    const normalized = normalizeArtworkCategoryKey(entry);
+    if (normalized && !categories.includes(normalized)) {
+      categories.push(normalized);
+    }
+  });
+
+  const fallbackKey = normalizeArtworkCategoryKey(fallback);
+  if (categories.length === 0 && fallbackKey) {
+    categories.push(fallbackKey);
+  }
+
+  return categories;
+};
+
+const getArtworkCategoryKeys = (item, fallback = 'nature') => {
+  if (!item || typeof item !== 'object') {
+    return normalizeArtworkCategoryList([], fallback);
+  }
+
+  const categories = normalizeArtworkCategoryList(item.categories, '');
+  const primary = normalizeArtworkCategoryKey(item.category);
+  if (primary && !categories.includes(primary)) {
+    categories.unshift(primary);
+  }
+
+  if (categories.length === 0) {
+    return normalizeArtworkCategoryList([], fallback);
+  }
+
+  return categories;
+};
+
 const normalizeArtwork = (item, index) => {
   const textOverride = getArtworkTextOverride(item.src);
   const defaultTitle = `${getUiText('artworkDefaultPrefix', 'Verk')} ${index + 1}`;
@@ -1092,32 +1793,26 @@ const normalizeArtwork = (item, index) => {
     slug = slugifyArtworkValue(baseName);
   }
 
-  const normalizeCategory = (value) => {
-    const normalized = String(value || '')
-      .trim()
-      .toLowerCase();
-    if (!normalized || normalized === 'all') {
-      return 'nature';
-    }
-    // Legacy merge: "forest" is now part of "nature".
-    if (normalized === 'forest') {
-      return 'nature';
-    }
-    return normalized;
-  };
+  const categories = getArtworkCategoryKeys(item, 'nature');
 
   return {
     id: item.id || String(index + 1),
     slug,
     src: item.src,
     previewSrc:
-      (typeof item.previewSrc === 'string' && item.previewSrc.trim() !== '' ? item.previewSrc : getThumbCandidateSrc(item.src)) || '',
+      (typeof item.previewSrc === 'string' && item.previewSrc.trim() !== ''
+        ? item.previewSrc
+        : getDisplayImageSrc(item.src, { preferThumb: true })) || '',
     title,
     format: (textOverride && textOverride.format) || item.format || '',
     medium,
     alt,
+    availability: normalizeArtworkAvailability(item.availability),
+    priceLabel: (textOverride && textOverride.priceLabel) || item.priceLabel || '',
+    collectorNote: (textOverride && textOverride.collectorNote) || item.collectorNote || '',
     featured: Boolean(item.featured),
-    category: normalizeCategory(item.category),
+    category: categories[0] || 'nature',
+    categories,
     year: Number(item.year || 0),
     order: Number(item.order || index + 1),
     // Keep gallery rendering stable: ignore stale per-slot crop values from old local overrides.
@@ -1128,20 +1823,43 @@ const normalizeArtwork = (item, index) => {
 
 const getArtworkPreviewSrc = (item) => {
   const preview = typeof item.previewSrc === 'string' ? item.previewSrc.trim() : '';
-  return preview || item.src;
+  return preview || getDisplayImageSrc(item && item.src, { preferThumb: true });
 };
 
-const buildArtworkPageUrl = (item) => {
+const getArtworkPreviewFallbackSources = (item) => {
+  const preview = typeof item?.previewSrc === 'string' ? item.previewSrc.trim() : '';
+  const baseSrc = typeof item?.src === 'string' ? item.src.trim() : '';
+  const candidates = [
+    preview,
+    ...getImageFallbackSources(baseSrc, { preferThumb: true })
+  ];
+  return candidates.filter((value, index, array) => value && array.indexOf(value) === index);
+};
+
+const getArtworkDisplaySrc = (src) => getDisplayImageSrc(src, { preferThumb: false });
+
+const buildArtworkPageUrl = (item, hash = '') => {
   if (!item || typeof item !== 'object') {
     return window.location.origin;
   }
 
   const rawSlug = typeof item.slug === 'string' ? item.slug.trim() : '';
   const slug = slugifyArtworkValue(rawSlug || 'verk');
-  const url = new URL(`/verk/${encodeURIComponent(slug)}`, window.location.origin);
+  const usePreviewRoute = shouldUseLocalArtworkPreviewRoutes();
+  const url = usePreviewRoute
+    ? new URL('./artwork-preview.html', window.location.href)
+    : new URL(`/verk/${encodeURIComponent(slug)}`, window.location.origin);
+  if (usePreviewRoute) {
+    url.searchParams.set('slug', slug);
+  }
   url.searchParams.set('lang', activeLanguage);
+  if (typeof hash === 'string' && hash.trim() !== '') {
+    url.hash = hash.trim().replace(/^#/, '');
+  }
   return url.toString();
 };
+
+const buildArtworkInquiryUrl = (item) => buildArtworkPageUrl(item, 'artwork-inquiry');
 
 const getHighestManualSequenceId = (manualItems, config) => {
   const path = String(config.path || 'images').replace(/\/+$/, '');
@@ -1167,6 +1885,49 @@ const getHighestManualSequenceId = (manualItems, config) => {
   return highest;
 };
 
+const listLocalDirectoryFiles = async (path) => {
+  if (!isLocalPreviewHost || typeof DOMParser === 'undefined') {
+    return [];
+  }
+
+  const normalizedPath = String(path || '').trim().replace(/^\/+|\/+$/g, '');
+  if (!normalizedPath) {
+    return [];
+  }
+
+  if (localDirectoryListingCache.has(normalizedPath)) {
+    return localDirectoryListingCache.get(normalizedPath);
+  }
+
+  const request = (async () => {
+    try {
+      const response = await fetch(`${normalizedPath}/`, { cache: 'no-store' });
+      if (!response.ok) {
+        return [];
+      }
+
+      const html = await response.text();
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      return Array.from(doc.querySelectorAll('a'))
+        .map((link) => String(link.getAttribute('href') || '').split('?')[0].split('#')[0])
+        .map((href) => href.replace(/\/+$/, '').split('/').pop() || '')
+        .map((name) => {
+          try {
+            return decodeURIComponent(name);
+          } catch (error) {
+            return name;
+          }
+        })
+        .filter((name) => name && name !== '.' && name !== '..');
+    } catch (error) {
+      return [];
+    }
+  })();
+
+  localDirectoryListingCache.set(normalizedPath, request);
+  return request;
+};
+
 const autoDiscoverArtworks = async (manualItems) => {
   const gallery = content.gallery || {};
   const config = gallery.autoDiscover || {};
@@ -1175,9 +1936,13 @@ const autoDiscoverArtworks = async (manualItems) => {
     return [];
   }
 
-  const path = config.path || 'images';
+  if (!isLocalPreviewHost && pageType !== 'studio') {
+    return [];
+  }
+
+  const path = String(config.path || 'images').replace(/\/+$/, '');
   const prefix = config.prefix || 'ola-';
-  const extension = config.extension || 'jpg';
+  const extension = String(config.extension || 'jpg').replace(/^\./, '');
   const start = Number(config.start || 1);
   const pad = Number(config.pad || 2);
   const max = Number(config.max || 120);
@@ -1193,6 +1958,60 @@ const autoDiscoverArtworks = async (manualItems) => {
   const startFrom = Math.max(start, highestManualId + 1);
   const discovered = [];
   let misses = 0;
+  const buildDiscoveredItem = (id, src, order) => ({
+    src,
+    title: `${config.titlePrefix || getUiText('artworkDefaultPrefix', 'Verk')} ${id}`,
+    format: config.defaultFormat || '',
+    medium: config.defaultMedium || getUiText('mediumDefault', 'Akvarell på papper'),
+    alt: `${getUiText('watercolorDefaultAltPrefix', 'Akvarellverk')} ${id}`,
+    category:
+      String(config.defaultCategory || 'nature')
+        .trim()
+        .toLowerCase() === 'forest'
+        ? 'nature'
+        : config.defaultCategory || 'nature',
+    featured: false,
+    order
+  });
+
+  if (isLocalPreviewHost) {
+    const escapedPrefix = String(prefix).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const escapedExtension = String(extension).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const listingPattern = new RegExp(`^${escapedPrefix}(\\d+)\\.${escapedExtension}$`, 'i');
+    const files = await listLocalDirectoryFiles(path);
+    if (files.length > 0) {
+      const sortedMatches = files
+        .map((file) => {
+          const match = file.match(listingPattern);
+          if (!match) {
+            return null;
+          }
+          const value = Number(match[1]);
+          if (!Number.isFinite(value)) {
+            return null;
+          }
+          return { file, value };
+        })
+        .filter(Boolean)
+        .sort((a, b) => a.value - b.value);
+
+      sortedMatches.forEach(({ file, value }) => {
+        if (value < startFrom || value > max) {
+          return;
+        }
+
+        const id = String(value).padStart(pad, '0');
+        const src = `${path}/${file}`;
+        if (knownSrc.has(src) || removedSet.has(src)) {
+          return;
+        }
+
+        discovered.push(buildDiscoveredItem(id, src, value));
+      });
+
+      return discovered;
+    }
+  }
 
   for (let i = startFrom; i <= max; i += 1) {
     const id = String(i).padStart(pad, '0');
@@ -1213,21 +2032,7 @@ const autoDiscoverArtworks = async (manualItems) => {
     // This keeps uploads fast while preserving editorial control.
     const exists = await imageExists(src);
     if (exists) {
-      discovered.push({
-        src,
-        title: `${config.titlePrefix || getUiText('artworkDefaultPrefix', 'Verk')} ${id}`,
-        format: config.defaultFormat || '',
-        medium: config.defaultMedium || getUiText('mediumDefault', 'Akvarell på papper'),
-        alt: `${getUiText('watercolorDefaultAltPrefix', 'Akvarellverk')} ${id}`,
-        category:
-          String(config.defaultCategory || 'nature')
-            .trim()
-            .toLowerCase() === 'forest'
-            ? 'nature'
-            : config.defaultCategory || 'nature',
-        featured: false,
-        order: i
-      });
+      discovered.push(buildDiscoveredItem(id, src, i));
       misses = 0;
     } else {
       misses += 1;
@@ -1301,6 +2106,300 @@ const dedupeSlidesBySrc = (slides) => {
   return output;
 };
 
+const normalizeSrcValue = (value) => (typeof value === 'string' ? value.trim() : '');
+
+const normalizeComparableSrcKey = (value) => {
+  const raw = normalizeSrcValue(value);
+  if (!raw) {
+    return '';
+  }
+  if (raw.startsWith('data:') || raw.startsWith('blob:')) {
+    return raw;
+  }
+
+  let candidate = raw;
+  try {
+    const url = new URL(raw, window.location.origin);
+    if (url.origin === window.location.origin) {
+      candidate = `${url.pathname}${url.search}` || url.pathname;
+    } else {
+      candidate = url.toString();
+    }
+  } catch (error) {
+    candidate = raw;
+  }
+
+  if (/^https?:\/\//i.test(candidate)) {
+    return candidate;
+  }
+
+  return candidate.replace(/^\/+/, '');
+};
+
+const isTruthyFlag = (value) => {
+  if (value === true || value === 1) {
+    return true;
+  }
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    return normalized === 'true' || normalized === '1' || normalized === 'yes';
+  }
+  return false;
+};
+
+const isHeroExcludedArtwork = (item) =>
+  isTruthyFlag(item?.heroExclude) || isTruthyFlag(item?.excludeFromHero) || isTruthyFlag(item?.excludeFromHeroAuto);
+
+const getHeroExcludedSrcSet = (heroConfig) => {
+  const set = new Set();
+  const autoSlides = heroConfig && typeof heroConfig.autoSlides === 'object' ? heroConfig.autoSlides : null;
+  const byConfig = Array.isArray(autoSlides?.excludeSrcs) ? autoSlides.excludeSrcs : [];
+  byConfig.map(normalizeComparableSrcKey).filter(Boolean).forEach((srcKey) => set.add(srcKey));
+
+  const artworks = Array.isArray(content.gallery?.artworks) ? content.gallery.artworks : [];
+  artworks.forEach((item) => {
+    if (!item || typeof item !== 'object' || !isHeroExcludedArtwork(item)) {
+      return;
+    }
+    const srcKey = normalizeComparableSrcKey(item.src);
+    if (srcKey) {
+      set.add(srcKey);
+    }
+  });
+
+  return set;
+};
+
+const normalizeHeroAutoSlidesConfig = (heroConfig) => {
+  const raw = heroConfig && typeof heroConfig.autoSlides === 'object' ? heroConfig.autoSlides : null;
+  if (!raw || raw.enabled !== true) {
+    return {
+      enabled: false,
+      count: 4,
+      periodDays: 7,
+      landscapeOnly: true,
+      excludeSrcs: [],
+      seedNonce: ''
+    };
+  }
+
+  const count = Number(raw.count);
+  const periodDays = Number(raw.periodDays);
+  const seedNonce = typeof raw.seedNonce === 'string' ? raw.seedNonce.trim() : '';
+  const excludeSrcs = (Array.isArray(raw.excludeSrcs) ? raw.excludeSrcs : [])
+    .map((src) => (typeof src === 'string' ? src.trim() : ''))
+    .filter(Boolean);
+
+  return {
+    enabled: true,
+    count: Number.isFinite(count) ? Math.max(1, Math.min(24, Math.round(count))) : 4,
+    periodDays: Number.isFinite(periodDays) ? Math.max(1, Math.min(365, Math.round(periodDays))) : 7,
+    landscapeOnly: raw.landscapeOnly !== false,
+    excludeSrcs: Array.from(new Set(excludeSrcs)),
+    seedNonce
+  };
+};
+
+const hashStringToUint32 = (value) => {
+  const input = String(value || '');
+  let hash = 2166136261;
+
+  for (let i = 0; i < input.length; i += 1) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return hash >>> 0;
+};
+
+const createSeededRandom = (seed) => {
+  let state = seed >>> 0;
+  return () => {
+    state += 0x6d2b79f5;
+    let next = state;
+    next = Math.imul(next ^ (next >>> 15), next | 1);
+    next ^= next + Math.imul(next ^ (next >>> 7), next | 61);
+    return ((next ^ (next >>> 14)) >>> 0) / 4294967296;
+  };
+};
+
+const shuffleSlidesDeterministically = (slides, seed) => {
+  const random = createSeededRandom(seed);
+  const tagged = slides.map((slide, index) => ({
+    slide,
+    index,
+    score: random()
+  }));
+
+  tagged.sort((a, b) => {
+    if (a.score === b.score) {
+      return a.index - b.index;
+    }
+    return a.score - b.score;
+  });
+
+  return tagged.map((entry) => entry.slide);
+};
+
+const parseArtworkFormatOrientation = (formatValue) => {
+  const format = typeof formatValue === 'string' ? formatValue.trim() : '';
+  if (!format) {
+    return 'unknown';
+  }
+
+  const match = format.match(/(\d+(?:[.,]\d+)?)\s*[x×]\s*(\d+(?:[.,]\d+)?)/i);
+  if (!match) {
+    return 'unknown';
+  }
+
+  const first = Number(String(match[1]).replace(',', '.'));
+  const second = Number(String(match[2]).replace(',', '.'));
+  if (!Number.isFinite(first) || !Number.isFinite(second)) {
+    return 'unknown';
+  }
+  if (first > second) {
+    return 'landscape';
+  }
+  if (first < second) {
+    return 'portrait';
+  }
+  return 'square';
+};
+
+const getDatePartsInTimeZone = (timestamp, timeZone) => {
+  try {
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+    const parts = formatter.formatToParts(new Date(timestamp));
+    const year = Number(parts.find((part) => part.type === 'year')?.value || '');
+    const month = Number(parts.find((part) => part.type === 'month')?.value || '');
+    const day = Number(parts.find((part) => part.type === 'day')?.value || '');
+    if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
+      return null;
+    }
+    return { year, month, day };
+  } catch (error) {
+    return null;
+  }
+};
+
+const getWeeklyRotationKeyForStockholm = (timestamp = Date.now()) => {
+  const dateParts = getDatePartsInTimeZone(timestamp, HERO_ROTATION_TIMEZONE);
+  if (!dateParts) {
+    return '';
+  }
+
+  // Use Stockholm civil date, then snap to that week's Monday.
+  const stockholmMidnightUtcMs = Date.UTC(dateParts.year, dateParts.month - 1, dateParts.day);
+  const stockholmWeekday = new Date(stockholmMidnightUtcMs).getUTCDay();
+  const daysSinceMonday = stockholmWeekday === 0 ? 6 : stockholmWeekday - 1;
+  const mondayUtcMs = stockholmMidnightUtcMs - daysSinceMonday * 24 * 60 * 60 * 1000;
+  const mondayDate = new Date(mondayUtcMs);
+  const year = mondayDate.getUTCFullYear();
+  const month = String(mondayDate.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(mondayDate.getUTCDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const getHeroImageOrientation = async (src) => {
+  const normalized = typeof src === 'string' ? src.trim() : '';
+  if (!normalized) {
+    return 'unknown';
+  }
+
+  if (heroOrientationCache.has(normalized)) {
+    return heroOrientationCache.get(normalized);
+  }
+
+  const orientationPromise = new Promise((resolve) => {
+    const image = new Image();
+    const probeSrc = addRevToSrc(getArtworkDisplaySrc(normalized) || normalized);
+    let done = false;
+
+    const finish = (value) => {
+      if (done) {
+        return;
+      }
+      done = true;
+      resolve(value);
+    };
+
+    const timeoutId = window.setTimeout(() => finish('unknown'), 8000);
+    image.decoding = 'async';
+    image.onload = () => {
+      window.clearTimeout(timeoutId);
+      if (image.naturalWidth > image.naturalHeight) {
+        finish('landscape');
+        return;
+      }
+      if (image.naturalWidth < image.naturalHeight) {
+        finish('portrait');
+        return;
+      }
+      finish('square');
+    };
+    image.onerror = () => {
+      window.clearTimeout(timeoutId);
+      finish('unknown');
+    };
+    image.src = probeSrc;
+  });
+
+  heroOrientationCache.set(normalized, orientationPromise);
+  return orientationPromise;
+};
+
+const buildAutoHeroSlidesFromGallery = (defaultDurationMs, config) => {
+  const rawItems = Array.isArray(content.gallery?.artworks) ? content.gallery.artworks : [];
+  const excludedSrcs = getHeroExcludedSrcSet(content.hero);
+  const candidates = dedupeSlidesBySrc(
+    rawItems
+      .filter((item) => item && normalizeSrcValue(item.src) !== '')
+      .filter((item) => {
+        const src = normalizeSrcValue(item.src);
+        const srcKey = normalizeComparableSrcKey(src);
+        if (isHeroExcludedArtwork(item) || excludedSrcs.has(srcKey)) {
+          return false;
+        }
+
+        if (config.landscapeOnly) {
+          const orientation = parseArtworkFormatOrientation(item.format);
+          if (orientation === 'portrait') {
+            return false;
+          }
+        }
+
+        return true;
+      })
+      .map((item) => ({
+        src: normalizeSrcValue(item.src),
+        alt: item.alt || item.title || '',
+        durationMs: defaultDurationMs
+      }))
+  );
+
+  if (candidates.length === 0) {
+    return [];
+  }
+
+  const pool = candidates;
+
+  const now = Date.now();
+  const stockholmWeekKey = config.periodDays === 7 ? getWeeklyRotationKeyForStockholm(now) : '';
+  const periodMs = config.periodDays * 24 * 60 * 60 * 1000;
+  const periodKey = Math.floor(now / periodMs);
+  const rotationKey = stockholmWeekKey !== '' ? `week:${stockholmWeekKey}` : `period:${periodKey}`;
+  const seedNonce = typeof config.seedNonce === 'string' ? config.seedNonce : '';
+  const seedInput = `${rotationKey}|seed:${seedNonce}|${pool.length}|${pool.map((slide) => slide.src).join('|')}`;
+  const seed = hashStringToUint32(seedInput);
+  const shuffled = shuffleSlidesDeterministically(pool, seed);
+  return shuffled.slice(0, Math.min(config.count, shuffled.length));
+};
+
 const runHeroSlideshow = (slides, defaultDurationMs, options = {}) => {
   const heroMedia = document.querySelector('.hero-media');
   if (!heroMedia || slides.length === 0) {
@@ -1330,10 +2429,10 @@ const runHeroSlideshow = (slides, defaultDurationMs, options = {}) => {
   slides.forEach((slide, index) => {
     const image = document.createElement('img');
     image.className = 'artwork-photo hero-slide';
-    image.src = addRevToSrc(slide.src);
+    image.src = addRevToSrc(getArtworkDisplaySrc(slide.src));
     image.alt = slide.alt || `${getUiText('slideLabel', 'Bild')} ${index + 1}`;
-    image.loading = 'eager';
-    image.fetchPriority = index < 2 ? 'high' : 'auto';
+    image.loading = index < 2 ? 'eager' : 'lazy';
+    image.fetchPriority = index === 0 ? 'high' : 'auto';
     image.decoding = 'async';
     image.style.setProperty('--slide-duration', `${Number(slide.durationMs || defaultDurationMs)}ms`);
     if (index === 0) {
@@ -1367,7 +2466,7 @@ const runHeroSlideshow = (slides, defaultDurationMs, options = {}) => {
   slides.forEach((slide) => {
     const pre = new Image();
     pre.decoding = 'async';
-    pre.src = addRevToSrc(slide.src);
+    pre.src = addRevToSrc(getArtworkDisplaySrc(slide.src));
   });
 
   const variants = ['kb-in', 'kb-out', 'kb-pan-left', 'kb-pan-right'];
@@ -1409,6 +2508,7 @@ const runHeroSlideshow = (slides, defaultDurationMs, options = {}) => {
 };
 
 const renderHeroImage = () => {
+  const renderSequence = ++heroRenderSequence;
   const heroImage = document.getElementById('hero-image');
   if (!heroImage || !content.hero) {
     return;
@@ -1418,22 +2518,42 @@ const renderHeroImage = () => {
 
   const heroMode = content.hero.mode || 'still';
   const slideDurationMs = normalizeHeroSlideDuration(content.hero.slideDurationMs, 8000);
+  const heroExcludedSrcs = getHeroExcludedSrcSet(content.hero);
   const configuredSlides = Array.isArray(content.hero.slides)
-    ? content.hero.slides.filter((item) => item && item.src).map((item) => ({
-        src: item.src,
+    ? content.hero.slides
+        .filter((item) => item && normalizeSrcValue(item.src) !== '')
+        .filter((item) => !heroExcludedSrcs.has(normalizeComparableSrcKey(item.src)))
+        .map((item) => ({
+        src: normalizeSrcValue(item.src),
         alt: item.alt || '',
         durationMs: normalizeHeroSlideDuration(item.durationMs, slideDurationMs)
       }))
     : [];
 
-  let slides = dedupeSlidesBySrc(configuredSlides);
+  const autoSlidesConfig = normalizeHeroAutoSlidesConfig(content.hero);
+  let slides = autoSlidesConfig.enabled ? [] : dedupeSlidesBySrc(configuredSlides);
+  if (heroMode === 'slideshow' && autoSlidesConfig.enabled) {
+    try {
+      const autoSlides = buildAutoHeroSlidesFromGallery(slideDurationMs, autoSlidesConfig);
+      if (renderSequence !== heroRenderSequence) {
+        return;
+      }
+      if (autoSlides.length > 0) {
+        slides = autoSlides;
+      }
+    } catch (error) {
+      // Keep manual slideshow config as fallback.
+    }
+  }
 
   if (heroMode === 'slideshow' && slides.length === 0) {
     const fallbackSlides = (Array.isArray(content.gallery?.artworks) ? content.gallery.artworks : [])
-      .filter((item) => item && item.src)
+      .filter((item) => item && normalizeSrcValue(item.src) !== '')
+      .filter((item) => !isHeroExcludedArtwork(item))
+      .filter((item) => !heroExcludedSrcs.has(normalizeComparableSrcKey(item.src)))
       .slice(0, 8)
       .map((item) => ({
-        src: item.src,
+        src: normalizeSrcValue(item.src),
         alt: item.alt || item.title || '',
         durationMs: slideDurationMs
       }));
@@ -1442,16 +2562,18 @@ const renderHeroImage = () => {
 
   if (heroMode === 'slideshow' && slides.length > 0) {
     const firstSlide = slides[0];
-    const firstPreviewSrc = getThumbCandidateSrc(firstSlide.src) || firstSlide.src;
     heroImage.style.display = '';
     heroImage.style.opacity = '1';
-    heroImage.src = addRevToSrc(firstPreviewSrc);
+    applyHeroImageSource(heroImage, firstSlide.src);
     heroImage.alt = firstSlide.alt || getUiText('heroImageFallbackAlt', 'Hero-bild');
     addImageFallback(heroImage);
-    if (firstPreviewSrc !== firstSlide.src) {
-      const pre = new Image();
-      pre.decoding = 'async';
-      pre.src = addRevToSrc(firstSlide.src);
+    if (shouldUseStaticHeroOnMobile()) {
+      heroImage.addEventListener('load', clearHeroPreloadArtifacts, { once: true });
+      heroImage.addEventListener('error', clearHeroPreloadArtifacts, { once: true });
+      if (heroImage.complete) {
+        window.requestAnimationFrame(clearHeroPreloadArtifacts);
+      }
+      return;
     }
     heroSlideshowState.currentIndex = 0;
     runHeroSlideshow(slides, slideDurationMs, { fallbackImage: heroImage });
@@ -1460,7 +2582,7 @@ const renderHeroImage = () => {
 
   heroImage.style.display = '';
   if (content.hero.image) {
-    heroImage.src = addRevToSrc(content.hero.image);
+    applyHeroImageSource(heroImage, content.hero.image);
   }
   heroImage.alt = content.hero.imageAlt || getUiText('heroImageFallbackAlt', 'Hero-bild');
   heroImage.addEventListener('load', clearHeroPreloadArtifacts, { once: true });
@@ -1548,7 +2670,7 @@ const renderAboutMaterialImage = () => {
     return;
   }
 
-  image.src = addRevToSrc(src);
+  image.src = addRevToSrc(getArtworkDisplaySrc(src));
   image.alt = alt || getUiText('heroImageFallbackAlt', 'Bild');
   addImageFallback(image);
   wrap.hidden = false;
@@ -1579,7 +2701,7 @@ const renderFeatureImage = () => {
     return;
   }
 
-  image.src = addRevToSrc(src);
+  image.src = addRevToSrc(getArtworkDisplaySrc(src));
   image.alt = alt || getUiText('heroImageFallbackAlt', 'Bild');
   addImageFallback(image);
   wrap.hidden = false;
@@ -1602,7 +2724,7 @@ const renderAboutPortrait = () => {
     return;
   }
 
-  image.src = addRevToSrc(src);
+  image.src = addRevToSrc(getArtworkDisplaySrc(src));
   image.alt = alt || getUiText('portraitFallbackAlt', 'Porträtt av Ola Gustafsson');
   addImageFallback(image);
   figure.hidden = false;
@@ -1624,6 +2746,18 @@ const renderAmbitions = () => {
   });
 };
 
+const renderInspiration = () => {
+  const nodes = document.querySelectorAll('[data-bind="about.inspirationBody"]');
+  const text = getBoundString('about.inspirationBody', '');
+
+  nodes.forEach((node) => {
+    node.textContent = '';
+    if (text !== '') {
+      node.appendChild(buildLinkedTextFragment(text));
+    }
+  });
+};
+
 const renderRecognition = () => {
   const list = document.getElementById('about-recognition');
   const recognitionItems = content.about && Array.isArray(content.about.recognitionItems) ? content.about.recognitionItems : [];
@@ -1634,8 +2768,12 @@ const renderRecognition = () => {
 
   list.innerHTML = '';
   recognitionItems.forEach((text) => {
+    const line = typeof text === 'string' ? text.trim() : '';
+    if (line === '') {
+      return;
+    }
     const li = document.createElement('li');
-    li.textContent = text;
+    li.appendChild(buildLinkedTextFragment(line));
     list.appendChild(li);
   });
 };
@@ -1709,7 +2847,7 @@ const renderSunProject = () => {
         (typeof project.collageAlt === 'string' && project.collageAlt.trim() !== '')
           ? project.collageAlt.trim()
           : getUiText('heroImageFallbackAlt', 'Bild');
-      collage.src = addRevToSrc(src);
+      collage.src = addRevToSrc(getArtworkDisplaySrc(src));
       collage.alt = altText;
       addImageFallback(collage);
       collageWrap.hidden = false;
@@ -1743,7 +2881,7 @@ const renderSunProject = () => {
     figure.setAttribute('data-fallback', getUiText('missingImage', 'Kunde inte ladda'));
     const img = document.createElement('img');
     img.className = 'artwork-photo';
-    img.src = addRevToSrc(item.src);
+    img.src = addRevToSrc(getArtworkDisplaySrc(item.src));
     img.alt = item.alt || `${getUiText('slideLabel', 'Bild')} ${index + 1}`;
     img.loading = 'lazy';
     img.decoding = 'async';
@@ -1776,13 +2914,19 @@ const getBaseItemsForPage = () => {
 };
 
 const getCategoryLabel = (category) => {
-  const normalized = String(category || '')
+  const raw = String(category || '')
     .trim()
     .toLowerCase();
-  const key = normalized === 'forest' ? 'nature' : normalized;
+  const key = raw === 'all' ? 'all' : normalizeArtworkCategoryKey(category);
   const labels = (content.gallery && content.gallery.categoryLabels) || {};
   return labels[key] || key || category;
 };
+
+const getArtworkCategoryText = (item) =>
+  getArtworkCategoryKeys(item, '')
+    .map((category) => getCategoryLabel(category))
+    .filter(Boolean)
+    .join(', ');
 
 const getSortableArtworkYear = (item) => {
   const value = Number(item && item.year);
@@ -1796,7 +2940,7 @@ const applyGalleryFilterAndSort = () => {
   const filtered =
     galleryState.activeCategory === 'all'
       ? galleryState.baseItems.slice()
-      : galleryState.baseItems.filter((item) => item.category === galleryState.activeCategory);
+      : galleryState.baseItems.filter((item) => getArtworkCategoryKeys(item, '').includes(galleryState.activeCategory));
 
   const sorted = filtered.slice();
   switch (galleryState.activeSort) {
@@ -1855,6 +2999,8 @@ const renderGallery = () => {
   const fragment = document.createDocumentFragment();
 
   items.forEach((item, index) => {
+    const availability = getArtworkAvailabilityConfig(item);
+    const priceLabel = getArtworkPriceLabel(item, availability);
     const card = document.createElement('button');
     card.type = 'button';
     card.className = 'work-card';
@@ -1867,46 +3013,34 @@ const renderGallery = () => {
 
     const image = document.createElement('img');
     image.className = 'artwork-photo';
-    const previewSrc = getArtworkPreviewSrc(item);
+    const previewFallbackSources = getArtworkPreviewFallbackSources(item);
+    const previewSrc = previewFallbackSources[0] || getArtworkPreviewSrc(item);
     image.src = addRevToSrc(previewSrc);
-    image.dataset.fullSrc = item.src;
+    image.dataset.fallbackSrcs = previewFallbackSources.join('\n');
+    image.dataset.fallbackIndex = '0';
+    image.dataset.fullSrc = getArtworkDisplaySrc(item.src);
     image.alt = item.alt;
     image.style.objectPosition = item.objectPosition;
     image.style.setProperty('--hover-scale', String((item.zoom > 1 ? item.zoom : 1) + 0.03));
     image.decoding = 'async';
-    const eagerLimit = pageType === 'home' ? 8 : 12;
+    const eagerLimit = pageType === 'home' ? 0 : 2;
     if (index < eagerLimit) {
       image.loading = 'eager';
-      image.fetchPriority = 'high';
+      image.fetchPriority = index === 0 ? 'high' : 'auto';
     } else {
       image.loading = 'lazy';
       image.fetchPriority = 'auto';
     }
 
-    if (previewSrc !== item.src) {
-      let retriedWithFull = false;
-      image.addEventListener('load', () => {
-        if (!retriedWithFull && isLikelyBlackPreview(image)) {
-          retriedWithFull = true;
-          image.src = addRevToSrc(item.src);
-        }
-      });
-      image.addEventListener('error', () => {
-        if (retriedWithFull) {
-          return;
-        }
-        retriedWithFull = true;
-        image.dataset.suppressErrorFallback = '1';
-        window.setTimeout(() => {
-          delete image.dataset.suppressErrorFallback;
-        }, 0);
-        image.src = addRevToSrc(item.src);
-      });
-    }
-
     addImageFallback(image);
 
     figure.appendChild(image);
+    if (availability.label) {
+      const badge = document.createElement('span');
+      badge.className = `artwork-status-badge is-${availability.tone || 'default'}`;
+      badge.textContent = availability.label;
+      figure.appendChild(badge);
+    }
 
     const meta = document.createElement('div');
     meta.className = 'work-meta';
@@ -1915,13 +3049,19 @@ const renderGallery = () => {
     title.textContent = item.title;
 
     const metaLine = document.createElement('p');
-    const categoryLabel = getCategoryLabel(item.category);
+    const categoryLabel = getArtworkCategoryText(item);
     const formatLabel = typeof item.format === 'string' ? item.format.trim() : '';
     const yearLabel = item.year ? String(item.year) : '';
     const metaParts = [formatLabel, categoryLabel, yearLabel].filter((part) => typeof part === 'string' && part.trim() !== '');
     metaLine.textContent = metaParts.join(' · ');
 
     meta.append(title, metaLine);
+    if (priceLabel) {
+      const priceLine = document.createElement('p');
+      priceLine.className = 'work-price';
+      priceLine.textContent = `${getUiText('priceLabel', 'Pris')}: ${priceLabel}`;
+      meta.appendChild(priceLine);
+    }
     card.append(figure, meta);
 
     card.addEventListener('click', () => openLightbox(index, card));
@@ -1946,7 +3086,10 @@ const renderGalleryControls = () => {
   }
   container.hidden = false;
 
-  const categories = ['all', ...new Set(galleryState.baseItems.map((item) => item.category))];
+  const categories = [
+    'all',
+    ...new Set(galleryState.baseItems.flatMap((item) => getArtworkCategoryKeys(item, '')))
+  ];
   const sortOptions =
     content.gallery && Array.isArray(content.gallery.sortOptions) && content.gallery.sortOptions.length > 0
       ? content.gallery.sortOptions
@@ -2042,6 +3185,132 @@ const renderContact = () => {
     });
     socialLinksWrap.hidden = links.length === 0;
   }
+};
+
+const initArtworkPreviewPage = () => {
+  if (pageType !== 'artwork-preview') {
+    return;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const slugParam = slugifyArtworkValue(params.get('slug') || '');
+  const items = buildManualGalleryItems();
+  const item =
+    items.find((entry) => entry && typeof entry.slug === 'string' && entry.slug === slugParam) ||
+    items.find((entry) => normalizeArtworkAvailability(entry && entry.availability) !== '') ||
+    items[0];
+
+  if (!item) {
+    return;
+  }
+
+  const availability = getArtworkAvailabilityConfig(item);
+  const priceLabel = getArtworkPriceLabel(item, availability);
+  const collectorNote = getArtworkCollectorNote(item);
+  const categoryLabel = getArtworkCategoryText(item);
+
+  const setText = (id, value) => {
+    const node = document.getElementById(id);
+    if (node) {
+      node.textContent = value;
+    }
+  };
+  const setHidden = (id, hidden) => {
+    const node = document.getElementById(id);
+    if (node) {
+      node.hidden = hidden;
+    }
+  };
+
+  const previewImage = document.getElementById('artwork-preview-image');
+  if (previewImage instanceof HTMLImageElement) {
+    previewImage.src = addRevToSrc(getArtworkDisplaySrc(item.src));
+    previewImage.alt = item.alt || item.title;
+    addImageFallback(previewImage);
+  }
+
+  setText('artwork-preview-breadcrumb', item.title);
+  setText('artwork-preview-title', item.title);
+  setText(
+    'artwork-preview-lead',
+    [item.medium, item.format, item.year ? String(item.year) : '', categoryLabel].filter(Boolean).join(' · ')
+  );
+
+  const statusBadge = document.getElementById('artwork-preview-status');
+  if (statusBadge) {
+    statusBadge.textContent = availability.label;
+    statusBadge.className = `artwork-status-badge is-${availability.tone || 'default'}`;
+  }
+  setHidden('artwork-preview-status-wrap', !availability.label);
+  setText('artwork-preview-price', priceLabel);
+  setHidden('artwork-preview-price-wrap', !priceLabel);
+  setText('artwork-preview-medium', item.medium || '');
+  setHidden('artwork-preview-medium-row', !item.medium);
+  setText('artwork-preview-format', item.format || '');
+  setHidden('artwork-preview-format-row', !item.format);
+  setText('artwork-preview-year', item.year ? String(item.year) : '');
+  setHidden('artwork-preview-year-row', !item.year);
+  setText('artwork-preview-category', categoryLabel || '');
+  setHidden('artwork-preview-category-row', !categoryLabel);
+  setText('artwork-preview-collector-text', collectorNote);
+  setHidden('artwork-preview-collector', !collectorNote);
+
+  const inquiryHeading = document.getElementById('artwork-preview-inquiry-heading');
+  if (inquiryHeading) {
+    inquiryHeading.textContent =
+      availability.inquiryMode === 'similar'
+        ? getUiText('inquiryHeadingSimilar', 'Fråga om liknande verk')
+        : getUiText('inquiryHeading', 'Fråga om detta verk');
+  }
+  const inquiryBody = document.getElementById('artwork-preview-inquiry-body');
+  if (inquiryBody) {
+    inquiryBody.textContent =
+      availability.inquiryMode === 'similar'
+        ? getUiText(
+            'inquiryBodySimilar',
+            'Det här verket är inte tillgängligt just nu, men du kan gärna fråga om liknande verk eller kommande målningar.'
+          )
+        : getUiText(
+            'inquiryBodyAvailable',
+            'Skriv gärna om du vill veta mer, reservera verket eller få fler bilder innan beslut.'
+          );
+  }
+  const inquiryButton = document.getElementById('artwork-preview-inquiry-button');
+  if (inquiryButton) {
+    inquiryButton.textContent = availability.inquiryLabel;
+  }
+  const submitButton = document.getElementById('artwork-preview-submit');
+  if (submitButton) {
+    submitButton.textContent =
+      availability.inquiryMode === 'similar'
+        ? getUiText('inquirySubmitSimilar', 'Skicka förfrågan om liknande verk')
+        : getUiText('inquirySubmit', 'Skicka förfrågan');
+  }
+
+  const copyLink = document.getElementById('artwork-preview-copy-link');
+  if (copyLink) {
+    copyLink.setAttribute('data-copy-link', window.location.href);
+  }
+
+  const inquiryForm = document.getElementById('artwork-inquiry-form');
+  if (inquiryForm instanceof HTMLFormElement) {
+    inquiryForm.dataset.artworkTitle = item.title;
+    inquiryForm.dataset.inquiryMode = availability.inquiryMode;
+    const assignField = (name, value) => {
+      const field = inquiryForm.querySelector(`[name="${name}"]`);
+      if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) {
+        field.value = value;
+        field.defaultValue = value;
+      }
+    };
+    assignField('inquirySlug', item.slug || '');
+    assignField('inquiryTitle', item.title || '');
+    assignField('inquiryAvailability', availability.key || '');
+    assignField('inquiryPriceLabel', priceLabel || '');
+    assignField('inquirySourceUrl', window.location.href);
+  }
+
+  document.title = `${item.title} | ${content.site && content.site.title ? content.site.title : 'Artwork preview'}`;
 };
 
 const setContactFormStatus = (message, kind = 'info') => {
@@ -2185,6 +3454,223 @@ const initContactForm = () => {
     } finally {
       if (turnstileSiteKey !== '') {
         resetTurnstile();
+      }
+      isSubmitting = false;
+    }
+  });
+};
+
+const setArtworkInquiryStatus = (message, kind = 'info') => {
+  const statusNode = document.getElementById('artwork-inquiry-status');
+  if (!statusNode) {
+    return;
+  }
+  statusNode.textContent = message;
+  statusNode.dataset.kind = kind;
+};
+
+const initArtworkInquiryForm = () => {
+  const form = document.getElementById('artwork-inquiry-form');
+  if (!form) {
+    return;
+  }
+
+  const messageField = form.querySelector('textarea[name="message"]');
+  const submitButton = form.querySelector('button[type="submit"]');
+  const turnstileField = form.querySelector('input[name="turnstileToken"]');
+  const turnstileHost = document.getElementById('artwork-inquiry-turnstile');
+  const title = String(form.getAttribute('data-artwork-title') || '').trim();
+  const inquiryMode = String(form.getAttribute('data-inquiry-mode') || 'artwork').trim() === 'similar' ? 'similar' : 'artwork';
+  const formEnabledOverride = String(form.getAttribute('data-form-enabled') || '').trim().toLowerCase();
+  const turnstileSiteKeyOverride = String(form.getAttribute('data-turnstile-site-key') || '').trim();
+  const contactConfig = content.contact && typeof content.contact === 'object' ? content.contact : {};
+  const formConfig = contactConfig.form && typeof contactConfig.form === 'object' ? contactConfig.form : {};
+  const formEnabled = formEnabledOverride ? formEnabledOverride !== 'false' : formConfig.enabled !== false;
+  if (!formEnabled) {
+    const section = document.getElementById('artwork-inquiry');
+    if (section) {
+      section.hidden = true;
+    }
+    return;
+  }
+  const turnstileSiteKey =
+    turnstileSiteKeyOverride !== ''
+      ? turnstileSiteKeyOverride
+      : typeof formConfig.turnstileSiteKey === 'string'
+        ? formConfig.turnstileSiteKey.trim()
+        : '';
+  const prefillTemplate =
+    inquiryMode === 'similar'
+      ? getUiText(
+          'inquiryPrefillSimilar',
+          'Hej! Jag såg att "{title}" inte längre är tillgänglig. Jag är gärna intresserad av liknande verk.'
+        )
+      : getUiText('inquiryPrefillAvailable', 'Hej! Jag är intresserad av "{title}" och vill gärna veta mer om verket.');
+  const prefillMessage = prefillTemplate.replaceAll('{title}', title || getUiText('artworkDefaultPrefix', 'Verk'));
+
+  if (messageField && messageField.value.trim() === '') {
+    messageField.value = prefillMessage;
+  }
+
+  const setTurnstileToken = (token = '') => {
+    if (turnstileField) {
+      turnstileField.value = token;
+    }
+  };
+
+  const resetTurnstile = () => {
+    setTurnstileToken('');
+    if (!turnstileSiteKey) {
+      return;
+    }
+    if (window.turnstile && artworkInquiryTurnstileWidgetId !== null) {
+      try {
+        window.turnstile.reset(artworkInquiryTurnstileWidgetId);
+      } catch (error) {
+        // Ignore reset errors and allow retry.
+      }
+    }
+  };
+
+  if (turnstileHost) {
+    turnstileHost.hidden = true;
+  }
+  setTurnstileToken('');
+
+  if (turnstileSiteKey !== '' && turnstileHost) {
+    loadTurnstileScript()
+      .then((turnstile) => {
+        turnstileHost.hidden = false;
+        artworkInquiryTurnstileWidgetId = turnstile.render(turnstileHost, {
+          sitekey: turnstileSiteKey,
+          callback: (token) => {
+            setTurnstileToken(typeof token === 'string' ? token : '');
+          },
+          'expired-callback': () => {
+            setTurnstileToken('');
+          },
+          'error-callback': () => {
+            setTurnstileToken('');
+            setArtworkInquiryStatus(
+              getUiText('captchaVerifyError', 'Captcha kunde inte verifieras. Försök igen.'),
+              'error'
+            );
+          }
+        });
+      })
+      .catch(() => {
+        setArtworkInquiryStatus(
+          getUiText('captchaLoadError', 'Captcha kunde inte laddas. Ladda om sidan och försök igen.'),
+          'error'
+        );
+      });
+  }
+
+  const formMountedAt = Date.now();
+  let isSubmitting = false;
+  const isPreviewSubmission = pageType === 'artwork-preview' && shouldUseLocalArtworkPreviewRoutes();
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (isSubmitting) {
+      return;
+    }
+
+    const formData = new FormData(form);
+    const payload = {
+      name: String(formData.get('name') || '').trim(),
+      email: String(formData.get('email') || '').trim(),
+      message: String(formData.get('message') || '').trim(),
+      website: String(formData.get('website') || '').trim(),
+      turnstileToken: String(formData.get('turnstileToken') || '').trim(),
+      elapsedMs: Date.now() - formMountedAt,
+      inquiry: {
+        slug: String(formData.get('inquirySlug') || '').trim(),
+        title: String(formData.get('inquiryTitle') || '').trim(),
+        availability: String(formData.get('inquiryAvailability') || '').trim(),
+        priceLabel: String(formData.get('inquiryPriceLabel') || '').trim(),
+        sourceUrl: String(formData.get('inquirySourceUrl') || '').trim(),
+        language: activeLanguage,
+        mode: inquiryMode
+      }
+    };
+
+    if (payload.elapsedMs < CONTACT_FORM_MIN_DELAY_MS) {
+      setArtworkInquiryStatus(getUiText('formSlowDown', 'Vänta en kort stund innan du skickar formuläret.'), 'error');
+      return;
+    }
+    if (turnstileSiteKey !== '' && payload.turnstileToken === '') {
+      setArtworkInquiryStatus(
+        getUiText('formCaptchaRequired', 'Verifiera captcha innan du skickar formuläret.'),
+        'error'
+      );
+      return;
+    }
+
+    isSubmitting = true;
+    if (submitButton) {
+      submitButton.disabled = true;
+    }
+    setArtworkInquiryStatus(getUiText('formSending', 'Skickar meddelande...'), 'info');
+
+    try {
+      if (isPreviewSubmission) {
+        await new Promise((resolve) => {
+          window.setTimeout(resolve, 240);
+        });
+        setArtworkInquiryStatus(
+          getUiText('inquiryPreviewSuccess', 'Previewläge: förfrågan simulerades lokalt. Riktig sändning aktiveras när PHP körs.'),
+          'success'
+        );
+        form.reset();
+        if (messageField) {
+          messageField.value = prefillMessage;
+        }
+        setTurnstileToken('');
+        return;
+      }
+
+      const response = await fetch(`api/contact.php?v=${ASSET_REV}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      let result = null;
+      try {
+        result = await response.json();
+      } catch (error) {
+        result = null;
+      }
+
+      if (!response.ok || !result || result.ok !== true) {
+        const message =
+          result && typeof result.message === 'string' && result.message.trim() !== ''
+            ? result.message.trim()
+            : getUiText('inquiryFallbackStatus', 'Verksförfrågan kunde inte skickas. Försök igen.');
+        setArtworkInquiryStatus(message, 'error');
+        return;
+      }
+
+      setArtworkInquiryStatus(result.message || getUiText('inquirySuccess', 'Tack, din förfrågan är skickad.'), 'success');
+      form.reset();
+      if (messageField) {
+        messageField.value = prefillMessage;
+      }
+      setTurnstileToken('');
+    } catch (error) {
+      setArtworkInquiryStatus(
+        getUiText('inquiryFallbackStatus', 'Verksförfrågan kunde inte skickas. Försök igen.'),
+        'error'
+      );
+    } finally {
+      if (turnstileSiteKey !== '') {
+        resetTurnstile();
+      }
+      if (submitButton) {
+        submitButton.disabled = false;
       }
       isSubmitting = false;
     }
@@ -2434,6 +3920,14 @@ const initAnalytics = () => {
     return;
   }
 
+  const hostname = String(window.location.hostname || '').trim().toLowerCase();
+  const allowedHosts = (Array.isArray(analytics.allowedHosts) ? analytics.allowedHosts : DEFAULT_ANALYTICS_ALLOWED_HOSTS)
+    .map((host) => (typeof host === 'string' ? host.trim().toLowerCase() : ''))
+    .filter(Boolean);
+  if (allowedHosts.length === 0 || !allowedHosts.includes(hostname)) {
+    return;
+  }
+
   if (pageType === 'studio' && analytics.trackStudio !== true) {
     return;
   }
@@ -2464,20 +3958,73 @@ const initAnalytics = () => {
   window.__olaGaInitialized = measurementId;
 };
 
-const warmImageCache = () => {
+const shouldSkipWarmImageCache = () => {
+  const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (!connection || typeof connection !== 'object') {
+    return false;
+  }
+
+  const effectiveType = typeof connection.effectiveType === 'string' ? connection.effectiveType.trim().toLowerCase() : '';
+  return connection.saveData === true || effectiveType === 'slow-2g' || effectiveType === '2g';
+};
+
+const shouldUseStaticHeroOnMobile = () => {
+  const narrowViewport = typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 767px)').matches;
+  return narrowViewport || shouldSkipWarmImageCache();
+};
+
+const scheduleDeferredStartupTask = (callback, delayMs = 700) => {
+  if (typeof callback !== 'function') {
+    return;
+  }
+
+  const run = () => {
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(() => callback(), { timeout: 1800 });
+      return;
+    }
+    window.setTimeout(callback, delayMs);
+  };
+
+  if (document.readyState === 'complete') {
+    run();
+    return;
+  }
+
+  window.addEventListener('load', run, { once: true });
+};
+
+const warmImageCache = (force = false) => {
+  if ((warmImageCacheComplete && force !== true) || shouldSkipWarmImageCache()) {
+    return;
+  }
+
+  warmImageCacheComplete = true;
+  if (force === true) {
+    warmCacheRefs.length = 0;
+  }
   const srcSet = new Set();
   const hero = content.hero || {};
   if (hero.image) {
-    srcSet.add(hero.image);
+    const heroSrc = pageType === 'home' ? getHeroDisplaySrc(hero.image) : getArtworkDisplaySrc(hero.image);
+    if (heroSrc) {
+      srcSet.add(heroSrc);
+    }
   }
   if (Array.isArray(hero.slides)) {
+    const slideLimit = shouldUseStaticHeroOnMobile() ? 1 : 4;
     hero.slides
       .filter((slide) => slide && slide.src)
-      .slice(0, 4)
-      .forEach((slide) => srcSet.add(slide.src));
+      .slice(0, slideLimit)
+      .forEach((slide) => {
+        const slideSrc = pageType === 'home' ? getHeroDisplaySrc(slide.src) : getArtworkDisplaySrc(slide.src);
+        if (slideSrc) {
+          srcSet.add(slideSrc);
+        }
+      });
   }
 
-  const eagerCount = pageType === 'home' ? 8 : 10;
+  const eagerCount = pageType === 'home' ? 0 : 4;
   galleryState.allItems.slice(0, eagerCount).forEach((item) => {
     const previewSrc = getArtworkPreviewSrc(item);
     if (previewSrc) {
@@ -2485,16 +4032,34 @@ const warmImageCache = () => {
     }
   });
 
-  Array.from(srcSet).forEach((src, index) => {
-    const img = new Image();
-    img.decoding = 'async';
-    img.loading = 'eager';
-    if (index < 4) {
-      img.fetchPriority = 'high';
-    }
-    img.src = addRevToSrc(src);
-    warmCacheRefs.push(img);
-  });
+  Array.from(srcSet)
+    .slice(0, pageType === 'home' ? 4 : 5)
+    .forEach((src, index) => {
+      const img = new Image();
+      img.decoding = 'async';
+      img.fetchPriority = index === 0 ? 'high' : 'low';
+      img.src = addRevToSrc(src);
+      warmCacheRefs.push(img);
+    });
+};
+
+const scheduleWarmImageCache = (force = false) => {
+  if (warmImageCacheQueued && force !== true) {
+    return;
+  }
+
+  const run = () => {
+    warmImageCacheQueued = false;
+    warmImageCache(force);
+  };
+
+  warmImageCacheQueued = true;
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(run, { timeout: 1500 });
+    return;
+  }
+
+  window.setTimeout(run, 600);
 };
 
 const clearLegacyCaches = async () => {
@@ -2541,6 +4106,39 @@ const cleanupLegacyCachingOnce = async () => {
   await clearLegacyCaches();
 };
 
+const renderLightboxCaptionHtml = (item) => {
+  const title =
+    typeof item?.title === 'string' && item.title.trim() !== '' ? item.title.trim() : getUiText('slideLabel', 'Bild');
+  const formatLabel = typeof item?.format === 'string' ? item.format.trim() : '';
+  const categoryLabel = getArtworkCategoryText(item);
+  const yearLabel = item && item.year ? String(item.year) : '';
+  const availability = getArtworkAvailabilityConfig(item);
+  const priceLabel = getArtworkPriceLabel(item, availability);
+  const explicitCaption = typeof item?.caption === 'string' ? item.caption.trim() : '';
+
+  if (explicitCaption) {
+    return `<strong>${escapeHtml(explicitCaption)}</strong>`;
+  }
+
+  const metaParts = [formatLabel, categoryLabel, yearLabel].filter((part) => typeof part === 'string' && part.trim() !== '');
+  const lines = [`<strong>${escapeHtml(title)}</strong>`];
+  if (metaParts.length > 0) {
+    lines.push(`<span class="lightbox-meta-line">${escapeHtml(metaParts.join(' · '))}</span>`);
+  }
+  if (availability.label || priceLabel) {
+    const detailParts = [];
+    if (availability.label) {
+      detailParts.push(`${getUiText('availabilityLabel', 'Status')}: ${availability.label}`);
+    }
+    if (priceLabel) {
+      detailParts.push(`${getUiText('priceLabel', 'Pris')}: ${priceLabel}`);
+    }
+    lines.push(`<span class="lightbox-meta-note">${escapeHtml(detailParts.join(' · '))}</span>`);
+  }
+
+  return lines.join('');
+};
+
 const updateLightboxView = () => {
   const { elements, items, currentIndex } = lightboxState;
   if (!elements || items.length === 0 || !items[currentIndex]) {
@@ -2548,23 +4146,10 @@ const updateLightboxView = () => {
   }
 
   const item = items[currentIndex];
-  elements.image.src = addRevToSrc(item.src);
+  const availability = getArtworkAvailabilityConfig(item);
+  elements.image.src = addRevToSrc(getArtworkDisplaySrc(item.src));
   elements.image.alt = item.alt;
-  const title = typeof item.title === 'string' && item.title.trim() !== '' ? item.title.trim() : getUiText('slideLabel', 'Bild');
-  const captionParts = [];
-  const formatLabel = typeof item.format === 'string' ? item.format.trim() : '';
-  if (formatLabel) {
-    captionParts.push(formatLabel);
-  }
-  if (item.year) {
-    captionParts.push(String(item.year));
-  }
-  if (captionParts.length === 0 && typeof item.category === 'string' && item.category.trim() !== '') {
-    captionParts.push(getCategoryLabel(item.category));
-  }
-
-  const explicitCaption = typeof item.caption === 'string' ? item.caption.trim() : '';
-  elements.captionText.textContent = explicitCaption || (captionParts.length > 0 ? `${title} · ${captionParts.join(' · ')}` : title);
+  elements.captionText.innerHTML = renderLightboxCaptionHtml(item);
 
   let shareUrl = '';
   if (typeof item.shareUrl === 'string' && item.shareUrl.trim() !== '') {
@@ -2576,12 +4161,19 @@ const updateLightboxView = () => {
   const showShareActions = shareUrl !== '';
   elements.openArtwork.hidden = !showShareActions;
   elements.copyLink.hidden = !showShareActions;
+  elements.inquiryLink.hidden = item.disableShareActions === true || availability.canInquire !== true;
   if (showShareActions) {
     elements.openArtwork.href = shareUrl;
     elements.copyLink.setAttribute('data-copy-link', shareUrl);
   } else {
     elements.openArtwork.removeAttribute('href');
     elements.copyLink.removeAttribute('data-copy-link');
+  }
+  if (elements.inquiryLink && availability.canInquire === true) {
+    elements.inquiryLink.href = buildArtworkInquiryUrl(item);
+    elements.inquiryLink.textContent = availability.inquiryLabel;
+  } else if (elements.inquiryLink) {
+    elements.inquiryLink.removeAttribute('href');
   }
   if (elements.copyStatus) {
     elements.copyStatus.textContent = '';
@@ -2646,19 +4238,21 @@ const prevLightbox = () => {
 const initLightbox = () => {
   const wrap = document.getElementById('lightbox');
   const image = document.getElementById('lightbox-image');
+  const media = wrap ? wrap.querySelector('.lightbox-media') : null;
   const captionText = document.getElementById('lightbox-caption-text');
   const openArtwork = document.getElementById('lightbox-open-artwork');
+  const inquiryLink = document.getElementById('lightbox-artwork-inquiry');
   const copyLink = document.getElementById('lightbox-copy-artwork-link');
   const copyStatus = document.getElementById('lightbox-copy-status');
   const close = document.getElementById('lightbox-close');
   const prev = document.getElementById('lightbox-prev');
   const next = document.getElementById('lightbox-next');
 
-  if (!wrap || !image || !captionText || !openArtwork || !copyLink || !close || !prev || !next) {
+  if (!wrap || !image || !captionText || !openArtwork || !inquiryLink || !copyLink || !close || !prev || !next) {
     return;
   }
 
-  lightboxState.elements = { wrap, image, captionText, openArtwork, copyLink, copyStatus, close, prev, next };
+  lightboxState.elements = { wrap, media, image, captionText, openArtwork, inquiryLink, copyLink, copyStatus, close, prev, next };
 
   close.addEventListener('click', closeLightbox);
   prev.addEventListener('click', prevLightbox);
@@ -2692,7 +4286,7 @@ const initializeGallery = async () => {
   applyGalleryFilterAndSort();
   renderGalleryControls();
   renderGallery();
-  warmImageCache();
+  scheduleWarmImageCache();
 
   const autoConfig = content.gallery && content.gallery.autoDiscover;
   if (!autoConfig || !autoConfig.enabled) {
@@ -2712,7 +4306,7 @@ const initializeGallery = async () => {
       applyGalleryFilterAndSort();
       renderGalleryControls();
       renderGallery();
-      warmImageCache();
+      scheduleWarmImageCache(true);
     })
     .catch(() => {});
 };
@@ -2727,17 +4321,21 @@ const bootstrap = async () => {
   applyColorMode();
   initLanguageSwitcher();
   initColorModeSwitcher();
-  renderHeroImage();
+  initSystemColorModeObserver();
+  void renderHeroImage();
   renderHeroOverlay();
   renderAboutPortrait();
   renderAboutMaterialImage();
   renderFeatureImage();
   renderAboutParagraphs();
+  renderInspiration();
   renderAmbitions();
   renderRecognition();
   renderSunProject();
   renderContact();
+  initArtworkPreviewPage();
   initContactForm();
+  initArtworkInquiryForm();
 
   initMenu();
   initHashLinkNavigation();
@@ -2745,10 +4343,18 @@ const bootstrap = async () => {
   initActiveSectionHighlight();
   initScrollTop();
   initStudioAuth();
-  initAnalytics();
   initCopyLinkButtons();
   initLightbox();
 
+  if (pageType === 'home' && !isLocalPreviewHost) {
+    scheduleDeferredStartupTask(() => {
+      initAnalytics();
+      initializeGallery().catch(() => {});
+    });
+    return;
+  }
+
+  initAnalytics();
   await initializeGallery();
 };
 
@@ -2756,7 +4362,7 @@ const rehydrateHeroAfterPageRestore = () => {
   if (!content.hero || content.hero.mode !== 'slideshow') {
     return;
   }
-  renderHeroImage();
+  void renderHeroImage();
 };
 
 if (document.readyState === 'loading') {

@@ -17,6 +17,8 @@ window.PORTFOLIO_CONTENT = {
     primary: '#123a62',
     accent: '#b98c56',
     border: 'rgba(16, 19, 27, 0.12)',
+    headerBackground: '#f3efe6',
+    footerBackground: '#f3efe6',
     fontDisplay: 'fraunces',
     fontBody: 'jakarta',
     fontDisplayWeight: 700,
@@ -114,33 +116,48 @@ window.PORTFOLIO_CONTENT = {
         src: 'images/ola-01.jpg',
         title: 'Varm sommarkväll på Borrby Strand',
         medium: 'Akvarell på papper',
+        format: '56 × 76 cm',
         alt: 'Båt vid borrby strand',
         category: 'sea',
         featured: true,
         year: 2025,
-        order: 1
+        order: 1,
+        availability: 'available',
+        priceLabel: '14 500 SEK',
+        collectorNote:
+          'Original akvarell. Kontakta mig om du vill reservera verket eller få fler bilder i dagsljus.'
       },
       {
         src: 'images/ola-02.jpg',
         title: 'Slussen, eftermiddag i September',
         medium: 'Akvarell på papper',
+        format: '46 × 61 cm',
         alt: 'Solnedgång över vatten med träd och figur i förgrund.',
         category: 'city',
         featured: true,
         year: 2025,
-        order: 2
+        order: 2,
+        availability: 'reserved',
+        priceLabel: 'Pris på förfrågan',
+        collectorNote:
+          'Verket är reserverat just nu, men du kan gärna lämna intresse för liknande målningar eller kommande verk.'
       },
       {
         src: 'images/ola-03.jpg',
         title: 'På väg hem',
         medium: 'Akvarell på papper',
+        format: '38 × 56 cm',
         alt: 'Mörkgröna trädkronor med ljusöppning i landskapet.',
         category: 'nature',
         featured: true,
         year: 2025,
         order: 3,
         objectPosition: 'center 100%',
-        zoom: 1.45
+        zoom: 1.45,
+        availability: 'sold',
+        priceLabel: 'Såld',
+        collectorNote:
+          'Det här verket är sålt. Skriv gärna om du vill få veta när liknande landskap blir tillgängliga.'
       },
       {
         src: 'images/ola-04.jpg',
@@ -486,6 +503,15 @@ window.PORTFOLIO_CONTENT = {
     galleryEmpty: 'Inga verk matchar filtret.',
     galleryLoadError: 'Något gick fel vid inläsning av galleriet.',
     openInLightbox: 'Öppna i stor bild.',
+    openArtworkPage: 'Öppna verk-sida',
+    copyArtworkLink: 'Kopiera länk',
+    inquiryArtworkLink: 'Intresserad av verket',
+    inquirySimilarLink: 'Fråga om liknande verk',
+    artworkWatermark: {
+      enabled: false,
+      text: 'Ola Gustafsson',
+      opacity: 12
+    },
     missingImage: 'Kunde inte ladda',
     heroImageFallbackAlt: 'Hero-bild',
     portraitFallbackAlt: 'Porträtt av Ola Gustafsson',
@@ -506,7 +532,34 @@ window.PORTFOLIO_CONTENT = {
     formSending: 'Skickar meddelande...',
     formSendFailed: 'Kunde inte skicka meddelandet. Försök igen.',
     formSendSuccess: 'Tack, ditt meddelande är skickat.',
-    formNetworkError: 'Nätverksfel. Försök igen om en stund.'
+    formNetworkError: 'Nätverksfel. Försök igen om en stund.',
+    availabilityLabel: 'Status',
+    availabilityAvailable: 'Tillgänglig',
+    availabilityReserved: 'Reserverad',
+    availabilitySold: 'Såld',
+    availabilityNfs: 'Ej till salu',
+    priceLabel: 'Pris',
+    collectorNoteLabel: 'För samlare',
+    inquiryEyebrow: 'Intresseanmälan',
+    inquiryHeading: 'Fråga om detta verk',
+    inquiryHeadingSimilar: 'Fråga om liknande verk',
+    inquiryBodyAvailable:
+      'Skriv gärna om du vill veta mer, reservera verket eller få fler bilder innan beslut.',
+    inquiryBodySimilar:
+      'Det här verket är inte tillgängligt just nu, men du kan gärna fråga om liknande verk eller kommande målningar.',
+    inquiryNameLabel: 'Namn',
+    inquiryEmailLabel: 'E-post',
+    inquiryMessageLabel: 'Meddelande',
+    inquiryMessagePlaceholder:
+      'Berätta gärna vad du vill veta mer om: pris, frakt, inramning eller om du vill boka verket.',
+    inquirySubmit: 'Skicka förfrågan',
+    inquirySubmitSimilar: 'Skicka förfrågan om liknande verk',
+    inquirySuccess: 'Tack, din förfrågan är skickad.',
+    inquiryFallbackStatus: 'Verksförfrågan kunde inte skickas. Försök igen.',
+    inquiryPrefillAvailable:
+      'Hej! Jag är intresserad av "{title}" och vill gärna veta mer om verket.',
+    inquiryPrefillSimilar:
+      'Hej! Jag såg att "{title}" inte längre är tillgänglig. Jag är gärna intresserad av liknande verk.'
   }
 };
 
@@ -560,17 +613,29 @@ window.PORTFOLIO_TRANSLATIONS = {
         'images/ola-01.jpg': {
           title: 'Warm summer evening at Borrby Beach',
           medium: 'Watercolor on paper',
-          alt: 'Boat at Borrby beach'
+          format: '56 × 76 cm',
+          alt: 'Boat at Borrby beach',
+          priceLabel: 'SEK 14,500',
+          collectorNote:
+            'Original watercolor. Reach out if you would like to reserve the work or receive additional daylight photos.'
         },
         'images/ola-02.jpg': {
           title: 'Slussen, September afternoon',
           medium: 'Watercolor on paper',
-          alt: 'Sunset over water with trees and a figure in the foreground.'
+          format: '46 × 61 cm',
+          alt: 'Sunset over water with trees and a figure in the foreground.',
+          priceLabel: 'Price on request',
+          collectorNote:
+            'This piece is currently reserved, but you are very welcome to register interest in similar paintings or upcoming works.'
         },
         'images/ola-03.jpg': {
           title: 'On the way home',
           medium: 'Watercolor on paper',
-          alt: 'Dark green tree canopies with an opening of light in the landscape.'
+          format: '38 × 56 cm',
+          alt: 'Dark green tree canopies with an opening of light in the landscape.',
+          priceLabel: 'Sold',
+          collectorNote:
+            'This work has sold. Feel free to ask if you would like to know when similar landscapes become available.'
         },
         'images/ola-04.jpg': {
           title: 'In the shade',
@@ -674,6 +739,13 @@ window.PORTFOLIO_TRANSLATIONS = {
       openInLightbox: 'Open in large view.',
       openArtworkPage: 'Open artwork page',
       copyArtworkLink: 'Copy link',
+      inquiryArtworkLink: 'Interested in this work',
+      inquirySimilarLink: 'Ask about similar work',
+      artworkWatermark: {
+        enabled: false,
+        text: 'Ola Gustafsson',
+        opacity: 12
+      },
       linkCopied: 'Link copied.',
       missingImage: 'Could not load',
       heroImageFallbackAlt: 'Hero image',
@@ -695,7 +767,34 @@ window.PORTFOLIO_TRANSLATIONS = {
       formSending: 'Sending message...',
       formSendFailed: 'Could not send the message. Please try again.',
       formSendSuccess: 'Thanks, your message has been sent.',
-      formNetworkError: 'Network error. Please try again in a moment.'
+      formNetworkError: 'Network error. Please try again in a moment.',
+      availabilityLabel: 'Availability',
+      availabilityAvailable: 'Available',
+      availabilityReserved: 'Reserved',
+      availabilitySold: 'Sold',
+      availabilityNfs: 'Not for sale',
+      priceLabel: 'Price',
+      collectorNoteLabel: 'Collector note',
+      inquiryEyebrow: 'Inquiry',
+      inquiryHeading: 'Ask about this artwork',
+      inquiryHeadingSimilar: 'Ask about similar work',
+      inquiryBodyAvailable:
+        'Feel free to get in touch if you would like more details, to reserve the piece, or to receive additional images before deciding.',
+      inquiryBodySimilar:
+        'This artwork is not currently available, but you are very welcome to ask about similar works or upcoming paintings.',
+      inquiryNameLabel: 'Name',
+      inquiryEmailLabel: 'Email',
+      inquiryMessageLabel: 'Message',
+      inquiryMessagePlaceholder:
+        'Tell me what you would like to know more about: price, shipping, framing, or whether you would like to reserve the work.',
+      inquirySubmit: 'Send inquiry',
+      inquirySubmitSimilar: 'Ask about similar work',
+      inquirySuccess: 'Thanks, your inquiry has been sent.',
+      inquiryFallbackStatus: 'Artwork inquiry could not be sent. Please try again.',
+      inquiryPrefillAvailable:
+        'Hello! I am interested in "{title}" and would love to know more about the work.',
+      inquiryPrefillSimilar:
+        'Hello! I saw that "{title}" is no longer available. I would be interested in hearing about similar works.'
     }
   }
 };
