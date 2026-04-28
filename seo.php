@@ -115,7 +115,7 @@ function seo_google_fonts_href(array $payload): string
   $bodyKey = is_string($bodyKey) && trim($bodyKey) !== '' ? $bodyKey : 'jakarta';
   $queries = [];
 
-  foreach ([$displayKey, $bodyKey] as $fontKey) {
+  foreach ([$displayKey, $bodyKey, 'cormorant'] as $fontKey) {
     $query = seo_google_font_family_query($fontKey);
     if ($query !== '') {
       $queries[$query] = true;

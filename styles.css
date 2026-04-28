@@ -8,9 +8,7 @@
   --font-body-strong-weight: 600;
   --font-display-style: normal;
   --font-body-style: normal;
-  --font-display-italic-weight: 600;
-  --font-body-italic-weight: 300;
-  --inline-italic-weight: var(--font-body-italic-weight);
+  --inline-italic-weight: var(--font-body-weight);
   --header-bg-opacity: 84;
   --header-border-opacity: 76;
   --button-gradient-start: var(--color-primary);
@@ -142,7 +140,7 @@ h3 {
   font-family: var(--font-display);
   font-weight: var(--font-display-weight);
   font-style: var(--font-display-style);
-  --inline-italic-weight: var(--font-display-italic-weight);
+  --inline-italic-weight: var(--font-display-weight);
   letter-spacing: -0.015em;
   line-height: 1.08;
 }
@@ -217,7 +215,7 @@ code {
   font-size: clamp(1.3rem, 1.15rem + 0.8vw, 1.8rem);
   font-weight: var(--font-display-weight);
   font-style: var(--font-display-style);
-  --inline-italic-weight: var(--font-display-italic-weight);
+  --inline-italic-weight: var(--font-display-weight);
   letter-spacing: -0.01em;
   margin-right: auto;
 }
@@ -4687,6 +4685,7 @@ button:focus-visible {
   font-family: "Cormorant Garamond", "Times New Roman", serif;
   font-style: italic;
   font-weight: var(--inline-italic-weight, inherit);
+  font-variation-settings: "wght" var(--inline-italic-weight, 400);
   letter-spacing: 0;
 }
 
