@@ -87,7 +87,7 @@ window.PORTFOLIO_OVERRIDES = {
         "eyebrow": "Ola Gustafsson · Akvarellmålare",
         "ctaPrimaryLabel": "Se målningar",
         "ctaSecondaryLabel": "Läs om processen",
-        "modeUpdatedAt": 1775807866137
+        "modeUpdatedAt": 1776943515514
     },
     "about": {
         "heading": "Om mitt måleri",
