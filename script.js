@@ -294,6 +294,16 @@ const BODY_FONT_STACKS = {
 
 const FONT_WEIGHT_VALUES = [300, 400, 500, 600, 700, 800];
 const FONT_STYLE_VALUES = ['normal', 'italic'];
+const getOpticalItalicWeight = (weight) => {
+  const numeric = Number(weight);
+  if (!Number.isFinite(numeric)) {
+    return 300;
+  }
+  if (numeric <= 400) {
+    return 300;
+  }
+  return Math.max(300, Math.min(700, Math.round(numeric / 100) * 100 - 100));
+};
 
 const STORAGE_KEY = 'olaPortfolioOverridesV1';
 const LANGUAGE_STORAGE_KEY = 'olaSiteLanguageV1';
@@ -1134,6 +1144,8 @@ const applyTheme = () => {
   root.style.setProperty('--font-display-weight', String(displayWeight));
   root.style.setProperty('--font-body-weight', String(bodyWeight));
   root.style.setProperty('--font-body-strong-weight', String(bodyStrongWeight));
+  root.style.setProperty('--font-display-italic-weight', String(getOpticalItalicWeight(displayWeight)));
+  root.style.setProperty('--font-body-italic-weight', String(getOpticalItalicWeight(bodyWeight)));
 
   const displayStyle = FONT_STYLE_VALUES.includes(theme.fontDisplayStyle) ? theme.fontDisplayStyle : 'normal';
   const bodyStyle = FONT_STYLE_VALUES.includes(theme.fontBodyStyle) ? theme.fontBodyStyle : 'normal';
