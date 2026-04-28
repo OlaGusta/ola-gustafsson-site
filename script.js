@@ -740,7 +740,7 @@ const appendInlineFormattedText = (fragment, value) => {
 
     const normalizedTagName = tagName.toLowerCase();
     const marker = document.createElement(normalizedTagName === 'em' ? 'em' : normalizedTagName === 'i' ? 'i' : 'span');
-    marker.className = normalizedTagName === 'n' || normalizedTagName === 'normal' ? 'inline-normal' : 'inline-garamond-italic';
+    marker.className = normalizedTagName === 'n' || normalizedTagName === 'normal' ? 'inline-normal' : 'inline-italic';
     marker.textContent = innerText;
     fragment.appendChild(marker);
     lastIndex = match.index + fullMatch.length;

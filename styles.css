@@ -4681,15 +4681,15 @@ button:focus-visible {
     transform: none;
   }
 }
+.inline-italic,
 .inline-garamond-italic {
-  font-family: "Cormorant Garamond", "Times New Roman", serif;
   font-style: italic;
   font-weight: var(--inline-italic-weight, inherit);
   font-variation-settings: "wght" var(--inline-italic-weight, 400);
-  letter-spacing: 0;
+  letter-spacing: inherit;
 }
 
 .inline-normal {
   font-style: normal;
-  letter-spacing: 0;
+  letter-spacing: inherit;
 }
