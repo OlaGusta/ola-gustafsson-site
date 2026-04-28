@@ -5338,7 +5338,7 @@ const renderCategoryEditor = () => {
           .map((key) => {
             const label = labels[key] || humanizeCategoryKey(key);
             return `
-              <article class="contact-social-item" data-key="${escapeHtml(key)}">
+              <article class="contact-social-item category-editor-item" data-key="${escapeHtml(key)}">
                 <label>Kategori-id
                   <input type="text" value="${escapeHtml(key)}" disabled />
                 </label>

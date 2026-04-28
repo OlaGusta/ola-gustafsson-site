@@ -1572,7 +1572,9 @@ body[data-page='studio'] main {
 .studio-page .studio-grid > .studio-row,
 .studio-page .studio-grid > details,
 .studio-page .studio-grid > .studio-collapsible,
-.studio-page .studio-grid > .studio-link-helper {
+.studio-page .studio-grid > .studio-link-helper,
+.studio-page .studio-grid > .category-editor,
+.studio-page .studio-grid > .category-add-grid {
   grid-column: 1 / -1;
 }
 
@@ -3229,6 +3231,27 @@ body[data-page='studio'] main {
   font: inherit;
   padding: 0.5rem 0.56rem;
   border-radius: 0;
+}
+
+.category-editor {
+  grid-template-columns: 1fr;
+}
+
+.category-editor-item {
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr) auto;
+}
+
+.category-editor-item .btn {
+  min-width: 7.25rem;
+}
+
+.category-add-grid {
+  width: 100%;
+}
+
+.category-add-grid .btn {
+  min-height: 100%;
+  width: 100%;
 }
 
 .checkbox-row {
