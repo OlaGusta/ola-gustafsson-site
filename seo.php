@@ -93,9 +93,11 @@ function seo_google_font_family_query(string $fontKey): string
     case 'playfair':
       return 'family=Playfair+Display:wght@400;500;600;700';
     case 'cormorant':
-      return 'family=Cormorant+Garamond:wght@400;500;600;700';
+      return 'family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700';
     case 'jakarta':
       return 'family=Plus+Jakarta+Sans:wght@400;500;600;700';
+    case 'plexmono':
+      return 'family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700';
     case 'sourcesans':
       return 'family=Source+Sans+3:wght@400;500;600;700';
     case 'lora':

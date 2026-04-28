@@ -30,6 +30,7 @@ readonly EXCLUDED_PREFIXES=(
   ".claude/"
   ".codex/"
   ".git/"
+  ".playwright-mcp/"
   "skills/"
   "scripts/"
 )
@@ -125,6 +126,10 @@ should_exclude_rel() {
       "$value"*) return 0 ;;
     esac
   done
+
+  case "$rel" in
+    studio-*.png) return 0 ;;
+  esac
 
   for value in "${EXCLUDED_FILES[@]}"; do
     if [ "$rel" = "$value" ]; then

@@ -2,8 +2,44 @@ const STORAGE_KEY = 'olaPortfolioOverridesV1';
 const STUDIO_AUTH_KEY = 'olaStudioUnlockedV1';
 const STUDIO_LANGUAGE_STORAGE_KEY = 'olaStudioEditLanguageV1';
 const STUDIO_SECTION_COLLAPSE_STORAGE_KEY = 'olaStudioSectionCollapseV1';
+const STUDIO_VIEW_STORAGE_KEY = 'olaStudioActiveViewV1';
 const STUDIO_EDIT_LANGUAGES = ['sv', 'en'];
 const ASSET_REV = '20260321-01';
+
+const STUDIO_VIEW_META = {
+  overview: {
+    title: 'Översikt',
+    subtitle: 'Senaste läget för sajten, verken och publiceringen.'
+  },
+  works: {
+    title: 'Verk',
+    subtitle: 'Ladda upp, redigera och ordna målningarna i galleriet.'
+  },
+  text: {
+    title: 'Textredigering',
+    subtitle: 'Hero, artist statement och ambitioner.'
+  },
+  projects: {
+    title: 'Projekt',
+    subtitle: 'Projektsektion, kollage och exempelbilder.'
+  },
+  contact: {
+    title: 'Kontakt',
+    subtitle: 'Kontakttext, e-postknapp och sociala kanaler.'
+  },
+  inquiries: {
+    title: 'Förfrågningar',
+    subtitle: 'Inkomna meddelanden och intresseanmälningar.'
+  },
+  seo: {
+    title: 'SEO & sida',
+    subtitle: 'Metadata, delningsbild och mätning.'
+  },
+  settings: {
+    title: 'Inställningar',
+    subtitle: 'Färger, typsnitt, publicering och tekniska verktyg.'
+  }
+};
 
 const DEFAULT_CONTENT = {
   theme: {
@@ -22,7 +58,9 @@ const DEFAULT_CONTENT = {
     fontDisplay: 'fraunces',
     fontBody: 'jakarta',
     fontDisplayWeight: 700,
-    fontBodyWeight: 400
+    fontBodyWeight: 400,
+    fontDisplayStyle: 'normal',
+    fontBodyStyle: 'normal'
   },
   hero: {
     title: '',
@@ -150,7 +188,7 @@ const deepMerge = (base, override) => {
 };
 
 const DISPLAY_FONT_KEYS = ['fraunces', 'playfair', 'cormorant', 'georgia', 'baskerville', 'times'];
-const BODY_FONT_KEYS = ['jakarta', 'sourcesans', 'lora', 'avenir', 'system', 'helvetica'];
+const BODY_FONT_KEYS = ['jakarta', 'plexmono', 'sourcesans', 'lora', 'avenir', 'system', 'helvetica'];
 const DISPLAY_FONT_STACKS = {
   fraunces: '"Fraunces", "Iowan Old Style", "Times New Roman", serif',
   playfair: '"Playfair Display", "Times New Roman", serif',
@@ -161,6 +199,7 @@ const DISPLAY_FONT_STACKS = {
 };
 const BODY_FONT_STACKS = {
   jakarta: '"Plus Jakarta Sans", "Avenir Next", "Segoe UI", sans-serif',
+  plexmono: '"IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace',
   sourcesans: '"Source Sans 3", "Segoe UI", sans-serif',
   lora: '"Lora", "Avenir Next", serif',
   avenir: '"Avenir Next", "Segoe UI", sans-serif',
@@ -168,6 +207,7 @@ const BODY_FONT_STACKS = {
   helvetica: '"Helvetica Neue", Helvetica, Arial, sans-serif'
 };
 const FONT_WEIGHT_VALUES = [300, 400, 500, 600, 700, 800];
+const FONT_STYLE_VALUES = ['normal', 'italic'];
 
 const normalizePercentageValue = (value, fallback = null) => {
   const numeric = Number(value);
@@ -196,6 +236,30 @@ const readStoredStudioLanguage = () => {
 const storeStudioLanguage = (language) => {
   try {
     window.localStorage.setItem(STUDIO_LANGUAGE_STORAGE_KEY, language);
+  } catch (error) {
+    // ignore storage errors
+  }
+};
+
+const normalizeStudioView = (value) => {
+  const normalized = typeof value === 'string' ? value.trim().toLowerCase() : '';
+  if (normalized === 'appearance') {
+    return 'settings';
+  }
+  return Object.prototype.hasOwnProperty.call(STUDIO_VIEW_META, normalized) ? normalized : 'overview';
+};
+
+const readStoredStudioView = () => {
+  try {
+    return normalizeStudioView(window.localStorage.getItem(STUDIO_VIEW_STORAGE_KEY));
+  } catch (error) {
+    return 'overview';
+  }
+};
+
+const storeStudioView = (view) => {
+  try {
+    window.localStorage.setItem(STUDIO_VIEW_STORAGE_KEY, normalizeStudioView(view));
   } catch (error) {
     // ignore storage errors
   }
@@ -454,6 +518,11 @@ const normalizeFontWeight = (value, fallback) => {
   return FONT_WEIGHT_VALUES.includes(rounded) ? rounded : fallback;
 };
 
+const normalizeFontStyle = (value, fallback = 'normal') => {
+  const normalized = String(value || '').trim().toLowerCase();
+  return FONT_STYLE_VALUES.includes(normalized) ? normalized : fallback;
+};
+
 const normalizeImageEntries = (entries = []) =>
   (Array.isArray(entries) ? entries : [])
     .filter((entry) => entry && typeof entry === 'object')
@@ -553,6 +622,41 @@ const escapeHtml = (value) =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+
+const appendInlineFormattedText = (fragment, value) => {
+  const input = String(value || '');
+  const formatPattern = /<(i|em|n|normal)>([\s\S]*?)<\/\1>/gi;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = formatPattern.exec(input)) !== null) {
+    const [fullMatch, tagName, innerText] = match;
+    if (match.index > lastIndex) {
+      fragment.appendChild(document.createTextNode(input.slice(lastIndex, match.index)));
+    }
+
+    const normalizedTagName = tagName.toLowerCase();
+    const marker = document.createElement(normalizedTagName === 'em' ? 'em' : normalizedTagName === 'i' ? 'i' : 'span');
+    marker.className = normalizedTagName === 'n' || normalizedTagName === 'normal' ? 'inline-normal' : 'inline-garamond-italic';
+    marker.textContent = innerText;
+    fragment.appendChild(marker);
+    lastIndex = match.index + fullMatch.length;
+  }
+
+  if (lastIndex < input.length) {
+    fragment.appendChild(document.createTextNode(input.slice(lastIndex)));
+  }
+};
+
+const renderInlineFormattedText = (node, value) => {
+  if (!node) {
+    return;
+  }
+  const fragment = document.createDocumentFragment();
+  appendInlineFormattedText(fragment, value);
+  node.textContent = '';
+  node.appendChild(fragment);
+};
 
 const sanitizeStudioSameOriginUrl = (value) => {
   const raw = typeof value === 'string' ? value.trim() : '';
@@ -796,6 +900,16 @@ const loadServerImageCandidates = async () => {
   }
 };
 
+const formatImagePickerOptionLabel = (src) => {
+  const raw = typeof src === 'string' ? src.trim() : '';
+  if (!raw) {
+    return '';
+  }
+  const clean = raw.split('?')[0].split('#')[0];
+  const fileName = clean.split('/').pop() || raw;
+  return fileName || raw;
+};
+
 const renderImagePickerSelect = (selectNode, inputNode, labelPrefix) => {
   if (!selectNode || !inputNode) {
     return;
@@ -805,11 +919,13 @@ const renderImagePickerSelect = (selectNode, inputNode, labelPrefix) => {
   const optionMarkup = [`<option value="">${escapeHtml(labelPrefix)}</option>`];
 
   if (current && !options.includes(current)) {
-    optionMarkup.push(`<option value="${escapeHtml(current)}">${escapeHtml(`${current} (nuvarande)`)}</option>`);
+    optionMarkup.push(
+      `<option value="${escapeHtml(current)}">${escapeHtml(`${formatImagePickerOptionLabel(current)} (nuvarande)`)}</option>`
+    );
   }
 
   options.forEach((src) => {
-    optionMarkup.push(`<option value="${escapeHtml(src)}">${escapeHtml(src)}</option>`);
+    optionMarkup.push(`<option value="${escapeHtml(src)}">${escapeHtml(formatImagePickerOptionLabel(src))}</option>`);
   });
 
   selectNode.innerHTML = optionMarkup.join('');
@@ -1018,7 +1134,7 @@ const mergeMissingGalleryItems = (storedGallery, fileGallery) => {
       .map((item) => [item.src.trim(), item])
   );
 
-  storedGallery.artworks = storedArtworks.map((item) => {
+  storedGallery.artworks = storedArtworks.map((item, index) => {
     if (!item || typeof item !== 'object') {
       return item;
     }
@@ -1037,6 +1153,9 @@ const mergeMissingGalleryItems = (storedGallery, fileGallery) => {
         merged[field] = fileItem[field];
       }
     });
+    if (Number(item.order) === index + 1 && Number(fileItem.order) && Number(fileItem.order) !== index + 1) {
+      merged.order = Number(fileItem.order);
+    }
     return merged;
   });
 
@@ -2291,6 +2410,7 @@ const isLocalStaticStudioPreview = () => {
 const isSecureAuthStudio = () => getStudioAccessMode() === 'secure-auth';
 const isServerProtectedStudio = () => getStudioAccessMode() === 'server-auth';
 const canPublishToServer = () =>
+  !isLocalStaticStudioPreview() &&
   (isServerProtectedStudio() || isSecureAuthStudio()) &&
   (window.location.protocol === 'https:' || window.location.protocol === 'http:');
 
@@ -2325,6 +2445,12 @@ const el = {
   resetPasswordForm: document.getElementById('studio-reset-password-form'),
   resetPassword: document.getElementById('studio-reset-password'),
   status: document.getElementById('studio-status'),
+  studioNavButtons: Array.from(document.querySelectorAll('[data-studio-tab]')),
+  studioViews: Array.from(document.querySelectorAll('[data-studio-view]')),
+  studioPageTitle: document.getElementById('studio-page-title'),
+  studioPageSubtitle: document.getElementById('studio-page-subtitle'),
+  studioTopSave: document.getElementById('studio-top-save'),
+  studioLangPanel: document.querySelector('.studio-lang-panel'),
   studioLangButtons: Array.from(document.querySelectorAll('[data-studio-lang]')),
   studioLangNote: document.getElementById('studio-lang-note'),
   studioLangTools: document.getElementById('studio-lang-tools'),
@@ -2346,6 +2472,11 @@ const el = {
   themeFontBody: document.getElementById('theme-font-body'),
   themeFontDisplayWeight: document.getElementById('theme-font-display-weight'),
   themeFontBodyWeight: document.getElementById('theme-font-body-weight'),
+  themeFontDisplayStyle: document.getElementById('theme-font-display-style'),
+  themeFontBodyStyle: document.getElementById('theme-font-body-style'),
+  studioThemePreviewEyebrow: document.getElementById('studio-theme-preview-eyebrow'),
+  studioThemePreviewTitle: document.getElementById('studio-theme-preview-title'),
+  studioThemePreviewBody: document.getElementById('studio-theme-preview-body'),
   analyticsGaId: document.getElementById('analytics-ga-id'),
   analyticsAnonymizeIp: document.getElementById('analytics-anonymize-ip'),
   analyticsPanelDays: document.getElementById('analytics-panel-days'),
@@ -2499,6 +2630,53 @@ const setStatus = (text, kind = 'info', options = {}) => {
     void el.status.offsetWidth;
     el.status.classList.add('is-flash');
   }
+};
+
+const setStudioView = (view, options = {}) => {
+  const nextView = normalizeStudioView(view);
+  const meta = STUDIO_VIEW_META[nextView] || STUDIO_VIEW_META.overview;
+
+  if (el.studioPageTitle) {
+    el.studioPageTitle.textContent = meta.title;
+  }
+  if (el.studioPageSubtitle) {
+    el.studioPageSubtitle.textContent = meta.subtitle;
+  }
+  if (el.studioLangPanel) {
+    el.studioLangPanel.hidden = !['works', 'text', 'projects', 'contact', 'seo'].includes(nextView);
+  }
+
+  el.studioViews.forEach((node) => {
+    const nodeView = normalizeStudioView(node.getAttribute('data-studio-view'));
+    node.hidden = nodeView !== nextView;
+  });
+
+  el.studioNavButtons.forEach((button) => {
+    const isActive = normalizeStudioView(button.getAttribute('data-studio-tab')) === nextView;
+    button.classList.toggle('is-active', isActive);
+    button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+  });
+
+  document.body.dataset.studioView = nextView;
+  storeStudioView(nextView);
+
+  if (options.scroll !== false) {
+    const main = el.studioApp ? el.studioApp.querySelector('.studio-main') : null;
+    if (main && typeof main.scrollTo === 'function') {
+      main.scrollTo({ top: 0, behavior: options.instant ? 'auto' : 'smooth' });
+    } else {
+      window.scrollTo({ top: 0, behavior: options.instant ? 'auto' : 'smooth' });
+    }
+  }
+};
+
+const initStudioNavigation = () => {
+  el.studioNavButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      setStudioView(button.getAttribute('data-studio-tab'));
+    });
+  });
+  setStudioView(readStoredStudioView(), { instant: true, scroll: false });
 };
 
 const setAuthStatus = (text, kind = 'info') => {
@@ -3768,7 +3946,7 @@ const getClockStamp = () =>
   });
 
 const flashSaveButtons = () => {
-  const buttons = Array.from(document.querySelectorAll('#save-studio, [data-action="save-section"]')).filter(
+  const buttons = Array.from(document.querySelectorAll('#save-studio, #studio-top-save, [data-action="save-section"]')).filter(
     (node) => node instanceof HTMLButtonElement
   );
   if (buttons.length === 0) {
@@ -4049,6 +4227,8 @@ const ensureGallery = () => {
       });
     });
   }
+
+  normalizeGalleryArtworkDisplayOrder();
 };
 
 const ensureHeroSlides = () => {
@@ -4241,6 +4421,8 @@ const ensureAboutContact = () => {
   state.content.theme.fontBody = normalizeFontKey(state.content.theme.fontBody, BODY_FONT_KEYS, 'jakarta');
   state.content.theme.fontDisplayWeight = normalizeFontWeight(state.content.theme.fontDisplayWeight, 700);
   state.content.theme.fontBodyWeight = normalizeFontWeight(state.content.theme.fontBodyWeight, 400);
+  state.content.theme.fontDisplayStyle = normalizeFontStyle(state.content.theme.fontDisplayStyle);
+  state.content.theme.fontBodyStyle = normalizeFontStyle(state.content.theme.fontBodyStyle);
 
   if (!state.content.contact || typeof state.content.contact !== 'object') {
     state.content.contact = {};
@@ -4374,6 +4556,60 @@ const applyStudioThemePreview = () => {
   root.style.setProperty('--font-display-weight', String(displayWeight));
   root.style.setProperty('--font-body-weight', String(bodyWeight));
   root.style.setProperty('--font-body-strong-weight', String(bodyStrongWeight));
+
+  const displayStyle = normalizeFontStyle(theme.fontDisplayStyle);
+  const bodyStyle = normalizeFontStyle(theme.fontBodyStyle);
+  root.style.setProperty('--font-display-style', displayStyle);
+  root.style.setProperty('--font-body-style', bodyStyle);
+
+  if (el.studioApp) {
+    const buttonStart =
+      typeof theme.buttonGradientStart === 'string' && theme.buttonGradientStart.trim() !== ''
+        ? theme.buttonGradientStart
+        : theme.primary;
+    const buttonEnd =
+      typeof theme.buttonGradientEnd === 'string' && theme.buttonGradientEnd.trim() !== ''
+        ? theme.buttonGradientEnd
+        : theme.accent;
+    const studioVars = {
+      '--studio-site-bg': theme.background,
+      '--studio-site-surface': theme.surface,
+      '--studio-site-ink': theme.ink,
+      '--studio-site-soft-ink': theme.softInk,
+      '--studio-site-primary': theme.primary,
+      '--studio-site-accent': theme.accent,
+      '--studio-site-border': theme.border,
+      '--studio-site-header-bg': sharedHeaderFooterColor,
+      '--studio-site-button-start': buttonStart,
+      '--studio-site-button-end': buttonEnd,
+      '--studio-gold': theme.accent || theme.primary
+    };
+
+    Object.entries(studioVars).forEach(([cssVar, value]) => {
+      if (typeof value === 'string' && value.trim() !== '') {
+        el.studioApp.style.setProperty(cssVar, value);
+      }
+    });
+  }
+
+  const localized = getLocalizedContentForEditor();
+  const hero = localized.hero && typeof localized.hero === 'object' ? localized.hero : {};
+  const eyebrow =
+    (el.heroEyebrow && el.heroEyebrow.value.trim()) ||
+    (typeof hero.eyebrow === 'string' && hero.eyebrow.trim()) ||
+    'Akvarell';
+  const title =
+    (el.heroTitle && el.heroTitle.value.trim()) ||
+    (typeof hero.title === 'string' && hero.title.trim()) ||
+    'Originalmålningar i <i>akvarell</i>';
+  const body =
+    (el.heroIntro && el.heroIntro.value.trim()) ||
+    (typeof hero.intro === 'string' && hero.intro.trim()) ||
+    'Ljus, stämning och närvaro i landskap, natur och stadsvyer.';
+
+  renderInlineFormattedText(el.studioThemePreviewEyebrow, eyebrow);
+  renderInlineFormattedText(el.studioThemePreviewTitle, title);
+  renderInlineFormattedText(el.studioThemePreviewBody, body);
 };
 
 const syncFormFromState = () => {
@@ -4418,6 +4654,12 @@ const syncFormFromState = () => {
   }
   if (el.themeFontBodyWeight) {
     el.themeFontBodyWeight.value = String(normalizeFontWeight(theme.fontBodyWeight, 400));
+  }
+  if (el.themeFontDisplayStyle) {
+    el.themeFontDisplayStyle.value = normalizeFontStyle(theme.fontDisplayStyle);
+  }
+  if (el.themeFontBodyStyle) {
+    el.themeFontBodyStyle.value = normalizeFontStyle(theme.fontBodyStyle);
   }
   if (el.analyticsGaId) {
     el.analyticsGaId.value = analytics.gaMeasurementId || '';
@@ -4832,6 +5074,51 @@ const createArtworkItem = (overrides = {}) => {
   };
   setArtworkCategoryKeys(item, Array.isArray(item.categories) ? item.categories : item.category, 'nature');
   return item;
+};
+
+const syncGalleryArtworkOrderValues = () => {
+  const artworks = Array.isArray(state.content.gallery?.artworks) ? state.content.gallery.artworks : [];
+  artworks.forEach((item, index) => {
+    if (item && typeof item === 'object') {
+      item.order = index + 1;
+    }
+  });
+};
+
+const sortGalleryArtworksByOrder = () => {
+  const artworks = Array.isArray(state.content.gallery?.artworks) ? state.content.gallery.artworks : [];
+  artworks
+    .map((item, index) => ({ item, index }))
+    .sort((a, b) => {
+      const orderDiff = Number(a.item?.order || a.index + 1) - Number(b.item?.order || b.index + 1);
+      if (orderDiff !== 0) {
+        return orderDiff;
+      }
+      return b.index - a.index;
+    })
+    .forEach((entry, index) => {
+      artworks[index] = entry.item;
+    });
+  syncGalleryArtworkOrderValues();
+};
+
+const shouldReverseLegacyAppendedGallery = (artworks) => {
+  if (!Array.isArray(artworks) || artworks.length < 20) {
+    return false;
+  }
+  const firstSrc = typeof artworks[0]?.src === 'string' ? artworks[0].src.trim() : '';
+  const lastSrc = typeof artworks[artworks.length - 1]?.src === 'string' ? artworks[artworks.length - 1].src.trim() : '';
+  const startsWithSeedArtwork = /(^|\/)ola-0?1\.jpe?g$/i.test(firstSrc);
+  const endsWithSeedArtwork = /(^|\/)ola-0?1\.jpe?g$/i.test(lastSrc);
+  return startsWithSeedArtwork && !endsWithSeedArtwork;
+};
+
+const normalizeGalleryArtworkDisplayOrder = () => {
+  const artworks = Array.isArray(state.content.gallery?.artworks) ? state.content.gallery.artworks : [];
+  if (shouldReverseLegacyAppendedGallery(artworks)) {
+    artworks.reverse();
+  }
+  syncGalleryArtworkOrderValues();
 };
 
 const getArtworkCategoryLabel = (value, language = getEditingLanguage()) => {
@@ -5350,11 +5637,11 @@ const renderArtworksEditor = () => {
 	        return;
 	      }
 
-        if (field === 'categories') {
-          const selectedCategories = Array.from(detailNode.querySelectorAll('[data-field="categories"]:checked'))
-            .map((node) => (node instanceof HTMLInputElement ? node.value : ''))
-            .filter(Boolean);
-          setArtworkCategoryKeys(item, selectedCategories, getFirstGalleryCategoryKey());
+      if (field === 'categories') {
+        const selectedCategories = Array.from(detailNode.querySelectorAll('[data-field="categories"]:checked'))
+          .map((node) => (node instanceof HTMLInputElement ? node.value : ''))
+          .filter(Boolean);
+        setArtworkCategoryKeys(item, selectedCategories, getFirstGalleryCategoryKey());
           return;
         }
 
@@ -5401,6 +5688,13 @@ const renderArtworksEditor = () => {
     fieldNode.addEventListener('input', updateField);
     fieldNode.addEventListener('change', () => {
       updateField();
+      if (field === 'order') {
+        const editedItem = state.content.gallery.artworks[selectedIndex];
+        sortGalleryArtworksByOrder();
+        uiState.selectedArtworkIndex = Math.max(0, state.content.gallery.artworks.indexOf(editedItem));
+        renderArtworksEditor();
+        return;
+      }
       if (
         field === 'title' ||
         field === 'categories' ||
@@ -5549,6 +5843,12 @@ const pullFormToState = () => {
   state.content.theme.fontBodyWeight = normalizeFontWeight(
     el.themeFontBodyWeight ? el.themeFontBodyWeight.value : state.content.theme.fontBodyWeight,
     400
+  );
+  state.content.theme.fontDisplayStyle = normalizeFontStyle(
+    el.themeFontDisplayStyle ? el.themeFontDisplayStyle.value : state.content.theme.fontDisplayStyle
+  );
+  state.content.theme.fontBodyStyle = normalizeFontStyle(
+    el.themeFontBodyStyle ? el.themeFontBodyStyle.value : state.content.theme.fontBodyStyle
   );
   if (el.analyticsGaId) {
     state.content.analytics.gaMeasurementId = el.analyticsGaId.value.trim().toUpperCase();
@@ -5801,7 +6101,7 @@ const getPayload = () => {
         .filter((item) => item && typeof item.src === 'string' && item.src.trim() !== '')
         .map((item, index) => ({
           ...item,
-          order: Number(item.order || index + 1)
+          order: index + 1
         }))
     }
   };
@@ -7399,7 +7699,8 @@ const restoreFromServer = async () => {
 const handleGalleryUpload = async (files) => {
   const category =
     normalizeCategoryKey(el.uploadCategory && el.uploadCategory.value) || getFirstGalleryCategoryKey();
-  const firstNewIndex = state.content.gallery.artworks.length;
+  const existingCount = state.content.gallery.artworks.length;
+  const newItems = [];
   const shouldUploadToServer = canPublishToServer();
 
   for (const file of files) {
@@ -7419,9 +7720,10 @@ const handleGalleryUpload = async (files) => {
           minQuality: 0.58,
           maxBytes: 780 * 1024
         });
-    const title = slugFromName(file.name) || `Verk ${state.content.gallery.artworks.length + 1}`;
+    const itemNumber = existingCount + newItems.length + 1;
+    const title = slugFromName(file.name) || `Verk ${itemNumber}`;
 
-    state.content.gallery.artworks.push(
+    newItems.push(
       createArtworkItem({
         src,
         title,
@@ -7429,13 +7731,16 @@ const handleGalleryUpload = async (files) => {
         category,
         featured: false,
         year: new Date().getFullYear(),
-        order: state.content.gallery.artworks.length + 1
+        order: itemNumber
       })
     );
   }
 
-  if (state.content.gallery.artworks.length > firstNewIndex) {
-    uiState.selectedArtworkIndex = state.content.gallery.artworks.length - 1;
+  if (newItems.length > 0) {
+    state.content.gallery.artworks.unshift(...newItems);
+    syncGalleryArtworkOrderValues();
+    uiState.selectedArtworkIndex = 0;
+    uiState.artworkListScrollTop = 0;
   }
 
   if (shouldUploadToServer) {
@@ -7445,9 +7750,64 @@ const handleGalleryUpload = async (files) => {
   setStatus(`${files.length} bild(er) tillagda. Klicka "Spara".`, 'success');
 };
 
+const bindMarkdownLinkHelpers = () => {
+  document.querySelectorAll('[data-link-target]').forEach((helper) => {
+    const button = helper.querySelector('[data-link-insert]');
+    const labelInput = helper.querySelector('[data-link-label]');
+    const urlInput = helper.querySelector('[data-link-url]');
+    if (!button) {
+      return;
+    }
+
+    button.addEventListener('click', () => {
+      const targetId = helper.getAttribute('data-link-target') || '';
+      const target = targetId ? document.getElementById(targetId) : null;
+      if (!(target instanceof HTMLTextAreaElement)) {
+        return;
+      }
+
+      const selectionStart = target.selectionStart || 0;
+      const selectionEnd = target.selectionEnd || selectionStart;
+      const selectedText = target.value.slice(selectionStart, selectionEnd).trim();
+      const label = (labelInput && labelInput.value.trim()) || selectedText;
+      if (!label) {
+        if (labelInput) {
+          labelInput.focus();
+        }
+        return;
+      }
+      let url = urlInput && typeof urlInput.value === 'string' ? urlInput.value.trim() : '';
+      if (!url) {
+        if (urlInput) {
+          urlInput.focus();
+        }
+        return;
+      }
+      if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(url) && !url.startsWith('mailto:')) {
+        url = `https://${url.replace(/^\/+/, '')}`;
+      }
+
+      const insert = `[${label}](${url})`;
+      target.value = `${target.value.slice(0, selectionStart)}${insert}${target.value.slice(selectionEnd)}`;
+      target.focus();
+      target.setSelectionRange(selectionStart + insert.length, selectionStart + insert.length);
+      target.dispatchEvent(new Event('input', { bubbles: true }));
+      if (labelInput) {
+        labelInput.value = '';
+      }
+      if (urlInput) {
+        urlInput.value = '';
+      }
+    });
+  });
+};
+
 const bindEvents = () => {
   if (el.saveStudio) {
     el.saveStudio.addEventListener('click', saveToStorage);
+  }
+  if (el.studioTopSave) {
+    el.studioTopSave.addEventListener('click', saveToStorage);
   }
   if (el.restoreFromServer) {
     el.restoreFromServer.addEventListener('click', () => {
@@ -7593,7 +7953,9 @@ const bindEvents = () => {
     el.themeFontDisplay,
     el.themeFontBody,
     el.themeFontDisplayWeight,
-    el.themeFontBodyWeight
+    el.themeFontBodyWeight,
+    el.themeFontDisplayStyle,
+    el.themeFontBodyStyle
   ]
     .filter(Boolean)
     .forEach((node) => {
@@ -7873,11 +8235,11 @@ const init = async () => {
   ensureSeo();
   captureEnglishSyncSourceSnapshot();
   syncFormFromState();
-  injectSectionSaveButtons();
-  injectSectionCollapseControls();
+  initStudioNavigation();
   renderArtworksEditor();
   renderHeroSlideArtworkOptions();
   renderHeroSlidesEditor();
+  bindMarkdownLinkHelpers();
   bindEvents();
   await loadServerImageCandidates();
   if (!isLocalStaticStudioPreview()) {

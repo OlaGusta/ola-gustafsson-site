@@ -38,7 +38,9 @@ const DEFAULT_CONTENT = {
     fontDisplay: 'fraunces',
     fontBody: 'jakarta',
     fontDisplayWeight: 700,
-    fontBodyWeight: 400
+    fontBodyWeight: 400,
+    fontDisplayStyle: 'normal',
+    fontBodyStyle: 'normal'
   },
   hero: {
     eyebrow: 'Akvarellmåleri',
@@ -282,6 +284,7 @@ const DISPLAY_FONT_STACKS = {
 
 const BODY_FONT_STACKS = {
   jakarta: '"Plus Jakarta Sans", "Avenir Next", "Segoe UI", sans-serif',
+  plexmono: '"IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace',
   sourcesans: '"Source Sans 3", "Segoe UI", sans-serif',
   lora: '"Lora", "Avenir Next", serif',
   avenir: '"Avenir Next", "Segoe UI", sans-serif',
@@ -290,6 +293,7 @@ const BODY_FONT_STACKS = {
 };
 
 const FONT_WEIGHT_VALUES = [300, 400, 500, 600, 700, 800];
+const FONT_STYLE_VALUES = ['normal', 'italic'];
 
 const STORAGE_KEY = 'olaPortfolioOverridesV1';
 const LANGUAGE_STORAGE_KEY = 'olaSiteLanguageV1';
@@ -722,6 +726,37 @@ const getBoundString = (path, fallback = '') => {
 
 const getUiText = (key, fallback = '') => getBoundString(`ui.${key}`, fallback);
 
+const appendInlineFormattedText = (fragment, value) => {
+  const input = String(value || '');
+  const formatPattern = /<(i|em|n|normal)>([\s\S]*?)<\/\1>/gi;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = formatPattern.exec(input)) !== null) {
+    const [fullMatch, tagName, innerText] = match;
+    if (match.index > lastIndex) {
+      fragment.appendChild(document.createTextNode(input.slice(lastIndex, match.index)));
+    }
+
+    const normalizedTagName = tagName.toLowerCase();
+    const marker = document.createElement(normalizedTagName === 'em' ? 'em' : normalizedTagName === 'i' ? 'i' : 'span');
+    marker.className = normalizedTagName === 'n' || normalizedTagName === 'normal' ? 'inline-normal' : 'inline-garamond-italic';
+    marker.textContent = innerText;
+    fragment.appendChild(marker);
+    lastIndex = match.index + fullMatch.length;
+  }
+
+  if (lastIndex < input.length) {
+    fragment.appendChild(document.createTextNode(input.slice(lastIndex)));
+  }
+};
+
+const buildInlineFormattedFragment = (value) => {
+  const fragment = document.createDocumentFragment();
+  appendInlineFormattedText(fragment, value);
+  return fragment;
+};
+
 const buildLinkedTextFragment = (value) => {
   const fragment = document.createDocumentFragment();
   const input = String(value || '');
@@ -732,7 +767,7 @@ const buildLinkedTextFragment = (value) => {
   while ((match = linkPattern.exec(input)) !== null) {
     const [fullMatch, label, href] = match;
     if (match.index > lastIndex) {
-      fragment.appendChild(document.createTextNode(input.slice(lastIndex, match.index)));
+      appendInlineFormattedText(fragment, input.slice(lastIndex, match.index));
     }
 
     let safeHref = '';
@@ -760,7 +795,7 @@ const buildLinkedTextFragment = (value) => {
   }
 
   if (lastIndex < input.length) {
-    fragment.appendChild(document.createTextNode(input.slice(lastIndex)));
+    appendInlineFormattedText(fragment, input.slice(lastIndex));
   }
 
   return fragment;
@@ -786,7 +821,8 @@ const bindTextContent = () => {
     const key = node.getAttribute('data-bind');
     const value = getBoundString(key);
     if (value !== '') {
-      node.textContent = value;
+      node.textContent = '';
+      node.appendChild(buildInlineFormattedFragment(value));
     }
   });
 };
@@ -1098,6 +1134,11 @@ const applyTheme = () => {
   root.style.setProperty('--font-display-weight', String(displayWeight));
   root.style.setProperty('--font-body-weight', String(bodyWeight));
   root.style.setProperty('--font-body-strong-weight', String(bodyStrongWeight));
+
+  const displayStyle = FONT_STYLE_VALUES.includes(theme.fontDisplayStyle) ? theme.fontDisplayStyle : 'normal';
+  const bodyStyle = FONT_STYLE_VALUES.includes(theme.fontBodyStyle) ? theme.fontBodyStyle : 'normal';
+  root.style.setProperty('--font-display-style', displayStyle);
+  root.style.setProperty('--font-body-style', bodyStyle);
 };
 
 const addImageFallback = (img) => {
