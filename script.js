@@ -757,6 +757,12 @@ const buildInlineFormattedFragment = (value) => {
   return fragment;
 };
 
+const buildInlineFormattedHtml = (value) => {
+  const container = document.createElement('span');
+  container.appendChild(buildInlineFormattedFragment(value));
+  return container.innerHTML;
+};
+
 const buildLinkedTextFragment = (value) => {
   const fragment = document.createDocumentFragment();
   const input = String(value || '');
@@ -4158,11 +4164,11 @@ const renderLightboxCaptionHtml = (item) => {
   const explicitCaption = typeof item?.caption === 'string' ? item.caption.trim() : '';
 
   if (explicitCaption) {
-    return `<strong>${escapeHtml(explicitCaption)}</strong>`;
+    return `<strong>${buildInlineFormattedHtml(explicitCaption)}</strong>`;
   }
 
   const metaParts = [formatLabel, categoryLabel, yearLabel].filter((part) => typeof part === 'string' && part.trim() !== '');
-  const lines = [`<strong>${escapeHtml(title)}</strong>`];
+  const lines = [`<strong>${buildInlineFormattedHtml(title)}</strong>`];
   if (metaParts.length > 0) {
     lines.push(`<span class="lightbox-meta-line">${escapeHtml(metaParts.join(' · '))}</span>`);
   }

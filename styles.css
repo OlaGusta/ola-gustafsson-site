@@ -4052,6 +4052,7 @@ body[data-page='studio'] main {
 
 .lightbox-caption-text strong {
   font-size: 1.02rem;
+  --inline-italic-weight: 700;
 }
 
 .lightbox-meta-line {
