@@ -7,6 +7,7 @@ $lang = seo_normalize_lang($_GET['lang'] ?? null);
 $text = seo_text($lang);
 $page = seo_page_meta('gallery', $lang);
 $canonical = seo_canonical_url('gallery', $lang);
+seo_redirect_explicit_sv_lang_to($canonical);
 $baseUrl = seo_base_url();
 $robots = seo_is_stage() ? $text['robots_stage'] : $text['robots_live'];
 $ogImageValue = isset($page['og_image']) && is_string($page['og_image']) ? trim($page['og_image']) : '';
@@ -38,6 +39,7 @@ if ($galleryPageHeading === '') {
 }
 $gallerySubheading = seo_localized_payload_string($payload, $lang, ['gallery', 'subheading']);
 $galleryItems = seo_sorted_gallery_page_items($payload, $lang);
+$galleryYearCounts = seo_gallery_year_counts($galleryItems);
 
 $personId = $baseUrl . '/#ola-gustafsson';
 $websiteId = $baseUrl . '/#website';
@@ -56,6 +58,34 @@ $breadcrumbItems = [
   ]
 ];
 $structuredData = [
+  [
+    '@context' => 'https://schema.org',
+    '@type' => 'Person',
+    '@id' => $personId,
+    'name' => 'Ola Gustafsson',
+    'url' => $baseUrl . '/',
+    'jobTitle' => 'Akvarellkonstnär',
+    'nationality' => 'SE',
+    'hasOccupation' => [
+      '@type' => 'Occupation',
+      'name' => 'Bildkonstnär, akvarell'
+    ],
+    'knowsAbout' => ['Akvarell', 'Akvarellmåleri', 'Landskapsmåleri', 'Bildkonst'],
+    'image' => $baseUrl . '/images/ola-portrait.jpg',
+    'sameAs' => [
+      'https://www.instagram.com/holagustafsson/',
+      'https://www.facebook.com/holagustafsson'
+    ]
+  ],
+  [
+    '@context' => 'https://schema.org',
+    '@type' => 'WebSite',
+    '@id' => $websiteId,
+    'name' => $text['site_name'],
+    'url' => $baseUrl . '/',
+    'inLanguage' => ['sv-SE', 'en-US'],
+    'publisher' => ['@id' => $personId]
+  ],
   [
     '@context' => 'https://schema.org',
     '@type' => 'CollectionPage',
@@ -134,10 +164,10 @@ if (!is_string($structuredJson)) {
       <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20260503-01" />
+    <link rel="stylesheet" href="styles.css?v=20260504-02" />
     <script src="overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="content.js?v=20260222-06" defer></script>
-    <script src="script.js?v=20260503-01" defer></script>
+    <script src="script.js?v=20260509-01" defer></script>
   </head>
   <body id="page-top" data-page="gallery">
     <header class="site-header" id="top">
@@ -195,7 +225,15 @@ if (!is_string($structuredJson)) {
             <?php if ($galleryItems === []): ?>
               <p class="gallery-empty"><?= htmlspecialchars($lang === 'en' ? 'No paintings are available right now.' : 'Inga målningar är tillgängliga just nu.', ENT_QUOTES) ?></p>
             <?php else: ?>
+              <?php $lastGalleryYearKey = ''; ?>
               <?php foreach ($galleryItems as $index => $item): ?>
+                <?php
+                  $galleryYearKey = seo_gallery_year_key($item);
+                  if ($galleryYearKey !== $lastGalleryYearKey):
+                    $lastGalleryYearKey = $galleryYearKey;
+                ?>
+                  <?= seo_render_gallery_year_divider_html($galleryYearKey, (int) ($galleryYearCounts[$galleryYearKey] ?? 0), $lang) ?>
+                <?php endif; ?>
                 <?= seo_render_gallery_card_html($item, (int) $index, 'gallery') ?>
               <?php endforeach; ?>
             <?php endif; ?>

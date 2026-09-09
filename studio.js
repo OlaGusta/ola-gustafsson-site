@@ -63,7 +63,9 @@ const DEFAULT_CONTENT = {
     fontBodyStyle: 'normal'
   },
   hero: {
+    eyebrow: '',
     title: '',
+    subtitle: '',
     intro: '',
     line: '',
     mode: 'still',
@@ -1361,6 +1363,7 @@ const EN_SYNC_STRING_JOBS = [
   { path: 'site.metaDescription', field: 'seodescription' },
   { path: 'hero.eyebrow', field: 'generic' },
   { path: 'hero.title', field: 'title' },
+  { path: 'hero.subtitle', field: 'generic' },
   { path: 'hero.intro', field: 'generic' },
   { path: 'hero.line', field: 'generic' },
   { path: 'hero.imageAlt', field: 'alt' },
@@ -2504,7 +2507,9 @@ const el = {
   inquiriesPanelRefresh: document.getElementById('inquiries-panel-refresh'),
   inquiriesPanelStatus: document.getElementById('inquiries-panel-status'),
   inquiriesPanelList: document.getElementById('inquiries-panel-list'),
+  heroEyebrow: document.getElementById('hero-eyebrow'),
   heroTitle: document.getElementById('hero-title'),
+  heroSubtitle: document.getElementById('hero-subtitle'),
   heroIntro: document.getElementById('hero-intro'),
   heroLine: document.getElementById('hero-line'),
   heroMode: document.getElementById('hero-mode'),
@@ -4603,6 +4608,8 @@ const applyStudioThemePreview = () => {
     (typeof hero.title === 'string' && hero.title.trim()) ||
     'Originalmålningar i <i>akvarell</i>';
   const body =
+    (el.heroSubtitle && el.heroSubtitle.value.trim()) ||
+    (typeof hero.subtitle === 'string' && hero.subtitle.trim()) ||
     (el.heroIntro && el.heroIntro.value.trim()) ||
     (typeof hero.intro === 'string' && hero.intro.trim()) ||
     'Ljus, stämning och närvaro i landskap, natur och stadsvyer.';
@@ -4668,7 +4675,13 @@ const syncFormFromState = () => {
     el.analyticsAnonymizeIp.checked = analytics.anonymizeIp !== false;
   }
 
+  if (el.heroEyebrow) {
+    el.heroEyebrow.value = localizedHero.eyebrow || '';
+  }
   el.heroTitle.value = localizedHero.title || '';
+  if (el.heroSubtitle) {
+    el.heroSubtitle.value = localizedHero.subtitle || '';
+  }
   el.heroIntro.value = localizedHero.intro || '';
   if (el.heroLine) {
     el.heroLine.value = localizedHero.line || '';
@@ -5083,6 +5096,55 @@ const syncGalleryArtworkOrderValues = () => {
       item.order = index + 1;
     }
   });
+};
+
+const rememberRemovedGallerySrc = (src) => {
+  const normalizedSrc = typeof src === 'string' ? src.trim() : '';
+  if (!normalizedSrc || /^data:/i.test(normalizedSrc) || /^blob:/i.test(normalizedSrc)) {
+    return;
+  }
+  if (!state.content.gallery || typeof state.content.gallery !== 'object') {
+    state.content.gallery = {};
+  }
+  const removed = new Set(
+    (Array.isArray(state.content.gallery.removedSrcs) ? state.content.gallery.removedSrcs : [])
+      .map((item) => (typeof item === 'string' ? item.trim() : ''))
+      .filter(Boolean)
+  );
+  removed.add(normalizedSrc);
+  state.content.gallery.removedSrcs = Array.from(removed);
+};
+
+const removeDuplicateArtworkEntriesBySrc = (src, keepIndex) => {
+  const normalizedSrc = typeof src === 'string' ? src.trim() : '';
+  const artworks = Array.isArray(state.content.gallery?.artworks) ? state.content.gallery.artworks : [];
+  if (!normalizedSrc || artworks.length < 2 || !Number.isFinite(keepIndex)) {
+    return 0;
+  }
+
+  let nextKeepIndex = keepIndex;
+  let removedCount = 0;
+  const nextArtworks = [];
+
+  artworks.forEach((item, index) => {
+    const itemSrc = item && typeof item.src === 'string' ? item.src.trim() : '';
+    if (index !== keepIndex && itemSrc === normalizedSrc) {
+      removedCount += 1;
+      if (index < keepIndex) {
+        nextKeepIndex -= 1;
+      }
+      return;
+    }
+    nextArtworks.push(item);
+  });
+
+  if (removedCount > 0) {
+    state.content.gallery.artworks = nextArtworks;
+    uiState.selectedArtworkIndex = Math.max(0, Math.min(nextKeepIndex, nextArtworks.length - 1));
+    syncGalleryArtworkOrderValues();
+  }
+
+  return removedCount;
 };
 
 const sortGalleryArtworksByOrder = () => {
@@ -5743,6 +5805,12 @@ const renderArtworksEditor = () => {
             });
         item.src = src;
         updateArtworkSourceAcrossTranslations(previousSrc, src);
+        replaceImageSourceInNode(state.content, previousSrc, src);
+        replaceImageSourceInNode(state.translations, previousSrc, src);
+        if (previousSrc && previousSrc !== src) {
+          rememberRemovedGallerySrc(previousSrc);
+        }
+        const removedDuplicates = removeDuplicateArtworkEntriesBySrc(src, selectedIndex);
         item.previewSrc = '';
         item.objectPosition = 'center center';
         item.zoom = 1;
@@ -5755,7 +5823,8 @@ const renderArtworksEditor = () => {
 	        syncArtworkTextToEnglish(item.src, 'title', '', item.title);
 	        syncArtworkTextToEnglish(item.src, 'alt', '', item.alt);
 	        renderArtworksEditor();
-	        setStatus('Bilden för valt verk uppdaterades. Klicka "Spara ändringar".', 'success');
+          const duplicateSuffix = removedDuplicates > 0 ? ` ${removedDuplicates} dubblett togs bort.` : '';
+	        setStatus(`Bilden för valt verk uppdaterades.${duplicateSuffix} Klicka "Spara ändringar".`, 'success');
 	      } catch (error) {
 	        setStatus('Det gick inte att läsa den nya bilden.', 'error');
 	      } finally {
@@ -5771,11 +5840,7 @@ const renderArtworksEditor = () => {
       const src = item && typeof item.src === 'string' ? item.src.trim() : '';
 
       state.content.gallery.artworks.splice(selectedIndex, 1);
-      if (src && !src.startsWith('data:') && !src.startsWith('blob:')) {
-        const removed = new Set(state.content.gallery.removedSrcs || []);
-        removed.add(src);
-        state.content.gallery.removedSrcs = Array.from(removed);
-      }
+      rememberRemovedGallerySrc(src);
       removeArtworkFromTranslations(src);
 
       if (Array.isArray(state.content.hero.slides) && src) {
@@ -5859,7 +5924,13 @@ const pullFormToState = () => {
 
   applyStudioThemePreview();
 
+  if (el.heroEyebrow) {
+    setPath(localizedTarget, 'hero.eyebrow', el.heroEyebrow.value.trim());
+  }
   setPath(localizedTarget, 'hero.title', el.heroTitle.value.trim());
+  if (el.heroSubtitle) {
+    setPath(localizedTarget, 'hero.subtitle', el.heroSubtitle.value.trim());
+  }
   setPath(localizedTarget, 'hero.intro', el.heroIntro.value.trim());
   if (el.heroLine) {
     setPath(localizedTarget, 'hero.line', el.heroLine.value.trim());
@@ -7755,6 +7826,7 @@ const bindMarkdownLinkHelpers = () => {
     const button = helper.querySelector('[data-link-insert]');
     const labelInput = helper.querySelector('[data-link-label]');
     const urlInput = helper.querySelector('[data-link-url]');
+    const nofollowInput = helper.querySelector('[data-link-nofollow]');
     if (!button) {
       return;
     }
@@ -7787,7 +7859,8 @@ const bindMarkdownLinkHelpers = () => {
         url = `https://${url.replace(/^\/+/, '')}`;
       }
 
-      const insert = `[${label}](${url})`;
+      const relSuffix = nofollowInput && nofollowInput.checked ? '{nofollow}' : '';
+      const insert = `[${label}](${url})${relSuffix}`;
       target.value = `${target.value.slice(0, selectionStart)}${insert}${target.value.slice(selectionEnd)}`;
       target.focus();
       target.setSelectionRange(selectionStart + insert.length, selectionStart + insert.length);
@@ -7797,6 +7870,9 @@ const bindMarkdownLinkHelpers = () => {
       }
       if (urlInput) {
         urlInput.value = '';
+      }
+      if (nofollowInput) {
+        nofollowInput.checked = false;
       }
     });
   });

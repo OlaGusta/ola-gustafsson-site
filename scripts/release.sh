@@ -31,6 +31,7 @@ readonly EXCLUDED_PREFIXES=(
   ".codex/"
   ".git/"
   ".playwright-mcp/"
+  "KRO_bilder/"
   "skills/"
   "scripts/"
 )
@@ -321,7 +322,9 @@ run_postcheck() {
     "/"
     "/studio.html"
     "/api/auth/status.php"
+    "/robots.txt"
     "/sitemap.xml"
+    "/sitemap_index.xml"
     "/verk/vagen-hem?lang=sv"
   )
 

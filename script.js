@@ -683,6 +683,7 @@ const galleryState = {
   baseItems: [],
   filteredItems: [],
   activeCategory: 'all',
+  activeYear: 'all',
   activeSort: 'newest'
 };
 
@@ -766,12 +767,12 @@ const buildInlineFormattedHtml = (value) => {
 const buildLinkedTextFragment = (value) => {
   const fragment = document.createDocumentFragment();
   const input = String(value || '');
-  const linkPattern = /\[([^\]]+)\]\s*\((https?:\/\/[^\s)]+)\)/g;
+  const linkPattern = /\[([^\]]+)\]\s*\((https?:\/\/[^\s)]+)\)(\{nofollow\})?/gi;
   let lastIndex = 0;
   let match;
 
   while ((match = linkPattern.exec(input)) !== null) {
-    const [fullMatch, label, href] = match;
+    const [fullMatch, label, href, nofollowFlag] = match;
     if (match.index > lastIndex) {
       appendInlineFormattedText(fragment, input.slice(lastIndex, match.index));
     }
@@ -790,7 +791,7 @@ const buildLinkedTextFragment = (value) => {
       const link = document.createElement('a');
       link.href = safeHref;
       link.target = '_blank';
-      link.rel = 'noopener noreferrer';
+      link.rel = nofollowFlag ? 'noopener noreferrer nofollow' : 'noopener noreferrer';
       link.textContent = label.trim();
       fragment.appendChild(link);
     } else {
@@ -2983,11 +2984,87 @@ const getSortableArtworkYear = (item) => {
   return 0;
 };
 
+const getGalleryYearKey = (item) => {
+  const year = getSortableArtworkYear(item);
+  return year > 0 ? String(year) : 'undated';
+};
+
+const getGalleryYearLabel = (yearKey) => (/^\d{3,4}$/.test(String(yearKey || ''))
+  ? String(yearKey)
+  : activeLanguage === 'en'
+    ? 'Undated'
+    : 'Utan år');
+
+const getGalleryYearFilterLabel = () => getUiText('yearFilterLabel', activeLanguage === 'en' ? 'Year' : 'År');
+
+const getGalleryAllYearsLabel = () => getUiText('allYearsLabel', activeLanguage === 'en' ? 'All years' : 'Alla år');
+
+const getGalleryYearCountLabel = (count) => {
+  const safeCount = Number.isFinite(Number(count)) ? Number(count) : 0;
+  if (activeLanguage === 'en') {
+    return safeCount === 1 ? '1 work' : `${safeCount} works`;
+  }
+  return safeCount === 1 ? '1 verk' : `${safeCount} verk`;
+};
+
+const getGalleryYearCounts = (items) => {
+  const counts = new Map();
+  items.forEach((item) => {
+    const yearKey = getGalleryYearKey(item);
+    counts.set(yearKey, (counts.get(yearKey) || 0) + 1);
+  });
+  return counts;
+};
+
+const getGalleryItemsForActiveCategory = () =>
+  galleryState.activeCategory === 'all'
+    ? galleryState.baseItems.slice()
+    : galleryState.baseItems.filter((item) => getArtworkCategoryKeys(item, '').includes(galleryState.activeCategory));
+
+const getGalleryYearOptionKeys = (items) => {
+  const keys = Array.from(new Set(items.map((item) => getGalleryYearKey(item))));
+  return keys.sort((a, b) => {
+    const aYear = /^\d{3,4}$/.test(a) ? Number(a) : -Infinity;
+    const bYear = /^\d{3,4}$/.test(b) ? Number(b) : -Infinity;
+    if (aYear !== bYear) {
+      return bYear - aYear;
+    }
+    return a.localeCompare(b, activeLanguage);
+  });
+};
+
+const shouldRenderGalleryYearDividers = () =>
+  pageType === 'gallery' &&
+  (galleryState.activeYear !== 'all' || ['newest', 'oldest'].includes(String(galleryState.activeSort || '')));
+
+const createGalleryYearDivider = (yearKey, count) => {
+  const divider = document.createElement('div');
+  divider.className = 'gallery-year-divider';
+  divider.dataset.galleryYear = String(yearKey || 'undated');
+
+  const heading = document.createElement('h2');
+  heading.className = 'gallery-year-label';
+  heading.textContent = getGalleryYearLabel(yearKey);
+
+  const countLabel = document.createElement('span');
+  countLabel.className = 'gallery-year-count';
+  countLabel.textContent = getGalleryYearCountLabel(count);
+
+  divider.append(heading, countLabel);
+  return divider;
+};
+
 const applyGalleryFilterAndSort = () => {
+  const categoryFiltered = getGalleryItemsForActiveCategory();
+  const availableYearKeys = new Set(categoryFiltered.map((item) => getGalleryYearKey(item)));
+  if (galleryState.activeYear !== 'all' && !availableYearKeys.has(galleryState.activeYear)) {
+    galleryState.activeYear = 'all';
+  }
+
   const filtered =
-    galleryState.activeCategory === 'all'
-      ? galleryState.baseItems.slice()
-      : galleryState.baseItems.filter((item) => getArtworkCategoryKeys(item, '').includes(galleryState.activeCategory));
+    galleryState.activeYear === 'all'
+      ? categoryFiltered
+      : categoryFiltered.filter((item) => getGalleryYearKey(item) === galleryState.activeYear);
 
   const sorted = filtered.slice();
   switch (galleryState.activeSort) {
@@ -3044,8 +3121,19 @@ const renderGallery = () => {
   }
 
   const fragment = document.createDocumentFragment();
+  const showYearDividers = shouldRenderGalleryYearDividers();
+  const yearCounts = showYearDividers ? getGalleryYearCounts(items) : new Map();
+  let previousYearKey = '';
 
   items.forEach((item, index) => {
+    if (showYearDividers) {
+      const yearKey = getGalleryYearKey(item);
+      if (yearKey !== previousYearKey) {
+        fragment.appendChild(createGalleryYearDivider(yearKey, yearCounts.get(yearKey) || 0));
+        previousYearKey = yearKey;
+      }
+    }
+
     const availability = getArtworkAvailabilityConfig(item);
     const priceLabel = getArtworkPriceLabel(item, availability);
     const card = document.createElement('button');
@@ -3137,6 +3225,9 @@ const renderGalleryControls = () => {
     'all',
     ...new Set(galleryState.baseItems.flatMap((item) => getArtworkCategoryKeys(item, '')))
   ];
+  const categoryFilteredItems = getGalleryItemsForActiveCategory();
+  const yearCounts = getGalleryYearCounts(categoryFilteredItems);
+  const yearOptionKeys = getGalleryYearOptionKeys(categoryFilteredItems);
   const sortOptions =
     content.gallery && Array.isArray(content.gallery.sortOptions) && content.gallery.sortOptions.length > 0
       ? content.gallery.sortOptions
@@ -3153,6 +3244,15 @@ const renderGalleryControls = () => {
     })
     .join('');
 
+  const yearOptionMarkup = [
+    `<option value="all"${galleryState.activeYear === 'all' ? ' selected' : ''}>${getGalleryAllYearsLabel()}</option>`,
+    ...yearOptionKeys.map((yearKey) => {
+      const selected = yearKey === galleryState.activeYear ? ' selected' : '';
+      const count = yearCounts.get(yearKey) || 0;
+      return `<option value="${yearKey}"${selected}>${getGalleryYearLabel(yearKey)} (${count})</option>`;
+    })
+  ].join('');
+
   const sortOptionMarkup = sortOptions
     .map((option) => {
       const selected = option.value === galleryState.activeSort ? 'selected' : '';
@@ -3164,10 +3264,16 @@ const renderGalleryControls = () => {
     <div class="filter-group" role="group" aria-label="${getUiText('categoryFilterAria', 'Kategorifilter')}">
       ${filterButtons}
     </div>
-    <label class="sort-control">
-      <span>${getUiText('sortLabel', 'Sortera')}</span>
-      <select id="gallery-sort-select">${sortOptionMarkup}</select>
-    </label>
+    <div class="gallery-select-controls">
+      <label class="sort-control">
+        <span>${getGalleryYearFilterLabel()}</span>
+        <select id="gallery-year-select">${yearOptionMarkup}</select>
+      </label>
+      <label class="sort-control">
+        <span>${getUiText('sortLabel', 'Sortera')}</span>
+        <select id="gallery-sort-select">${sortOptionMarkup}</select>
+      </label>
+    </div>
   `;
 
   container.querySelectorAll('.filter-chip').forEach((button) => {
@@ -3179,6 +3285,15 @@ const renderGalleryControls = () => {
       renderGallery();
     });
   });
+
+  const yearSelect = document.getElementById('gallery-year-select');
+  if (yearSelect) {
+    yearSelect.addEventListener('change', () => {
+      galleryState.activeYear = yearSelect.value || 'all';
+      applyGalleryFilterAndSort();
+      renderGallery();
+    });
+  }
 
   const sortSelect = document.getElementById('gallery-sort-select');
   if (sortSelect) {

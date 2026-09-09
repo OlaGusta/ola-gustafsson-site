@@ -27,9 +27,10 @@ window.PORTFOLIO_CONTENT = {
 
   // Hero: ändra bild + texter här.
   hero: {
-    eyebrow: 'Ola Gustafsson · Akvarellmålare',
-    title: 'Skiftningar i akvarell',
-    intro: 'Jag målar främst landskap och stadsmiljöer i akvarell.',
+    eyebrow: 'Stockholm · Akvarell sedan 2022',
+    title: 'Akvareller av Ola Gustafsson',
+    subtitle: 'Ljus, <i>stämning</i> och närvaro',
+    intro: 'Originalmålningar med motiv från landskap, natur och stadsvyer.',
     line: 'Jag bygger bilderna med förenklade valörer och medvetna kanter och låter resten vara lite öppet.',
     ctaPrimaryLabel: 'Se målningar',
     ctaSecondaryLabel: 'Läs om processen',
@@ -572,9 +573,10 @@ window.PORTFOLIO_TRANSLATIONS = {
       brandTag: 'Watercolor Gallery'
     },
     hero: {
-      eyebrow: 'Ola Gustafsson · Watercolor Artist',
-      title: 'Shifts in watercolor',
-      intro: 'I mainly paint landscapes and urban scenes in watercolor.',
+      eyebrow: 'Stockholm · Watercolour since 2022',
+      title: 'Watercolours by Ola Gustafsson',
+      subtitle: 'Light, <i>mood</i> and presence',
+      intro: 'Original watercolour paintings of landscapes, nature and cityscapes.',
       line: 'I build images with simplified values and deliberate edges, and let the rest stay slightly open.',
       ctaPrimaryLabel: 'View paintings',
       ctaSecondaryLabel: 'Read about the process',

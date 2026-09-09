@@ -7,6 +7,7 @@ $lang = seo_normalize_lang($_GET['lang'] ?? null);
 $text = seo_text($lang);
 $page = seo_page_meta('home', $lang);
 $canonical = seo_canonical_url('home', $lang);
+seo_redirect_explicit_sv_lang_to($canonical);
 $baseUrl = seo_base_url();
 $robots = seo_is_stage() ? $text['robots_stage'] : $text['robots_live'];
 $ogImageValue = isset($page['og_image']) && is_string($page['og_image']) ? trim($page['og_image']) : '';
@@ -58,16 +59,35 @@ if ($heroImageAlt === '') {
 }
 $heroEyebrow = seo_localized_payload_string($payload, $lang, ['hero', 'eyebrow']);
 if ($heroEyebrow === '') {
-  $heroEyebrow = $lang === 'en' ? 'Watercolor painting' : 'Akvarellmåleri';
+  $heroEyebrow = $lang === 'en' ? 'Stockholm · Watercolour since 2022' : 'Stockholm · Akvarell sedan 2022';
 }
 $heroTitle = seo_localized_payload_string($payload, $lang, ['hero', 'title']);
 if ($heroTitle === '') {
   $heroTitle = $lang === 'en'
-    ? 'Nordic landscapes in light, mood and movement.'
-    : 'Nordiska landskap i ljus, stämning och rörelse.';
+    ? 'Watercolours by Ola Gustafsson'
+    : 'Akvareller av Ola Gustafsson';
+}
+$heroSubtitle = seo_localized_payload_string($payload, $lang, ['hero', 'subtitle']);
+if ($heroSubtitle === '') {
+  $heroSubtitle = $lang === 'en'
+    ? 'Light, <i>mood</i> and presence'
+    : 'Ljus, <i>stämning</i> och närvaro';
 }
 $heroIntro = seo_localized_payload_string($payload, $lang, ['hero', 'intro']);
+if ($heroIntro === '') {
+  $heroIntro = $lang === 'en'
+    ? 'Original watercolour paintings of landscapes, nature and cityscapes.'
+    : 'Originalmålningar med motiv från landskap, natur och stadsvyer.';
+}
 $heroLine = seo_localized_payload_string($payload, $lang, ['hero', 'line']);
+$heroCtaPrimaryLabel = seo_localized_payload_string($payload, $lang, ['hero', 'ctaPrimaryLabel']);
+if ($heroCtaPrimaryLabel === '') {
+  $heroCtaPrimaryLabel = $lang === 'en' ? 'View paintings' : 'Se målningarna';
+}
+$heroCtaSecondaryLabel = seo_localized_payload_string($payload, $lang, ['hero', 'ctaSecondaryLabel']);
+if ($heroCtaSecondaryLabel === '') {
+  $heroCtaSecondaryLabel = $lang === 'en' ? 'Read artist statement' : 'Läs artist statement';
+}
 $galleryEyebrow = seo_localized_payload_string($payload, $lang, ['gallery', 'eyebrow']);
 if ($galleryEyebrow === '') {
   $galleryEyebrow = $lang === 'en' ? 'Recent paintings' : 'Senaste målningar';
@@ -191,6 +211,13 @@ $structuredData = [
     '@id' => $personId,
     'name' => 'Ola Gustafsson',
     'url' => $baseUrl . '/',
+    'jobTitle' => 'Akvarellkonstnär',
+    'nationality' => 'SE',
+    'hasOccupation' => [
+      '@type' => 'Occupation',
+      'name' => 'Bildkonstnär, akvarell'
+    ],
+    'knowsAbout' => ['Akvarell', 'Akvarellmåleri', 'Landskapsmåleri', 'Bildkonst'],
     'image' => $baseUrl . '/images/ola-portrait.jpg',
     'sameAs' => [
       'https://www.instagram.com/holagustafsson/',
@@ -292,9 +319,9 @@ if (!is_string($structuredJson)) {
       fetchpriority="high"
     />
     	    <script src="overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>" defer></script>
-	    <link rel="stylesheet" href="styles.css?v=20260503-01" />
-	    <script src="content.js?v=20260222-06" defer></script>
-		    <script src="script.js?v=20260503-01" defer></script>
+	    <link rel="stylesheet" href="styles.css?v=20260505-01" />
+	    <script src="content.js?v=20260505-01" defer></script>
+		    <script src="script.js?v=20260509-01" defer></script>
 	  </head>
   <body id="page-top" data-page="home">
     <header class="site-header" id="top">
@@ -355,11 +382,12 @@ if (!is_string($structuredJson)) {
           <div id="hero-copy-panel" class="hero-copy surface-glass">
             <p class="eyebrow" data-bind="hero.eyebrow"><?= seo_escape_html($heroEyebrow) ?></p>
             <h1 data-bind="hero.title"><?= seo_escape_html($heroTitle) ?></h1>
+            <p class="hero-subtitle" data-bind="hero.subtitle"><?= seo_render_inline_formatted_html($heroSubtitle) ?></p>
             <p data-bind="hero.intro"><?= seo_render_multiline_html($heroIntro) ?></p>
             <p class="hero-line" data-bind="hero.line"><?= seo_escape_html($heroLine) ?></p>
             <div class="hero-actions">
-              <a class="btn btn-ghost" href="#galleri" data-bind="hero.ctaPrimaryLabel">Se målningarna</a>
-              <a class="btn btn-ghost" href="#om" data-bind="hero.ctaSecondaryLabel">Läs artist statement</a>
+              <a class="btn btn-ghost" href="#galleri" data-bind="hero.ctaPrimaryLabel"><?= seo_escape_html($heroCtaPrimaryLabel) ?></a>
+              <a class="btn btn-ghost" href="#om" data-bind="hero.ctaSecondaryLabel"><?= seo_escape_html($heroCtaSecondaryLabel) ?></a>
             </div>
           </div>
         </div>

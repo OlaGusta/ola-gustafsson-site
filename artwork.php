@@ -34,11 +34,12 @@ $artwork = is_int($artworkIndex) && isset($artworks[$artworkIndex]) && is_array(
 
 if (!$artwork) {
   http_response_code(404);
+  $robots = 'noindex,follow';
   $pageTitle = $lang === 'en' ? 'Artwork not found' : 'Verket hittades inte';
   $description = $lang === 'en'
     ? 'The requested artwork could not be found. Return to the gallery to browse all works.'
     : 'Det begärda verket kunde inte hittas. Gå tillbaka till galleriet för att se alla verk.';
-  $canonical = $baseUrl . '/gallery.html?lang=' . rawurlencode($lang);
+  $canonical = seo_canonical_url('gallery', $lang);
   $ogImageValue = seo_choose_share_image((string) ($text['og_image'] ?? '/images/ola-02.jpg'), '/images/ola-portrait.jpg');
   if (preg_match('/^https?:\\/\\//i', $ogImageValue) === 1) {
     $ogImage = $ogImageValue;
@@ -184,7 +185,7 @@ if (!$artwork) {
 
       <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
       <script src="/content.js?v=20260222-06" defer></script>
-      <script src="/script.js?v=20260503-01" defer></script>
+      <script src="/script.js?v=20260509-01" defer></script>
     </body>
   </html>
   <?php
@@ -379,7 +380,10 @@ $alternateSv = seo_artwork_url($canonicalSlug, 'sv');
 $alternateEn = seo_artwork_url($canonicalSlug, 'en');
 
 // If the slug in the URL isn't the canonical slug (e.g. casing, spaces), redirect to the normalized version.
-if (isset($_GET['slug']) && is_string($_GET['slug']) && trim($_GET['slug']) !== '' && trim($_GET['slug']) !== $canonicalSlug) {
+if (
+  seo_request_has_explicit_sv_lang() ||
+  (isset($_GET['slug']) && is_string($_GET['slug']) && trim($_GET['slug']) !== '' && trim($_GET['slug']) !== $canonicalSlug)
+) {
   header('Location: ' . $canonical, true, 301);
   exit;
 }
@@ -432,6 +436,13 @@ $structuredData[] = [
   '@id' => $personId,
   'name' => 'Ola Gustafsson',
   'url' => $baseUrl . '/',
+  'jobTitle' => 'Akvarellkonstnär',
+  'nationality' => 'SE',
+  'hasOccupation' => [
+    '@type' => 'Occupation',
+    'name' => 'Bildkonstnär, akvarell'
+  ],
+  'knowsAbout' => ['Akvarell', 'Akvarellmåleri', 'Landskapsmåleri', 'Bildkonst'],
   'image' => $baseUrl . '/images/ola-portrait.jpg',
   'sameAs' => [
     'https://www.instagram.com/holagustafsson/',
@@ -455,9 +466,14 @@ $visualArtwork = [
   'name' => $title,
   'url' => $canonical,
   'image' => $imageUrl,
-  'artform' => 'Painting',
-  'artMedium' => $medium,
-  'creator' => ['@id' => $personId],
+  'artform' => $lang === 'en' ? 'Watercolor' : 'Akvarell',
+  'artMedium' => $medium !== '' ? $medium : ($lang === 'en' ? 'Watercolor on paper' : 'Akvarell på papper'),
+  'creator' => [
+    '@type' => 'Person',
+    '@id' => $personId,
+    'name' => 'Ola Gustafsson',
+    'url' => $baseUrl . '/'
+  ],
   'inLanguage' => seo_lang_locale($lang),
 ];
 if ($description !== '') {
@@ -610,7 +626,7 @@ if (!is_string($structuredJson)) {
     <link rel="stylesheet" href="/styles.css?v=20260503-01" />
     <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="/content.js?v=20260222-06" defer></script>
-    <script src="/script.js?v=20260503-01" defer></script>
+    <script src="/script.js?v=20260509-01" defer></script>
   </head>
   <body id="page-top" data-page="artwork">
     <header class="site-header" id="top">

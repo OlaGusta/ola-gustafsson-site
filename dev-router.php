@@ -26,6 +26,11 @@ if ($requestPath === '/sitemap.xml') {
   return true;
 }
 
+if ($requestPath === '/sitemap_index.xml') {
+  header('Location: /sitemap.xml', true, 301);
+  return true;
+}
+
 if (preg_match('#^/verk/([^/]+)/?$#', $requestPath, $matches) === 1) {
   $_GET['slug'] = rawurldecode($matches[1]);
   require __DIR__ . '/artwork.php';

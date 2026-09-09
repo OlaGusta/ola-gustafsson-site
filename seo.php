@@ -344,6 +344,49 @@ function seo_render_multiline_html(string $value): string
   return nl2br(seo_escape_html($trimmed), false);
 }
 
+function seo_render_inline_formatted_html(string $value): string
+{
+  $input = trim($value);
+  if ($input === '') {
+    return '';
+  }
+
+  $pattern = '/<(i|em|n|normal)>([\s\S]*?)<\/\1>/i';
+  $offset = 0;
+  $output = '';
+
+  if (preg_match_all($pattern, $input, $matches, PREG_OFFSET_CAPTURE) !== false) {
+    foreach ($matches[0] as $index => $fullMatch) {
+      [$matchedText, $matchOffset] = $fullMatch;
+      $matchOffset = (int) $matchOffset;
+      if ($matchOffset > $offset) {
+        $output .= seo_escape_html(substr($input, $offset, $matchOffset - $offset));
+      }
+
+      $tagName = strtolower((string) ($matches[1][$index][0] ?? ''));
+      $innerText = (string) ($matches[2][$index][0] ?? '');
+      $safeInnerText = seo_escape_html($innerText);
+      if ($tagName === 'em') {
+        $output .= '<em class="inline-italic">' . $safeInnerText . '</em>';
+      } elseif ($tagName === 'i') {
+        $output .= '<i class="inline-italic">' . $safeInnerText . '</i>';
+      } elseif ($tagName === 'n' || $tagName === 'normal') {
+        $output .= '<span class="inline-normal">' . $safeInnerText . '</span>';
+      } else {
+        $output .= seo_escape_html($matchedText);
+      }
+
+      $offset = $matchOffset + strlen($matchedText);
+    }
+  }
+
+  if ($offset < strlen($input)) {
+    $output .= seo_escape_html(substr($input, $offset));
+  }
+
+  return $output;
+}
+
 function seo_render_linkified_html(string $value): string
 {
   $input = trim($value);
@@ -351,7 +394,7 @@ function seo_render_linkified_html(string $value): string
     return '';
   }
 
-  $pattern = '/\[([^\]]+)\]\s*\((https?:\/\/[^\s)]+)\)/';
+  $pattern = '/\[([^\]]+)\]\s*\((https?:\/\/[^\s)]+)\)(\{nofollow\})?/i';
   $offset = 0;
   $output = '';
 
@@ -365,6 +408,7 @@ function seo_render_linkified_html(string $value): string
 
       $label = isset($matches[1][$index][0]) ? trim((string) $matches[1][$index][0]) : '';
       $href = isset($matches[2][$index][0]) ? trim((string) $matches[2][$index][0]) : '';
+      $nofollow = isset($matches[3][$index][0]) && $matches[3][$index][0] !== '';
       $safeHref = '';
       if ($href !== '') {
         $validated = filter_var($href, FILTER_VALIDATE_URL);
@@ -374,7 +418,8 @@ function seo_render_linkified_html(string $value): string
       }
 
       if ($label !== '' && $safeHref !== '') {
-        $output .= '<a href="' . seo_escape_html($safeHref) . '" target="_blank" rel="noopener noreferrer">'
+        $rel = 'noopener noreferrer' . ($nofollow ? ' nofollow' : '');
+        $output .= '<a href="' . seo_escape_html($safeHref) . '" target="_blank" rel="' . seo_escape_html($rel) . '">'
           . seo_escape_html($label)
           . '</a>';
       } else {
@@ -625,6 +670,43 @@ function seo_sorted_gallery_page_items(array $payload, string $lang): array
   );
 
   return $items;
+}
+
+function seo_gallery_year_key(array $item): string
+{
+  $year = isset($item['year']) && is_numeric($item['year']) ? (int) $item['year'] : 0;
+  return $year > 0 ? (string) $year : 'undated';
+}
+
+function seo_gallery_year_counts(array $items): array
+{
+  $counts = [];
+  foreach ($items as $item) {
+    if (!is_array($item)) {
+      continue;
+    }
+    $yearKey = seo_gallery_year_key($item);
+    $counts[$yearKey] = ($counts[$yearKey] ?? 0) + 1;
+  }
+
+  return $counts;
+}
+
+function seo_render_gallery_year_divider_html(string $yearKey, int $count, string $lang): string
+{
+  $yearLabel = preg_match('/^\d{3,4}$/', $yearKey) === 1
+    ? $yearKey
+    : ($lang === 'en' ? 'Undated' : 'Utan år');
+  if ($lang === 'en') {
+    $countLabel = $count === 1 ? '1 work' : $count . ' works';
+  } else {
+    $countLabel = $count === 1 ? '1 verk' : $count . ' verk';
+  }
+
+  return '<div class="gallery-year-divider" data-gallery-year="' . seo_escape_html($yearKey) . '">'
+    . '<h2 class="gallery-year-label">' . seo_escape_html($yearLabel) . '</h2>'
+    . '<span class="gallery-year-count">' . seo_escape_html($countLabel) . '</span>'
+    . '</div>';
 }
 
 function seo_render_gallery_card_html(array $item, int $index = 0, string $pageType = 'gallery'): string
@@ -924,6 +1006,30 @@ function seo_canonical_url(string $pageType, string $lang): string
   }
 
   return $base . $path . '?lang=' . rawurlencode($lang);
+}
+
+function seo_request_has_explicit_sv_lang(): bool
+{
+  $queryString = isset($_SERVER['QUERY_STRING']) && is_string($_SERVER['QUERY_STRING'])
+    ? $_SERVER['QUERY_STRING']
+    : '';
+  if ($queryString === '') {
+    return false;
+  }
+
+  parse_str($queryString, $params);
+  $lang = isset($params['lang']) && is_string($params['lang']) ? $params['lang'] : null;
+  return $lang !== null && seo_normalize_lang($lang) === 'sv';
+}
+
+function seo_redirect_explicit_sv_lang_to(string $canonicalUrl): void
+{
+  if ($canonicalUrl === '' || !seo_request_has_explicit_sv_lang()) {
+    return;
+  }
+
+  header('Location: ' . $canonicalUrl, true, 301);
+  exit;
 }
 
 function seo_artwork_url(string $slug, string $lang): string
