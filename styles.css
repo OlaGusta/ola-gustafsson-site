@@ -77,6 +77,10 @@
 
 html {
   scroll-behavior: smooth;
+  /* Full-bredds-element (t.ex. .project-process-figure med width: 100vw) blir
+     rullningslistens bredd för breda när en vertikal list visas. clip stoppar
+     den horisontella driften utan att skapa en scroll-container (sticky funkar). */
+  overflow-x: clip;
 }
 
 body {

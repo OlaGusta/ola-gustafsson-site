@@ -4343,14 +4343,20 @@ const updateLightboxView = () => {
 
   const showShareActions = shareUrl !== '';
   elements.openArtwork.hidden = !showShareActions;
-  elements.copyLink.hidden = !showShareActions;
+  if (elements.copyLink) {
+    elements.copyLink.hidden = !showShareActions;
+  }
   elements.inquiryLink.hidden = item.disableShareActions === true || availability.canInquire !== true;
   if (showShareActions) {
     elements.openArtwork.href = shareUrl;
-    elements.copyLink.setAttribute('data-copy-link', shareUrl);
+    if (elements.copyLink) {
+      elements.copyLink.setAttribute('data-copy-link', shareUrl);
+    }
   } else {
     elements.openArtwork.removeAttribute('href');
-    elements.copyLink.removeAttribute('data-copy-link');
+    if (elements.copyLink) {
+      elements.copyLink.removeAttribute('data-copy-link');
+    }
   }
   if (elements.inquiryLink && availability.canInquire === true) {
     elements.inquiryLink.href = buildArtworkInquiryUrl(item);
@@ -4431,7 +4437,8 @@ const initLightbox = () => {
   const prev = document.getElementById('lightbox-prev');
   const next = document.getElementById('lightbox-next');
 
-  if (!wrap || !image || !captionText || !openArtwork || !inquiryLink || !copyLink || !close || !prev || !next) {
+  // copyLink är valfri: knappen 'Kopiera länk' togs bort 2026-09-09 (adressfältet räcker).
+  if (!wrap || !image || !captionText || !openArtwork || !inquiryLink || !close || !prev || !next) {
     return;
   }
 

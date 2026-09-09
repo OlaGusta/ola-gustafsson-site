@@ -319,9 +319,9 @@ if (!is_string($structuredJson)) {
       fetchpriority="high"
     />
     	    <script src="overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>" defer></script>
-	    <link rel="stylesheet" href="styles.css?v=20260909-02" />
+	    <link rel="stylesheet" href="styles.css?v=20260909-03" />
 	    <script src="content.js?v=20260909-01" defer></script>
-		    <script src="script.js?v=20260909-02" defer></script>
+		    <script src="script.js?v=20260909-03" defer></script>
 	  </head>
   <body id="page-top" data-page="home">
     <header class="site-header" id="top">
@@ -644,7 +644,7 @@ if (!is_string($structuredJson)) {
 	            </a>
 	            <a
 	              id="lightbox-artwork-inquiry"
-	              class="btn btn-ghost"
+	              class="btn btn-primary"
 	              href="#"
 	              target="_blank"
 	              rel="noreferrer"
@@ -652,18 +652,7 @@ if (!is_string($structuredJson)) {
 	            >
 	              Intresserad av verket
 	            </a>
-	            <button
-	              id="lightbox-copy-artwork-link"
-	              class="btn btn-primary"
-	              type="button"
-	              data-bind="ui.copyArtworkLink"
-	              data-copy-link=""
-	              data-copy-status-target="#lightbox-copy-status"
-	            >
-	              Kopiera länk
-	            </button>
 	          </div>
-	          <div id="lightbox-copy-status" class="lightbox-copy-status" aria-live="polite"></div>
 	        </figcaption>
 	      </figure>
 	      <button
