@@ -1859,6 +1859,7 @@ const normalizeArtwork = (item, index) => {
     priceLabel: (textOverride && textOverride.priceLabel) || item.priceLabel || '',
     collectorNote: (textOverride && textOverride.collectorNote) || item.collectorNote || '',
     featured: Boolean(item.featured),
+    fineArtPrint: item.fineArtPrint === true,
     category: categories[0] || 'nature',
     categories,
     year: Number(item.year || 0),
@@ -3016,10 +3017,19 @@ const getGalleryYearCounts = (items) => {
   return counts;
 };
 
-const getGalleryItemsForActiveCategory = () =>
-  galleryState.activeCategory === 'all'
-    ? galleryState.baseItems.slice()
-    : galleryState.baseItems.filter((item) => getArtworkCategoryKeys(item, '').includes(galleryState.activeCategory));
+const FINE_ART_PRINT_FILTER_KEY = '__fineartprint';
+
+const galleryHasFineArtPrints = () => galleryState.baseItems.some((item) => item && item.fineArtPrint === true);
+
+const getGalleryItemsForActiveCategory = () => {
+  if (galleryState.activeCategory === 'all') {
+    return galleryState.baseItems.slice();
+  }
+  if (galleryState.activeCategory === FINE_ART_PRINT_FILTER_KEY) {
+    return galleryState.baseItems.filter((item) => item && item.fineArtPrint === true);
+  }
+  return galleryState.baseItems.filter((item) => getArtworkCategoryKeys(item, '').includes(galleryState.activeCategory));
+};
 
 const getGalleryYearOptionKeys = (items) => {
   const keys = Array.from(new Set(items.map((item) => getGalleryYearKey(item))));
@@ -3237,12 +3247,18 @@ const renderGalleryControls = () => {
     galleryState.activeSort = availableSortValues.has('newest') ? 'newest' : sortOptions[0].value;
   }
 
-  const filterButtons = categories
+  let filterButtons = categories
     .map((category) => {
       const isActive = category === galleryState.activeCategory;
       return `<button type="button" class="filter-chip${isActive ? ' is-active' : ''}" data-category="${category}">${getCategoryLabel(category)}</button>`;
     })
     .join('');
+  // Fine Art Print är inte en motivkategori utan en flagga per verk. Chipet visas
+  // bara när minst ett verk har flaggan, så galleriet ser oförändrat ut annars.
+  if (galleryHasFineArtPrints()) {
+    const fineArtActive = galleryState.activeCategory === FINE_ART_PRINT_FILTER_KEY;
+    filterButtons += `<button type="button" class="filter-chip${fineArtActive ? ' is-active' : ''}" data-category="${FINE_ART_PRINT_FILTER_KEY}">${getUiText('fineArtPrintFilter', 'Fine Art Print')}</button>`;
+  }
 
   const yearOptionMarkup = [
     `<option value="all"${galleryState.activeYear === 'all' ? ' selected' : ''}>${getGalleryAllYearsLabel()}</option>`,
@@ -4441,10 +4457,33 @@ const initLightbox = () => {
   });
 };
 
+const applyGalleryFilterFromUrl = () => {
+  let filterParam = '';
+  try {
+    filterParam = String(new URLSearchParams(window.location.search).get('filter') || '').trim().toLowerCase();
+  } catch (error) {
+    return;
+  }
+  if (!filterParam) {
+    return;
+  }
+  if (filterParam === 'fine-art-print' || filterParam === FINE_ART_PRINT_FILTER_KEY) {
+    if (galleryHasFineArtPrints()) {
+      galleryState.activeCategory = FINE_ART_PRINT_FILTER_KEY;
+    }
+    return;
+  }
+  const categoryKey = normalizeArtworkCategoryKey(filterParam);
+  if (categoryKey && galleryState.baseItems.some((item) => getArtworkCategoryKeys(item, '').includes(categoryKey))) {
+    galleryState.activeCategory = categoryKey;
+  }
+};
+
 const initializeGallery = async () => {
   const manualItems = buildManualGalleryItems();
   galleryState.allItems = manualItems;
   galleryState.baseItems = getBaseItemsForPage();
+  applyGalleryFilterFromUrl();
   applyGalleryFilterAndSort();
   renderGalleryControls();
   renderGallery();

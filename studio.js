@@ -3533,6 +3533,7 @@ const showStudioApp = () => {
   if (el.studioApp) {
     el.studioApp.hidden = false;
   }
+  autoLoadPublishedState();
 };
 
 const showStudioAuthGate = () => {
@@ -5554,6 +5555,7 @@ const renderArtworksEditor = () => {
 	            <label>Titel <input type="text" data-field="title" value="${escapeHtml(selectedItem.title || '')}" /></label>
 	            <label>Bildkälla (src) <input type="text" data-field="src" value="${escapeHtml(selectedItem.src || '')}" /></label>
 	            <label>Format (t.ex. 56 × 76 cm) <input type="text" data-field="format" value="${escapeHtml(selectedItem.format || '')}" /></label>
+	            <label class="checkbox-row"><input type="checkbox" data-field="fineArtPrint" ${selectedItem.fineArtPrint === true ? 'checked' : ''} /> <span>Finns även som Fine Art Print</span></label>
 	            <label>Tillgänglighet
 	              <select data-field="availability">
 	                <option value="" ${!selectedItem.availability ? 'selected' : ''}>Ingen status</option>
@@ -5726,6 +5728,8 @@ const renderArtworksEditor = () => {
 
 	      if (field === 'featured') {
 	        item.featured = fieldNode.checked;
+	      } else if (field === 'fineArtPrint') {
+	        item.fineArtPrint = fieldNode.checked;
 	      } else if (field === 'heroExclude') {
 	        item.heroExclude = fieldNode.checked;
 	      } else if (field === 'year' || field === 'order') {
@@ -7719,6 +7723,43 @@ const restoreSwedishTitlesFromEnglish = async () => {
     `Återskapat ${totalRestored} svenska titlar${formatSuffix}. Kontrollera och klicka sedan "Spara ändringar" för att publicera.`,
     'success'
   );
+};
+
+const autoLoadPublishedState = async () => {
+  // Ladda alltid det publicerade serverläget vid inloggning, så att en gammal
+  // localStorage-draft aldrig kan skugga live-datan och nollställa fält (t.ex.
+  // priser) vid nästa publicering. Tyst — knappen "Hämta från server" finns kvar.
+  // Vid nätfel/ogiltig data behålls nuvarande state (content.js + overrides).
+  try {
+    const response = await fetch(`api/content.php?v=${ASSET_REV}`, { credentials: 'same-origin' });
+    const body = await response.json().catch(() => null);
+    if (!response.ok || !body || body.ok !== true) {
+      return;
+    }
+    const payload = body.payload && typeof body.payload === 'object' ? body.payload : {};
+    if (!payload.gallery || typeof payload.gallery !== 'object') {
+      return;
+    }
+    const parsedContent = deepMerge({}, payload);
+    const parsedTranslations =
+      parsedContent.translations && typeof parsedContent.translations === 'object' ? parsedContent.translations : {};
+    if (Object.prototype.hasOwnProperty.call(parsedContent, 'translations')) {
+      delete parsedContent.translations;
+    }
+    state.content = deepMerge(baseContent, parsedContent);
+    state.translations = deepMerge(baseTranslationOverrides, parsedTranslations);
+    ensureGallery();
+    ensureSeo();
+    syncFormFromState();
+    renderArtworksEditor();
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    } catch (error) {
+      // ignorera storage-fel
+    }
+  } catch (error) {
+    // Nätverksfel — behåll nuvarande state.
+  }
 };
 
 const restoreFromServer = async () => {

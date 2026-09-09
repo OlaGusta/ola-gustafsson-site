@@ -1081,6 +1081,37 @@ code {
   line-height: 1.2;
 }
 
+.artwork-price-note {
+  display: block;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: var(--color-soft-ink);
+  max-width: 30ch;
+}
+
+/* Fine Art Print-rad på verkssidan (per-verk flagga i Studio). Länkar till galleriet filtrerat på prints. */
+.artwork-fineart-print {
+  justify-self: start;
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.artwork-fineart-print:hover,
+.artwork-fineart-print:focus-visible {
+  background: var(--color-ink);
+  color: var(--color-surface);
+  border-color: var(--color-ink);
+}
+
 .artwork-facts {
   margin: 0;
   display: grid;

@@ -118,7 +118,7 @@ if (!$artwork) {
         <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
         <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
       <?php endif; ?>
-      <link rel="stylesheet" href="/styles.css?v=20260503-01" />
+      <link rel="stylesheet" href="/styles.css?v=20260909-01" />
     </head>
     <body id="page-top" data-page="artwork">
       <header class="site-header" id="top">
@@ -184,8 +184,8 @@ if (!$artwork) {
       </footer>
 
       <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
-      <script src="/content.js?v=20260222-06" defer></script>
-      <script src="/script.js?v=20260509-01" defer></script>
+      <script src="/content.js?v=20260909-01" defer></script>
+      <script src="/script.js?v=20260909-01" defer></script>
     </body>
   </html>
   <?php
@@ -353,6 +353,15 @@ $collectorNoteSv = isset($artwork['collectorNote']) && is_string($artwork['colle
 $collectorNote = isset($translation['collectorNote']) && is_string($translation['collectorNote']) && trim($translation['collectorNote']) !== ''
   ? trim($translation['collectorNote'])
   : $collectorNoteSv;
+$fineArtPrint = !empty($artwork['fineArtPrint']);
+// Prisnot (oinramat, passepartout, ram) visas bara när ett faktiskt belopp anges
+// och verket går att köpa. "Pris på förfrågan", sålda och ej-till-salu får ingen not.
+$priceNoteVisible = $priceLabel !== ''
+  && preg_match('/[0-9]/', $priceLabel) === 1
+  && !in_array($availability, ['sold', 'nfs'], true);
+$priceNote = $lang === 'en'
+  ? 'Unframed. Mat with protective sleeve +300 SEK, framing at cost.'
+  : 'Oinramat. Passepartout med ficka +300 kr, ram till självkostnad.';
 $artworkInquiryFormEnabled = !empty($publicContactConfig['formEnabled']);
 $publicContactEmail = isset($publicContactConfig['email']) && is_string($publicContactConfig['email'])
   ? trim($publicContactConfig['email'])
@@ -510,11 +519,14 @@ if ($availability !== '' && isset($offerAvailabilityMap[$availability])) {
     'seller' => ['@id' => $personId],
   ];
 
-  if ($priceLabel !== '' && preg_match('/([0-9][0-9\\s.,]*)\\s*(SEK|EUR|USD|GBP)/i', $priceLabel, $m) === 1) {
-    $numeric = str_replace(' ', '', $m[1]);
+  if ($priceLabel !== '' && preg_match('/([0-9][0-9\\s\\x{00A0}.,]*)[\\s\\x{00A0}]*(SEK|kr|EUR|USD|GBP)\\b/iu', $priceLabel, $m) === 1) {
+    $numeric = str_replace([' ', "\u{00A0}"], '', $m[1]);
     $numeric = str_replace(',', '.', $numeric);
     $priceValue = (float) $numeric;
     $currency = strtoupper($m[2]);
+    if ($currency === 'KR') {
+      $currency = 'SEK';
+    }
     if ($priceValue > 0 && $currency !== '') {
       $offer['price'] = number_format($priceValue, 2, '.', '');
       $offer['priceCurrency'] = $currency;
@@ -623,10 +635,10 @@ if (!is_string($structuredJson)) {
       <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="/styles.css?v=20260503-01" />
+    <link rel="stylesheet" href="/styles.css?v=20260909-01" />
     <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
-    <script src="/content.js?v=20260222-06" defer></script>
-    <script src="/script.js?v=20260509-01" defer></script>
+    <script src="/content.js?v=20260909-01" defer></script>
+    <script src="/script.js?v=20260909-01" defer></script>
   </head>
   <body id="page-top" data-page="artwork">
     <header class="site-header" id="top">
@@ -706,6 +718,9 @@ if (!is_string($structuredJson)) {
                     <div class="artwork-market-block">
                       <span class="artwork-market-label"><?= htmlspecialchars($lang === 'en' ? 'Price' : 'Pris', ENT_QUOTES) ?></span>
                       <strong class="artwork-price-value"><?= htmlspecialchars($priceLabel, ENT_QUOTES) ?></strong>
+                      <?php if ($priceNoteVisible): ?>
+                        <span class="artwork-price-note"><?= htmlspecialchars($priceNote, ENT_QUOTES) ?></span>
+                      <?php endif; ?>
                     </div>
                   <?php endif; ?>
                 </div>
@@ -738,6 +753,10 @@ if (!is_string($structuredJson)) {
                 <?php endif; ?>
               </dl>
 
+              <?php if ($fineArtPrint): ?>
+                <a class="artwork-fineart-print" href="/gallery.html?filter=fine-art-print" data-lang-link><?= htmlspecialchars($lang === 'en' ? 'Also available as fine art print' : 'Finns även som Fine Art Print', ENT_QUOTES) ?></a>
+              <?php endif; ?>
+
               <?php if ($collectorNote !== ''): ?>
                 <section class="artwork-collector-note">
                   <p class="artwork-market-label"><?= htmlspecialchars($lang === 'en' ? 'Collector note' : 'För samlare', ENT_QUOTES) ?></p>
@@ -748,19 +767,7 @@ if (!is_string($structuredJson)) {
               <div class="artwork-actions">
                 <a class="btn btn-primary" href="<?= htmlspecialchars($inquiryPrimaryHref, ENT_QUOTES) ?>"><?= htmlspecialchars($inquiryButtonLabel, ENT_QUOTES) ?></a>
                 <a class="btn btn-ghost" href="/gallery.html" data-lang-link><?= $lang === 'en' ? 'Back to gallery' : 'Till galleriet' ?></a>
-                <button
-                  id="artwork-copy-link"
-                  class="btn btn-ghost"
-                  type="button"
-                  data-bind="ui.copyArtworkLink"
-                  data-copy-link="<?= htmlspecialchars($canonical, ENT_QUOTES) ?>"
-                  data-copy-status-target="#artwork-copy-status"
-                >
-                  <?= htmlspecialchars($lang === 'en' ? 'Copy link' : 'Kopiera länk', ENT_QUOTES) ?>
-                </button>
               </div>
-
-              <div id="artwork-copy-status" class="copy-status" aria-live="polite"></div>
             </aside>
           </div>
 
