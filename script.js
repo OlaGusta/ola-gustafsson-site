@@ -3201,12 +3201,17 @@ const renderGallery = () => {
     metaLine.textContent = metaParts.join(' · ');
 
     meta.append(title, metaLine);
+    // Prisraden renderas alltid så att alla kort får samma höjd, även verk utan pris
+    // (ej till salu / sålda). Tom rad döljs för skärmläsare.
+    const priceLine = document.createElement('p');
+    priceLine.className = 'work-price';
     if (priceLabel) {
-      const priceLine = document.createElement('p');
-      priceLine.className = 'work-price';
       priceLine.textContent = `${getUiText('priceLabel', 'Pris')}: ${priceLabel}`;
-      meta.appendChild(priceLine);
+    } else {
+      priceLine.classList.add('is-empty');
+      priceLine.setAttribute('aria-hidden', 'true');
     }
+    meta.appendChild(priceLine);
     card.append(figure, meta);
 
     card.addEventListener('click', () => openLightbox(index, card));
