@@ -167,7 +167,7 @@ if (!is_string($structuredJson)) {
     <link rel="stylesheet" href="styles.css?v=20260909-03" />
     <script src="overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="content.js?v=20260909-01" defer></script>
-    <script src="script.js?v=20260909-03" defer></script>
+    <script src="script.js?v=20260909-04" defer></script>
   </head>
   <body id="page-top" data-page="gallery">
     <header class="site-header" id="top">
@@ -295,23 +295,13 @@ if (!is_string($structuredJson)) {
 	          <div class="lightbox-caption-actions">
 	            <a
 	              id="lightbox-open-artwork"
-	              class="btn btn-ghost"
+	              class="btn btn-primary"
 	              href="#"
 	              target="_blank"
 	              rel="noreferrer"
 	              data-bind="ui.openArtworkPage"
 	            >
 	              Öppna verk-sida
-	            </a>
-	            <a
-	              id="lightbox-artwork-inquiry"
-	              class="btn btn-primary"
-	              href="#"
-	              target="_blank"
-	              rel="noreferrer"
-	              data-bind="ui.inquiryArtworkLink"
-	            >
-	              Intresserad av verket
 	            </a>
 	          </div>
 	        </figcaption>

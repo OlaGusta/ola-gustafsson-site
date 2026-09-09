@@ -4346,7 +4346,9 @@ const updateLightboxView = () => {
   if (elements.copyLink) {
     elements.copyLink.hidden = !showShareActions;
   }
-  elements.inquiryLink.hidden = item.disableShareActions === true || availability.canInquire !== true;
+  if (elements.inquiryLink) {
+    elements.inquiryLink.hidden = item.disableShareActions === true || availability.canInquire !== true;
+  }
   if (showShareActions) {
     elements.openArtwork.href = shareUrl;
     if (elements.copyLink) {
@@ -4438,7 +4440,8 @@ const initLightbox = () => {
   const next = document.getElementById('lightbox-next');
 
   // copyLink är valfri: knappen 'Kopiera länk' togs bort 2026-09-09 (adressfältet räcker).
-  if (!wrap || !image || !captionText || !openArtwork || !inquiryLink || !close || !prev || !next) {
+  // inquiryLink är också valfri sedan 2026-09-09: verkssidan har samma knapp.
+  if (!wrap || !image || !captionText || !openArtwork || !close || !prev || !next) {
     return;
   }
 

@@ -185,7 +185,7 @@ if (!$artwork) {
 
       <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
       <script src="/content.js?v=20260909-01" defer></script>
-      <script src="/script.js?v=20260909-03" defer></script>
+      <script src="/script.js?v=20260909-04" defer></script>
     </body>
   </html>
   <?php
@@ -638,7 +638,7 @@ if (!is_string($structuredJson)) {
     <link rel="stylesheet" href="/styles.css?v=20260909-03" />
     <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="/content.js?v=20260909-01" defer></script>
-    <script src="/script.js?v=20260909-03" defer></script>
+    <script src="/script.js?v=20260909-04" defer></script>
   </head>
   <body id="page-top" data-page="artwork">
     <header class="site-header" id="top">
