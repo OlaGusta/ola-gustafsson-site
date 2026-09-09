@@ -74,7 +74,7 @@ log "    lokalt:      $(count_priced "$LOCAL_OVERRIDES" | awk '{print $1" verk, 
 log "2/4 Laddar upp overrides.js"
 ftp_put "$LOCAL_OVERRIDES" "${REMOTE_BASE}/overrides.js"
 
-TOKEN="$(LC_ALL=C tr -dc 'a-f0-9' </dev/urandom | head -c 48)"
+TOKEN="$(openssl rand -hex 24)"
 TMP_SYNC="$(mktemp)"
 trap 'rm -f "$TMP_SYNC"' EXIT
 sed "s/__SYNC_TOKEN__/${TOKEN}/" "$SYNC_SRC" >"$TMP_SYNC"

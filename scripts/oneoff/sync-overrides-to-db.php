@@ -20,7 +20,8 @@ require dirname(__DIR__) . '/portfolio_core.php';
 api_require_method('GET');
 
 $token = isset($_GET['token']) && is_string($_GET['token']) ? $_GET['token'] : '';
-if (SYNC_TOKEN === '__SYNC_TOKEN__' || strlen(SYNC_TOKEN) < 32 || !hash_equals(SYNC_TOKEN, $token)) {
+// OBS: jämför inte mot platshållar-literalen här – sed byter ut ALLA förekomster vid deploy.
+if (str_starts_with(SYNC_TOKEN, '__') || strlen(SYNC_TOKEN) < 32 || !hash_equals(SYNC_TOKEN, $token)) {
   api_respond_json(403, ['ok' => false, 'error' => 'forbidden']);
 }
 
