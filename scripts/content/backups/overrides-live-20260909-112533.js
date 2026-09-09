@@ -459,7 +459,7 @@ window.PORTFOLIO_OVERRIDES = {
             {
                 "src": "images/februarisol.webp",
                 "title": "Februarisol",
-                "format": "56 x 38 cm",
+                "format": "",
                 "medium": "Akvarell på papper",
                 "alt": "Blek februarisol i landskap som just börjat töa.",
                 "seoTitle": "Vintersol |  Naturmotiv i Februari ",
@@ -477,13 +477,13 @@ window.PORTFOLIO_OVERRIDES = {
                 "slug": "februarisol",
                 "heroExclude": false,
                 "collectorNote": "Februarisol är ett akvarelloriginal från 2023 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
-                "availability": "available",
-                "priceLabel": "5 400 kr"
+                "priceLabel": "Pris på förfrågan",
+                "availability": "available"
             },
             {
                 "src": "images/marinmuseet-i-juli-karlskrona.webp",
                 "title": "Marinmuseet i juli, Karlskrona",
-                "format": "56 x 38 cm",
+                "format": "",
                 "medium": "Akvarell på papper",
                 "alt": "Sommarskymning vid marinmuseet i Karlskrona",
                 "seoTitle": "Skymning vid marinmuseet | Stadsvy  i akvarell",
@@ -502,8 +502,8 @@ window.PORTFOLIO_OVERRIDES = {
                 ],
                 "heroExclude": true,
                 "collectorNote": "Marinmuseet i juli, Karlskrona är ett akvarelloriginal från 2023 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
-                "availability": "available",
-                "priceLabel": "5 400 kr"
+                "priceLabel": "Pris på förfrågan",
+                "availability": "available"
             },
             {
                 "src": "images/johanna-i-skymningen.webp",
@@ -557,7 +557,7 @@ window.PORTFOLIO_OVERRIDES = {
             {
                 "src": "images/sommarskymning-i-skogen.webp",
                 "title": "Sommarskymning i skogstjärnen",
-                "format": "38 x 56 cm",
+                "format": "",
                 "medium": "Akvarell på papper",
                 "alt": "Varm sommarsolsskymning vid skogstjärnen",
                 "seoTitle": "Sommarskymning | Skogsmotiv i akvarell",
@@ -575,8 +575,8 @@ window.PORTFOLIO_OVERRIDES = {
                 ],
                 "heroExclude": false,
                 "collectorNote": "Sommarskymning i skogstjärnen är ett akvarelloriginal från 2022 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
-                "availability": "available",
-                "priceLabel": "5 400 kr"
+                "priceLabel": "Pris på förfrågan",
+                "availability": "available"
             },
             {
                 "src": "images/strandfa-glar.webp",
@@ -1118,7 +1118,7 @@ window.PORTFOLIO_OVERRIDES = {
             {
                 "src": "images/img-7804.jpg",
                 "title": "Skymningslador",
-                "format": "56 x 38 cm",
+                "format": "",
                 "medium": "Akvarell på papper",
                 "alt": "Lador i skymning under dramatisk blå och orange himmel.",
                 "seoTitle": "Skymningslador | Lador i skymning i akvarell",
@@ -1137,8 +1137,8 @@ window.PORTFOLIO_OVERRIDES = {
                 ],
                 "heroExclude": false,
                 "collectorNote": "Skymningslador är ett akvarelloriginal från 2023 med plats- och byggnadsmotiv där ljus, fasader och landskapets omgivning står i centrum. För samlare passar verket som en lågmäld del av serien kring plats, ljus och närvaro.",
-                "availability": "available",
-                "priceLabel": "5 400 kr"
+                "priceLabel": "Pris på förfrågan",
+                "availability": "available"
             },
             {
                 "src": "images/img-2802-jpg.jpg",
@@ -1663,9 +1663,8 @@ window.PORTFOLIO_OVERRIDES = {
                 ],
                 "heroExclude": false,
                 "collectorNote": "Hammarbybacken, februari är ett akvarelloriginal från 2025 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
-                "availability": "available",
-                "format": "56 x 26 cm",
-                "priceLabel": "4 200 kr"
+                "priceLabel": "Pris på förfrågan",
+                "availability": "available"
             },
             {
                 "src": "images/ola-25.jpg",
@@ -2448,8 +2447,7 @@ window.PORTFOLIO_OVERRIDES = {
                         "_manual": {
                             "collectorNote": true
                         },
-                        "format": "56 x 26 cm",
-                        "priceLabel": "4 200 SEK"
+                        "priceLabel": "Price on request"
                     },
                     "images/ola-27.jpg": {
                         "title": "Twilight Pines",
@@ -2951,8 +2949,7 @@ window.PORTFOLIO_OVERRIDES = {
                         "_manual": {
                             "collectorNote": true
                         },
-                        "format": "56 x 38 cm",
-                        "priceLabel": "5 400 SEK"
+                        "priceLabel": "Price on request"
                     },
                     "images/utsikt-fr-n-bryggareberget.jpg": {
                         "title": "View from Bryggareberget",
@@ -3229,8 +3226,7 @@ window.PORTFOLIO_OVERRIDES = {
                             "collectorNote": true
                         },
                         "collectorNote": "Summer Dusk at the Forest Tarn is an original watercolour from 2022, a nature motif where light, tonal values and the shift between form and dissolution are central. Feel free to ask for more details, to reserve the work or to check availability.",
-                        "format": "38 x 56 cm",
-                        "priceLabel": "5 400 SEK"
+                        "priceLabel": "Price on request"
                     },
                     "images/vinterskymning.webp": {
                         "title": "Winter Dusk",
@@ -3273,7 +3269,7 @@ window.PORTFOLIO_OVERRIDES = {
                         },
                         "format": "56 x 38 cm",
                         "collectorNote": "The Naval Museum in July, Karlskrona is an original watercolour from 2023, a coastal motif where light, water and the horizon are central. Please get in touch for current availability, price or additional images of the work.",
-                        "priceLabel": "5 400 SEK"
+                        "priceLabel": "Price on request"
                     },
                     "images/februarisol.webp": {
                         "title": "February Sun",
@@ -3286,7 +3282,7 @@ window.PORTFOLIO_OVERRIDES = {
                             "collectorNote": true
                         },
                         "collectorNote": "February Sun is an original watercolour from 2023, a nature motif where light, tonal values and the shift between form and dissolution are central. Feel free to ask for more details, to reserve the work or to check availability.",
-                        "priceLabel": "5 400 SEK"
+                        "priceLabel": "Price on request"
                     },
                     "images/img-1620.webp": {
                         "title": "The Stone in Sollenkroka",

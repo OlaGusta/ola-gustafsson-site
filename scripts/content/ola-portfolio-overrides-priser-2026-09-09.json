@@ -457,7 +457,7 @@
       {
         "src": "images/februarisol.webp",
         "title": "Februarisol",
-        "format": "",
+        "format": "56 x 38 cm",
         "medium": "Akvarell på papper",
         "alt": "Blek februarisol i landskap som just börjat töa.",
         "seoTitle": "Vintersol |  Naturmotiv i Februari ",
@@ -475,13 +475,13 @@
         "slug": "februarisol",
         "heroExclude": false,
         "collectorNote": "Februarisol är ett akvarelloriginal från 2023 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
-        "priceLabel": "Pris på förfrågan",
-        "availability": "available"
+        "availability": "available",
+        "priceLabel": "5 400 kr"
       },
       {
         "src": "images/marinmuseet-i-juli-karlskrona.webp",
         "title": "Marinmuseet i juli, Karlskrona",
-        "format": "",
+        "format": "56 x 38 cm",
         "medium": "Akvarell på papper",
         "alt": "Sommarskymning vid marinmuseet i Karlskrona",
         "seoTitle": "Skymning vid marinmuseet | Stadsvy  i akvarell",
@@ -500,8 +500,8 @@
         ],
         "heroExclude": true,
         "collectorNote": "Marinmuseet i juli, Karlskrona är ett akvarelloriginal från 2023 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
-        "priceLabel": "Pris på förfrågan",
-        "availability": "available"
+        "availability": "available",
+        "priceLabel": "5 400 kr"
       },
       {
         "src": "images/johanna-i-skymningen.webp",
@@ -555,7 +555,7 @@
       {
         "src": "images/sommarskymning-i-skogen.webp",
         "title": "Sommarskymning i skogstjärnen",
-        "format": "",
+        "format": "38 x 56 cm",
         "medium": "Akvarell på papper",
         "alt": "Varm sommarsolsskymning vid skogstjärnen",
         "seoTitle": "Sommarskymning | Skogsmotiv i akvarell",
@@ -573,8 +573,8 @@
         ],
         "heroExclude": false,
         "collectorNote": "Sommarskymning i skogstjärnen är ett akvarelloriginal från 2022 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
-        "priceLabel": "Pris på förfrågan",
-        "availability": "available"
+        "availability": "available",
+        "priceLabel": "5 400 kr"
       },
       {
         "src": "images/strandfa-glar.webp",
@@ -1116,7 +1116,7 @@
       {
         "src": "images/img-7804.jpg",
         "title": "Skymningslador",
-        "format": "",
+        "format": "56 x 38 cm",
         "medium": "Akvarell på papper",
         "alt": "Lador i skymning under dramatisk blå och orange himmel.",
         "seoTitle": "Skymningslador | Lador i skymning i akvarell",
@@ -1135,8 +1135,8 @@
         ],
         "heroExclude": false,
         "collectorNote": "Skymningslador är ett akvarelloriginal från 2023 med plats- och byggnadsmotiv där ljus, fasader och landskapets omgivning står i centrum. För samlare passar verket som en lågmäld del av serien kring plats, ljus och närvaro.",
-        "priceLabel": "Pris på förfrågan",
-        "availability": "available"
+        "availability": "available",
+        "priceLabel": "5 400 kr"
       },
       {
         "src": "images/img-2802-jpg.jpg",
@@ -1661,8 +1661,9 @@
         ],
         "heroExclude": false,
         "collectorNote": "Hammarbybacken, februari är ett akvarelloriginal från 2025 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
-        "priceLabel": "Pris på förfrågan",
-        "availability": "available"
+        "availability": "available",
+        "format": "56 x 26 cm",
+        "priceLabel": "4 200 kr"
       },
       {
         "src": "images/ola-25.jpg",
@@ -2445,7 +2446,8 @@
             "_manual": {
               "collectorNote": true
             },
-            "priceLabel": "Price on request"
+            "format": "56 x 26 cm",
+            "priceLabel": "4 200 SEK"
           },
           "images/ola-27.jpg": {
             "title": "Twilight Pines",
@@ -2947,7 +2949,8 @@
             "_manual": {
               "collectorNote": true
             },
-            "priceLabel": "Price on request"
+            "format": "56 x 38 cm",
+            "priceLabel": "5 400 SEK"
           },
           "images/utsikt-fr-n-bryggareberget.jpg": {
             "title": "View from Bryggareberget",
@@ -3224,7 +3227,8 @@
               "collectorNote": true
             },
             "collectorNote": "Summer Dusk at the Forest Tarn is an original watercolour from 2022, a nature motif where light, tonal values and the shift between form and dissolution are central. Feel free to ask for more details, to reserve the work or to check availability.",
-            "priceLabel": "Price on request"
+            "format": "38 x 56 cm",
+            "priceLabel": "5 400 SEK"
           },
           "images/vinterskymning.webp": {
             "title": "Winter Dusk",
@@ -3267,7 +3271,7 @@
             },
             "format": "56 x 38 cm",
             "collectorNote": "The Naval Museum in July, Karlskrona is an original watercolour from 2023, a coastal motif where light, water and the horizon are central. Please get in touch for current availability, price or additional images of the work.",
-            "priceLabel": "Price on request"
+            "priceLabel": "5 400 SEK"
           },
           "images/februarisol.webp": {
             "title": "February Sun",
@@ -3280,7 +3284,7 @@
               "collectorNote": true
             },
             "collectorNote": "February Sun is an original watercolour from 2023, a nature motif where light, tonal values and the shift between form and dissolution are central. Feel free to ask for more details, to reserve the work or to check availability.",
-            "priceLabel": "Price on request"
+            "priceLabel": "5 400 SEK"
           },
           "images/img-1620.webp": {
             "title": "The Stone in Sollenkroka",
