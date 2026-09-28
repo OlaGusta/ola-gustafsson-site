@@ -115,7 +115,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
     <?php endif; ?>
     <link rel="stylesheet" href="styles.css?v=20260928-14" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
-    <script src="content.js?v=20260909-01" defer></script>
+    <script src="content.js?v=20260928-01" defer></script>
     <script src="script.js?v=20260928-11" defer></script>
     <script src="sol.js?v=20260928-03" defer></script>
   </head>

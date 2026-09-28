@@ -320,7 +320,7 @@ if (!is_string($structuredJson)) {
     />
     	    <script src="overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>" defer></script>
 	    <link rel="stylesheet" href="styles.css?v=20260928-14" />
-	    <script src="content.js?v=20260909-01" defer></script>
+	    <script src="content.js?v=20260928-01" defer></script>
 		    <script src="script.js?v=20260928-11" defer></script>
 	  </head>
   <body id="page-top" data-page="home">
@@ -387,7 +387,8 @@ if (!is_string($structuredJson)) {
             <p class="hero-line" data-bind="hero.line"><?= seo_escape_html($heroLine) ?></p>
             <div class="hero-actions">
               <a class="btn btn-ghost" href="gallery.html" data-bind="hero.ctaPrimaryLabel" data-lang-link><?= seo_escape_html($heroCtaPrimaryLabel) ?></a>
-              <a class="btn btn-ghost" href="#om" data-bind="hero.ctaSecondaryLabel"><?= seo_escape_html($heroCtaSecondaryLabel) ?></a>
+              <?php // Inför utställningen i Husby: andra knappen leder till solsidan i stället för "Läs om processen" (#om, finns i menyn). Texten kommer från ui.heroSunCta i content.js (följer språkbytet), inte Studios hero.ctaSecondaryLabel. ?>
+              <a class="btn btn-ghost" href="100-dagar-av-sol" data-bind="ui.heroSunCta" data-lang-link><?= seo_escape_html($lang === 'en' ? '100 days of sun' : '100 dagar av sol') ?></a>
             </div>
           </div>
         </div>
