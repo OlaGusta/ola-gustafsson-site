@@ -28,6 +28,14 @@ if (!is_array($artworks)) {
 }
 
 $artworkIndex = array_key_exists($slug, $slugMap) ? $slugMap[$slug] : null;
+if ($artworkIndex === null) {
+  $slugRedirects = portfolio_artwork_slug_redirects();
+  $redirectSlug = $slugRedirects[$slug] ?? '';
+  if ($redirectSlug !== '' && array_key_exists($redirectSlug, $slugMap)) {
+    header('Location: ' . seo_artwork_url($redirectSlug, $lang), true, 301);
+    exit;
+  }
+}
 $artwork = is_int($artworkIndex) && isset($artworks[$artworkIndex]) && is_array($artworks[$artworkIndex])
   ? $artworks[$artworkIndex]
   : null;
@@ -185,7 +193,7 @@ if (!$artwork) {
 
       <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
       <script src="/content.js?v=20260928-01" defer></script>
-      <script src="/script.js?v=20260928-14" defer></script>
+      <script src="/script.js?v=20260928-15" defer></script>
     </body>
   </html>
   <?php
@@ -650,7 +658,7 @@ if (!is_string($structuredJson)) {
     <link rel="stylesheet" href="/styles.css?v=20260928-21" />
     <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="/content.js?v=20260928-01" defer></script>
-    <script src="/script.js?v=20260928-14" defer></script>
+    <script src="/script.js?v=20260928-15" defer></script>
   </head>
   <body id="page-top" data-page="artwork">
     <header class="site-header" id="top">

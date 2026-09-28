@@ -14,6 +14,17 @@ function portfolio_slugify(string $value): string
     $value = trim(strtolower($value));
   }
 
+  // macOS filenames arrive decomposed (NFD: "a" + combining ring). Strip the
+  // combining marks so "å" becomes "a" instead of "a-".
+  if (class_exists('Normalizer')) {
+    $decomposed = Normalizer::normalize($value, Normalizer::FORM_D);
+    if (is_string($decomposed)) {
+      $value = preg_replace('/\p{Mn}+/u', '', $decomposed) ?? $value;
+    }
+  } else {
+    $value = preg_replace('/[\x{0300}-\x{036f}]+/u', '', $value) ?? $value;
+  }
+
   // Transliterate common Swedish characters (and a few common diacritics) to ASCII.
   $map = [
     'å' => 'a',
@@ -362,6 +373,22 @@ function portfolio_load_overrides(): array
   portfolio_sanitize_payload($payload);
 
   return $payload;
+}
+
+// Old artwork slugs that have been renamed -> current slug. artwork.php answers
+// these with a 301 so search engines and shared links follow along.
+function portfolio_artwork_slug_redirects(): array
+{
+  return [
+    'img-2702' => 'under-ytan-forstudie',
+    'strandfa-glar' => 'strandfaglar',
+    'va-rvinterhus' => 'varvinterhus',
+    'bergsva-g' => 'bergsvag',
+    'img-0851' => 'stadshotellet-i-karlskrona',
+    'img-0874' => 'himmel-over-skagen',
+    'lost-children-of-a-distant-sun-forstudie' => 'reflected-sun',
+    'vinter-hemma' => 'vinter-i-humlan',
+  ];
 }
 
 function portfolio_build_artwork_slug_map(array $payload): array

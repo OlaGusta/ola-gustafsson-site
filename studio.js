@@ -486,6 +486,7 @@ const toHex = (value, fallback = '#000000') => {
 
 const slugFromName = (name) =>
   name
+    .normalize('NFC')
     .toLowerCase()
     .replace(/\.[a-z0-9]+$/i, '')
     .replace(/[_-]+/g, ' ')

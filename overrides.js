@@ -260,7 +260,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "zoom": 1,
                 "objectPosition": "center center",
                 "collectorNote": "Förstudie till ett helark 56 x 76 cm",
-                "slug": "lost-children-of-a-distant-sun-forstudie",
+                "slug": "reflected-sun",
                 "priceLabel": "5 400 kr",
                 "availability": "available"
             },
@@ -283,7 +283,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "order": 3,
                 "zoom": 1,
                 "objectPosition": "center center",
-                "slug": "img-2702",
+                "slug": "under-ytan-forstudie",
                 "priceLabel": "1 200 kr",
                 "availability": "available"
             },
@@ -583,7 +583,7 @@ window.PORTFOLIO_OVERRIDES = {
             },
             {
                 "src": "images/strandfa-glar.webp",
-                "title": "Strandfåglar",
+                "title": "Strandfåglar",
                 "format": "56 x 38 cm",
                 "medium": "Akvarell på papper",
                 "alt": "Små strandfåglar under en dramatisk stormig våg  vid havet.",
@@ -596,19 +596,19 @@ window.PORTFOLIO_OVERRIDES = {
                 "order": 16,
                 "zoom": 1,
                 "objectPosition": "center center",
-                "slug": "strandfa-glar",
+                "slug": "strandfaglar",
                 "categories": [
                     "sea",
                     "djur"
                 ],
                 "heroExclude": true,
-                "collectorNote": "Strandfåglar är ett akvarelloriginal från 2023 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
+                "collectorNote": "Strandfåglar är ett akvarelloriginal från 2023 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
                 "priceLabel": "5 400 kr",
                 "availability": "available"
             },
             {
                 "src": "images/pa-promenad-med-sotis.webp",
-                "title": "På promenad med sotis",
+                "title": "På promenad med sotis",
                 "format": "38 x 56 cm",
                 "medium": "Akvarell på papper",
                 "alt": "Katt i skuggan av ett träd intill ett bostadshus i Skärmarbrink.",
@@ -627,7 +627,7 @@ window.PORTFOLIO_OVERRIDES = {
                     "djur"
                 ],
                 "heroExclude": false,
-                "collectorNote": "På promenad med sotis är ett akvarelloriginal från 2024 med stadsmotiv där ljus, arkitektur och rörelse står i centrum. För samlare passar verket som en lågmäld del av serien kring plats, ljus och närvaro.",
+                "collectorNote": "På promenad med sotis är ett akvarelloriginal från 2024 med stadsmotiv där ljus, arkitektur och rörelse står i centrum. För samlare passar verket som en lågmäld del av serien kring plats, ljus och närvaro.",
                 "priceLabel": "5 400 kr",
                 "availability": "available"
             },
@@ -730,7 +730,7 @@ window.PORTFOLIO_OVERRIDES = {
             },
             {
                 "src": "images/va-rvinterhus.jpg",
-                "title": "Vårvinterhus",
+                "title": "Vårvinterhus",
                 "format": "56 x 38 cm",
                 "medium": "Akvarell på papper",
                 "alt": "Hus i vårvinterljus med snö och kala träd.",
@@ -743,19 +743,19 @@ window.PORTFOLIO_OVERRIDES = {
                 "order": 22,
                 "zoom": 1,
                 "objectPosition": "center center",
-                "slug": "va-rvinterhus",
+                "slug": "varvinterhus",
                 "categories": [
                     "hus",
                     "himlar"
                 ],
                 "heroExclude": false,
-                "collectorNote": "Vårvinterhus är ett akvarelloriginal från 2023 med plats- och byggnadsmotiv där ljus, fasader och landskapets omgivning står i centrum. Hör gärna av dig för frågor om format, inramning eller tillgänglighet.",
+                "collectorNote": "Vårvinterhus är ett akvarelloriginal från 2023 med plats- och byggnadsmotiv där ljus, fasader och landskapets omgivning står i centrum. Hör gärna av dig för frågor om format, inramning eller tillgänglighet.",
                 "priceLabel": "5 400 kr",
                 "availability": "available"
             },
             {
                 "src": "images/bergsva-g.jpg",
-                "title": "Bergsväg",
+                "title": "Bergsväg",
                 "format": "56 x 38 cm",
                 "medium": "Akvarell på papper",
                 "alt": "Väg som slingrar sig mellan berg och träd i mjukt ljus.",
@@ -768,12 +768,12 @@ window.PORTFOLIO_OVERRIDES = {
                 "order": 23,
                 "zoom": 1,
                 "objectPosition": "center center",
-                "slug": "bergsva-g",
+                "slug": "bergsvag",
                 "categories": [
                     "nature"
                 ],
                 "heroExclude": false,
-                "collectorNote": "Bergsväg är ett akvarelloriginal från 2023 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
+                "collectorNote": "Bergsväg är ett akvarelloriginal från 2023 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
                 "priceLabel": "5 400 kr",
                 "availability": "available"
             },
@@ -1451,7 +1451,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "order": 51,
                 "zoom": 1,
                 "objectPosition": "center center",
-                "slug": "img-0851",
+                "slug": "stadshotellet-i-karlskrona",
                 "categories": [
                     "city"
                 ],
@@ -1475,7 +1475,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "order": 52,
                 "zoom": 1,
                 "objectPosition": "center center",
-                "slug": "img-0874",
+                "slug": "himmel-over-skagen",
                 "categories": [
                     "sea",
                     "himlar"
@@ -1680,7 +1680,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "year": 2025,
                 "order": 61,
                 "format": "56 x 38 cm",
-                "slug": "vinter-hemma",
+                "slug": "vinter-i-humlan",
                 "seoTitle": "Vinter i Humlan | Vinterpark i akvarell",
                 "seoDescription": "Originalmålning i akvarell från Humlegården med snö, kala träd och stilla vinterljus. 56 x 38 cm, 2025, av Ola Gustafsson.",
                 "categories": [

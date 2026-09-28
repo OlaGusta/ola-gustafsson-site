@@ -1583,7 +1583,8 @@ const slugifyArtworkValue = (value) => {
     return 'verk';
   }
 
-  let slug = value.trim().toLowerCase();
+  // Strip combining marks so decomposed (NFD) "å" from macOS filenames becomes "a", not "a-".
+  let slug = value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
   if (!slug) {
     return 'verk';
   }
