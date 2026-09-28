@@ -1197,7 +1197,8 @@ function seo_print_frame_range_label(array $sizes, string $lang): string
 // och 1,5 cm nedtill (upplaga/signatur); arket har 2 cm marginal; lika kant upptill
 // och på sidorna med 1–1,5 cm bredare nederkant om det ger kanter på 5–10 cm, annars
 // fast sidkant och överskottet vertikalt. Tomt om ramen inte passar förhållandet.
-// Standardförhållande = solarnas (passepartout 14,5 × 22,5).
+// Standardförhållande = solarnas bildruta 14,5 × 22,5 (målad yta 14,2 × 22,2 på arket
+// 18 × 26 med 1,9 cm marginal, plus ~1,5 mm papper runt om). Printarna räknas på rutan.
 function seo_print_image_size(string $format, string $lang, float $ratio = 14.5 / 22.5): string
 {
   if (preg_match('/(\d+(?:[.,]\d+)?)\s*[×x]\s*(\d+(?:[.,]\d+)?)/u', $format, $m) !== 1) {
