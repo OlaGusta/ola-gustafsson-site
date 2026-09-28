@@ -31,6 +31,16 @@ if ($requestPath === '/sitemap_index.xml') {
   return true;
 }
 
+if (preg_match('#^/100-dagar-av-sol/?$#', $requestPath) === 1) {
+  require __DIR__ . '/sol.php';
+  return true;
+}
+
+if (preg_match('#^/(?:sol|solar|100-days-of-sun)/?$#', $requestPath) === 1) {
+  header('Location: /100-dagar-av-sol', true, 301);
+  return true;
+}
+
 if (preg_match('#^/verk/([^/]+)/?$#', $requestPath, $matches) === 1) {
   $_GET['slug'] = rawurldecode($matches[1]);
   require __DIR__ . '/artwork.php';

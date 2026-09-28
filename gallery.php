@@ -164,10 +164,10 @@ if (!is_string($structuredJson)) {
       <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20260909-03" />
+    <link rel="stylesheet" href="styles.css?v=20260928-11" />
     <script src="overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="content.js?v=20260909-01" defer></script>
-    <script src="script.js?v=20260909-04" defer></script>
+    <script src="script.js?v=20260928-05" defer></script>
   </head>
   <body id="page-top" data-page="gallery">
     <header class="site-header" id="top">
@@ -230,16 +230,20 @@ if (!is_string($structuredJson)) {
                 <?php
                   $galleryYearKey = seo_gallery_year_key($item);
                   if ($galleryYearKey !== $lastGalleryYearKey):
+                    $hadPreviousYear = $lastGalleryYearKey !== '';
                     $lastGalleryYearKey = $galleryYearKey;
                 ?>
+                  <?php if ($hadPreviousYear): ?><span class="gallery-row-filler" aria-hidden="true"></span><?php endif; ?>
                   <?= seo_render_gallery_year_divider_html($galleryYearKey, (int) ($galleryYearCounts[$galleryYearKey] ?? 0), $lang) ?>
                 <?php endif; ?>
                 <?= seo_render_gallery_card_html($item, (int) $index, 'gallery') ?>
               <?php endforeach; ?>
+              <span class="gallery-row-filler" aria-hidden="true"></span>
             <?php endif; ?>
           </div>
           <div class="gallery-cta-row">
             <a class="btn btn-ghost" href="index.html#galleri" data-bind="ui.galleryBackHome" data-lang-link>Tillbaka till startsidan</a>
+            <a class="btn btn-ghost" href="100-dagar-av-sol" data-lang-link><?= htmlspecialchars($lang === 'en' ? '100 days of sun – all 100 suns' : '100 dagar av sol – alla 100 solar', ENT_QUOTES) ?></a>
           </div>
         </div>
       </section>

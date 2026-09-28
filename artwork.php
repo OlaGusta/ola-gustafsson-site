@@ -118,7 +118,7 @@ if (!$artwork) {
         <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
         <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
       <?php endif; ?>
-      <link rel="stylesheet" href="/styles.css?v=20260909-03" />
+      <link rel="stylesheet" href="/styles.css?v=20260928-11" />
     </head>
     <body id="page-top" data-page="artwork">
       <header class="site-header" id="top">
@@ -185,7 +185,7 @@ if (!$artwork) {
 
       <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
       <script src="/content.js?v=20260909-01" defer></script>
-      <script src="/script.js?v=20260909-04" defer></script>
+      <script src="/script.js?v=20260928-05" defer></script>
     </body>
   </html>
   <?php
@@ -342,6 +342,9 @@ $inquiryBody = $lang === 'en'
 $inquiryButtonLabel = $lang === 'en'
   ? ($inquiryMode === 'similar' ? 'Ask about similar work' : 'Interested in this work')
   : ($inquiryMode === 'similar' ? 'Fråga om liknande verk' : 'Intresserad av verket');
+if (!empty($artwork['fineArtPrint']) && $inquiryMode === 'similar') {
+  $inquiryButtonLabel = $lang === 'en' ? 'Order fine art print' : 'Beställ Fine Art Print';
+}
 $priceLabelSv = isset($artwork['priceLabel']) && is_string($artwork['priceLabel']) ? trim($artwork['priceLabel']) : '';
 $priceLabel = isset($translation['priceLabel']) && is_string($translation['priceLabel']) && trim($translation['priceLabel']) !== ''
   ? trim($translation['priceLabel'])
@@ -360,8 +363,17 @@ $priceNoteVisible = $priceLabel !== ''
   && preg_match('/[0-9]/', $priceLabel) === 1
   && !in_array($availability, ['sold', 'nfs'], true);
 $priceNote = $lang === 'en'
-  ? 'Unframed. Mat with protective sleeve +300 SEK, framing at cost.'
-  : 'Oinramat. Passepartout med ficka +300 kr, ram till självkostnad.';
+  ? 'Signed by the artist. Unframed. Mat with backing board from 300 SEK, framing at cost. Shipping is added.'
+  : 'Signerad av konstnären. Oinramat. Passepartout med bakstycke från 300 kr, ram till självkostnad. Frakt tillkommer.';
+$printSizes = seo_print_sizes($payload, $lang);
+$printFromLabel = seo_print_from_label($printSizes, $lang);
+$printFacts = [
+  ($lang === 'en' ? 'Enlargement, ' : 'Förstoring, ') . $printFromLabel,
+  seo_print_paper_label($lang),
+  seo_print_edition_label($lang)
+];
+// Original tillgängligt eller inte: styr förvalt alternativ i formuläret.
+$originalAvailable = !in_array($availability, ['sold', 'nfs'], true);
 $artworkInquiryFormEnabled = !empty($publicContactConfig['formEnabled']);
 $publicContactEmail = isset($publicContactConfig['email']) && is_string($publicContactConfig['email'])
   ? trim($publicContactConfig['email'])
@@ -635,10 +647,10 @@ if (!is_string($structuredJson)) {
       <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="/styles.css?v=20260909-03" />
+    <link rel="stylesheet" href="/styles.css?v=20260928-11" />
     <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="/content.js?v=20260909-01" defer></script>
-    <script src="/script.js?v=20260909-04" defer></script>
+    <script src="/script.js?v=20260928-05" defer></script>
   </head>
   <body id="page-top" data-page="artwork">
     <header class="site-header" id="top">
@@ -754,7 +766,10 @@ if (!is_string($structuredJson)) {
               </dl>
 
               <?php if ($fineArtPrint): ?>
-                <a class="artwork-fineart-print" href="/gallery.html?filter=fine-art-print" data-lang-link><?= htmlspecialchars($lang === 'en' ? 'Also available as fine art print' : 'Finns även som Fine Art Print', ENT_QUOTES) ?></a>
+                <div class="artwork-print-offer">
+                  <a class="artwork-fineart-print" href="/gallery.html?filter=fine-art-print" data-lang-link><?= htmlspecialchars($lang === 'en' ? 'Also available as fine art print' : 'Finns även som Fine Art Print', ENT_QUOTES) ?></a>
+                  <p><?= htmlspecialchars(implode(' · ', $printFacts), ENT_QUOTES) ?></p>
+                </div>
               <?php endif; ?>
 
               <?php if ($collectorNote !== ''): ?>
@@ -776,6 +791,7 @@ if (!is_string($structuredJson)) {
               <p class="eyebrow"><?= htmlspecialchars($lang === 'en' ? 'Inquiry' : 'Intresseanmälan', ENT_QUOTES) ?></p>
               <h2><?= htmlspecialchars($inquiryHeading, ENT_QUOTES) ?></h2>
               <p><?= htmlspecialchars($artworkInquiryFormEnabled ? $inquiryBody : $inquiryFallbackBody, ENT_QUOTES) ?></p>
+              <p class="artwork-inquiry-extras"><?= htmlspecialchars(seo_order_extras_note($lang), ENT_QUOTES) ?></p>
             </div>
             <?php if ($artworkInquiryFormEnabled): ?>
               <form
@@ -783,6 +799,11 @@ if (!is_string($structuredJson)) {
                 class="contact-form artwork-inquiry-form"
                 data-artwork-title="<?= htmlspecialchars($title, ENT_QUOTES) ?>"
                 data-inquiry-mode="<?= htmlspecialchars($inquiryMode, ENT_QUOTES) ?>"
+                <?php if ($fineArtPrint && !$originalAvailable): ?>
+                  data-prefill="<?= htmlspecialchars($lang === 'en'
+                    ? sprintf('Hi! I would like to order a fine art print of "%s".', $title)
+                    : sprintf('Hej! Jag vill beställa en Fine Art Print av "%s".', $title), ENT_QUOTES) ?>"
+                <?php endif; ?>
                 data-form-enabled="true"
                 data-turnstile-site-key="<?= htmlspecialchars((string) ($publicContactConfig['turnstileSiteKey'] ?? ''), ENT_QUOTES) ?>"
                 novalidate
@@ -793,6 +814,35 @@ if (!is_string($structuredJson)) {
                 <input type="hidden" name="inquiryPriceLabel" value="<?= htmlspecialchars($priceLabel, ENT_QUOTES) ?>" />
                 <input type="hidden" name="inquirySourceUrl" value="<?= htmlspecialchars($canonical, ENT_QUOTES) ?>" />
                 <input type="hidden" name="turnstileToken" value="" />
+
+                <?php if ($fineArtPrint): ?>
+                  <fieldset class="artwork-inquiry-kind">
+                    <legend><?= htmlspecialchars($lang === 'en' ? 'I am interested in' : 'Jag är intresserad av', ENT_QUOTES) ?></legend>
+                    <label>
+                      <input type="radio" name="inquiryKind" value="original"
+                        data-title="<?= htmlspecialchars($title, ENT_QUOTES) ?>"
+                        data-price="<?= htmlspecialchars($priceLabel, ENT_QUOTES) ?>"
+                        <?= $originalAvailable ? 'checked' : '' ?> />
+                      <span><?= htmlspecialchars($originalAvailable
+                        ? ($lang === 'en' ? 'The original' : 'Originalet') . ($priceLabel !== '' && preg_match('/[0-9]/', $priceLabel) === 1 ? ' (' . $priceLabel . ')' : '')
+                        : ($lang === 'en' ? 'A similar original' : 'Ett liknande original'), ENT_QUOTES) ?></span>
+                    </label>
+                    <label>
+                      <input type="radio" name="inquiryKind" value="print"
+                        data-title="<?= htmlspecialchars('Fine Art Print – ' . $title, ENT_QUOTES) ?>"
+                        data-price="Print"
+                        <?= $originalAvailable ? '' : 'checked' ?> />
+                      <span>Fine Art Print (<?= htmlspecialchars($printFromLabel, ENT_QUOTES) ?>)</span>
+                    </label>
+                  </fieldset>
+                  <label class="artwork-inquiry-print-size" data-print-size-wrap <?= $originalAvailable ? 'hidden' : '' ?>><?= htmlspecialchars($lang === 'en' ? 'Print size' : 'Printformat', ENT_QUOTES) ?>
+                    <select name="printSize" data-print-size>
+                      <?php foreach ($printSizes as $i => $size): ?>
+                        <option value="<?= htmlspecialchars($size['format'], ENT_QUOTES) ?>" data-price="<?= htmlspecialchars($size['price'], ENT_QUOTES) ?>" <?= $i === 0 ? 'selected' : '' ?>><?= htmlspecialchars($size['format'] . ($size['price'] !== '' ? ' – ' . $size['price'] : ''), ENT_QUOTES) ?></option>
+                      <?php endforeach; ?>
+                    </select>
+                  </label>
+                <?php endif; ?>
 
                 <label><?= htmlspecialchars($lang === 'en' ? 'Name' : 'Namn', ENT_QUOTES) ?>
                   <input type="text" name="name" autocomplete="name" required />

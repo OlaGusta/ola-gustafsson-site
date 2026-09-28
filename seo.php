@@ -621,7 +621,8 @@ function seo_gallery_items(array $payload, string $lang): array
       'alt' => $alt,
       'meta_line' => implode(' · ', $metaParts),
       'price_label' => $priceLabel,
-      'price_prefix' => $lang === 'en' ? 'Price:' : 'Pris:',
+      // Designbeslut 2026-09-28: priset står utan "Pris:" och i nedtonad stil.
+      'price_prefix' => '',
       'featured' => !empty($item['featured']),
       'order' => $order,
       'year' => $year,
@@ -735,7 +736,12 @@ function seo_render_gallery_card_html(array $item, int $index = 0, string $pageT
     ? '<p class="work-price">' . ($pricePrefix !== '' ? $pricePrefix . ' ' : '') . $priceLabel . '</p>'
     : '';
 
-  return '<a class="work-card" href="' . $href . '">'
+  // Bildens proportion (bredd/höjd) styr kortets bredd i de justerade raderna
+  // (styles.css, "Justerade rader"). Läses från den lokala miniatyrfilen.
+  $aspect = seo_local_image_aspect((string) ($item['src'] ?? ''));
+  $styleAttr = $aspect > 0 ? ' style="--ar: ' . number_format($aspect, 4, '.', '') . '"' : '';
+
+  return '<a class="work-card" href="' . $href . '"' . $styleAttr . '>'
     . '<figure class="work-image">'
     . '<img class="artwork-photo" src="' . $src . '" alt="' . $alt . '" loading="' . $loading . '" fetchpriority="' . $fetchPriority . '" decoding="async" />'
     . $badgeHtml
@@ -998,6 +1004,8 @@ function seo_canonical_url(string $pageType, string $lang): string
   $path = '/';
   if (strtolower(trim($pageType)) === 'gallery') {
     $path = '/gallery.html';
+  } elseif (strtolower(trim($pageType)) === 'sun') {
+    $path = '/100-dagar-av-sol';
   }
 
   // Keep Swedish/default canonical URLs clean (no lang query) for better social share consistency.
@@ -1076,4 +1084,90 @@ function seo_local_image_meta(string $path): array
     'height' => $height,
     'mime' => $mime,
   ];
+}
+
+// Fine Art Print: Olas regel är högst 20 signerade och numrerade ex per motiv.
+const SEO_PRINT_EDITION_SIZE = 20;
+
+function seo_print_edition_label(string $lang): string
+{
+  return $lang === 'en'
+    ? sprintf('Signed and numbered by the artist, edition of %d', SEO_PRINT_EDITION_SIZE)
+    : sprintf('Signerad och numrerad av konstnären, upplaga om %d ex', SEO_PRINT_EDITION_SIZE);
+}
+
+// Tryckpapper för alla prints (Olas val sep 2026).
+function seo_print_paper_label(string $lang): string
+{
+  return $lang === 'en'
+    ? 'Hahnemühle Photo Rag, 100% cotton'
+    : 'Hahnemühle Photo Rag, 100 % bomull';
+}
+
+// Tilläggskostnader som ska synas vid varje beställning/intresseanmälan (original och print).
+function seo_order_extras_note(string $lang): string
+{
+  return $lang === 'en'
+    ? 'Mat with backing board is added (from 300 SEK depending on size), as is shipping (within Sweden usually 150–250 SEK).'
+    : 'Passepartout med bakstycke tillkommer (från 300 kr beroende på format), liksom frakt (inom Sverige normalt 150–250 kr).';
+}
+
+// Printprislista per format. Gäller alla Fine Art Prints (solar och galleriverk).
+// Redigeras i Studio (Projekt → "Printprislista"); lagras som project.printSizes.
+// Standardstegen (beslut 2026-09-28): 50×70 = 3 800 kr, övriga skalade med
+// yta^0,70 (samma kurva som originalprislistan), avrundat till hundratal.
+function seo_print_sizes(array $payload, string $lang): array
+{
+  $raw = $payload['project']['printSizes'] ?? null;
+  $sizes = [];
+  if (is_array($raw)) {
+    foreach ($raw as $row) {
+      $format = is_array($row) && isset($row['format']) && is_string($row['format']) ? trim($row['format']) : '';
+      $price = is_array($row) && isset($row['price']) && is_string($row['price']) ? trim($row['price']) : '';
+      if ($format !== '') {
+        $sizes[] = ['format' => $format, 'price' => $price];
+      }
+    }
+  }
+  if ($sizes === []) {
+    $sizes = [
+      ['format' => '30 × 40 cm', 'price' => '1 800 kr'],
+      ['format' => '40 × 50 cm', 'price' => '2 600 kr'],
+      ['format' => '50 × 70 cm', 'price' => '3 800 kr'],
+    ];
+  }
+  if ($lang === 'en') {
+    foreach ($sizes as &$size) {
+      $size['price'] = (string) preg_replace('/\s*kr\s*$/u', ' SEK', $size['price']);
+    }
+    unset($size);
+  }
+  return $sizes;
+}
+
+function seo_print_from_label(array $sizes, string $lang): string
+{
+  $first = $sizes[0]['price'] ?? '';
+  if ($first === '') {
+    return $lang === 'en' ? 'price on request' : 'pris på förfrågan';
+  }
+  return ($lang === 'en' ? 'from ' : 'från ') . $first;
+}
+
+// Proportion (bredd/höjd) för en lokal bild, t.ex. "images/thumbs/x.webp?v=1".
+// 0 om filen saknas eller inte går att läsa. Cachas per anrop.
+function seo_local_image_aspect(string $src): float
+{
+  static $cache = [];
+  $path = (string) preg_replace('/[?#].*$/', '', trim($src));
+  if ($path === '' || preg_match('/^(https?:|data:|blob:)/i', $path) === 1) {
+    return 0.0;
+  }
+  if (array_key_exists($path, $cache)) {
+    return $cache[$path];
+  }
+  $file = __DIR__ . '/' . ltrim($path, '/');
+  $size = is_file($file) ? @getimagesize($file) : false;
+  $aspect = is_array($size) && $size[0] > 0 && $size[1] > 0 ? $size[0] / $size[1] : 0.0;
+  return $cache[$path] = $aspect;
 }

@@ -18,11 +18,11 @@
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..800&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Lora:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=20260909-03" />
+    <link rel="stylesheet" href="styles.css?v=20260928-11" />
     <script src="overrides.js?v=20260323-04"></script>
     <script src="content.js?v=20260909-01" defer></script>
     <script src="vendor/qrcode.min.js?v=20260216-01" defer></script>
-    <script src="studio.js?v=20260909-01" defer></script>
+    <script src="studio.js?v=20260928-01" defer></script>
   </head>
   <body id="page-top" data-page="studio">
     <header class="site-header" id="top">
@@ -286,8 +286,37 @@
                 <select id="upload-category"></select>
               </label>
             </div>
-            <p class="studio-note">Uppladdade filer sparas som inbäddad data i webbläsaren. För många stora bilder kan lagringsutrymmet ta slut.</p>
-            <p class="studio-note">Klicka på en miniatyr för att redigera just det verket.</p>
+            <p class="studio-note">Nya bilder hamnar överst i listan och märks "Ny" i två veckor. Klicka på en miniatyr för att redigera verket.</p>
+            <div class="artwork-list-toolbar" role="search">
+              <label class="artwork-list-search">
+                <span class="visually-hidden">Sök verk</span>
+                <input type="search" id="artwork-list-query" placeholder="Sök titel, plats, år …" autocomplete="off" />
+              </label>
+              <label>
+                <span class="visually-hidden">Sortera</span>
+                <select id="artwork-list-sort">
+                  <option value="order">Galleriordning</option>
+                  <option value="added">Senast tillagda</option>
+                  <option value="year">År, nyast först</option>
+                  <option value="title">Titel A–Ö</option>
+                </select>
+              </label>
+              <label>
+                <span class="visually-hidden">Filtrera</span>
+                <select id="artwork-list-filter">
+                  <option value="">Alla verk</option>
+                  <option value="available">Tillgängliga</option>
+                  <option value="reserved">Reserverade</option>
+                  <option value="sold">Sålda / ej till salu</option>
+                  <option value="print">Fine Art Print</option>
+                  <option value="featured">Utvalda</option>
+                  <option value="missing-price">Saknar pris</option>
+                  <option value="missing-format">Saknar mått</option>
+                </select>
+              </label>
+              <button type="button" class="btn btn-ghost artwork-list-density" id="artwork-list-density" aria-pressed="false">Rutnät</button>
+              <span class="artwork-list-count" id="artwork-list-count" aria-live="polite"></span>
+            </div>
             <div id="artworks-editor" class="artworks-editor"></div>
           </section>
 
@@ -443,6 +472,11 @@
 
               <label class="studio-project-sample-heading">Underrubrik för exempel
                 <input type="text" id="project-sample-heading" placeholder="Exempel från serien" />
+              </label>
+
+              <label class="studio-project-sample-heading">Printprislista (gäller alla Fine Art Prints: solsidan och galleriverk)
+                <textarea id="project-print-sizes" rows="5" placeholder="30 × 40 cm | 1 800 kr&#10;40 × 50 cm | 2 600 kr&#10;50 × 70 cm | 3 800 kr"></textarea>
+                <small class="field-hint">En rad per format: format | pris. Minsta formatet först. Tomt = standardlistan.</small>
               </label>
 
               <div class="studio-project-samples">

@@ -287,11 +287,25 @@ run_deploy() {
 
   local file_list
   file_list="$(mktemp)"
-  collect_files > "$file_list"
+  # Bilder först, kod sist: avbryts deployen står sajten kvar på gammal, konsekvent
+  # kod (ny artwork.php med gammal seo.php ger 500).
+  { collect_files | grep '^images/' || true; collect_files | grep -v '^images/' || true; } > "$file_list"
 
   local total
   total="$(wc -l < "$file_list" | tr -d ' ')"
   [ "$total" -gt 0 ] || die "No files to deploy."
+
+  # --ftp-create-dirs skapar inte mappar hos Oderland i nocwd-läge (uppladdning till
+  # en ny mapp ger 553). Skapa alla mappar uttryckligen först; "*" = ignorera fel
+  # för mappar som redan finns.
+  local mkd_args=() dir
+  while IFS= read -r dir; do
+    mkd_args+=(-Q "*MKD ${remote_base}/${dir}")
+  done < <(sed -n 's|/[^/]*$||p' "$file_list" | LC_ALL=C sort -u | awk -F/ '{p=""; for (i=1;i<=NF;i++){p=(p==""?$i:p"/"$i); print p}}' | LC_ALL=C sort -u)
+  if [ "${#mkd_args[@]}" -gt 0 ]; then
+    log "Ensuring $(( ${#mkd_args[@]} / 2 )) remote directories exist"
+    curl -sS --user "$FTP_USER:$FTP_PASS" "${mkd_args[@]}" "ftp://${FTP_HOST}/" -o /dev/null
+  fi
 
   log "Deploying ${total} files to ${remote_base}"
   local i rel src url
@@ -299,7 +313,15 @@ run_deploy() {
   while IFS= read -r rel; do
     src="${ROOT_DIR}/${rel}"
     url="ftp://${FTP_HOST}${remote_base}/${rel}"
-    curl -sS --ftp-method nocwd --ftp-create-dirs --user "$FTP_USER:$FTP_PASS" -T "$src" "$url"
+    # Oderlands FTP svarar ibland 553 i perioder (troligen spärr mot många snabba
+    # anslutningar). Samma fil går igenom efter en paus, så vänta allt längre.
+    local attempt=1
+    until curl -sS --ftp-method nocwd --ftp-create-dirs --user "$FTP_USER:$FTP_PASS" -T "$src" "$url"; do
+      [ "$attempt" -lt 5 ] || die "Upload failed after ${attempt} attempts: ${rel}"
+      warn "Upload failed (attempt ${attempt}), retrying in $((attempt * 10))s: ${rel}"
+      sleep $((attempt * 10))
+      attempt=$((attempt + 1))
+    done
     i=$((i + 1))
     if [ $((i % 25)) -eq 0 ] || [ "$i" -eq "$total" ]; then
       log "Uploaded ${i}/${total}"

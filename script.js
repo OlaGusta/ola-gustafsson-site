@@ -3118,11 +3118,41 @@ const applyGalleryFilterAndSort = () => {
   galleryState.filteredItems = sorted;
 };
 
+// Justerade rader: kortets bredd styrs av bildens proportion (--ar). PHP sätter den
+// från miniatyrfilen; här tas den över när galleriet ritas om, och rättas när bilden
+// laddats om den saknades. Nyckel = filnamnet utan mapp och ändelse.
+const artworkAspectCache = new Map();
+const artworkAspectKey = (src) =>
+  String(src || '')
+    .split(/[?#]/)[0]
+    .split('/')
+    .pop()
+    .replace(/\.[a-z0-9]+$/i, '')
+    .replace(/\.[a-z0-9]+$/i, '');
+
+const harvestArtworkAspects = (grid) => {
+  grid.querySelectorAll('.work-card').forEach((card) => {
+    const aspect = Number.parseFloat(card.style.getPropertyValue('--ar'));
+    const image = card.querySelector('img');
+    if (aspect > 0 && image) {
+      artworkAspectCache.set(artworkAspectKey(image.getAttribute('src')), aspect);
+    }
+  });
+};
+
+const createGalleryRowFiller = () => {
+  const filler = document.createElement('span');
+  filler.className = 'gallery-row-filler';
+  filler.setAttribute('aria-hidden', 'true');
+  return filler;
+};
+
 const renderGallery = () => {
   const grid = document.getElementById('gallery-grid');
   if (!grid) {
     return;
   }
+  harvestArtworkAspects(grid);
 
   const items = galleryState.filteredItems;
   if (!Array.isArray(items) || items.length === 0) {
@@ -3139,6 +3169,9 @@ const renderGallery = () => {
     if (showYearDividers) {
       const yearKey = getGalleryYearKey(item);
       if (yearKey !== previousYearKey) {
+        if (previousYearKey !== '') {
+          fragment.appendChild(createGalleryRowFiller());
+        }
         fragment.appendChild(createGalleryYearDivider(yearKey, yearCounts.get(yearKey) || 0));
         previousYearKey = yearKey;
       }
@@ -3179,6 +3212,22 @@ const renderGallery = () => {
 
     addImageFallback(image);
 
+    const aspectKey = artworkAspectKey(item.src);
+    const knownAspect = artworkAspectCache.get(aspectKey);
+    if (knownAspect) {
+      card.style.setProperty('--ar', knownAspect.toFixed(4));
+    }
+    image.addEventListener('load', () => {
+      if (!image.naturalWidth || !image.naturalHeight) {
+        return;
+      }
+      const aspect = image.naturalWidth / image.naturalHeight;
+      if (!knownAspect || Math.abs(aspect - knownAspect) / knownAspect > 0.02) {
+        card.style.setProperty('--ar', aspect.toFixed(4));
+        artworkAspectCache.set(aspectKey, aspect);
+      }
+    });
+
     figure.appendChild(image);
     if (availability.label) {
       const badge = document.createElement('span');
@@ -3206,7 +3255,7 @@ const renderGallery = () => {
     const priceLine = document.createElement('p');
     priceLine.className = 'work-price';
     if (priceLabel) {
-      priceLine.textContent = `${getUiText('priceLabel', 'Pris')}: ${priceLabel}`;
+      priceLine.textContent = priceLabel;
     } else {
       priceLine.classList.add('is-empty');
       priceLine.setAttribute('aria-hidden', 'true');
@@ -3219,6 +3268,7 @@ const renderGallery = () => {
     fragment.appendChild(card);
   });
 
+  fragment.appendChild(createGalleryRowFiller());
   grid.innerHTML = '';
   grid.appendChild(fragment);
 };
@@ -3689,7 +3739,45 @@ const initArtworkInquiryForm = () => {
           'Hej! Jag såg att "{title}" inte längre är tillgänglig. Jag är gärna intresserad av liknande verk.'
         )
       : getUiText('inquiryPrefillAvailable', 'Hej! Jag är intresserad av "{title}" och vill gärna veta mer om verket.');
-  const prefillMessage = prefillTemplate.replaceAll('{title}', title || getUiText('artworkDefaultPrefix', 'Verk'));
+  const customPrefill = String(form.getAttribute('data-prefill') || '').trim();
+  const prefillMessage =
+    customPrefill || prefillTemplate.replaceAll('{title}', title || getUiText('artworkDefaultPrefix', 'Verk'));
+
+  // Verk som även finns som Fine Art Print: radioval original/print styr vilken
+  // titel och prisetikett som följer med förfrågan (syns i mejlet och i Studio).
+  const kindInputs = Array.from(form.querySelectorAll('input[name="inquiryKind"]'));
+  if (kindInputs.length > 0) {
+    const titleInput = form.querySelector('input[name="inquiryTitle"]');
+    const priceInput = form.querySelector('input[name="inquiryPriceLabel"]');
+    const sizeSelect = form.querySelector('[data-print-size]');
+    const sizeWrap = form.querySelector('[data-print-size-wrap]');
+    const applyKind = () => {
+      const chosen = kindInputs.find((input) => input.checked);
+      if (!chosen) {
+        return;
+      }
+      const isPrint = chosen.value === 'print';
+      const option = isPrint && sizeSelect ? sizeSelect.selectedOptions[0] : null;
+      if (sizeWrap) {
+        sizeWrap.hidden = !isPrint;
+      }
+      if (titleInput) {
+        const baseTitle = chosen.dataset.title || titleInput.value;
+        titleInput.value = option ? baseTitle.replace(/^Fine Art Print/, `Fine Art Print, ${option.value}`) : baseTitle;
+      }
+      if (priceInput) {
+        priceInput.value = option
+          ? [option.value, option.dataset.price || ''].filter(Boolean).join(' ')
+          : chosen.dataset.price || '';
+      }
+    };
+    kindInputs.forEach((input) => input.addEventListener('change', applyKind));
+    if (sizeSelect) {
+      sizeSelect.addEventListener('change', applyKind);
+    }
+    form.addEventListener('reset', () => window.setTimeout(applyKind, 0));
+    applyKind();
+  }
 
   if (messageField && messageField.value.trim() === '') {
     messageField.value = prefillMessage;
@@ -3876,6 +3964,158 @@ const initMenu = () => {
       menuButton.setAttribute('aria-expanded', 'false');
     });
   });
+
+  const closeMenu = () => {
+    if (nav.classList.contains('open')) {
+      nav.classList.remove('open');
+      menuButton.setAttribute('aria-expanded', 'false');
+    }
+  };
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      closeMenu();
+    }
+  });
+  document.addEventListener('click', (event) => {
+    if (!nav.contains(event.target) && !menuButton.contains(event.target)) {
+      closeMenu();
+    }
+  });
+};
+
+// Smala skärmar: språk- och ljus/mörk-väljarna flyttas in i menyn så att sidhuvudet
+// blir en rad. Breda skärmar: ljus/mörk bor i sidfoten, språket i sidhuvudet.
+const initCompactHeaderSettings = () => {
+  if (!nav || pageType === 'studio') {
+    return;
+  }
+  const langSwitch = document.querySelector('.site-header .lang-switch');
+  const themeSwitch = document.querySelector('.site-header .theme-switch');
+  if (!langSwitch || !themeSwitch || typeof window.matchMedia !== 'function') {
+    return;
+  }
+  const home = langSwitch.parentElement;
+  const anchor = menuButton;
+  const holder = document.createElement('div');
+  holder.className = 'nav-settings';
+  const query = window.matchMedia(
+    '(max-width: 760px), (min-width: 761px) and (max-width: 1024px) and (orientation: portrait)'
+  );
+  const footerTools = document.querySelector('.site-footer .footer-tools');
+  const place = () => {
+    if (query.matches) {
+      holder.append(langSwitch, themeSwitch);
+      if (!holder.isConnected) {
+        nav.appendChild(holder);
+      }
+      return;
+    }
+    if (holder.isConnected || langSwitch.parentElement !== home) {
+      home.insertBefore(langSwitch, anchor);
+      holder.remove();
+    }
+    if (footerTools) {
+      footerTools.prepend(themeSwitch);
+    } else if (themeSwitch.parentElement !== home) {
+      home.insertBefore(themeSwitch, anchor);
+    }
+  };
+  place();
+  if (typeof query.addEventListener === 'function') {
+    query.addEventListener('change', place);
+  }
+};
+
+// Startsidans utvalda verk: en vägg i en rad som bläddras i sidled. Pilarna visas
+// bara när raden är bredare än fönstret och stängs av vid början/slutet.
+const initWorkStrip = () => {
+  const strip = document.querySelector('.work-strip');
+  const nav = document.getElementById('work-strip-nav');
+  if (!strip || !nav) {
+    return;
+  }
+  const buttons = Array.from(nav.querySelectorAll('[data-strip-step]'));
+  const update = () => {
+    const maxScroll = strip.scrollWidth - strip.clientWidth;
+    nav.hidden = maxScroll < 8;
+    buttons.forEach((button) => {
+      const step = Number(button.dataset.stripStep);
+      button.disabled = step < 0 ? strip.scrollLeft <= 4 : strip.scrollLeft >= maxScroll - 4;
+    });
+  };
+  buttons.forEach((button) => {
+    button.addEventListener('click', () => {
+      strip.scrollBy({ left: Number(button.dataset.stripStep) * strip.clientWidth * 0.8, behavior: 'smooth' });
+    });
+  });
+  strip.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  // Korten ritas om av galleriet och bilderna laddas efterhand: räkna om då.
+  new MutationObserver(update).observe(strip, { childList: true });
+  strip.addEventListener('load', update, true);
+  update();
+
+  // "Roll and stop": rulla fram ett verk i taget med paus emellan, som en slider.
+  // Pausar vid hover, fokus, touch och egen bläddring (återupptas efter en stund),
+  // när väggen inte syns eller fliken är dold. Av vid prefers-reduced-motion.
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) {
+    return;
+  }
+  const STEP_MS = 4200;
+  const RESUME_MS = 9000;
+  let timer = 0;
+  let inView = false;
+  let hovering = false;
+  let pausedUntil = 0;
+
+  const nextOffset = () => {
+    const stripLeft = strip.getBoundingClientRect().left;
+    const cards = Array.from(strip.querySelectorAll('.work-card'));
+    const maxScroll = strip.scrollWidth - strip.clientWidth;
+    if (strip.scrollLeft >= maxScroll - 4) {
+      return 0;
+    }
+    const next = cards.find((card) => card.getBoundingClientRect().left - stripLeft > 4);
+    return next ? Math.min(strip.scrollLeft + next.getBoundingClientRect().left - stripLeft, maxScroll) : 0;
+  };
+
+  const tick = () => {
+    const canRoll =
+      inView && !hovering && !document.hidden && Date.now() >= pausedUntil && strip.scrollWidth - strip.clientWidth > 8 &&
+      // Pausa bara vid tangentbordsfokus i väggen (ett musklick ger också fokus).
+      !(strip.contains(document.activeElement) && document.activeElement.matches(':focus-visible'));
+    if (canRoll) {
+      strip.scrollTo({ left: nextOffset(), behavior: 'smooth' });
+    }
+  };
+  const start = () => {
+    if (!timer) {
+      timer = window.setInterval(tick, STEP_MS);
+    }
+  };
+  const pauseForUser = () => {
+    pausedUntil = Date.now() + RESUME_MS;
+  };
+
+  strip.addEventListener('pointerenter', () => {
+    hovering = true;
+  });
+  strip.addEventListener('pointerleave', () => {
+    hovering = false;
+    pauseForUser();
+  });
+  ['touchstart', 'wheel', 'keydown'].forEach((type) => strip.addEventListener(type, pauseForUser, { passive: true }));
+  buttons.forEach((button) => button.addEventListener('click', pauseForUser));
+
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver((entries) => {
+      inView = entries.some((entry) => entry.isIntersecting && entry.intersectionRatio > 0.4);
+    }, { threshold: [0, 0.4, 1] }).observe(strip);
+  } else {
+    inView = true;
+  }
+  start();
 };
 
 const initReveal = () => {
@@ -3975,7 +4215,8 @@ const initHashLinkNavigation = () => {
         scrollToElementWithHeaderOffset(target, 'smooth');
       }
       if (window.location.hash !== `#${targetId}`) {
-        window.history.replaceState(null, '', `#${targetId}`);
+        // Full sökväg: sidor med <base href="/"> skulle annars skriva om URL:en till /#id.
+        window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#${targetId}`);
       }
     });
   });
@@ -4554,6 +4795,8 @@ const bootstrap = async () => {
   initArtworkInquiryForm();
 
   initMenu();
+  initCompactHeaderSettings();
+  initWorkStrip();
   initHashLinkNavigation();
   initReveal();
   initActiveSectionHighlight();

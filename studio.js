@@ -616,6 +616,8 @@ const DEFAULT_SECTION_IMAGE_CANDIDATES = [
   'images/sol4.jpg'
 ];
 let serverImageCandidates = [];
+// src -> filens mtime (sekunder) från api/images.php; reserv för "Senast tillagda".
+let serverImageMtimes = {};
 
 const escapeHtml = (value) =>
   String(value || '')
@@ -895,7 +897,9 @@ const loadServerImageCandidates = async () => {
     serverImageCandidates = list
       .map((item) => (typeof item === 'string' ? item.trim() : ''))
       .filter((item) => item !== '');
+    serverImageMtimes = response.mtimes && typeof response.mtimes === 'object' ? response.mtimes : {};
     renderSectionImagePickers();
+    applyArtworkListView();
   } catch (error) {
     // Keep Studio usable even if listing endpoint is unavailable.
     serverImageCandidates = [];
@@ -2572,6 +2576,7 @@ const el = {
   projectCollageImagePreview: document.getElementById('project-collage-image-preview'),
   projectCollageAlt: document.getElementById('project-collage-alt'),
   projectSampleHeading: document.getElementById('project-sample-heading'),
+  projectPrintSizes: document.getElementById('project-print-sizes'),
   projectSample1Src: document.getElementById('project-sample-1-src'),
   projectSample1Pick: document.getElementById('project-sample-1-pick'),
   projectSample1Preview: document.getElementById('project-sample-1-preview'),
@@ -2601,6 +2606,11 @@ const el = {
   contactSocialEditor: document.getElementById('contact-social-editor'),
   addContactSocial: document.getElementById('add-contact-social'),
   galleryUpload: document.getElementById('gallery-upload'),
+  artworkListQuery: document.getElementById('artwork-list-query'),
+  artworkListSort: document.getElementById('artwork-list-sort'),
+  artworkListFilter: document.getElementById('artwork-list-filter'),
+  artworkListDensity: document.getElementById('artwork-list-density'),
+  artworkListCount: document.getElementById('artwork-list-count'),
   uploadCategory: document.getElementById('upload-category'),
   artworksEditor: document.getElementById('artworks-editor'),
   saveStudio: document.getElementById('save-studio'),
@@ -4802,6 +4812,11 @@ const syncFormFromState = () => {
   if (el.projectSampleHeading) {
     el.projectSampleHeading.value = localizedProject.sampleHeading || '';
   }
+  if (el.projectPrintSizes) {
+    el.projectPrintSizes.value = (Array.isArray(project.printSizes) ? project.printSizes : [])
+      .map((row) => [row && row.format, row && row.price].filter(Boolean).join(' | '))
+      .join('\n');
+  }
   writeImageEntriesToSlots(
     [
       { src: el.projectSample1Src, alt: el.projectSample1Alt },
@@ -5082,6 +5097,7 @@ const createArtworkItem = (overrides = {}) => {
     heroExclude: false,
     year: new Date().getFullYear(),
     order: nextOrder,
+    addedAt: Date.now(),
     zoom: 1,
     objectPosition: 'center center',
     ...overrides
@@ -5480,6 +5496,138 @@ const clampSelectedArtworkIndex = (items) => {
   uiState.selectedArtworkIndex = Math.max(0, Math.min(items.length - 1, normalized));
 };
 
+const ARTWORK_LIST_STATUS_LABELS = {
+  available: 'Tillgänglig',
+  reserved: 'Reserverad',
+  sold: 'Såld',
+  nfs: 'Ej till salu'
+};
+const ARTWORK_NEW_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
+const ARTWORK_LIST_DENSITY_KEY = 'studio-artwork-list-density';
+
+// Tidpunkt (ms) när verket lades till: addedAt om det finns (verk uppladdade
+// från och med sep 2026), annars bildfilens mtime på servern.
+const getArtworkAddedAt = (item) => {
+  const addedAt = Number(item && item.addedAt);
+  if (Number.isFinite(addedAt) && addedAt > 0) {
+    return addedAt;
+  }
+  const src = item && typeof item.src === 'string' ? item.src.trim() : '';
+  const mtime = Number(serverImageMtimes[src] || serverImageMtimes[src.replace(/^\/+/, '')] || 0);
+  return mtime > 0 ? mtime * 1000 : 0;
+};
+
+const readArtworkListControls = () => ({
+  query: el.artworkListQuery ? el.artworkListQuery.value.trim().toLowerCase() : '',
+  sort: el.artworkListSort ? el.artworkListSort.value : 'order',
+  filter: el.artworkListFilter ? el.artworkListFilter.value : ''
+});
+
+const artworkMatchesListFilter = (node, filter) => {
+  const data = node.dataset;
+  switch (filter) {
+    case 'available':
+      return data.availability === 'available' || data.availability === '';
+    case 'reserved':
+      return data.availability === 'reserved';
+    case 'sold':
+      return data.availability === 'sold' || data.availability === 'nfs';
+    case 'print':
+      return data.print === '1';
+    case 'featured':
+      return data.featured === '1';
+    case 'missing-price':
+      return data.hasPrice === '0' && data.availability !== 'sold' && data.availability !== 'nfs';
+    case 'missing-format':
+      return data.hasFormat === '0';
+    default:
+      return true;
+  }
+};
+
+// Filtrerar och sorterar miniatyrerna på plats (CSS order + hidden) så att
+// sökfältet behåller fokus och listan inte ritas om vid varje tangenttryck.
+const applyArtworkListView = () => {
+  const list = el.artworksEditor ? el.artworksEditor.querySelector('.artwork-thumb-list') : null;
+  if (!list) {
+    return;
+  }
+  const { query, sort, filter } = readArtworkListControls();
+  const nodes = Array.from(list.querySelectorAll('.artwork-thumb[data-action="select"]'));
+  const terms = query.split(/\s+/).filter(Boolean);
+  const now = Date.now();
+
+  nodes.forEach((node) => {
+    // Räknas om varje gång: filtiderna från api/images.php kan komma efter första renderingen.
+    const added =
+      getArtworkAddedAt(state.content.gallery.artworks[Number(node.dataset.index)]) || Number(node.dataset.added || 0);
+    node.dataset.added = String(added);
+    node.classList.toggle('is-new', added > 0 && now - added < ARTWORK_NEW_WINDOW_MS);
+    const matches =
+      terms.every((term) => (node.dataset.search || '').includes(term)) && artworkMatchesListFilter(node, filter);
+    node.hidden = !matches;
+  });
+
+  const sorted = nodes.slice().sort((a, b) => {
+    const ia = Number(a.dataset.index);
+    const ib = Number(b.dataset.index);
+    if (sort === 'added') {
+      return Number(b.dataset.added) - Number(a.dataset.added) || ia - ib;
+    }
+    if (sort === 'year') {
+      return Number(b.dataset.year) - Number(a.dataset.year) || ia - ib;
+    }
+    if (sort === 'title') {
+      return (a.dataset.title || '').localeCompare(b.dataset.title || '', 'sv') || ia - ib;
+    }
+    return ia - ib;
+  });
+  sorted.forEach((node, position) => {
+    node.style.order = String(position);
+  });
+
+  const visible = nodes.filter((node) => !node.hidden).length;
+  if (el.artworkListCount) {
+    el.artworkListCount.textContent =
+      visible === nodes.length ? `${nodes.length} verk` : `Visar ${visible} av ${nodes.length}`;
+  }
+  const isGrid = el.artworkListDensity ? el.artworkListDensity.getAttribute('aria-pressed') === 'true' : false;
+  list.classList.toggle('is-grid', isGrid);
+};
+
+const initArtworkListControls = () => {
+  [el.artworkListQuery, el.artworkListSort, el.artworkListFilter].forEach((control) => {
+    if (control) {
+      control.addEventListener(control.tagName === 'SELECT' ? 'change' : 'input', () => {
+        applyArtworkListView();
+        const list = el.artworksEditor ? el.artworksEditor.querySelector('.artwork-thumb-list') : null;
+        if (list) {
+          list.scrollTop = 0;
+        }
+      });
+    }
+  });
+  if (el.artworkListDensity) {
+    let stored = '';
+    try {
+      stored = window.localStorage.getItem(ARTWORK_LIST_DENSITY_KEY) || '';
+    } catch (error) {
+      stored = '';
+    }
+    el.artworkListDensity.setAttribute('aria-pressed', stored === 'grid' ? 'true' : 'false');
+    el.artworkListDensity.addEventListener('click', () => {
+      const next = el.artworkListDensity.getAttribute('aria-pressed') !== 'true';
+      el.artworkListDensity.setAttribute('aria-pressed', next ? 'true' : 'false');
+      try {
+        window.localStorage.setItem(ARTWORK_LIST_DENSITY_KEY, next ? 'grid' : 'list');
+      } catch (error) {
+        // Ingen lagring (privat läge): läget gäller bara denna session.
+      }
+      applyArtworkListView();
+    });
+  }
+};
+
 const renderArtworksEditor = () => {
   const baseItems = Array.isArray(state.content.gallery?.artworks) ? state.content.gallery.artworks : [];
   const language = getEditingLanguage();
@@ -5516,12 +5664,31 @@ const renderArtworksEditor = () => {
       const categoryLabel = getArtworkCategoryLabelText(item);
       const featureTag = item.featured ? 'Utvald' : '';
       const heroExcludeTag = item.heroExclude ? 'Ej hero-auto' : '';
-      const meta = [categoryLabel, featureTag, heroExcludeTag].filter(Boolean).join(' · ');
+      const baseItem = baseItems[index] || item;
+      const availability = typeof baseItem.availability === 'string' ? baseItem.availability : '';
+      const statusTag = ARTWORK_LIST_STATUS_LABELS[availability] || '';
+      const printTag = baseItem.fineArtPrint === true ? 'Print' : '';
+      const meta = [item.year || '', statusTag, categoryLabel, featureTag, printTag, heroExcludeTag].filter(Boolean).join(' · ');
       const thumbSrc = getArtworkPreviewSrc(item);
       const fullSrc = typeof item.src === 'string' ? item.src : '';
+      const searchText = [title, item.alt, item.format, item.year, baseItem.slug, categoryLabel, statusTag]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+      const listData = [
+        `data-search="${escapeHtml(searchText)}"`,
+        `data-title="${escapeHtml(title.toLowerCase())}"`,
+        `data-year="${Number(item.year) || 0}"`,
+        `data-added="${getArtworkAddedAt(baseItem)}"`,
+        `data-availability="${escapeHtml(availability)}"`,
+        `data-has-price="${/[0-9]/.test(String(baseItem.priceLabel || '')) ? '1' : '0'}"`,
+        `data-has-format="${String(baseItem.format || '').trim() ? '1' : '0'}"`,
+        `data-print="${baseItem.fineArtPrint === true ? '1' : '0'}"`,
+        `data-featured="${baseItem.featured ? '1' : '0'}"`
+      ].join(' ');
 
       return `
-        <button type="button" class="artwork-thumb${isActive ? ' is-active' : ''}" data-action="select" data-index="${index}" data-src="${escapeHtml(fullSrc)}" aria-pressed="${isActive ? 'true' : 'false'}">
+        <button type="button" class="artwork-thumb${isActive ? ' is-active' : ''}" data-action="select" data-index="${index}" data-src="${escapeHtml(fullSrc)}" ${listData} aria-pressed="${isActive ? 'true' : 'false'}">
           <span class="artwork-thumb-image">
             ${thumbSrc ? `<img src="${escapeHtml(addRevToSrc(thumbSrc))}" data-full-src="${escapeHtml(addRevToSrc(fullSrc))}" alt="Miniatyr ${escapeHtml(title)}" />` : '<span class="artwork-editor-placeholder">Ingen bild</span>'}
           </span>
@@ -5649,6 +5816,7 @@ const renderArtworksEditor = () => {
       thumbListNode.scrollTop = targetScrollTop;
     });
   }
+  applyArtworkListView();
 
   el.artworksEditor.querySelectorAll('.artwork-thumb-image img[data-full-src]').forEach((img) => {
     img.addEventListener('load', () => {
@@ -6095,6 +6263,15 @@ const pullFormToState = () => {
   }
   if (el.projectSampleHeading) {
     setPath(localizedTarget, 'project.sampleHeading', el.projectSampleHeading.value.trim());
+  }
+  if (el.projectPrintSizes) {
+    // "30 × 40 cm | 1 800 kr" per rad -> [{ format, price }]
+    state.content.project.printSizes = linesToArray(el.projectPrintSizes.value)
+      .map((line) => {
+        const [format = '', price = ''] = line.split('|').map((part) => part.trim());
+        return { format, price };
+      })
+      .filter((row) => row.format !== '');
   }
   const projectSampleEntries = readImageEntriesFromSlots([
     { src: el.projectSample1Src, alt: el.projectSample1Alt },
@@ -8244,6 +8421,8 @@ const bindEvents = () => {
       renderContactSocialEditor();
     });
   }
+
+  initArtworkListControls();
 
   if (el.galleryUpload) {
     el.galleryUpload.addEventListener('change', async () => {

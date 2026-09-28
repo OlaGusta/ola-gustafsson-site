@@ -9,6 +9,8 @@ api_require_authenticated_user();
 $imagesDir = dirname(__DIR__) . '/images';
 $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'avif'];
 $images = [];
+// Filtid per bild: Studio använder den som "tillagd"-datum för verk som saknar addedAt.
+$mtimes = [];
 
 if (is_dir($imagesDir)) {
   try {
@@ -29,6 +31,7 @@ if (is_dir($imagesDir)) {
       }
 
       $images[] = 'images/' . $filename;
+      $mtimes['images/' . $filename] = $entry->getMTime();
     }
   } catch (Throwable $error) {
     api_respond_json(500, [
@@ -43,6 +46,7 @@ natcasesort($images);
 
 api_respond_json(200, [
   'ok' => true,
-  'images' => array_values($images)
+  'images' => array_values($images),
+  'mtimes' => (object) $mtimes
 ]);
 

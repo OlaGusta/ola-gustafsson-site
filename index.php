@@ -319,9 +319,9 @@ if (!is_string($structuredJson)) {
       fetchpriority="high"
     />
     	    <script src="overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>" defer></script>
-	    <link rel="stylesheet" href="styles.css?v=20260909-03" />
+	    <link rel="stylesheet" href="styles.css?v=20260928-11" />
 	    <script src="content.js?v=20260909-01" defer></script>
-		    <script src="script.js?v=20260909-04" defer></script>
+		    <script src="script.js?v=20260928-05" defer></script>
 	  </head>
   <body id="page-top" data-page="home">
     <header class="site-header" id="top">
@@ -400,6 +400,10 @@ if (!is_string($structuredJson)) {
               <p class="eyebrow" data-bind="gallery.eyebrow"><?= seo_escape_html($galleryEyebrow) ?></p>
               <h2 data-bind="gallery.heading"><?= seo_escape_html($galleryHeading) ?></h2>
             </div>
+            <div class="work-strip-nav" id="work-strip-nav" hidden>
+              <button type="button" class="work-strip-btn" data-strip-step="-1" aria-label="<?= seo_escape_html($lang === 'en' ? 'Previous works' : 'Föregående verk') ?>">←</button>
+              <button type="button" class="work-strip-btn" data-strip-step="1" aria-label="<?= seo_escape_html($lang === 'en' ? 'More works' : 'Fler verk') ?>">→</button>
+            </div>
           </div>
 
           <div
@@ -408,13 +412,14 @@ if (!is_string($structuredJson)) {
             aria-label="Filtrera och sortera galleri"
             data-bind-aria="ui.galleryControlsAria"
           ></div>
-          <div id="gallery-grid" class="gallery-grid">
+          <div id="gallery-grid" class="gallery-grid work-strip" tabindex="0" aria-label="<?= seo_escape_html($lang === 'en' ? 'Selected works, scroll sideways' : 'Utvalda verk, bläddra i sidled') ?>">
             <?php if ($homeGalleryItems === []): ?>
               <p class="gallery-empty"><?= seo_escape_html($lang === 'en' ? 'No artworks available right now.' : 'Inga verk tillgängliga just nu.') ?></p>
             <?php else: ?>
               <?php foreach ($homeGalleryItems as $index => $galleryItem): ?>
                 <?= seo_render_gallery_card_html($galleryItem, $index, 'home') ?>
               <?php endforeach; ?>
+              <span class="gallery-row-filler" aria-hidden="true"></span>
             <?php endif; ?>
           </div>
 
@@ -504,6 +509,9 @@ if (!is_string($structuredJson)) {
                       />
                     </figure>
                   <?php endforeach; ?>
+                </div>
+                <div class="sun-project-cta">
+                  <a class="btn btn-primary" href="100-dagar-av-sol" data-lang-link><?= seo_escape_html($lang === 'en' ? 'See all 100 suns · order prints' : 'Se alla 100 solar · beställ print') ?></a>
                 </div>
 	            </article>
 	          </div>

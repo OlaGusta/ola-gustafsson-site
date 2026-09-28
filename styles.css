@@ -384,7 +384,8 @@ code {
 }
 
 :root[data-color-mode="dark"] .contact-form input,
-:root[data-color-mode="dark"] .contact-form textarea {
+:root[data-color-mode="dark"] .contact-form textarea,
+:root[data-color-mode="dark"] .contact-form select {
   background: color-mix(in srgb, var(--color-surface) 90%, black 10%);
   color: var(--color-ink);
   border-color: var(--color-border);
@@ -3647,10 +3648,12 @@ body[data-page='studio'] main {
   margin: 0;
   overflow: hidden;
   min-height: 0;
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
-  height: clamp(30rem, 46vw, 50rem);
+  /* Fullbredd upp till 1920 px, därefter centrerat. Bandet hålls kring 2:1 så att
+     bilden (1,79:1, ankrad i nederkant) alltid visar hela figuren, fötter och huvud. */
+  width: min(100vw, 120rem);
+  margin-left: calc(50% - min(50vw, 60rem));
+  margin-right: calc(50% - min(50vw, 60rem));
+  height: clamp(30rem, 50vw, 60rem);
   border-top: 1px solid var(--color-border);
   border-bottom: 1px solid var(--color-border);
 }
@@ -3660,7 +3663,7 @@ body[data-page='studio'] main {
   height: 100%;
   display: block;
   object-fit: cover;
-  object-position: 20% 62%;
+  object-position: 20% 100%;
 }
 
 .about-support-section {
@@ -3972,7 +3975,8 @@ body[data-page='studio'] main {
 }
 
 .contact-form input,
-.contact-form textarea {
+.contact-form textarea,
+.contact-form select {
   border: 1px solid var(--color-border);
   background: #fff;
   color: var(--color-ink);
@@ -4512,12 +4516,13 @@ button:focus-visible {
     width: 100%;
     margin-left: 0;
     margin-right: 0;
-    height: clamp(21rem, 48vw, 27rem);
+    height: auto;
+    aspect-ratio: 2 / 1;
     border: 1px solid var(--color-border);
   }
 
   .project-process-figure img {
-    object-position: 24% 58%;
+    object-position: 24% 100%;
   }
 }
 
@@ -4526,12 +4531,13 @@ button:focus-visible {
     width: 100%;
     margin-left: 0;
     margin-right: 0;
-    height: clamp(28rem, 42vw, 34rem);
+    height: auto;
+    aspect-ratio: 2 / 1;
     border: 1px solid var(--color-border);
   }
 
   .project-process-figure img {
-    object-position: 24% 56%;
+    object-position: 24% 100%;
   }
 }
 
@@ -4856,4 +4862,1065 @@ button:focus-visible {
 .inline-normal {
   font-style: normal;
   letter-spacing: inherit;
+}
+
+/* ---------- Fine Art Print på verkssidan + tilläggskostnader ---------- */
+.artwork-print-offer {
+  display: grid;
+  gap: 0.45rem;
+  justify-items: start;
+}
+
+.artwork-print-offer p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-soft-ink);
+}
+
+.artwork-inquiry-extras {
+  font-size: 0.9rem;
+}
+
+.artwork-inquiry-kind {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+}
+
+.artwork-inquiry-kind legend {
+  width: 100%;
+  margin-bottom: var(--space-2);
+  font-weight: var(--font-body-strong-weight);
+}
+
+.artwork-inquiry-print-size[hidden] {
+  display: none;
+}
+
+.contact-form .artwork-inquiry-kind label {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: var(--font-body-weight);
+}
+
+/* ---------- Startsidans projekt: länk till solsidan ---------- */
+.sun-project-cta {
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* ---------- Solsidan /100-dagar-av-sol ---------- */
+.sun-page-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(16rem, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+  margin-bottom: var(--space-5);
+}
+
+.sun-page-head h1 {
+  margin-bottom: var(--space-3);
+}
+
+.sun-page-head .section-lead {
+  max-width: 62ch;
+  color: var(--color-soft-ink);
+}
+
+.sun-print-card {
+  padding: var(--space-5);
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+}
+
+.sun-print-card p {
+  margin: 0;
+}
+
+.sun-print-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sun-print-table th,
+.sun-print-table td {
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  font-weight: var(--font-body-weight);
+}
+
+.sun-print-table td {
+  text-align: right;
+  font-weight: var(--font-body-strong-weight);
+  white-space: nowrap;
+}
+
+.sun-print-edition {
+  font-size: 0.92rem;
+}
+
+.sun-print-extras {
+  font-size: 0.88rem;
+  color: var(--color-soft-ink);
+}
+
+.sun-grid-hint {
+  color: var(--color-soft-ink);
+  font-size: 0.92rem;
+  margin: 0 0 var(--space-3);
+}
+
+.sun-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.sun-tile {
+  position: relative;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.sun-tile-open {
+  display: block;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  cursor: zoom-in;
+  aspect-ratio: 18 / 27;
+  overflow: hidden;
+}
+
+.sun-tile-open img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+
+.sun-tile-open:hover img,
+.sun-tile-open:focus-visible img {
+  transform: scale(1.04);
+}
+
+.sun-tile-day {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-soft-ink);
+}
+
+.sun-tile-pick {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.3rem;
+  display: grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+
+.sun-tile-pick input {
+  margin: 0;
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.sun-tile.is-picked .sun-tile-open {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.sun-tile.is-picked .sun-tile-day {
+  color: var(--color-ink);
+  font-weight: var(--font-body-strong-weight);
+}
+
+.sun-order {
+  margin-top: var(--space-6);
+}
+
+.sun-viewer {
+  padding: 0;
+  border: 0;
+  max-width: min(96vw, 64rem);
+  max-height: 96vh;
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+.sun-viewer::backdrop {
+  background: rgba(10, 12, 18, 0.82);
+}
+
+.sun-viewer-inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.sun-viewer figure {
+  margin: 0;
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(13rem, 16rem);
+  gap: var(--space-4);
+  align-items: end;
+}
+
+.sun-viewer img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(96vh - 3rem);
+  width: auto;
+  height: auto;
+}
+
+.sun-viewer figcaption {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+}
+
+.sun-viewer figcaption strong {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+}
+
+.sun-viewer figcaption span {
+  color: var(--color-soft-ink);
+  font-size: 0.92rem;
+}
+
+.sun-viewer-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.sun-viewer-pick input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--color-primary);
+}
+
+.sun-viewer-close,
+.sun-viewer-nav {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.sun-viewer-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 1;
+}
+
+@media (max-width: 1080px) {
+  .sun-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 820px) {
+  .sun-page-head {
+    grid-template-columns: 1fr;
+  }
+
+  .sun-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .sun-viewer-inner {
+    grid-template-columns: 1fr 1fr;
+    padding: var(--space-3);
+  }
+
+  .sun-viewer figure {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .sun-viewer img {
+    max-height: 62vh;
+  }
+
+  .sun-viewer figcaption {
+    justify-items: stretch;
+    width: 100%;
+  }
+
+  .sun-viewer-prev,
+  .sun-viewer-next {
+    grid-row: 2;
+    justify-self: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .sun-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ---------- Studio: verklistans verktygsrad (sök, sortera, filtrera, rutnät) ---------- */
+.studio-page .artwork-list-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+}
+
+.studio-page .artwork-list-toolbar label {
+  margin: 0;
+}
+
+.studio-page .artwork-list-search {
+  flex: 1 1 16rem;
+}
+
+.studio-page .artwork-list-search input {
+  width: 100%;
+}
+
+.studio-page .artwork-list-count {
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: var(--studio-muted);
+  white-space: nowrap;
+}
+
+.studio-page .artwork-list-density[aria-pressed='true'] {
+  background: var(--studio-panel-strong);
+  box-shadow: inset 0 0 0 1px var(--studio-gold);
+}
+
+.artwork-thumb[hidden] {
+  display: none;
+}
+
+.studio-page .artwork-thumb.is-new .artwork-thumb-meta strong::after {
+  content: 'Ny';
+  margin-left: 0.45rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: 0.1em;
+  color: var(--color-surface);
+  background: var(--studio-gold);
+}
+
+/* Rutnätsläge: bara bilder, fyra per rad, titeln som tooltip-rad under. */
+.studio-page .artwork-thumb-list.is-grid {
+  grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+  align-content: start;
+  gap: 1px;
+  background: var(--studio-line);
+}
+
+.studio-page .artwork-thumb-list.is-grid .artwork-thumb {
+  grid-template-columns: 1fr;
+  gap: 0.3rem;
+  padding: 0.4rem;
+  border: 0;
+  background: var(--studio-panel);
+}
+
+.studio-page .artwork-thumb-list.is-grid .artwork-thumb.is-active {
+  box-shadow: inset 0 0 0 3px var(--studio-gold);
+}
+
+.studio-page .artwork-thumb-list.is-grid .artwork-thumb-image {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+}
+
+.studio-page .artwork-thumb-list.is-grid .artwork-thumb-meta small {
+  display: none;
+}
+
+.studio-page .artwork-thumb-list.is-grid .artwork-thumb-meta strong {
+  font-size: 0.75rem;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ---------- Solsidan: valda solar som miniatyrer (formulär + list i fönstrets nederkant) ---------- */
+.sun-picked {
+  list-style: none;
+  margin: 0;
+  padding: 0.2rem 0;
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.sun-picked[hidden] {
+  display: none;
+}
+
+.sun-picked-item {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.sun-picked-open {
+  display: grid;
+  justify-items: center;
+  gap: 0.15rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-soft-ink);
+  font-size: 0.7rem;
+  cursor: zoom-in;
+}
+
+.sun-picked-open img {
+  display: block;
+  width: 2.5rem;
+  height: 3.75rem;
+  object-fit: cover;
+  border: 1px solid var(--color-border);
+}
+
+.sun-picked-remove {
+  position: absolute;
+  top: -0.4rem;
+  right: -0.4rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.sun-tray {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  padding: 0.6rem 0 calc(0.6rem + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+  border-top: 1px solid var(--color-border);
+  box-shadow: 0 -10px 24px rgba(16, 19, 27, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+.sun-tray[hidden] {
+  display: none;
+}
+
+.sun-tray-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.sun-tray .sun-picked {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-top: 0.5rem;
+}
+
+.sun-tray .btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .sun-tray .btn {
+    padding-inline: 0.9rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* =====================================================================
+   UX-omgång 2026-09-28
+   ===================================================================== */
+
+/* (2) Justerade rader: alla verk i en rad får samma bildhöjd, bredden följer verkets
+   format (--ar = bredd/höjd, satt av PHP/JS) och varje rad fyller hela bredden – som
+   verk hängda på en gemensam linje. Titlarna linjerar per rad, bild och text delar
+   vänsterkant och mellanrummen är jämna. Kortets flex-grow = --ar och flex-basis =
+   --ar × radhöjd + 2 × passepartout, så att bildhöjden blir exakt lika även med
+   passepartoutens kant inräknad. Sista raden i varje år hålls i naturlig storlek av
+   .gallery-row-filler. Vit passepartout i ljust läge, mörkgrå i mörkt (Olas val). */
+.gallery-grid {
+  --row-h: 13rem;
+  --mat: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: var(--space-6) var(--space-4);
+}
+
+.gallery-grid > .gallery-year-divider,
+.gallery-grid > .gallery-empty {
+  flex: 1 1 100%;
+}
+
+.gallery-row-filler {
+  flex: 10000000 1 0;
+  height: 0;
+}
+
+.gallery-grid > .work-card,
+.gallery-grid > .work-card.card-in {
+  /* grow = --ar × 100: samma proportioner, men summan per rad blir alltid ≥ 1 (annars
+     fördelas bara en del av utrymmet och ett ensamt stående verk fyller inte raden). */
+  flex: calc(var(--ar, 1.4) * 100) 1 calc(var(--ar, 1.4) * var(--row-h) + 2 * var(--mat));
+  min-width: 0;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  align-self: flex-start;
+}
+
+.work-image,
+:root[data-color-mode="dark"] .work-image {
+  aspect-ratio: auto;
+  height: auto;
+  min-height: 0;
+  display: block;
+  background: none;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.work-image .artwork-photo {
+  position: static;
+  top: auto;
+  left: auto;
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  box-sizing: border-box;
+  padding: var(--mat);
+  background: #fff;
+  object-fit: contain;
+  object-position: center center !important;
+  filter: none;
+  box-shadow:
+    0 0 0 1px rgba(16, 19, 27, 0.05),
+    0 2px 4px rgba(16, 19, 27, 0.06),
+    0 10px 24px rgba(16, 19, 27, 0.1);
+}
+
+:root[data-color-mode="dark"] .work-image .artwork-photo {
+  background: #1b2330;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    0 12px 28px rgba(0, 0, 0, 0.35);
+}
+
+.work-card:hover .work-image .artwork-photo {
+  transform: scale(1.015);
+}
+
+@media (min-width: 1400px) {
+  .gallery-grid {
+    --row-h: 14.5rem;
+  }
+}
+
+@media (max-width: 760px) {
+  .gallery-grid {
+    --row-h: 9rem;
+    --mat: 0.75rem;
+    gap: var(--space-5) var(--space-3);
+  }
+}
+
+/* (4) "Tillgänglig" på varje kort är brus: bara Reserverad och Såld/Ej till salu visas.
+   Verkssidan visar fortfarande full status. */
+.work-image .artwork-status-badge.is-available {
+  display: none;
+}
+
+/* (3) Smala skärmar: en rad i sidhuvudet (namn + Meny). Språk och ljus/mörk flyttas
+   in i menyn av script.js (initCompactHeaderSettings). */
+.nav-settings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  width: 100%;
+  margin-top: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+@media (max-width: 760px), (min-width: 761px) and (max-width: 1024px) and (orientation: portrait) {
+  body:not([data-page='studio']) .header-inner {
+    flex-wrap: nowrap;
+    padding-block: 0.6rem;
+  }
+
+  body:not([data-page='studio']) .brand {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  /* (1) Mobil: målningen först, i sin helhet, texten under i stället för ovanpå. */
+  .hero {
+    min-height: 0;
+    display: block;
+  }
+
+  .hero-media {
+    position: relative;
+    inset: auto;
+    aspect-ratio: 4 / 3;
+  }
+
+  .hero-overlay {
+    display: none !important;
+  }
+
+  .hero-content {
+    width: calc(100% - 2 * var(--space-5));
+    padding: var(--space-5) 0 var(--space-2);
+  }
+
+  .hero-copy {
+    padding: 0;
+    color: var(--color-ink);
+    background: none !important;
+    border: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  .hero-copy .hero-subtitle,
+  .hero-line {
+    color: var(--color-soft-ink);
+  }
+
+  .hero .eyebrow {
+    color: color-mix(in srgb, var(--color-primary) 78%, black 22%);
+  }
+
+  :root[data-color-mode="dark"] .hero .eyebrow {
+    color: var(--color-primary);
+  }
+
+  body:not([data-page='studio']) .hero .btn-ghost {
+    color: var(--color-ink);
+    text-shadow: none;
+  }
+
+  .hero-actions {
+    margin-top: var(--space-4);
+  }
+
+  /* (5) En kolumn: inga reserverade tomrader (de finns för att korten ska bli lika
+     höga i flerkolumnslayout). */
+  .work-meta h3,
+  .work-meta p:not(.work-price),
+  .work-price {
+    min-height: 0;
+  }
+}
+
+/* =====================================================================
+   Design 2026-09-28: tystare gränssnitt så att målningarna bär sidan
+   ===================================================================== */
+
+/* (1) Galleriets kort: ingen låda, ram, skugga eller lyftning. Bara passepartouten
+   och en diskret textrad under. */
+.work-card {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.work-card:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.work-image {
+  border-bottom: 0;
+}
+
+.work-card:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 4px;
+}
+
+.work-meta {
+  padding: var(--space-3) 0 0;
+}
+
+.work-meta h3 {
+  font-size: clamp(1.05rem, 1rem + 0.25vw, 1.22rem);
+}
+
+.work-meta p {
+  font-size: 0.86rem;
+}
+
+/* (2) Priset: vanlig vikt, nedtonat, utan "Pris:". */
+.work-price {
+  font-weight: var(--font-body-weight);
+  color: var(--color-soft-ink);
+  font-size: 0.86rem;
+}
+
+/* (3) Startbilden på bred skärm: ingen glasruta över målningen. Texten står direkt
+   på en toning i nederkanten och är mindre. */
+@media (min-width: 761px) {
+  .hero-copy {
+    max-width: 46ch;
+    padding: 0;
+    background: none !important;
+    border: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    text-shadow:
+      0 1px 2px rgba(4, 8, 14, 0.55),
+      0 2px 18px rgba(4, 8, 14, 0.5);
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(1.7rem, 1.25rem + 1.7vw, 2.7rem);
+  }
+
+  /* Fast toning bakom texten (nedre vänstra hörnet). Ligger utanför Studios
+     overlay-inställning, som kan vara avstängd, så att texten alltid går att läsa
+     även på ljusa målningar i bildspelet. */
+  .hero-media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 70% 85% at 0% 100%, rgba(5, 9, 16, 0.8) 0%, rgba(5, 9, 16, 0.58) 45%, rgba(5, 9, 16, 0) 76%),
+      linear-gradient(to top, rgba(5, 9, 16, 0.42) 0%, rgba(5, 9, 16, 0.14) 30%, rgba(5, 9, 16, 0) 52%);
+  }
+
+  .hero-copy p,
+  .hero .eyebrow {
+    font-weight: var(--font-body-strong-weight);
+  }
+
+  .hero .eyebrow {
+    color: rgba(244, 247, 251, 0.95);
+  }
+
+  .hero-actions {
+    margin-top: var(--space-4);
+  }
+}
+
+/* (5) Sekundära knappar blir textlänkar på de publika sidorna. Den fyllda knappen
+   (btn-primary) är ensam huvudhandling per vy. Studio påverkas inte. */
+body:not([data-page='studio']) .btn-ghost {
+  min-height: 0;
+  padding: 0.3rem 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.32em;
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+}
+
+body:not([data-page='studio']) .btn-ghost:hover,
+body:not([data-page='studio']) .btn-ghost:focus-visible {
+  transform: none;
+  text-decoration-color: currentColor;
+}
+
+body:not([data-page='studio']) .hero .btn-ghost {
+  background: none;
+  border: 0;
+  text-decoration: none;
+}
+
+/* Vit länktext bara där texten ligger på målningen (bred skärm). På mobil står
+   texten under bilden och ärver mörk färg. */
+@media (min-width: 761px) {
+  body:not([data-page='studio']) .hero .btn-ghost {
+    color: #f6f8fb;
+  }
+}
+
+body:not([data-page='studio']) .hero .btn-ghost::after {
+  content: " →";
+  white-space: pre;
+  transition: transform var(--duration-fast) var(--ease-standard);
+  display: inline-block;
+}
+
+body:not([data-page='studio']) .hero .btn-ghost:hover::after {
+  transform: translateX(3px);
+}
+
+body:not([data-page='studio']) .hero-actions {
+  gap: var(--space-5);
+}
+
+body:not([data-page='studio']) .gallery-cta-row,
+body:not([data-page='studio']) .artwork-actions,
+body:not([data-page='studio']) .contact-social-links {
+  align-items: center;
+  column-gap: var(--space-5);
+}
+
+/* (4) Språket som text i sidhuvudet ("SV · EN"); ljus/mörk i sidfoten.
+   Gäller bara när väljarna sitter direkt i sidhuvudet (inte i mobilmenyn). */
+.header-inner > .lang-switch {
+  padding: 0;
+  gap: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.header-inner > .lang-switch .lang-switch-btn {
+  min-width: 0;
+  min-height: 0;
+  padding: 0.3rem 0.2rem;
+  background: none;
+  box-shadow: none;
+  font-size: 0.8rem;
+}
+
+.header-inner > .lang-switch .lang-switch-btn + .lang-switch-btn::before {
+  content: "·";
+  margin-right: 0.4rem;
+  color: var(--color-soft-ink);
+}
+
+.header-inner > .lang-switch .lang-switch-btn.is-active {
+  color: var(--color-ink);
+  background: none;
+  box-shadow: none;
+}
+
+.header-inner > .lang-switch .lang-switch-btn:not(.is-active) {
+  opacity: 0.6;
+}
+
+.footer-tools .theme-switch {
+  box-shadow: none;
+  background: none;
+}
+
+.footer-tools .theme-switch-btn {
+  min-height: 1.7rem;
+  font-size: 0.7rem;
+}
+
+:root[data-color-mode="dark"] .header-inner > .lang-switch,
+:root[data-color-mode="dark"] .footer-tools .theme-switch {
+  background: none;
+}
+
+@media (min-width: 1081px) {
+  .work-image {
+    aspect-ratio: auto;
+    height: auto;
+  }
+}
+
+/* Utan kortlådor behövs inga reserverade tomrader för lika höga kort: titlarna
+   linjerar via subgridets textrad. Tät, jämn textrytm under verket. */
+.work-meta h3,
+.work-meta p:not(.work-price),
+.work-price {
+  min-height: 0;
+}
+
+.work-meta p {
+  margin-top: 0.3rem;
+}
+
+.work-price {
+  margin-top: 0.15rem;
+  padding-top: 0;
+}
+
+.work-price.is-empty {
+  display: none;
+}
+
+/* Status (Reserverad/Såld) i passepartoutens nedre vänstra hörn. */
+.work-image .artwork-status-badge {
+  top: auto;
+  bottom: 0.7rem;
+  left: 0.7rem;
+}
+
+/* ---------- Startsidans utvalda verk: en vägg i sidled ----------
+   Samma bildhöjd för alla verk, i en rad som bläddras i sidled (som en upphängning),
+   i stället för galleriets radbrytning. Raden löper ut till fönstrets högerkant så att
+   det syns att det finns fler verk. Pilar i rubrikraden (initWorkStrip i script.js). */
+.gallery-grid.work-strip {
+  --strip-h: 21rem;
+  --mat: 1rem;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: var(--space-5);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 0;
+  scrollbar-width: none;
+  /* Utfallande till höger: marginalen upp till fönsterkanten läggs som padding så att
+     sista verket kan scrollas in i linje med innehållet. */
+  margin-right: calc(50% - 50vw);
+  padding: 0.5rem calc(50vw - 50%) 2rem 0;
+}
+
+.gallery-grid.work-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.gallery-grid.work-strip:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 6px;
+}
+
+.gallery-grid.work-strip > .work-card,
+.gallery-grid.work-strip > .work-card.card-in {
+  flex: 0 0 auto;
+  width: calc(var(--ar, 1.4) * var(--strip-h) + 2 * var(--mat));
+  max-width: none;
+  scroll-snap-align: start;
+}
+
+.gallery-grid.work-strip > .gallery-row-filler {
+  display: none;
+}
+
+.work-strip-nav {
+  justify-self: end;
+  display: flex;
+  gap: var(--space-2);
+}
+
+.work-strip-nav[hidden] {
+  display: none;
+}
+
+.work-strip-btn {
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-standard), opacity var(--duration-fast);
+}
+
+.work-strip-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-primary) 10%, var(--color-surface));
+}
+
+.work-strip-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+@media (max-width: 760px) {
+  .gallery-grid.work-strip {
+    --strip-h: 11rem;
+    --mat: 0.7rem;
+    gap: var(--space-4);
+  }
+
+  .work-strip-nav {
+    display: none;
+  }
+}
+
+/* Solbeställning: formatväljare under varje vald sol i formuläret. */
+.sun-picked-size {
+  display: block;
+  width: 5.6rem;
+  margin-top: 0.25rem;
+  padding: 0.15rem 0.2rem;
+  font: inherit;
+  font-size: 0.7rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+#sun-picked-form {
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+}
+
+#sun-picked-form .sun-picked-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sun-picked[hidden] + .sun-picked-hint {
+  display: none;
+}
+
+.sun-picked-hint {
+  margin: 0;
 }
