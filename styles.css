@@ -5962,3 +5962,9 @@ body:not([data-page='studio']) .contact-social-links {
 .focus-ring-suppressed:focus-visible img {
   outline: none !important;
 }
+
+/* Studio: ett rutnät inuti ett rutnät (t.ex. hero-knapparnas fält) tar hela bredden,
+   annars hamnar hela gruppen i en enda smal kolumn. */
+.studio-page .studio-grid > .studio-grid {
+  grid-column: 1 / -1;
+}
