@@ -5936,6 +5936,10 @@ body:not([data-page='studio']) .contact-social-links {
   }
 }
 
+.gallery-grid.work-strip.is-pressed {
+  scroll-snap-type: none;
+}
+
 .gallery-grid.work-strip.is-dragging {
   cursor: grabbing;
   scroll-snap-type: none;

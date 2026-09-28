@@ -4057,19 +4057,24 @@ const initWorkStrip = () => {
     if (event.pointerType !== 'mouse' || event.button !== 0 || strip.scrollWidth - strip.clientWidth < 8) {
       return;
     }
+    // Stoppa en pågående mjuk rullning (autobläddring/pilar/snäpp) och stäng av
+    // snäppningen direkt, annars slåss webbläsarens animation med dragningen.
+    strip.classList.add('is-pressed');
+    strip.scrollTo({ left: strip.scrollLeft, behavior: 'instant' });
     drag = { x: event.clientX, left: strip.scrollLeft, moved: false, id: event.pointerId };
+  });
+  // Hindra textmarkering och webbläsarens egen länk-/bilddragning från att starta.
+  strip.addEventListener('mousedown', (event) => {
+    if (event.button === 0) {
+      event.preventDefault();
+    }
   });
   window.addEventListener('pointermove', (event) => {
     if (!drag || event.pointerId !== drag.id) {
       return;
     }
-    if (event.buttons === 0) {
-      // Släppet gick förlorat (t.ex. utanför fönstret): avsluta dragningen.
-      endDrag();
-      return;
-    }
     const dx = event.clientX - drag.x;
-    if (!drag.moved && Math.abs(dx) > 5) {
+    if (!drag.moved && Math.abs(dx) > 4) {
       drag.moved = true;
       strip.classList.add('is-dragging');
       try {
@@ -4079,16 +4084,18 @@ const initWorkStrip = () => {
       }
     }
     if (drag.moved) {
+      event.preventDefault();
       strip.scrollLeft = drag.left - dx;
     }
   });
   const endDrag = (event) => {
-    if (!drag || (event && event.pointerId !== drag.id)) {
+    if (!drag || (event && event.pointerId !== undefined && event.pointerId !== drag.id)) {
       return;
     }
     const moved = drag.moved;
     drag = null;
     if (!moved) {
+      strip.classList.remove('is-pressed');
       return;
     }
     suppressClick = true;
@@ -4099,14 +4106,15 @@ const initWorkStrip = () => {
     const nearest = Array.from(strip.querySelectorAll('.work-card'))
       .map((card) => card.getBoundingClientRect().left - stripLeft)
       .reduce((best, offset) => (Math.abs(offset) < Math.abs(best) ? offset : best), Infinity);
+    const target = Number.isFinite(nearest) ? strip.scrollLeft + nearest : strip.scrollLeft;
     strip.classList.remove('is-dragging');
-    if (Number.isFinite(nearest)) {
-      strip.scrollTo({ left: strip.scrollLeft + nearest, behavior: 'smooth' });
-    }
+    strip.scrollTo({ left: target, behavior: 'smooth' });
+    // Snäppningen tillbaka först när den mjuka rullningen hunnit fram.
+    window.setTimeout(() => strip.classList.remove('is-pressed'), 450);
   };
   window.addEventListener('pointerup', endDrag);
   window.addEventListener('pointercancel', endDrag);
-  strip.addEventListener('lostpointercapture', () => endDrag());
+  window.addEventListener('blur', () => endDrag());
   strip.addEventListener(
     'click',
     (event) => {
