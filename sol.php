@@ -113,10 +113,10 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
       <link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20260928-15" />
+    <link rel="stylesheet" href="styles.css?v=20260928-16" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
-    <script src="script.js?v=20260928-12" defer></script>
+    <script src="script.js?v=20260928-13" defer></script>
     <script src="sol.js?v=20260928-03" defer></script>
   </head>
   <body id="page-top" data-page="sun" data-day-label="<?= $h($dayLabel) ?>" data-remove-label="<?= $h($lang === 'en' ? 'Remove day' : 'Ta bort dag') ?>">

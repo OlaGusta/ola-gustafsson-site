@@ -5968,3 +5968,33 @@ body:not([data-page='studio']) .contact-social-links {
 .studio-page .studio-grid > .studio-grid {
   grid-column: 1 / -1;
 }
+
+/* Ljus/mörk som ikonknapp i sidhuvudet (bred skärm). Tvåknappsväljaren ligger kvar
+   dold som mekanik; på smala skärmar visas den i menyn (.nav-settings). */
+.header-inner > .theme-switch {
+  display: none;
+}
+
+.theme-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-soft-ink);
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-standard), background-color var(--duration-fast) var(--ease-standard);
+}
+
+.theme-toggle:hover {
+  color: var(--color-ink);
+  background: color-mix(in srgb, var(--color-ink) 7%, transparent);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}

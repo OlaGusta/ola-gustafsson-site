@@ -958,6 +958,26 @@ const initLanguageSwitcher = () => {
   });
 };
 
+let themeToggleButton = null;
+const THEME_ICON_MOON =
+  '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M20.2 14.6A8.5 8.5 0 0 1 9.4 3.8a8.5 8.5 0 1 0 10.8 10.8Z"/></svg>';
+const THEME_ICON_SUN =
+  '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><g stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></g></svg>';
+
+// Ikonknappen visar vad man byter TILL: måne i ljust läge, sol i mörkt.
+const updateThemeToggle = () => {
+  if (!themeToggleButton) {
+    return;
+  }
+  const isDark = document.documentElement.getAttribute('data-color-mode') === 'dark';
+  const label = isDark
+    ? activeLanguage === 'en' ? 'Switch to light mode' : 'Byt till ljust läge'
+    : activeLanguage === 'en' ? 'Switch to dark mode' : 'Byt till mörkt läge';
+  themeToggleButton.innerHTML = isDark ? THEME_ICON_SUN : THEME_ICON_MOON;
+  themeToggleButton.setAttribute('aria-label', label);
+  themeToggleButton.setAttribute('title', label);
+};
+
 const applyColorMode = () => {
   if (!colorModeEnabled) {
     return;
@@ -1002,6 +1022,7 @@ const applyColorMode = () => {
   }
 
   updateFaviconForColorMode();
+  updateThemeToggle();
 };
 
 const initSystemColorModeObserver = () => {
@@ -4049,23 +4070,39 @@ const initCompactHeaderSettings = () => {
   const query = window.matchMedia(
     '(max-width: 760px), (min-width: 761px) and (max-width: 1024px) and (orientation: portrait)'
   );
-  const footerTools = document.querySelector('.site-footer .footer-tools');
+  // Bred skärm: ljus/mörk som en liten ikonknapp (sol/måne) bredvid språket.
+  // Den gamla tvåknappsväljaren ligger kvar dold i sidhuvudet och används av knappen.
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'theme-toggle';
+  toggle.addEventListener('click', () => {
+    const next = document.documentElement.getAttribute('data-color-mode') === 'dark' ? 'light' : 'dark';
+    const option = themeSwitch.querySelector(`[data-theme-option="${next}"]`);
+    if (option) {
+      option.click();
+    }
+  });
+  themeToggleButton = toggle;
+  updateThemeToggle();
+
   const place = () => {
     if (query.matches) {
       holder.append(langSwitch, themeSwitch);
       if (!holder.isConnected) {
         nav.appendChild(holder);
       }
+      toggle.remove();
       return;
     }
     if (holder.isConnected || langSwitch.parentElement !== home) {
       home.insertBefore(langSwitch, anchor);
       holder.remove();
     }
-    if (footerTools) {
-      footerTools.prepend(themeSwitch);
-    } else if (themeSwitch.parentElement !== home) {
+    if (themeSwitch.parentElement !== home) {
       home.insertBefore(themeSwitch, anchor);
+    }
+    if (!toggle.isConnected) {
+      home.insertBefore(toggle, anchor);
     }
   };
   place();
