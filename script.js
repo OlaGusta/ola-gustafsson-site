@@ -4048,13 +4048,16 @@ const initWorkStrip = () => {
       strip.scrollBy({ left: Number(button.dataset.stripStep) * strip.clientWidth * 0.8, behavior: 'smooth' });
     });
   });
-  // Dra med musen (touch och styrplatta scrollar redan själva). Scroll-snap stängs av
+  // Dra med mus eller penna (touch och styrplatta scrollar redan själva). Scroll-snap stängs av
   // under dragningen och väggen snäpper till närmaste verk vid släpp. En dragning
   // blockerar klicket så att verket inte öppnas när man släpper.
   let drag = null;
   let suppressClick = false;
   strip.addEventListener('pointerdown', (event) => {
-    if (event.pointerType !== 'mouse' || event.button !== 0 || strip.scrollWidth - strip.clientWidth < 8) {
+    // Mus och penna (t.ex. Wacom-bräda, pointerType "pen"). Touch och styrplatta
+    // scrollar redan själva och hanteras av webbläsaren.
+    const isDragPointer = event.pointerType === 'mouse' || event.pointerType === 'pen';
+    if (!isDragPointer || event.button !== 0 || strip.scrollWidth - strip.clientWidth < 8) {
       return;
     }
     // Stoppa en pågående mjuk rullning (autobläddring/pilar/snäpp) och stäng av
