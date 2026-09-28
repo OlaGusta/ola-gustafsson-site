@@ -4732,7 +4732,17 @@ const restoreFocusAfterDialog = (element, openedWithPointer) => {
   }
   if (openedWithPointer) {
     element.classList.add('focus-ring-suppressed');
-    element.addEventListener('blur', () => element.classList.remove('focus-ring-suppressed'), { once: true });
+    // Ta bort skyddet först när fokus faktiskt flyttas till något annat på sidan.
+    // Inte på blur: den kommer även när man byter flik/fönster, och när man kommer
+    // tillbaka får elementet fokus igen – då ska ramen fortfarande vara dold.
+    const release = (event) => {
+      if (event.target === element) {
+        return;
+      }
+      element.classList.remove('focus-ring-suppressed');
+      document.removeEventListener('focusin', release, true);
+    };
+    document.addEventListener('focusin', release, true);
   }
   element.focus({ preventScroll: true });
 };
