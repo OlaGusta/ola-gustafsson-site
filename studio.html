@@ -22,7 +22,7 @@
     <script src="overrides.js?v=20260323-04"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <script src="vendor/qrcode.min.js?v=20260216-01" defer></script>
-    <script src="studio.js?v=20260928-01" defer></script>
+    <script src="studio.js?v=20260928-02" defer></script>
   </head>
   <body id="page-top" data-page="studio">
     <header class="site-header" id="top">
@@ -241,6 +241,13 @@
               <label>Budskapsrad (under intro)
                 <textarea id="hero-line" rows="2" placeholder="Jag vill att betraktaren ska känna närvaro i ett landskap som glider mellan konkret form och diffust flöde."></textarea>
               </label>
+              <div class="studio-grid studio-grid-2">
+                <label>Knapp 1 – text <input type="text" id="hero-cta-primary-label" placeholder="Se målningar" /></label>
+                <label>Knapp 1 – länk <input type="text" id="hero-cta-primary-href" placeholder="gallery.html" /></label>
+                <label>Knapp 2 – text <input type="text" id="hero-cta-secondary-label" placeholder="100 dagar av sol" /></label>
+                <label>Knapp 2 – länk <input type="text" id="hero-cta-secondary-href" placeholder="100-dagar-av-sol" /></label>
+              </div>
+              <p class="studio-note">Knapptexten skrivs per språk (Svenska/English texts). Länken gäller båda språken: en sida på sajten (<code>gallery.html</code>, <code>100-dagar-av-sol</code>, <code>verk/saltos-sjal</code>), ett avsnitt på startsidan (<code>#om</code>, <code>#kontakt</code>) eller en full adress (<code>https://…</code>, öppnas i ny flik).</p>
               <label class="checkbox-row">
                 <input type="checkbox" id="hero-overlay-enabled" />
                 <span>Visa overlay över hero-bilden</span>

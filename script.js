@@ -834,6 +834,54 @@ const bindTextContent = () => {
   });
 };
 
+// Hero-knapparna: text (per språk) och länk (gemensam) från Studio. Utan sparad länk
+// för knapp 2 gäller läget inför Husby: "100 dagar av sol" till solsidan. Samma
+// logik som index.php. Interna länkar får språkparameter via bindLanguageAwareLinks.
+const safeHeroHref = (value, fallback) => {
+  const href = typeof value === 'string' ? value.trim() : '';
+  return href === '' || /^\s*(javascript|data|vbscript):/i.test(href) ? fallback : href;
+};
+
+const applyHeroCta = (link, label, href) => {
+  if (!link) {
+    return;
+  }
+  if (label) {
+    link.textContent = '';
+    link.appendChild(buildInlineFormattedFragment(label));
+  }
+  link.setAttribute('href', href);
+  const external = /^https?:\/\//i.test(href);
+  if (external) {
+    link.removeAttribute('data-lang-link');
+    link.setAttribute('target', '_blank');
+    link.setAttribute('rel', 'noopener');
+  } else {
+    link.setAttribute('data-lang-link', '');
+    link.removeAttribute('target');
+    link.removeAttribute('rel');
+  }
+};
+
+const renderHeroCtas = () => {
+  const primary = document.getElementById('hero-cta-primary');
+  const secondary = document.getElementById('hero-cta-secondary');
+  if (!primary && !secondary) {
+    return;
+  }
+  applyHeroCta(
+    primary,
+    getBoundString('hero.ctaPrimaryLabel'),
+    safeHeroHref(getPath(content, 'hero.ctaPrimaryHref'), 'gallery.html')
+  );
+  const storedSecondaryHref = getBoundString('hero.ctaSecondaryHref');
+  if (storedSecondaryHref) {
+    applyHeroCta(secondary, getBoundString('hero.ctaSecondaryLabel'), safeHeroHref(storedSecondaryHref, '100-dagar-av-sol'));
+  } else {
+    applyHeroCta(secondary, getUiText('heroSunCta', '100 dagar av sol'), '100-dagar-av-sol');
+  }
+};
+
 const bindAttributeContent = () => {
   document.querySelectorAll('[data-bind-aria]').forEach((node) => {
     const key = node.getAttribute('data-bind-aria');
@@ -4889,6 +4937,7 @@ const bootstrap = async () => {
   await cleanupLegacyCachingOnce();
 
   bindTextContent();
+  renderHeroCtas();
   bindAttributeContent();
   bindSiteMeta();
   applyTheme();

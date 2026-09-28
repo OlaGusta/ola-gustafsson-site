@@ -1370,6 +1370,8 @@ const EN_SYNC_STRING_JOBS = [
   { path: 'hero.subtitle', field: 'generic' },
   { path: 'hero.intro', field: 'generic' },
   { path: 'hero.line', field: 'generic' },
+  { path: 'hero.ctaPrimaryLabel', field: 'generic' },
+  { path: 'hero.ctaSecondaryLabel', field: 'generic' },
   { path: 'hero.imageAlt', field: 'alt' },
   { path: 'gallery.eyebrow', field: 'generic' },
   { path: 'gallery.heading', field: 'title' },
@@ -2516,6 +2518,10 @@ const el = {
   heroSubtitle: document.getElementById('hero-subtitle'),
   heroIntro: document.getElementById('hero-intro'),
   heroLine: document.getElementById('hero-line'),
+  heroCtaPrimaryLabel: document.getElementById('hero-cta-primary-label'),
+  heroCtaPrimaryHref: document.getElementById('hero-cta-primary-href'),
+  heroCtaSecondaryLabel: document.getElementById('hero-cta-secondary-label'),
+  heroCtaSecondaryHref: document.getElementById('hero-cta-secondary-href'),
   heroMode: document.getElementById('hero-mode'),
   heroSlideDuration: document.getElementById('hero-slide-duration'),
   heroAutoSlidesEnabled: document.getElementById('hero-auto-slides-enabled'),
@@ -4697,6 +4703,26 @@ const syncFormFromState = () => {
   if (el.heroLine) {
     el.heroLine.value = localizedHero.line || '';
   }
+  // Hero-knappar. Utan sparad länk för knapp 2 visar sajten "100 dagar av sol" →
+  // solsidan (läget inför Husby); fälten fylls med det så att Studio visar det som syns.
+  const editingEnglish = !isEditingDefaultLanguage();
+  if (el.heroCtaPrimaryLabel) {
+    el.heroCtaPrimaryLabel.value = localizedHero.ctaPrimaryLabel || (editingEnglish ? 'View paintings' : 'Se målningar');
+  }
+  if (el.heroCtaPrimaryHref) {
+    el.heroCtaPrimaryHref.value = (typeof hero.ctaPrimaryHref === 'string' && hero.ctaPrimaryHref.trim()) || 'gallery.html';
+  }
+  const storedSecondaryHref = typeof hero.ctaSecondaryHref === 'string' ? hero.ctaSecondaryHref.trim() : '';
+  if (el.heroCtaSecondaryLabel) {
+    el.heroCtaSecondaryLabel.value = storedSecondaryHref
+      ? localizedHero.ctaSecondaryLabel || ''
+      : editingEnglish
+        ? '100 days of sun'
+        : '100 dagar av sol';
+  }
+  if (el.heroCtaSecondaryHref) {
+    el.heroCtaSecondaryHref.value = storedSecondaryHref || '100-dagar-av-sol';
+  }
   el.heroMode.value = hero.mode || 'still';
   el.heroSlideDuration.value = String(numberOrFallback(hero.slideDurationMs, 8000));
   if (el.heroAutoSlidesEnabled) {
@@ -6106,6 +6132,31 @@ const pullFormToState = () => {
   setPath(localizedTarget, 'hero.intro', el.heroIntro.value.trim());
   if (el.heroLine) {
     setPath(localizedTarget, 'hero.line', el.heroLine.value.trim());
+  }
+  if (el.heroCtaPrimaryLabel) {
+    setPath(localizedTarget, 'hero.ctaPrimaryLabel', el.heroCtaPrimaryLabel.value.trim());
+  }
+  if (el.heroCtaSecondaryLabel) {
+    setPath(localizedTarget, 'hero.ctaSecondaryLabel', el.heroCtaSecondaryLabel.value.trim());
+  }
+  if (el.heroCtaPrimaryHref) {
+    state.content.hero.ctaPrimaryHref = el.heroCtaPrimaryHref.value.trim();
+  }
+  if (el.heroCtaSecondaryHref) {
+    const previousSecondaryHref =
+      typeof state.content.hero.ctaSecondaryHref === 'string' ? state.content.hero.ctaSecondaryHref.trim() : '';
+    const nextSecondaryHref = el.heroCtaSecondaryHref.value.trim();
+    state.content.hero.ctaSecondaryHref = nextSecondaryHref;
+    // Första sparningen från Husby-läget (ingen sparad länk): se till att det andra
+    // språket också får solsidans text, annars dyker den gamla texten
+    // ("Läs om processen"/"Read about the process") upp där.
+    if (!previousSecondaryHref && nextSecondaryHref === '100-dagar-av-sol') {
+      if (language === 'sv') {
+        setPath(ensureLanguageOverridePack('en'), 'hero.ctaSecondaryLabel', '100 days of sun');
+      } else {
+        setPath(state.content, 'hero.ctaSecondaryLabel', '100 dagar av sol');
+      }
+    }
   }
   state.content.hero.mode = el.heroMode.value;
   state.content.hero.modeUpdatedAt = Date.now();

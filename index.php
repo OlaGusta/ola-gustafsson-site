@@ -88,6 +88,25 @@ $heroCtaSecondaryLabel = seo_localized_payload_string($payload, $lang, ['hero', 
 if ($heroCtaSecondaryLabel === '') {
   $heroCtaSecondaryLabel = $lang === 'en' ? 'Read artist statement' : 'Läs artist statement';
 }
+// Hero-knapparnas länkar styrs i Studio (hero.ctaPrimaryHref / hero.ctaSecondaryHref,
+// gemensamma för språken). Utan sparad länk för knapp 2 gäller läget inför Husby:
+// "100 dagar av sol" till solsidan (samma logik i script.js, renderHeroCtas).
+$heroCtaSafeHref = static function (string $href, string $fallback): string {
+  $href = trim($href);
+  if ($href === '' || preg_match('/^\s*(javascript|data|vbscript):/i', $href) === 1) {
+    return $fallback;
+  }
+  return $href;
+};
+$heroCtaPrimaryHref = $heroCtaSafeHref(seo_localized_payload_string($payload, 'sv', ['hero', 'ctaPrimaryHref']), 'gallery.html');
+$heroCtaSecondaryHrefStored = trim(seo_localized_payload_string($payload, 'sv', ['hero', 'ctaSecondaryHref']));
+if ($heroCtaSecondaryHrefStored !== '') {
+  $heroCtaSecondaryHref = $heroCtaSafeHref($heroCtaSecondaryHrefStored, '100-dagar-av-sol');
+} else {
+  $heroCtaSecondaryHref = '100-dagar-av-sol';
+  $heroCtaSecondaryLabel = $lang === 'en' ? '100 days of sun' : '100 dagar av sol';
+}
+$heroCtaIsExternal = static fn (string $href): bool => preg_match('/^https?:\/\//i', $href) === 1;
 $galleryEyebrow = seo_localized_payload_string($payload, $lang, ['gallery', 'eyebrow']);
 if ($galleryEyebrow === '') {
   $galleryEyebrow = $lang === 'en' ? 'Recent paintings' : 'Senaste målningar';
@@ -321,7 +340,7 @@ if (!is_string($structuredJson)) {
     	    <script src="overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>" defer></script>
 	    <link rel="stylesheet" href="styles.css?v=20260928-14" />
 	    <script src="content.js?v=20260928-01" defer></script>
-		    <script src="script.js?v=20260928-11" defer></script>
+		    <script src="script.js?v=20260928-12" defer></script>
 	  </head>
   <body id="page-top" data-page="home">
     <header class="site-header" id="top">
@@ -386,9 +405,8 @@ if (!is_string($structuredJson)) {
             <p data-bind="hero.intro"><?= seo_render_multiline_html($heroIntro) ?></p>
             <p class="hero-line" data-bind="hero.line"><?= seo_escape_html($heroLine) ?></p>
             <div class="hero-actions">
-              <a class="btn btn-ghost" href="gallery.html" data-bind="hero.ctaPrimaryLabel" data-lang-link><?= seo_escape_html($heroCtaPrimaryLabel) ?></a>
-              <?php // Inför utställningen i Husby: andra knappen leder till solsidan i stället för "Läs om processen" (#om, finns i menyn). Texten kommer från ui.heroSunCta i content.js (följer språkbytet), inte Studios hero.ctaSecondaryLabel. ?>
-              <a class="btn btn-ghost" href="100-dagar-av-sol" data-bind="ui.heroSunCta" data-lang-link><?= seo_escape_html($lang === 'en' ? '100 days of sun' : '100 dagar av sol') ?></a>
+              <a id="hero-cta-primary" class="btn btn-ghost" href="<?= seo_escape_html($heroCtaPrimaryHref) ?>"<?= $heroCtaIsExternal($heroCtaPrimaryHref) ? ' target="_blank" rel="noopener"' : ' data-lang-link' ?>><?= seo_escape_html($heroCtaPrimaryLabel) ?></a>
+              <a id="hero-cta-secondary" class="btn btn-ghost" href="<?= seo_escape_html($heroCtaSecondaryHref) ?>"<?= $heroCtaIsExternal($heroCtaSecondaryHref) ? ' target="_blank" rel="noopener"' : ' data-lang-link' ?>><?= seo_escape_html($heroCtaSecondaryLabel) ?></a>
             </div>
           </div>
         </div>
