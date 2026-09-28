@@ -942,6 +942,40 @@ const renderImagePickerSelect = (selectNode, inputNode, labelPrefix) => {
   }
 };
 
+// Förslagslista för länkfälten (hero-knapparna): sidor, avsnitt och alla verk.
+// Visas som <datalist> när man klickar i fältet; man kan fortfarande skriva fritt.
+const STUDIO_STATIC_LINK_OPTIONS = [
+  ['#hem', 'Startsidan: toppen'],
+  ['#galleri', 'Startsidan: utvalda verk'],
+  ['#om', 'Startsidan: artist statement'],
+  ['#projekt', 'Startsidan: 100 dagar av sol-avsnittet'],
+  ['#kontakt', 'Startsidan: kontakt'],
+  ['gallery.html', 'Galleriet'],
+  ['100-dagar-av-sol', 'Solsidan (100 dagar av sol)'],
+  ['100-dagar-av-sol#bestall', 'Solsidan: beställningsformuläret'],
+  ['100-dagar-av-sol#dag-1', 'Solsidan: öppna en viss dag (byt 1 mot dagnumret)']
+];
+
+const renderStudioLinkOptions = () => {
+  const list = document.getElementById('studio-link-options');
+  if (!list) {
+    return;
+  }
+  const artworks = Array.isArray(state.content.gallery?.artworks) ? state.content.gallery.artworks : [];
+  const seen = new Set();
+  const artworkOptions = artworks
+    .map((item) => {
+      const title = typeof item?.title === 'string' ? item.title.trim() : '';
+      const slug = (typeof item?.slug === 'string' && item.slug.trim()) || slugFromName(title);
+      return slug ? [`verk/${slug}`, `Verk: ${title || slug}`] : null;
+    })
+    .filter((option) => option && !seen.has(option[0]) && seen.add(option[0]))
+    .sort((a, b) => a[1].localeCompare(b[1], 'sv'));
+  list.innerHTML = [...STUDIO_STATIC_LINK_OPTIONS, ...artworkOptions]
+    .map(([value, label]) => `<option value="${escapeHtml(value)}" label="${escapeHtml(label)}"></option>`)
+    .join('');
+};
+
 const renderSectionImagePickers = () => {
   renderImagePickerSelect(el.aboutPortraitImagePick, el.aboutPortraitImage, 'Välj porträttbild');
   renderImagePickerSelect(el.materialsImagePick, el.materialsImage, 'Välj materialbild');
@@ -4723,6 +4757,7 @@ const syncFormFromState = () => {
   if (el.heroCtaSecondaryHref) {
     el.heroCtaSecondaryHref.value = storedSecondaryHref || '100-dagar-av-sol';
   }
+  renderStudioLinkOptions();
   el.heroMode.value = hero.mode || 'still';
   el.heroSlideDuration.value = String(numberOrFallback(hero.slideDurationMs, 8000));
   if (el.heroAutoSlidesEnabled) {
