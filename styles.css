@@ -5954,3 +5954,11 @@ body:not([data-page='studio']) .contact-social-links {
   -webkit-user-drag: none;
   user-select: none;
 }
+
+/* Fokus som återställts efter en ljusbox/dialog öppnad med mus/penna/finger:
+   ingen fokusram (tangentbordsanvändare får ramen som vanligt). */
+.focus-ring-suppressed:focus,
+.focus-ring-suppressed:focus-visible,
+.focus-ring-suppressed:focus-visible img {
+  outline: none !important;
+}

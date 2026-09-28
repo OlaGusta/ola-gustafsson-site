@@ -203,6 +203,7 @@
 
   const tileFor = (day) => document.getElementById(`dag-${day}`);
 
+  let viewerOpenedWithPointer = true;
   const show = (day) => {
     const tile = tileFor(day);
     const button = tile ? tile.querySelector('[data-sun-open]') : null;
@@ -220,6 +221,8 @@
       viewerPick.checked = picks.has(day);
     }
     if (!viewer.open) {
+      viewerOpenedWithPointer =
+        typeof window.olaLastInputModality === 'function' ? window.olaLastInputModality() === 'pointer' : true;
       viewer.showModal();
     }
     history.replaceState(null, '', `${location.pathname}${location.search}#dag-${day}`);
@@ -272,8 +275,11 @@
       }
     });
     viewer.addEventListener('close', () => {
-      if (currentDay) {
-        tileFor(currentDay)?.querySelector('[data-sun-open]')?.focus({ preventScroll: false });
+      const opener = currentDay ? tileFor(currentDay)?.querySelector('[data-sun-open]') : null;
+      if (opener && typeof window.olaRestoreFocusAfterDialog === 'function') {
+        window.olaRestoreFocusAfterDialog(opener, viewerOpenedWithPointer);
+      } else if (opener) {
+        opener.focus({ preventScroll: true });
       }
     });
   }

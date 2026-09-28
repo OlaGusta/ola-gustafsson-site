@@ -4704,6 +4704,7 @@ const openLightboxWithItems = (items, index, triggerEl) => {
   lightboxState.items = items.slice();
   lightboxState.currentIndex = boundedIndex;
   lightboxState.lastFocused = triggerEl || null;
+  lightboxState.openedWithPointer = lastInputModality === 'pointer';
 
   updateLightboxView();
   elements.wrap.classList.add('is-open');
@@ -4711,6 +4712,32 @@ const openLightboxWithItems = (items, index, triggerEl) => {
   document.body.classList.add('no-scroll');
   elements.close.focus();
 };
+
+// Senaste inmatningssätt (pekare eller tangentbord). När en ljusbox/dialog som
+// öppnats med mus/penna/finger stängs, återställs fokus utan fokusram – annars
+// visar webbläsaren ramen om man stänger med Esc. Tangentbordsanvändare får ramen.
+let lastInputModality = 'pointer';
+document.addEventListener('pointerdown', () => {
+  lastInputModality = 'pointer';
+}, true);
+document.addEventListener('keydown', (event) => {
+  if (['Tab', 'Enter', ' ', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
+    lastInputModality = 'keyboard';
+  }
+}, true);
+
+const restoreFocusAfterDialog = (element, openedWithPointer) => {
+  if (!element || typeof element.focus !== 'function') {
+    return;
+  }
+  if (openedWithPointer) {
+    element.classList.add('focus-ring-suppressed');
+    element.addEventListener('blur', () => element.classList.remove('focus-ring-suppressed'), { once: true });
+  }
+  element.focus({ preventScroll: true });
+};
+window.olaRestoreFocusAfterDialog = restoreFocusAfterDialog;
+window.olaLastInputModality = () => lastInputModality;
 
 const openLightbox = (index, triggerEl) => {
   openLightboxWithItems(galleryState.filteredItems, index, triggerEl);
@@ -4726,9 +4753,7 @@ const closeLightbox = () => {
   elements.wrap.setAttribute('aria-hidden', 'true');
   document.body.classList.remove('no-scroll');
 
-  if (lastFocused && typeof lastFocused.focus === 'function') {
-    lastFocused.focus();
-  }
+  restoreFocusAfterDialog(lastFocused, lightboxState.openedWithPointer);
 };
 
 const nextLightbox = () => {
