@@ -113,11 +113,11 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
       <link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20260928-20" />
+    <link rel="stylesheet" href="styles.css?v=20260928-21" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <script src="script.js?v=20260928-13" defer></script>
-    <script src="sol.js?v=20260928-04" defer></script>
+    <script src="sol.js?v=20260928-05" defer></script>
   </head>
   <body id="page-top" data-page="sun" data-day-label="<?= $h($dayLabel) ?>" data-remove-label="<?= $h($lang === 'en' ? 'Remove day' : 'Ta bort dag') ?>">
     <header class="site-header" id="top">
@@ -248,6 +248,11 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                 </label>
                 <ul class="sun-picked" id="sun-picked-form" aria-label="<?= $h($lang === 'en' ? 'Selected suns' : 'Valda solar') ?>" hidden></ul>
                 <p class="field-hint sun-picked-hint"><?= $h($lang === 'en' ? 'Different size for a single sun? Change it under that sun.' : 'Vill du ha ett annat format på en enskild sol? Ändra under den solen.') ?></p>
+                <div class="sun-order-total" id="sun-order-total" aria-live="polite" hidden>
+                  <ul class="sun-order-lines" id="sun-order-lines"></ul>
+                  <p class="sun-order-sum"><span><?= $h($lang === 'en' ? 'Total for prints' : 'Summa prints') ?></span><strong id="sun-order-sum"></strong></p>
+                  <p class="field-hint"><?= $h($lang === 'en' ? 'Mat with backing board and shipping are added.' : 'Passepartout med bakstycke och frakt tillkommer.') ?></p>
+                </div>
 
 
 
@@ -297,7 +302,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
     <div class="sun-tray" id="sun-tray" hidden>
       <div class="container sun-tray-inner">
         <ul class="sun-picked" id="sun-picked-tray" aria-label="<?= $h($lang === 'en' ? 'Selected suns' : 'Valda solar') ?>"></ul>
-        <a class="btn btn-primary" href="<?= $h($canonical) ?>#bestall"><?= $h($lang === 'en' ? 'Go to order' : 'Till beställningen') ?> (<span id="sun-tray-count">0</span>)</a>
+        <a class="btn btn-primary" href="<?= $h($canonical) ?>#bestall"><?= $h($lang === 'en' ? 'Go to order' : 'Till beställningen') ?> (<span id="sun-tray-count">0</span><span id="sun-tray-total"></span>)</a>
       </div>
     </div>
 

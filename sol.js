@@ -24,6 +24,10 @@
   const pickedLists = ['sun-picked-form', 'sun-picked-tray'].map((id) => document.getElementById(id)).filter(Boolean);
   const tray = document.getElementById('sun-tray');
   const trayCount = document.getElementById('sun-tray-count');
+  const trayTotal = document.getElementById('sun-tray-total');
+  const totalBox = document.getElementById('sun-order-total');
+  const totalLines = document.getElementById('sun-order-lines');
+  const totalSum = document.getElementById('sun-order-sum');
   const orderSection = document.getElementById('bestall');
   let orderInView = false;
   // Vald dag -> format (värdet i formatväljaren). Varje sol kan ha eget format.
@@ -173,11 +177,29 @@
       .filter((group) => group.days.length > 0);
     const total = groups.reduce((sum, group) => sum + priceNumber(group.price) * group.days.length, 0);
     if (summary) {
-      const count = isEnglish
-        ? `${list.length} ${list.length === 1 ? 'sun' : 'suns'}`
-        : `${list.length} ${list.length === 1 ? 'sol' : 'solar'}`;
-      const extras = isEnglish ? 'mat and shipping extra' : 'passepartout och frakt tillkommer';
-      summary.textContent = list.length === 0 ? '' : total > 0 ? `${count} · ${formatAmount(total)} (${extras})` : count;
+      summary.textContent =
+        list.length === 0
+          ? ''
+          : isEnglish
+            ? `${list.length} ${list.length === 1 ? 'sun' : 'suns'} selected`
+            : `${list.length} ${list.length === 1 ? 'sol vald' : 'solar valda'}`;
+    }
+    // Totalsumma: en rad per format ("2 × Ram 30 × 40 cm à 1 800 kr   3 600 kr") och summan.
+    if (totalBox && totalLines && totalSum) {
+      totalBox.hidden = list.length === 0;
+      const frame = isEnglish ? 'Frame' : 'Ram';
+      const onRequest = isEnglish ? 'price on request' : 'pris på förfrågan';
+      totalLines.innerHTML = groups
+        .map((group) => {
+          const unit = priceNumber(group.price);
+          const amount = unit ? formatAmount(unit * group.days.length) : onRequest;
+          return `<li><span>${group.days.length} × ${frame} ${group.value}${unit ? ` à ${group.price}` : ''}</span><span>${amount}</span></li>`;
+        })
+        .join('');
+      totalSum.textContent = total > 0 ? formatAmount(total) : onRequest;
+    }
+    if (trayTotal) {
+      trayTotal.textContent = total > 0 ? ` · ${formatAmount(total)}` : '';
     }
     if (titleField) {
       const days = groups
