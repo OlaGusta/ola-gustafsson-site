@@ -4928,6 +4928,9 @@ button:focus-visible {
 }
 
 .sun-page-head .section-lead {
+  /* Den generella .section-lead har justify-self: end (startsidans avsnittshuvuden);
+     här ska ingressen linjera med rubriken. */
+  justify-self: start;
   max-width: 62ch;
   color: var(--color-soft-ink);
 }
