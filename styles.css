@@ -6010,3 +6010,30 @@ body:not([data-page='studio']) .contact-social-links {
   font-size: 0.8rem;
   color: var(--color-soft-ink);
 }
+
+/* Beställnings-/intresseanmälans textkolumn (solsidan och verkssidorna): luft mellan
+   styckena och under rubriken, samma färg på alla stycken. */
+.artwork-inquiry-copy {
+  display: grid;
+  gap: 0.85rem;
+  align-content: start;
+}
+
+.artwork-inquiry-copy .eyebrow {
+  margin-bottom: -0.35rem;
+}
+
+.artwork-inquiry-copy h2 {
+  margin-bottom: 0.3rem;
+}
+
+.artwork-inquiry-copy p:not(.eyebrow) {
+  margin: 0;
+  color: var(--color-soft-ink);
+}
+
+.artwork-inquiry-copy .artwork-inquiry-fineprint {
+  font-size: 0.9rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid var(--color-border);
+}
