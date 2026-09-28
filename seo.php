@@ -1172,13 +1172,13 @@ function seo_local_image_aspect(string $src): float
   return $cache[$path] = $aspect;
 }
 
-// "För ram 30 × 40 cm" – formaten i prislistan är ramens/passepartoutens yttermått.
+// "Ram 30 × 40 cm" – formaten i prislistan är ramens/passepartoutens yttermått.
 function seo_print_frame_label(string $format, string $lang): string
 {
-  return ($lang === 'en' ? 'For frame ' : 'För ram ') . $format;
+  return ($lang === 'en' ? 'Frame ' : 'Ram ') . $format;
 }
 
-// "För ram 30 × 40 – 50 × 70 cm" för hela listan (verkssidan).
+// "Ram 30 × 40 – 50 × 70 cm" för hela listan (verkssidan).
 function seo_print_frame_range_label(array $sizes, string $lang): string
 {
   if ($sizes === []) {
@@ -1187,7 +1187,7 @@ function seo_print_frame_range_label(array $sizes, string $lang): string
   $first = (string) preg_replace('/\s*cm$/u', '', $sizes[0]['format']);
   $last = (string) $sizes[count($sizes) - 1]['format'];
   $range = count($sizes) > 1 ? $first . ' – ' . $last : $last;
-  return ($lang === 'en' ? 'For frame ' : 'För ram ') . $range;
+  return ($lang === 'en' ? 'Frame ' : 'Ram ') . $range;
 }
 
 // Ungefärligt bildmått för ett grafiskt blad i en given ram, t.ex. "ca 15 × 23 cm".
