@@ -5998,3 +5998,10 @@ body:not([data-page='studio']) .contact-social-links {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
+
+/* Solsidans prislista: bildmått under ramformatet. */
+.sun-print-table th small {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--color-soft-ink);
+}

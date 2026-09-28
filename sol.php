@@ -113,7 +113,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
       <link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20260928-16" />
+    <link rel="stylesheet" href="styles.css?v=20260928-17" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <script src="script.js?v=20260928-13" defer></script>
@@ -162,7 +162,11 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                 <caption class="visually-hidden"><?= $h($lang === 'en' ? 'Print sizes and prices per sun' : 'Printformat och pris per sol') ?></caption>
                 <tbody>
                   <?php foreach ($printSizes as $size): ?>
-                    <tr><th scope="row"><?= $h($size['format']) ?></th><td><?= $h($size['price'] !== '' ? $size['price'] : ($lang === 'en' ? 'on request' : 'på förfrågan')) ?></td></tr>
+                    <?php $imageSize = seo_print_image_size($size['format'], $lang); ?>
+                    <tr>
+                      <th scope="row"><?= $h(seo_print_frame_label($size['format'], $lang)) ?><?php if ($imageSize !== ''): ?><small><?= $h(($lang === 'en' ? 'image ' : 'bild ') . $imageSize) ?></small><?php endif; ?></th>
+                      <td><?= $h($size['price'] !== '' ? $size['price'] : ($lang === 'en' ? 'on request' : 'på förfrågan')) ?></td>
+                    </tr>
                   <?php endforeach; ?>
                 </tbody>
               </table>
@@ -202,8 +206,11 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
               <p class="eyebrow"><?= $h($lang === 'en' ? 'Order' : 'Beställning') ?></p>
               <h2><?= $h($lang === 'en' ? 'Order fine art prints' : 'Beställ fine art print') ?></h2>
               <p><?= $h($lang === 'en'
-                ? sprintf('Each sun is printed as an enlargement on %s, %s. %s.', seo_print_paper_label($lang), $printFromLabel, seo_print_edition_label($lang))
-                : sprintf('Varje sol trycks som förstoring på %s, %s. %s.', seo_print_paper_label($lang), $printFromLabel, seo_print_edition_label($lang))) ?></p>
+                ? sprintf('Each sun is printed on %s with a 2 cm margin for edition number and signature, %s. %s.', seo_print_paper_label($lang), $printFromLabel, seo_print_edition_label($lang))
+                : sprintf('Varje sol trycks på %s med 2 cm marginal där upplaga och signatur skrivs, %s. %s.', seo_print_paper_label($lang), $printFromLabel, seo_print_edition_label($lang))) ?></p>
+              <p><?= $h($lang === 'en'
+                ? 'The size is the frame size. The mat is cut to fit the frame and shows the whole image and the signature.'
+                : 'Formatet är ramens mått. Passepartouten skärs till ramen och visar hela bilden och signaturen.') ?></p>
               <p><?= $h(seo_order_extras_note($lang)) ?></p>
               <p><?= $h($lang === 'en'
                 ? 'Sending the form is not a binding order. I reply with a total and payment details.'
@@ -230,7 +237,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                 <label><?= $h($lang === 'en' ? 'Size (same for all)' : 'Format (samma för alla)') ?>
                   <select id="sun-order-size" name="printSize">
                     <?php foreach ($printSizes as $i => $size): ?>
-                      <option value="<?= $h($size['format']) ?>" data-price="<?= $h($size['price']) ?>" <?= $i === 0 ? 'selected' : '' ?>><?= $h($size['format'] . ($size['price'] !== '' ? ' – ' . $size['price'] : '')) ?></option>
+                      <option value="<?= $h($size['format']) ?>" data-price="<?= $h($size['price']) ?>" <?= $i === 0 ? 'selected' : '' ?>><?php $optionImage = seo_print_image_size($size['format'], $lang); ?><?= $h(seo_print_frame_label($size['format'], $lang) . ($optionImage !== '' ? ' (' . ($lang === 'en' ? 'image ' : 'bild ') . $optionImage . ')' : '') . ($size['price'] !== '' ? ' – ' . $size['price'] : '')) ?></option>
                     <?php endforeach; ?>
                   </select>
                 </label>

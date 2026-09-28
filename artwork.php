@@ -118,7 +118,7 @@ if (!$artwork) {
         <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
         <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
       <?php endif; ?>
-      <link rel="stylesheet" href="/styles.css?v=20260928-16" />
+      <link rel="stylesheet" href="/styles.css?v=20260928-17" />
     </head>
     <body id="page-top" data-page="artwork">
       <header class="site-header" id="top">
@@ -368,7 +368,7 @@ $priceNote = $lang === 'en'
 $printSizes = seo_print_sizes($payload, $lang);
 $printFromLabel = seo_print_from_label($printSizes, $lang);
 $printFacts = [
-  ($lang === 'en' ? 'Enlargement, ' : 'Förstoring, ') . $printFromLabel,
+  seo_print_frame_range_label($printSizes, $lang) . ', ' . $printFromLabel,
   seo_print_paper_label($lang),
   seo_print_edition_label($lang)
 ];
@@ -647,7 +647,7 @@ if (!is_string($structuredJson)) {
       <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="/styles.css?v=20260928-16" />
+    <link rel="stylesheet" href="/styles.css?v=20260928-17" />
     <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="/content.js?v=20260928-01" defer></script>
     <script src="/script.js?v=20260928-13" defer></script>

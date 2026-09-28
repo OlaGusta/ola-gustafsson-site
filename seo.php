@@ -1116,6 +1116,8 @@ function seo_order_extras_note(string $lang): string
 // Redigeras i Studio (Projekt → "Printprislista"); lagras som project.printSizes.
 // Standardstegen (beslut 2026-09-28): 50×70 = 3 800 kr, övriga skalade med
 // yta^0,70 (samma kurva som originalprislistan), avrundat till hundratal.
+// Formatet = RAMENS yttermått (passepartoutens yttermått). 40×50 ersattes av 40×60
+// 2026-09-28: 40×50 är för brett för solarnas förhållande (se seo_print_image_size).
 function seo_print_sizes(array $payload, string $lang): array
 {
   $raw = $payload['project']['printSizes'] ?? null;
@@ -1132,7 +1134,7 @@ function seo_print_sizes(array $payload, string $lang): array
   if ($sizes === []) {
     $sizes = [
       ['format' => '30 × 40 cm', 'price' => '1 800 kr'],
-      ['format' => '40 × 50 cm', 'price' => '2 600 kr'],
+      ['format' => '40 × 60 cm', 'price' => '2 900 kr'],
       ['format' => '50 × 70 cm', 'price' => '3 800 kr'],
     ];
   }
@@ -1170,4 +1172,59 @@ function seo_local_image_aspect(string $src): float
   $size = is_file($file) ? @getimagesize($file) : false;
   $aspect = is_array($size) && $size[0] > 0 && $size[1] > 0 ? $size[0] / $size[1] : 0.0;
   return $cache[$path] = $aspect;
+}
+
+// "För ram 30 × 40 cm" – formaten i prislistan är ramens/passepartoutens yttermått.
+function seo_print_frame_label(string $format, string $lang): string
+{
+  return ($lang === 'en' ? 'For frame ' : 'För ram ') . $format;
+}
+
+// "För ram 30 × 40 – 50 × 70 cm" för hela listan (verkssidan).
+function seo_print_frame_range_label(array $sizes, string $lang): string
+{
+  if ($sizes === []) {
+    return '';
+  }
+  $first = (string) preg_replace('/\s*cm$/u', '', $sizes[0]['format']);
+  $last = (string) $sizes[count($sizes) - 1]['format'];
+  $range = count($sizes) > 1 ? $first . ' – ' . $last : $last;
+  return ($lang === 'en' ? 'For frame ' : 'För ram ') . $range;
+}
+
+// Ungefärligt bildmått för ett grafiskt blad i en given ram, t.ex. "ca 15 × 23 cm".
+// Regler (lathunden): passepartouten visar bilden + 0,8 cm papper upptill/på sidorna
+// och 1,5 cm nedtill (upplaga/signatur); arket har 2 cm marginal; lika kant upptill
+// och på sidorna med 1–1,5 cm bredare nederkant om det ger kanter på 5–10 cm, annars
+// fast sidkant och överskottet vertikalt. Tomt om ramen inte passar förhållandet.
+// Standardförhållande = solarnas (passepartout 14,5 × 22,5).
+function seo_print_image_size(string $format, string $lang, float $ratio = 14.5 / 22.5): string
+{
+  if (preg_match('/(\d+(?:[.,]\d+)?)\s*[×x]\s*(\d+(?:[.,]\d+)?)/u', $format, $m) !== 1) {
+    return '';
+  }
+  $fw = (float) str_replace(',', '.', $m[1]);
+  $fh = (float) str_replace(',', '.', $m[2]);
+  if ($fw > $fh) {
+    [$fw, $fh] = [$fh, $fw];
+  }
+  $reveal = 0.8;
+  $revealBottom = 1.5;
+  $bottomExtra = $fh <= 40 ? 1.0 : ($fh <= 60 ? 1.2 : 1.5);
+  $equal = ($fw - 2 * $reveal - $ratio * ($fh - $bottomExtra - $reveal - $revealBottom)) / (2 * (1 - $ratio));
+  if ($equal >= 5 && $equal <= 10) {
+    $imageW = $fw - 2 * $equal - 2 * $reveal;
+  } else {
+    $side = $fw >= 40 ? 6.5 : 5.5;
+    $imageW = $fw - 2 * $side - 2 * $reveal;
+    $top = ($fh - ($imageW / $ratio + $reveal + $revealBottom) - $bottomExtra) / 2;
+    if ($top < 4) {
+      return '';
+    }
+  }
+  $imageH = $imageW / $ratio;
+  if ($imageW <= 0) {
+    return '';
+  }
+  return sprintf('%s %d × %d cm', $lang === 'en' ? 'approx.' : 'ca', (int) round($imageW), (int) round($imageH));
 }
