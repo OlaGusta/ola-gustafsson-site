@@ -4230,10 +4230,10 @@ const initWorkStrip = () => {
     return;
   }
   const STEP_MS = 4200;
-  const RESUME_MS = 9000;
+  const RESUME_AFTER_HOVER_MS = 1500;
+  const RESUME_AFTER_USER_MS = 6000;
   let timer = 0;
   let inView = false;
-  let hovering = false;
   let pausedUntil = 0;
 
   const nextOffset = () => {
@@ -4247,30 +4247,48 @@ const initWorkStrip = () => {
     return next ? Math.min(strip.scrollLeft + next.getBoundingClientRect().left - stripLeft, maxScroll) : 0;
   };
 
-  const tick = () => {
-    const canRoll =
-      inView && !hovering && !document.hidden && Date.now() >= pausedUntil && strip.scrollWidth - strip.clientWidth > 8 &&
-      // Pausa bara vid tangentbordsfokus i väggen (ett musklick ger också fokus).
-      !(strip.contains(document.activeElement) && document.activeElement.matches(':focus-visible'));
-    if (canRoll) {
-      strip.scrollTo({ left: nextOffset(), behavior: 'smooth' });
-    }
-  };
-  const start = () => {
-    if (!timer) {
-      timer = window.setInterval(tick, STEP_MS);
-    }
-  };
-  const pauseForUser = () => {
-    pausedUntil = Date.now() + RESUME_MS;
+  // Tangentbordsfokus i väggen pausar. Fokus som återställts tyst efter ljusboxen
+  // (öppnad med mus/finger) räknas inte som tangentbord.
+  const keyboardFocusInStrip = () => {
+    const active = document.activeElement;
+    return Boolean(
+      active &&
+        strip.contains(active) &&
+        active.matches(':focus-visible') &&
+        !active.classList.contains('focus-ring-suppressed')
+    );
   };
 
-  strip.addEventListener('pointerenter', () => {
-    hovering = true;
-  });
+  const canRoll = () =>
+    inView &&
+    !strip.matches(':hover') &&
+    !strip.classList.contains('is-pressed') &&
+    !document.hidden &&
+    !document.body.classList.contains('no-scroll') && // ljusboxen är öppen
+    Date.now() >= pausedUntil &&
+    strip.scrollWidth - strip.clientWidth > 8 &&
+    !keyboardFocusInStrip();
+
+  // Ett steg i taget med setTimeout, så att nästa steg kan tidigareläggas när
+  // pekaren lämnar väggen (i stället för att vänta på ett fast intervall).
+  const schedule = (delay = STEP_MS) => {
+    window.clearTimeout(timer);
+    timer = window.setTimeout(() => {
+      if (canRoll()) {
+        strip.scrollTo({ left: nextOffset(), behavior: 'smooth' });
+      }
+      schedule();
+    }, delay);
+  };
+  const pauseForUser = () => {
+    pausedUntil = Date.now() + RESUME_AFTER_USER_MS;
+    schedule(RESUME_AFTER_USER_MS);
+  };
+
   strip.addEventListener('pointerleave', () => {
-    hovering = false;
-    pauseForUser();
+    if (Date.now() + RESUME_AFTER_HOVER_MS >= pausedUntil) {
+      schedule(RESUME_AFTER_HOVER_MS);
+    }
   });
   ['touchstart', 'wheel', 'keydown', 'pointerdown'].forEach((type) => strip.addEventListener(type, pauseForUser, { passive: true }));
   buttons.forEach((button) => button.addEventListener('click', pauseForUser));
@@ -4282,7 +4300,7 @@ const initWorkStrip = () => {
   } else {
     inView = true;
   }
-  start();
+  schedule();
 };
 
 const initReveal = () => {
