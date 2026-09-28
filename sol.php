@@ -206,11 +206,11 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
               <p class="eyebrow"><?= $h($lang === 'en' ? 'Order' : 'Beställning') ?></p>
               <h2><?= $h($lang === 'en' ? 'Order fine art prints' : 'Beställ fine art print') ?></h2>
               <p><?= $h($lang === 'en'
-                ? sprintf('Each sun is printed on %s, %s. %s.', seo_print_paper_label($lang), $printFromLabel, seo_print_edition_label($lang))
-                : sprintf('Varje sol trycks på %s, %s. %s.', seo_print_paper_label($lang), $printFromLabel, seo_print_edition_label($lang))) ?></p>
+                ? sprintf('Each sun is printed on %s. %s.', seo_print_paper_label($lang), seo_print_edition_label($lang))
+                : sprintf('Varje sol trycks på %s. %s.', seo_print_paper_label($lang), seo_print_edition_label($lang))) ?></p>
               <p><?= $h($lang === 'en'
-                ? 'The size is the frame size. The sheet has a 2 cm margin for edition number and signature, and the mat is cut to the frame so the whole image and the signature show.'
-                : 'Formatet är ramens mått. Arket har 2 cm marginal för upplaga och signatur, och passepartouten skärs till ramen så att hela bilden och signaturen syns.') ?></p>
+                ? 'The size is the frame size. The mat is cut to the frame so the whole image and the signature show.'
+                : 'Formatet är ramens mått. Passepartouten skärs till ramen så att hela bilden och signaturen syns.') ?></p>
               <p><?= $h(seo_order_extras_note($lang)) ?></p>
               <p class="artwork-inquiry-fineprint"><?= $h($lang === 'en'
                 ? 'Sending the form is not a binding order. I reply with a total and payment details.'

@@ -1099,9 +1099,7 @@ function seo_print_edition_label(string $lang): string
 // Tryckpapper för alla prints (Olas val sep 2026).
 function seo_print_paper_label(string $lang): string
 {
-  return $lang === 'en'
-    ? 'Hahnemühle Photo Rag, 100% cotton'
-    : 'Hahnemühle Photo Rag, 100 % bomull';
+  return 'Hahnemühle Photo Rag';
 }
 
 // Tilläggskostnader som ska synas vid varje beställning/intresseanmälan (original och print).
