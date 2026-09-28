@@ -35,7 +35,8 @@
   const priceNumber = (label) => Number(String(label || '').replace(/[^0-9]/g, '')) || 0;
   const formatAmount = (amount) =>
     `${amount.toLocaleString('sv-SE')} ${isEnglish ? 'SEK' : 'kr'}`;
-  const sizeLabel = (value) => value.replace(/\s*cm$/, '');
+  // Kompakt etikett under miniatyren: "30 × 40 cm" -> "30×40".
+  const sizeLabel = (value) => value.replace(/\s*cm$/, '').replace(/\s*×\s*/g, '×');
   let currentDay = 0;
 
   const parseDays = (value) => {

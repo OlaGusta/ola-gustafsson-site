@@ -134,7 +134,7 @@ window.PORTFOLIO_OVERRIDES = {
     "project": {
         "eyebrow": "Projekt",
         "heading": "100 dagar <i>av sol</i>",
-        "description": "Sommaren 2025 genomförde jag projektet 100 dagar av sol. Varje dag tog jag en bild av solen i stunden och målade en liten akvarell (18 × 26 cm). Varje målning fick ta max 20 minuter. Projektet blev ett sätt att träna snabb valörbedömning, närvaro och konsekvent arbete över tid. Något jag snabbt blev medveten om var tajming och hur mycket eller lite pigment jag hade i penseln.",
+        "description": "Sommaren 2025 genomförde jag projektet 100 dagar av sol. Varje dag tog jag en bild av solen i stunden och målade en liten akvarell (18 × 26 cm). Varje målning fick ta max 20 minuter. Projektet blev ett sätt att träna snabb valörbedömning, närvaro och konsekvent arbete över tid. Något jag snabbt blev medveten om var tajming och hur mycket/lite pigment jag hade i penseln.",
         "collageImage": "images/monterade-solar.jpg",
         "collageAlt": "Montage av alla 100 solbilder från projektet 100 dagar av sol.",
         "sampleHeading": "Exempel från serien",
@@ -3461,7 +3461,7 @@ window.PORTFOLIO_OVERRIDES = {
             "project": {
                 "eyebrow": "Projects",
                 "heading": "100 Days of Sun",
-                "description": "In the summer of 2025, I carried out the project 100 Days of Sun. Every day I took a photo of the sun in the moment and painted a small watercolor (18 × 26 cm). Each painting could take a maximum of 20 minutes. The project became a way to practice quick value judgment, presence, and consistent work over time. Something I quickly became aware of was timing and how much or how little pigment I had in the brush.",
+                "description": "In the summer of 2025, I carried out the project 100 Days of Sun. Every day I took a photo of the sun in the moment and painted a small watercolor (18 × 26 cm). Each painting could take a maximum of 20 minutes. The project became a way to practice quick value judgment, presence, and consistent work over time. Something I quickly became aware of was timing and how much/little pigment I had in the brush.",
                 "collageImage": "images/monterade-solar.jpg",
                 "collageAlt": "Montage of all 100 sun images from the project 100 Days of Sun.",
                 "sampleHeading": "Examples from the series",

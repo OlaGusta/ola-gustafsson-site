@@ -5899,8 +5899,10 @@ body:not([data-page='studio']) .contact-social-links {
 /* Solbeställning: formatväljare under varje vald sol i formuläret. */
 .sun-picked-size {
   display: block;
-  width: 5.6rem;
+  width: auto;
+  min-width: 5.2rem;
   margin-top: 0.25rem;
+  padding-right: 1.4rem;
   padding: 0.15rem 0.2rem;
   font: inherit;
   font-size: 0.7rem;
