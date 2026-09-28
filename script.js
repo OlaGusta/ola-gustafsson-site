@@ -4048,6 +4048,77 @@ const initWorkStrip = () => {
       strip.scrollBy({ left: Number(button.dataset.stripStep) * strip.clientWidth * 0.8, behavior: 'smooth' });
     });
   });
+  // Dra med musen (touch och styrplatta scrollar redan själva). Scroll-snap stängs av
+  // under dragningen och väggen snäpper till närmaste verk vid släpp. En dragning
+  // blockerar klicket så att verket inte öppnas när man släpper.
+  let drag = null;
+  let suppressClick = false;
+  strip.addEventListener('pointerdown', (event) => {
+    if (event.pointerType !== 'mouse' || event.button !== 0 || strip.scrollWidth - strip.clientWidth < 8) {
+      return;
+    }
+    drag = { x: event.clientX, left: strip.scrollLeft, moved: false, id: event.pointerId };
+  });
+  window.addEventListener('pointermove', (event) => {
+    if (!drag || event.pointerId !== drag.id) {
+      return;
+    }
+    if (event.buttons === 0) {
+      // Släppet gick förlorat (t.ex. utanför fönstret): avsluta dragningen.
+      endDrag();
+      return;
+    }
+    const dx = event.clientX - drag.x;
+    if (!drag.moved && Math.abs(dx) > 5) {
+      drag.moved = true;
+      strip.classList.add('is-dragging');
+      try {
+        strip.setPointerCapture(event.pointerId);
+      } catch (error) {
+        // Utan capture fungerar dragningen ändå; släppet fångas på window.
+      }
+    }
+    if (drag.moved) {
+      strip.scrollLeft = drag.left - dx;
+    }
+  });
+  const endDrag = (event) => {
+    if (!drag || (event && event.pointerId !== drag.id)) {
+      return;
+    }
+    const moved = drag.moved;
+    drag = null;
+    if (!moved) {
+      return;
+    }
+    suppressClick = true;
+    window.setTimeout(() => {
+      suppressClick = false;
+    }, 0);
+    const stripLeft = strip.getBoundingClientRect().left;
+    const nearest = Array.from(strip.querySelectorAll('.work-card'))
+      .map((card) => card.getBoundingClientRect().left - stripLeft)
+      .reduce((best, offset) => (Math.abs(offset) < Math.abs(best) ? offset : best), Infinity);
+    strip.classList.remove('is-dragging');
+    if (Number.isFinite(nearest)) {
+      strip.scrollTo({ left: strip.scrollLeft + nearest, behavior: 'smooth' });
+    }
+  };
+  window.addEventListener('pointerup', endDrag);
+  window.addEventListener('pointercancel', endDrag);
+  strip.addEventListener('lostpointercapture', () => endDrag());
+  strip.addEventListener(
+    'click',
+    (event) => {
+      if (suppressClick) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    },
+    true
+  );
+  strip.addEventListener('dragstart', (event) => event.preventDefault());
+
   strip.addEventListener('scroll', update, { passive: true });
   window.addEventListener('resize', update);
   // Korten ritas om av galleriet och bilderna laddas efterhand: räkna om då.
@@ -4105,7 +4176,7 @@ const initWorkStrip = () => {
     hovering = false;
     pauseForUser();
   });
-  ['touchstart', 'wheel', 'keydown'].forEach((type) => strip.addEventListener(type, pauseForUser, { passive: true }));
+  ['touchstart', 'wheel', 'keydown', 'pointerdown'].forEach((type) => strip.addEventListener(type, pauseForUser, { passive: true }));
   buttons.forEach((button) => button.addEventListener('click', pauseForUser));
 
   if ('IntersectionObserver' in window) {

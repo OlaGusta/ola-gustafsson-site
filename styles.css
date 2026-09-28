@@ -5924,3 +5924,29 @@ body:not([data-page='studio']) .contact-social-links {
 .sun-picked-hint {
   margin: 0;
 }
+
+/* Dra med musen i startsidans vägg (initWorkStrip). */
+@media (hover: hover) and (pointer: fine) {
+  .gallery-grid.work-strip {
+    cursor: grab;
+  }
+
+  .gallery-grid.work-strip .work-card {
+    cursor: inherit;
+  }
+}
+
+.gallery-grid.work-strip.is-dragging {
+  cursor: grabbing;
+  scroll-snap-type: none;
+  user-select: none;
+}
+
+.gallery-grid.work-strip.is-dragging .work-card {
+  pointer-events: none;
+}
+
+.gallery-grid.work-strip img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
