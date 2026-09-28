@@ -335,7 +335,7 @@ if (!is_string($structuredJson)) {
         </a>
         <nav id="main-nav" class="main-nav" aria-label="Huvudmeny" data-bind-aria="ui.navAriaLabel">
           <a href="#hem" data-bind="ui.navHome">Hem</a>
-          <a href="#galleri" data-bind="ui.navGallery">Galleri</a>
+          <a href="gallery.html" data-bind="ui.navGallery" data-lang-link>Galleri</a>
           <a href="#om" data-bind="ui.navAbout">Om</a>
           <a href="#kontakt" data-bind="ui.navContact">Kontakt</a>
         </nav>
@@ -386,7 +386,7 @@ if (!is_string($structuredJson)) {
             <p data-bind="hero.intro"><?= seo_render_multiline_html($heroIntro) ?></p>
             <p class="hero-line" data-bind="hero.line"><?= seo_escape_html($heroLine) ?></p>
             <div class="hero-actions">
-              <a class="btn btn-ghost" href="#galleri" data-bind="hero.ctaPrimaryLabel"><?= seo_escape_html($heroCtaPrimaryLabel) ?></a>
+              <a class="btn btn-ghost" href="gallery.html" data-bind="hero.ctaPrimaryLabel" data-lang-link><?= seo_escape_html($heroCtaPrimaryLabel) ?></a>
               <a class="btn btn-ghost" href="#om" data-bind="hero.ctaSecondaryLabel"><?= seo_escape_html($heroCtaSecondaryLabel) ?></a>
             </div>
           </div>
