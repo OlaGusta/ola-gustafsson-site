@@ -193,7 +193,7 @@ if (!$artwork) {
 
       <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
       <script src="/content.js?v=20260928-01" defer></script>
-      <script src="/script.js?v=20260928-15" defer></script>
+      <script src="/script.js?v=20260930-01" defer></script>
     </body>
   </html>
   <?php
@@ -658,7 +658,7 @@ if (!is_string($structuredJson)) {
     <link rel="stylesheet" href="/styles.css?v=20260930-01" />
     <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="/content.js?v=20260928-01" defer></script>
-    <script src="/script.js?v=20260928-15" defer></script>
+    <script src="/script.js?v=20260930-01" defer></script>
   </head>
   <body id="page-top" data-page="artwork">
     <header class="site-header" id="top">
@@ -775,7 +775,7 @@ if (!is_string($structuredJson)) {
 
               <?php if ($fineArtPrint): ?>
                 <div class="artwork-print-offer">
-                  <a class="artwork-fineart-print" href="/gallery.html?filter=fine-art-print" data-lang-link><?= htmlspecialchars($lang === 'en' ? 'Also available as fine art print' : 'Finns även som Fine Art Print', ENT_QUOTES) ?></a>
+                  <a class="artwork-fineart-print" href="<?= htmlspecialchars($inquiryPrimaryHref, ENT_QUOTES) ?>" data-choose-print><?= htmlspecialchars($lang === 'en' ? 'Also available as fine art print' : 'Finns även som Fine Art Print', ENT_QUOTES) ?></a>
                   <p><?= htmlspecialchars(implode(' · ', $printFacts), ENT_QUOTES) ?></p>
                 </div>
               <?php endif; ?>

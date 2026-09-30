@@ -3842,6 +3842,16 @@ const initArtworkInquiryForm = () => {
       }
     };
     kindInputs.forEach((input) => input.addEventListener('change', applyKind));
+    // "Finns även som Fine Art Print" på verkssidan: hoppa till formuläret med print förvalt.
+    document.querySelectorAll('[data-choose-print]').forEach((link) => {
+      link.addEventListener('click', () => {
+        const printInput = kindInputs.find((input) => input.value === 'print');
+        if (printInput && !printInput.checked) {
+          printInput.checked = true;
+          applyKind();
+        }
+      });
+    });
     if (sizeSelect) {
       sizeSelect.addEventListener('change', applyKind);
     }
