@@ -6083,3 +6083,41 @@ body:not([data-page='studio']) .contact-social-links {
 .sun-order-total .field-hint {
   margin: 0;
 }
+
+/* Studio: printformat per verk (under "Finns även som Fine Art Print") */
+.studio-page .artwork-print-formats {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--color-border);
+  background: #fff;
+}
+.studio-page .artwork-print-formats[hidden] {
+  display: none;
+}
+.studio-page .artwork-print-formats-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.studio-page .artwork-print-formats small[data-print-image] {
+  color: var(--color-soft-ink, #4f5766);
+}
+.studio-page .artwork-print-formats input:disabled + span {
+  opacity: 0.5;
+}
+.studio-page .artwork-detail-fields .artwork-print-formats .checkbox-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.55rem;
+  border: 0;
+  background: none;
+  padding: 0;
+  min-height: 0;
+}
+.studio-page .artwork-detail-fields .artwork-print-formats .checkbox-row input {
+  width: auto;
+  flex: none;
+  margin: 0;
+}

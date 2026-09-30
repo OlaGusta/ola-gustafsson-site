@@ -1199,6 +1199,11 @@ function seo_print_frame_range_label(array $sizes, string $lang): string
 // 18 × 26 med 1,9 cm marginal, plus ~1,5 mm papper runt om). Printarna räknas på rutan.
 function seo_print_image_size(string $format, string $lang, float $ratio = 14.5 / 22.5): string
 {
+  // Liggande bild (bredd/höjd > 1): räkna som stående i en vriden ram och vänd svaret.
+  $landscape = $ratio > 1;
+  if ($landscape) {
+    $ratio = 1 / $ratio;
+  }
   if (preg_match('/(\d+(?:[.,]\d+)?)\s*[×x]\s*(\d+(?:[.,]\d+)?)/u', $format, $m) !== 1) {
     return '';
   }
@@ -1210,7 +1215,10 @@ function seo_print_image_size(string $format, string $lang, float $ratio = 14.5 
   $reveal = 0.8;
   $revealBottom = 1.5;
   $bottomExtra = $fh <= 40 ? 1.0 : ($fh <= 60 ? 1.2 : 1.5);
-  $equal = ($fw - 2 * $reveal - $ratio * ($fh - $bottomExtra - $reveal - $revealBottom)) / (2 * (1 - $ratio));
+  // Kvadratisk bild: lika kanter går inte att lösa (nämnaren blir 0), använd fast sidkant.
+  $equal = $ratio > 0.99
+    ? -1.0
+    : ($fw - 2 * $reveal - $ratio * ($fh - $bottomExtra - $reveal - $revealBottom)) / (2 * (1 - $ratio));
   if ($equal >= 5 && $equal <= 10) {
     $imageW = $fw - 2 * $equal - 2 * $reveal;
   } else {
@@ -1225,5 +1233,50 @@ function seo_print_image_size(string $format, string $lang, float $ratio = 14.5 
   if ($imageW <= 0) {
     return '';
   }
-  return sprintf('%s %d × %d cm', $lang === 'en' ? 'approx.' : 'ca', (int) round($imageW), (int) round($imageH));
+  [$outW, $outH] = $landscape ? [$imageH, $imageW] : [$imageW, $imageH];
+  return sprintf('%s %d × %d cm', $lang === 'en' ? 'approx.' : 'ca', (int) round($outW), (int) round($outH));
+}
+
+// "30 × 40 cm" -> "30x40", så att format i verket matchar prislistan oavsett skrivsätt.
+function seo_print_format_key(string $format): string
+{
+  if (preg_match('/(\d+(?:[.,]\d+)?)\s*[×x]\s*(\d+(?:[.,]\d+)?)/u', $format, $m) !== 1) {
+    return '';
+  }
+  $a = (float) str_replace(',', '.', $m[1]);
+  $b = (float) str_replace(',', '.', $m[2]);
+  return rtrim(rtrim(number_format(min($a, $b), 1, '.', ''), '0'), '.') . 'x'
+    . rtrim(rtrim(number_format(max($a, $b), 1, '.', ''), '0'), '.');
+}
+
+// Printformat för ett enskilt verk: prislistan filtrerad på verkets printFormats
+// (tomt = alla), med ungefärligt bildmått utifrån bildens proportioner. Format där
+// bilden inte får plats i ramen tas bort när proportionen är känd.
+function seo_artwork_print_sizes(array $payload, array $artwork, string $lang): array
+{
+  $sizes = seo_print_sizes($payload, $lang);
+  $chosen = [];
+  if (isset($artwork['printFormats']) && is_array($artwork['printFormats'])) {
+    foreach ($artwork['printFormats'] as $format) {
+      $key = is_string($format) ? seo_print_format_key($format) : '';
+      if ($key !== '') {
+        $chosen[$key] = true;
+      }
+    }
+  }
+  $src = isset($artwork['src']) && is_string($artwork['src']) ? $artwork['src'] : '';
+  $aspect = $src !== '' ? seo_local_image_aspect($src) : 0.0;
+  $result = [];
+  foreach ($sizes as $size) {
+    if ($chosen !== [] && !isset($chosen[seo_print_format_key($size['format'])])) {
+      continue;
+    }
+    $image = $aspect > 0 ? seo_print_image_size($size['format'], $lang, $aspect) : '';
+    if ($aspect > 0 && $image === '') {
+      continue;
+    }
+    $size['image'] = $image;
+    $result[] = $size;
+  }
+  return $result;
 }

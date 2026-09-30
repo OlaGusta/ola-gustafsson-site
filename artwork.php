@@ -126,7 +126,7 @@ if (!$artwork) {
         <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
         <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
       <?php endif; ?>
-      <link rel="stylesheet" href="/styles.css?v=20260928-21" />
+      <link rel="stylesheet" href="/styles.css?v=20260930-01" />
     </head>
     <body id="page-top" data-page="artwork">
       <header class="site-header" id="top">
@@ -350,7 +350,7 @@ $inquiryBody = $lang === 'en'
 $inquiryButtonLabel = $lang === 'en'
   ? ($inquiryMode === 'similar' ? 'Ask about similar work' : 'Interested in this work')
   : ($inquiryMode === 'similar' ? 'Fråga om liknande verk' : 'Intresserad av verket');
-if (!empty($artwork['fineArtPrint']) && $inquiryMode === 'similar') {
+if (!empty($artwork['fineArtPrint']) && $inquiryMode === 'similar' && seo_artwork_print_sizes($payload, $artwork, $lang) !== []) {
   $inquiryButtonLabel = $lang === 'en' ? 'Order fine art print' : 'Beställ Fine Art Print';
 }
 $priceLabelSv = isset($artwork['priceLabel']) && is_string($artwork['priceLabel']) ? trim($artwork['priceLabel']) : '';
@@ -364,7 +364,8 @@ $collectorNoteSv = isset($artwork['collectorNote']) && is_string($artwork['colle
 $collectorNote = isset($translation['collectorNote']) && is_string($translation['collectorNote']) && trim($translation['collectorNote']) !== ''
   ? trim($translation['collectorNote'])
   : $collectorNoteSv;
-$fineArtPrint = !empty($artwork['fineArtPrint']);
+$printSizes = seo_artwork_print_sizes($payload, $artwork, $lang);
+$fineArtPrint = !empty($artwork['fineArtPrint']) && $printSizes !== [];
 // Prisnot (oinramat, passepartout, ram) visas bara när ett faktiskt belopp anges
 // och verket går att köpa. "Pris på förfrågan", sålda och ej-till-salu får ingen not.
 $priceNoteVisible = $priceLabel !== ''
@@ -373,7 +374,6 @@ $priceNoteVisible = $priceLabel !== ''
 $priceNote = $lang === 'en'
   ? 'Signed by the artist. Unframed. Mat with backing board from 300 SEK, framing at cost. Shipping is added.'
   : 'Signerad av konstnären. Oinramat. Passepartout med bakstycke från 300 kr, ram till självkostnad. Frakt tillkommer.';
-$printSizes = seo_print_sizes($payload, $lang);
 $printFromLabel = seo_print_from_label($printSizes, $lang);
 $printFacts = [
   seo_print_frame_range_label($printSizes, $lang) . ', ' . $printFromLabel,
@@ -655,7 +655,7 @@ if (!is_string($structuredJson)) {
       <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="/styles.css?v=20260928-21" />
+    <link rel="stylesheet" href="/styles.css?v=20260930-01" />
     <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="/content.js?v=20260928-01" defer></script>
     <script src="/script.js?v=20260928-15" defer></script>
@@ -846,7 +846,7 @@ if (!is_string($structuredJson)) {
                   <label class="artwork-inquiry-print-size" data-print-size-wrap <?= $originalAvailable ? 'hidden' : '' ?>><?= htmlspecialchars($lang === 'en' ? 'Print size' : 'Printformat', ENT_QUOTES) ?>
                     <select name="printSize" data-print-size>
                       <?php foreach ($printSizes as $i => $size): ?>
-                        <option value="<?= htmlspecialchars($size['format'], ENT_QUOTES) ?>" data-price="<?= htmlspecialchars($size['price'], ENT_QUOTES) ?>" <?= $i === 0 ? 'selected' : '' ?>><?= htmlspecialchars($size['format'] . ($size['price'] !== '' ? ' – ' . $size['price'] : ''), ENT_QUOTES) ?></option>
+                        <option value="<?= htmlspecialchars($size['format'], ENT_QUOTES) ?>" data-price="<?= htmlspecialchars($size['price'], ENT_QUOTES) ?>" <?= $i === 0 ? 'selected' : '' ?>><?= htmlspecialchars(seo_print_frame_label($size['format'], $lang) . ($size['image'] !== '' ? ' (' . ($lang === 'en' ? 'image ' : 'bild ') . $size['image'] . ')' : '') . ($size['price'] !== '' ? ' – ' . $size['price'] : ''), ENT_QUOTES) ?></option>
                       <?php endforeach; ?>
                     </select>
                   </label>

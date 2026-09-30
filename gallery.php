@@ -164,7 +164,7 @@ if (!is_string($structuredJson)) {
       <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20260928-21" />
+    <link rel="stylesheet" href="styles.css?v=20260930-01" />
     <script src="overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <script src="script.js?v=20260928-15" defer></script>

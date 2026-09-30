@@ -90,7 +90,7 @@ window.PORTFOLIO_OVERRIDES = {
         "imageAlt": "Akvarell i blå toner med stadsvy och långa skuggor.",
         "ctaPrimaryLabel": "Se målningar",
         "ctaSecondaryLabel": "100 dagar av sol",
-        "modeUpdatedAt": 1790590826377,
+        "modeUpdatedAt": 1790764356793,
         "ctaPrimaryHref": "gallery.html",
         "ctaSecondaryHref": "100-dagar-av-sol"
     },
@@ -238,7 +238,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "collectorNote": "Minnesbild från en varm, lång dag i Karlskrona för ett par år sedan. Jag har fokuserat en enkel kontrasterande färgställning i ett försök att framhäva detta orörliga stenblocks väsen. ",
                 "slug": "saltos-sjal",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1784578881000
             },
             {
                 "src": "images/img-2707.webp",
@@ -262,7 +263,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "collectorNote": "Förstudie till ett helark 56 x 76 cm",
                 "slug": "reflected-sun",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1782996313000
             },
             {
                 "src": "images/img-2702.webp",
@@ -285,7 +287,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "objectPosition": "center center",
                 "slug": "under-ytan-forstudie",
                 "priceLabel": "1 200 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1782996315000
             },
             {
                 "src": "images/img-2128-2.jpg",
@@ -310,7 +313,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "previewSrc": "",
                 "collectorNote": "Visas/publicerad hos NAS",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777925214000
             },
             {
                 "src": "images/img-2115.webp",
@@ -333,7 +337,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "objectPosition": "center center",
                 "slug": "var-i-nyfors",
                 "priceLabel": "2 200 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777802109000
             },
             {
                 "src": "images/img-1703.webp",
@@ -358,7 +363,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "slug": "innan-dagen-2",
                 "collectorNote": "Innan dagen 2 är ett akvarelloriginal från 2026 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. Hör gärna av dig för frågor om format, inramning eller tillgänglighet.",
                 "priceLabel": "9 500 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-1808-3.webp",
@@ -384,7 +390,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "previewSrc": "",
                 "collectorNote": "Innan dagen 1 är ett akvarelloriginal från 2026 från Heestrand på västkusten, med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
                 "priceLabel": "9 500 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-1620.webp",
@@ -408,7 +415,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "slug": "stenen-i-sollenkroka",
                 "collectorNote": "Stenen i Sollenkroka är ett akvarelloriginal från 2026 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-1529.webp",
@@ -433,7 +441,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "slug": "tidig-februarimorgon-i-heestrand",
                 "collectorNote": "Tidig februarimorgon i Heestrand är ett akvarelloriginal från 2026 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. ",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-1530.webp",
@@ -457,7 +466,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "slug": "bortom-klippan",
                 "collectorNote": "Bortom klippan är ett akvarelloriginal från 2026 från en resa till Heestrand på västkusten,  där ljus, vatten och horisont står i centrum. Hör gärna av dig för frågor om format, inramning eller tillgänglighet.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/februarisol.webp",
@@ -481,7 +491,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Februarisol är ett akvarelloriginal från 2023 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
                 "availability": "available",
-                "priceLabel": "5 400 kr"
+                "priceLabel": "5 400 kr",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/marinmuseet-i-juli-karlskrona.webp",
@@ -506,7 +517,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": true,
                 "collectorNote": "Marinmuseet i juli, Karlskrona är ett akvarelloriginal från 2023 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
                 "availability": "reserved",
-                "priceLabel": "5 400 kr"
+                "priceLabel": "5 400 kr",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/johanna-i-skymningen.webp",
@@ -531,7 +543,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Johanna i skymningen är ett akvarelloriginal från 2024 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. För samlare passar verket som en lågmäld del av serien kring plats, ljus och närvaro.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/vinterskymning.webp",
@@ -555,7 +568,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Vinterskymning är ett akvarelloriginal från 2025 med himmelmotiv där moln, ljus och atmosfär står i centrum. Hör gärna av dig för frågor om format, inramning eller tillgänglighet.",
                 "priceLabel": "3 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/sommarskymning-i-skogen.webp",
@@ -579,7 +593,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Sommarskymning i skogstjärnen är ett akvarelloriginal från 2022 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
                 "availability": "available",
-                "priceLabel": "5 400 kr"
+                "priceLabel": "5 400 kr",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/strandfa-glar.webp",
@@ -604,7 +619,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": true,
                 "collectorNote": "Strandfåglar är ett akvarelloriginal från 2023 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/pa-promenad-med-sotis.webp",
@@ -629,7 +645,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "På promenad med sotis är ett akvarelloriginal från 2024 med stadsmotiv där ljus, arkitektur och rörelse står i centrum. För samlare passar verket som en lågmäld del av serien kring plats, ljus och närvaro.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/humla.jpg",
@@ -653,7 +670,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": true,
                 "collectorNote": "Humla är ett akvarelloriginal från 2023 med djurmotiv där blick, rörelse och närvaro står i centrum. Hör gärna av dig för frågor om format, inramning eller tillgänglighet.",
                 "priceLabel": "2 200 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/sashastudie.jpg",
@@ -677,7 +695,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": true,
                 "collectorNote": "Sashastudie är ett akvarelloriginal från 2022 med djurmotiv där blick, rörelse och närvaro står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
                 "priceLabel": "1 200 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/sashastudie2.jpg",
@@ -701,7 +720,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": true,
                 "collectorNote": "Sashastudie2 är ett akvarelloriginal från 2022 med djurmotiv där blick, rörelse och närvaro står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
                 "priceLabel": "1 200 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/januarihimmel.jpg",
@@ -726,7 +746,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Januarihimmel är ett akvarelloriginal från 2024 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. För samlare passar verket som en lågmäld del av serien kring plats, ljus och närvaro.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/va-rvinterhus.jpg",
@@ -751,7 +772,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Vårvinterhus är ett akvarelloriginal från 2023 med plats- och byggnadsmotiv där ljus, fasader och landskapets omgivning står i centrum. Hör gärna av dig för frågor om format, inramning eller tillgänglighet.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/bergsva-g.jpg",
@@ -775,7 +797,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Bergsväg är ett akvarelloriginal från 2023 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/vid-stranden.jpg",
@@ -799,7 +822,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Vid stranden är ett akvarelloriginal från 2023 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
                 "priceLabel": "4 800 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/under-berget.jpg",
@@ -823,7 +847,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Under berget är ett akvarelloriginal från 2024 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. För samlare passar verket som en lågmäld del av serien kring plats, ljus och närvaro.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-1310-2.jpg",
@@ -847,7 +872,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Den sista skymningen är ett akvarelloriginal från 2026 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Hör gärna av dig för frågor om format, inramning eller tillgänglighet.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-2789-jpg.jpg",
@@ -871,7 +897,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Moln är ett akvarelloriginal från 2025 med himmelmotiv där moln, ljus och atmosfär står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
                 "priceLabel": "2 200 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-gustafsson-arrival.webp",
@@ -896,7 +923,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "collectorNote": "Flygvy på väg hem en försommardag för något år sedan. ",
                 "slug": "ankomst",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1778840988000
             },
             {
                 "src": "images/img-2463.jpg",
@@ -921,7 +949,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": true,
                 "collectorNote": "Getostbonden är ett akvarelloriginal från 2023 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
                 "priceLabel": "3 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-2822.jpg",
@@ -945,7 +974,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Vinterskymning 2 är ett akvarelloriginal från 2025 med himmelmotiv där moln, ljus och atmosfär står i centrum. För samlare passar verket som en lågmäld del av serien kring plats, ljus och närvaro.",
                 "priceLabel": "3 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-2444.jpg",
@@ -971,7 +1001,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Danviken, Stockholm är ett akvarelloriginal från 2025 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. Hör gärna av dig för frågor om format, inramning eller tillgänglighet.",
                 "priceLabel": "3 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-3843-jpg.jpg",
@@ -996,7 +1027,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Prästgården i Blomskog är ett akvarelloriginal från 2023 med plats- och byggnadsmotiv där ljus, fasader och landskapets omgivning står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-2051-jpg.jpg",
@@ -1020,7 +1052,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Höstskymning i Humlan 2 är ett akvarelloriginal från 2024 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-2033.jpg",
@@ -1044,7 +1077,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Höstskymning i Humlan är ett akvarelloriginal från 2024 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. För samlare passar verket som en lågmäld del av serien kring plats, ljus och närvaro.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-4667.jpg",
@@ -1068,7 +1102,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "På väg till Karlskrona är ett akvarelloriginal från 2022 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Hör gärna av dig för frågor om format, inramning eller tillgänglighet.",
                 "priceLabel": "3 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-2516-jpg.jpg",
@@ -1092,7 +1127,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": true,
                 "collectorNote": "Lilla katten drömmer 2 är ett akvarelloriginal från 2022 med djurmotiv där blick, rörelse och närvaro står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
                 "priceLabel": "1 200 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-2515-jpg.jpg",
@@ -1116,7 +1152,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": true,
                 "collectorNote": "Lilla katten drömmer är ett akvarelloriginal från 2022 med djurmotiv där blick, rörelse och närvaro står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
                 "priceLabel": "1 200 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-7804.jpg",
@@ -1141,7 +1178,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Skymningslador är ett akvarelloriginal från 2023 med plats- och byggnadsmotiv där ljus, fasader och landskapets omgivning står i centrum. För samlare passar verket som en lågmäld del av serien kring plats, ljus och närvaro.",
                 "availability": "available",
-                "priceLabel": "5 400 kr"
+                "priceLabel": "5 400 kr",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-2802-jpg.jpg",
@@ -1165,7 +1203,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Vintermoln är ett akvarelloriginal från 2025 med himmelmotiv där moln, ljus och atmosfär står i centrum. Hör gärna av dig för frågor om format, inramning eller tillgänglighet.",
                 "priceLabel": "3 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-2812-jpg.jpg",
@@ -1189,7 +1228,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Skymningsmoln är ett akvarelloriginal från 2025 med himmelmotiv där moln, ljus och atmosfär står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
                 "priceLabel": "3 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-1589.jpg",
@@ -1214,7 +1254,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Dimma över stadsgården är ett akvarelloriginal från 2024 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "reserved",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-8290.jpg",
@@ -1239,7 +1280,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Johanna på Ven är ett akvarelloriginal från 2024 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. För samlare passar verket som en lågmäld del av serien kring plats, ljus och närvaro.",
                 "priceLabel": "3 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/apc-0018-hdr.jpg",
@@ -1263,7 +1305,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": true,
                 "collectorNote": "Ugglan är ett akvarelloriginal från 2022 med djurmotiv där blick, rörelse och närvaro står i centrum. Hör gärna av dig för frågor om format, inramning eller tillgänglighet.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-9924.jpg",
@@ -1287,7 +1330,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "State of Mind är ett akvarelloriginal från 2025 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-9904.jpg",
@@ -1311,7 +1355,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "State of mind 2 är ett akvarelloriginal från 2025 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/34f609a7-8a7c-4710-b083-574927e4d7ec.jpg",
@@ -1335,7 +1380,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Vår i Humlan är ett akvarelloriginal från 2024 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. För samlare passar verket som en lågmäld del av serien kring plats, ljus och närvaro.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-0889.jpg",
@@ -1360,7 +1406,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Blöt Januari i Aspudden är ett akvarelloriginal från 2026 med plats- och byggnadsmotiv där ljus, fasader och landskapets omgivning står i centrum. Hör gärna av dig för frågor om format, inramning eller tillgänglighet.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-0344-2.jpg",
@@ -1385,7 +1432,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Trollskog är ett akvarelloriginal från 2025 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
                 "priceLabel": "4 500 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-0346-2.jpg",
@@ -1410,7 +1458,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Mörk skog är ett akvarelloriginal från 2025 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
                 "priceLabel": "4 500 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/decemberskymning-p-tjurk-2.jpg",
@@ -1434,7 +1483,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Decemberskymning på Tjurkö är ett akvarelloriginal från 2026 med plats- och byggnadsmotiv där ljus, fasader och landskapets omgivning står i centrum. ",
                 "priceLabel": "2 900 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/stadshotellet-i-karlskrona-2.jpg",
@@ -1458,7 +1508,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Stadshotellet i Karlskrona är ett akvarelloriginal från 2026 med stadsmotiv där ljus, arkitektur och rörelse står i centrum. Hör gärna av dig för frågor om format, inramning eller tillgänglighet.",
                 "priceLabel": "3 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/img-0874-2.jpg",
@@ -1483,7 +1534,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Himmel över Skagen är ett akvarelloriginal från 2025 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/skymning-i-gamla-stan-2.jpg",
@@ -1507,7 +1559,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Skymning i Gamla stan är ett akvarelloriginal från 2026 med stadsmotiv där ljus, arkitektur och rörelse står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/kustvy-i-heestrand-2.jpg",
@@ -1531,7 +1584,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Kustvy i Heestrand är ett akvarelloriginal från 2026 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. För samlare passar verket som en lågmäld del av serien kring plats, ljus och närvaro.",
                 "priceLabel": "3 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/vinterstudie-av-heestrand.jpg",
@@ -1556,7 +1610,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Vinterstudie av Heestrand är ett akvarelloriginal från 2026 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Hör gärna av dig för frågor om format, inramning eller tillgänglighet.",
                 "priceLabel": "3 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/vykort-till-budapest.jpg",
@@ -1579,7 +1634,8 @@ window.PORTFOLIO_OVERRIDES = {
                 ],
                 "heroExclude": false,
                 "collectorNote": "Vykort till Budapest är ett akvarelloriginal från 2026 med plats- och byggnadsmotiv där ljus, fasader och landskapets omgivning står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
-                "availability": "nfs"
+                "availability": "nfs",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/johanna-och-berget.jpg",
@@ -1602,7 +1658,8 @@ window.PORTFOLIO_OVERRIDES = {
                 ],
                 "heroExclude": false,
                 "collectorNote": "Johanna och berget är ett akvarelloriginal från 2026 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
-                "availability": "nfs"
+                "availability": "nfs",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/utsikt-fr-n-bryggareberget.jpg",
@@ -1626,7 +1683,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Utsikt från bryggareberget är ett akvarelloriginal från 2026 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. För samlare passar verket som en lågmäld del av serien kring plats, ljus och närvaro.",
                 "priceLabel": "9 500 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-27.jpg",
@@ -1647,7 +1705,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Skymningstallar är ett akvarelloriginal från 2024 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Hör gärna av dig för frågor om format, inramning eller tillgänglighet.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-26.jpg",
@@ -1668,7 +1727,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "collectorNote": "Hammarbybacken, februari är ett akvarelloriginal från 2025 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
                 "availability": "available",
                 "format": "56 x 26 cm",
-                "priceLabel": "4 200 kr"
+                "priceLabel": "4 200 kr",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-25.jpg",
@@ -1689,7 +1749,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Vinter i Humlan är ett akvarelloriginal från 2025 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-24.jpg",
@@ -1710,7 +1771,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Pappa i Sandemar är ett akvarelloriginal från 2024 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. För samlare passar verket som en lågmäld del av serien kring plats, ljus och närvaro.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-23.jpg",
@@ -1731,7 +1793,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Sommarkväll på Saltö är ett akvarelloriginal från 2024 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. Hör gärna av dig för frågor om format, inramning eller tillgänglighet.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-22.jpg",
@@ -1751,7 +1814,8 @@ window.PORTFOLIO_OVERRIDES = {
                 ],
                 "heroExclude": false,
                 "collectorNote": "Visas/publicerad hos NAS",
-                "availability": "nfs"
+                "availability": "nfs",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-21.jpg",
@@ -1771,7 +1835,8 @@ window.PORTFOLIO_OVERRIDES = {
                 ],
                 "heroExclude": false,
                 "collectorNote": "Glittret 2 är ett akvarelloriginal från 2025 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
-                "availability": "nfs"
+                "availability": "nfs",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-20.jpg",
@@ -1792,7 +1857,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Utklippan, Karlskrona är ett akvarelloriginal från 2024 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. För samlare passar verket som en lågmäld del av serien kring plats, ljus och närvaro.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-19.jpg",
@@ -1814,7 +1880,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Mot skymningen är ett akvarelloriginal från 2024 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Hör gärna av dig för frågor om format, inramning eller tillgänglighet.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-18.jpg",
@@ -1836,7 +1903,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Molnet är ett akvarelloriginal från 2024 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-17.jpg",
@@ -1857,7 +1925,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Visas/publicerad hos NAS",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-16.jpg",
@@ -1879,7 +1948,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Kall februaridag i Nacka är ett akvarelloriginal från 2025 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. För samlare passar verket som en lågmäld del av serien kring plats, ljus och närvaro.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-15.jpg",
@@ -1900,7 +1970,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": true,
                 "collectorNote": "Sommarnatt i Stockholm är ett akvarelloriginal från 2025 med stadsmotiv där ljus, arkitektur och rörelse står i centrum. Hör gärna av dig för frågor om format, inramning eller tillgänglighet.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-14.jpg",
@@ -1921,7 +1992,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Två Karlskronaekor är ett akvarelloriginal från 2025 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-13.jpg",
@@ -1942,7 +2014,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Två klippor är ett akvarelloriginal från 2025 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-12.jpg",
@@ -1963,7 +2036,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Une barque sur l'océan är ett akvarelloriginal från 2025 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. För samlare passar verket som en lågmäld del av serien kring plats, ljus och närvaro.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-11.jpg",
@@ -1984,7 +2058,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Vår utanför mitt fönster är ett akvarelloriginal från 2025 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Hör gärna av dig för frågor om format, inramning eller tillgänglighet.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-10.jpg",
@@ -2005,7 +2080,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Lusthuset vid Sickla är ett akvarelloriginal från 2025 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-09.jpg",
@@ -2026,7 +2102,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Giardino di Boboli är ett akvarelloriginal från 2025 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-08.jpg",
@@ -2047,7 +2124,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "På stranden i Pietrasanta är ett akvarelloriginal från 2025 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. För samlare passar verket som en lågmäld del av serien kring plats, ljus och närvaro.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-07.jpg",
@@ -2069,7 +2147,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Eftermiddag på Notholmen är ett akvarelloriginal från 2025 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Hör gärna av dig för frågor om format, inramning eller tillgänglighet.",
                 "priceLabel": "3 100 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-06.jpg",
@@ -2091,7 +2170,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Morgon över viken är ett akvarelloriginal från 2025 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
                 "priceLabel": "3 100 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-05.jpg",
@@ -2112,7 +2192,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Johanna i köket är ett akvarelloriginal från 2025 med figurmotiv där närvaro, blick och relationen mellan människa och plats står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
                 "priceLabel": "1 200 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-04.jpg",
@@ -2132,7 +2213,8 @@ window.PORTFOLIO_OVERRIDES = {
                 ],
                 "heroExclude": false,
                 "collectorNote": "Dolt i skuggan är ett akvarelloriginal från 2025 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. För samlare passar verket som en lågmäld del av serien kring plats, ljus och närvaro.",
-                "availability": "nfs"
+                "availability": "nfs",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-03.jpg",
@@ -2156,7 +2238,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Vägen hem är ett akvarelloriginal från 2025 med naturmotiv där ljus, valör och skiftet mellan form och upplösning står i centrum. Hör gärna av dig för frågor om format, inramning eller tillgänglighet.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-02.jpg",
@@ -2177,7 +2260,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Slussen, eftermiddag i September är ett akvarelloriginal från 2025 med stadsmotiv där ljus, arkitektur och rörelse står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
                 "priceLabel": "5 400 kr",
-                "availability": "available"
+                "availability": "available",
+                "addedAt": 1777841583000
             },
             {
                 "src": "images/ola-01.jpg",
@@ -2198,7 +2282,8 @@ window.PORTFOLIO_OVERRIDES = {
                     "sea"
                 ],
                 "heroExclude": false,
-                "collectorNote": "Varm sommarkväll på Borrby Strand är ett akvarelloriginal från 2025 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket."
+                "collectorNote": "Varm sommarkväll på Borrby Strand är ett akvarelloriginal från 2025 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
+                "addedAt": 1777841583000
             }
         ],
         "eyebrow": "Senaste målningar",

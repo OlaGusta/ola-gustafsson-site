@@ -2650,6 +2650,7 @@ const el = {
   artworkListQuery: document.getElementById('artwork-list-query'),
   artworkListSort: document.getElementById('artwork-list-sort'),
   artworkListFilter: document.getElementById('artwork-list-filter'),
+  artworkListMonth: document.getElementById('artwork-list-month'),
   artworkListDensity: document.getElementById('artwork-list-density'),
   artworkListCount: document.getElementById('artwork-list-count'),
   uploadCategory: document.getElementById('upload-category'),
@@ -5582,8 +5583,57 @@ const getArtworkAddedAt = (item) => {
 const readArtworkListControls = () => ({
   query: el.artworkListQuery ? el.artworkListQuery.value.trim().toLowerCase() : '',
   sort: el.artworkListSort ? el.artworkListSort.value : 'order',
-  filter: el.artworkListFilter ? el.artworkListFilter.value : ''
+  filter: el.artworkListFilter ? el.artworkListFilter.value : '',
+  month: el.artworkListMonth ? el.artworkListMonth.value : ''
 });
+
+// "2026-09" för en tidpunkt i ms (lokal tid), "unknown" om tiden saknas.
+const artworkMonthKey = (added) => {
+  if (!(added > 0)) {
+    return 'unknown';
+  }
+  const date = new Date(added);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+};
+
+// Fyller månadsväljaren med de månader som har uppladdningar, nyast först, med antal.
+// Ritas bara om när månaderna ändras så att en öppen lista inte hoppar.
+const renderArtworkMonthOptions = (nodes) => {
+  const select = el.artworkListMonth;
+  if (!select) {
+    return;
+  }
+  const counts = new Map();
+  nodes.forEach((node) => {
+    const key = artworkMonthKey(Number(node.dataset.added || 0));
+    counts.set(key, (counts.get(key) || 0) + 1);
+  });
+  const keys = Array.from(counts.keys())
+    .filter((key) => key !== 'unknown')
+    .sort()
+    .reverse();
+  if (counts.has('unknown')) {
+    keys.push('unknown');
+  }
+  const signature = keys.map((key) => `${key}:${counts.get(key)}`).join('|');
+  if (select.dataset.signature === signature) {
+    return;
+  }
+  select.dataset.signature = signature;
+  const current = select.value;
+  const options = keys.map((key) => {
+    const label =
+      key === 'unknown'
+        ? 'Okänt datum'
+        : new Date(Number(key.slice(0, 4)), Number(key.slice(5, 7)) - 1, 1).toLocaleDateString('sv-SE', {
+            month: 'long',
+            year: 'numeric'
+          });
+    return `<option value="${key}">${escapeHtml(label)} (${counts.get(key)})</option>`;
+  });
+  select.innerHTML = `<option value="">Alla månader</option>${options.join('')}`;
+  select.value = keys.includes(current) ? current : '';
+};
 
 const artworkMatchesListFilter = (node, filter) => {
   const data = node.dataset;
@@ -5614,9 +5664,7 @@ const applyArtworkListView = () => {
   if (!list) {
     return;
   }
-  const { query, sort, filter } = readArtworkListControls();
   const nodes = Array.from(list.querySelectorAll('.artwork-thumb[data-action="select"]'));
-  const terms = query.split(/\s+/).filter(Boolean);
   const now = Date.now();
 
   nodes.forEach((node) => {
@@ -5625,8 +5673,16 @@ const applyArtworkListView = () => {
       getArtworkAddedAt(state.content.gallery.artworks[Number(node.dataset.index)]) || Number(node.dataset.added || 0);
     node.dataset.added = String(added);
     node.classList.toggle('is-new', added > 0 && now - added < ARTWORK_NEW_WINDOW_MS);
+  });
+  renderArtworkMonthOptions(nodes);
+
+  const { query, sort, filter, month } = readArtworkListControls();
+  const terms = query.split(/\s+/).filter(Boolean);
+  nodes.forEach((node) => {
     const matches =
-      terms.every((term) => (node.dataset.search || '').includes(term)) && artworkMatchesListFilter(node, filter);
+      terms.every((term) => (node.dataset.search || '').includes(term)) &&
+      artworkMatchesListFilter(node, filter) &&
+      (!month || artworkMonthKey(Number(node.dataset.added || 0)) === month);
     node.hidden = !matches;
   });
 
@@ -5658,7 +5714,15 @@ const applyArtworkListView = () => {
 };
 
 const initArtworkListControls = () => {
-  [el.artworkListQuery, el.artworkListSort, el.artworkListFilter].forEach((control) => {
+  if (el.artworkListMonth && el.artworkListSort) {
+    // En vald månad läses lättast i uppladdningsordning.
+    el.artworkListMonth.addEventListener('change', () => {
+      if (el.artworkListMonth.value && el.artworkListSort.value === 'order') {
+        el.artworkListSort.value = 'added';
+      }
+    });
+  }
+  [el.artworkListQuery, el.artworkListSort, el.artworkListFilter, el.artworkListMonth].forEach((control) => {
     if (control) {
       control.addEventListener(control.tagName === 'SELECT' ? 'change' : 'input', () => {
         applyArtworkListView();
@@ -5688,6 +5752,147 @@ const initArtworkListControls = () => {
       applyArtworkListView();
     });
   }
+};
+
+// Printformat: samma regler som seo_print_sizes / seo_print_image_size i seo.php.
+const DEFAULT_PRINT_SIZES = [
+  { format: '30 × 40 cm', price: '1 800 kr' },
+  { format: '40 × 60 cm', price: '2 900 kr' },
+  { format: '50 × 70 cm', price: '3 800 kr' }
+];
+
+const getProjectPrintSizes = () => {
+  const raw = Array.isArray(state.content.project?.printSizes) ? state.content.project.printSizes : [];
+  const sizes = raw
+    .filter((row) => row && typeof row.format === 'string' && row.format.trim())
+    .map((row) => ({ format: row.format.trim(), price: typeof row.price === 'string' ? row.price.trim() : '' }));
+  return sizes.length > 0 ? sizes : DEFAULT_PRINT_SIZES;
+};
+
+const printFormatKey = (format) => {
+  const match = String(format || '').match(/(\d+(?:[.,]\d+)?)\s*[×x]\s*(\d+(?:[.,]\d+)?)/);
+  if (!match) {
+    return '';
+  }
+  const a = Number(match[1].replace(',', '.'));
+  const b = Number(match[2].replace(',', '.'));
+  return `${Math.min(a, b)}x${Math.max(a, b)}`;
+};
+
+// Ungefärligt bildmått "ca 17 × 24 cm" för en bild med proportionen ratio (bredd/höjd)
+// i en ram med givet yttermått. Tom sträng om bilden inte får plats.
+const printImageSize = (format, ratio) => {
+  const match = String(format || '').match(/(\d+(?:[.,]\d+)?)\s*[×x]\s*(\d+(?:[.,]\d+)?)/);
+  if (!match || !(ratio > 0)) {
+    return '';
+  }
+  const landscape = ratio > 1;
+  const r = landscape ? 1 / ratio : ratio;
+  let fw = Number(match[1].replace(',', '.'));
+  let fh = Number(match[2].replace(',', '.'));
+  if (fw > fh) {
+    [fw, fh] = [fh, fw];
+  }
+  const reveal = 0.8;
+  const revealBottom = 1.5;
+  const bottomExtra = fh <= 40 ? 1.0 : fh <= 60 ? 1.2 : 1.5;
+  const equal = r > 0.99 ? -1 : (fw - 2 * reveal - r * (fh - bottomExtra - reveal - revealBottom)) / (2 * (1 - r));
+  let imageW;
+  if (equal >= 5 && equal <= 10) {
+    imageW = fw - 2 * equal - 2 * reveal;
+  } else {
+    const side = fw >= 40 ? 6.5 : 5.5;
+    imageW = fw - 2 * side - 2 * reveal;
+    const top = (fh - (imageW / r + reveal + revealBottom) - bottomExtra) / 2;
+    if (top < 4) {
+      return '';
+    }
+  }
+  if (imageW <= 0) {
+    return '';
+  }
+  const imageH = imageW / r;
+  const [w, h] = landscape ? [imageH, imageW] : [imageW, imageH];
+  return `ca ${Math.round(w)} × ${Math.round(h)} cm`;
+};
+
+const buildPrintFormatMarkup = (item) => {
+  const chosen = Array.isArray(item.printFormats) ? item.printFormats.map(printFormatKey).filter(Boolean) : [];
+  const rows = getProjectPrintSizes()
+    .map((size) => {
+      const key = printFormatKey(size.format);
+      const checked = chosen.length === 0 || chosen.includes(key);
+      return `<label class="checkbox-row"><input type="checkbox" data-print-format="${escapeHtml(size.format)}" ${checked ? 'checked' : ''} /> <span>Ram ${escapeHtml(size.format)} <small data-print-image="${escapeHtml(size.format)}"></small>${size.price ? ` – ${escapeHtml(size.price)}` : ''}</span></label>`;
+    })
+    .join('');
+  return `
+    <div class="artwork-print-formats artwork-field-wide" data-print-formats ${item.fineArtPrint === true ? '' : 'hidden'}>
+      <span class="artwork-print-formats-label">Printformat för det här verket</span>
+      ${rows}
+      <small class="field-hint" data-print-formats-note>Bildmåttet räknas från bildens proportioner. Priserna ändras under Projekt → Printprislista.</small>
+    </div>`;
+};
+
+const bindPrintFormatControls = (detailNode, selectedIndex) => {
+  const wrap = detailNode.querySelector('[data-print-formats]');
+  if (!wrap) {
+    return;
+  }
+  const boxes = Array.from(wrap.querySelectorAll('[data-print-format]'));
+  const printToggle = detailNode.querySelector('[data-field="fineArtPrint"]');
+  if (printToggle) {
+    printToggle.addEventListener('change', () => {
+      wrap.hidden = !printToggle.checked;
+    });
+  }
+  boxes.forEach((box) => {
+    box.addEventListener('change', () => {
+      const item = state.content.gallery.artworks[selectedIndex];
+      if (!item) {
+        return;
+      }
+      const usable = boxes.filter((node) => !node.disabled);
+      const checked = usable.filter((node) => node.checked);
+      if (checked.length === 0) {
+        // Minst ett format; vill man inte sälja print tar man bort bocken ovan.
+        box.checked = true;
+        const note = wrap.querySelector('[data-print-formats-note]');
+        if (note) {
+          note.textContent = 'Minst ett format måste vara valt. Vill du inte sälja print, avmarkera "Finns även som Fine Art Print".';
+        }
+        return;
+      }
+      if (checked.length === boxes.length) {
+        delete item.printFormats;
+      } else {
+        item.printFormats = checked.map((node) => node.dataset.printFormat);
+      }
+    });
+  });
+
+  // Fyll i bildmåtten när bildens proportioner är kända. Format som inte rymmer bilden låses.
+  const item = state.content.gallery.artworks[selectedIndex];
+  const src = item && typeof item.src === 'string' ? item.src.trim() : '';
+  if (!src) {
+    return;
+  }
+  const probe = new Image();
+  probe.addEventListener('load', () => {
+    const ratio = probe.naturalWidth > 0 && probe.naturalHeight > 0 ? probe.naturalWidth / probe.naturalHeight : 0;
+    boxes.forEach((box) => {
+      const format = box.dataset.printFormat || '';
+      const label = wrap.querySelector(`[data-print-image="${CSS.escape(format)}"]`);
+      const size = printImageSize(format, ratio);
+      if (label) {
+        label.textContent = size ? `(bild ${size})` : '(bilden får inte plats med de här proportionerna)';
+      }
+      if (ratio > 0 && !size) {
+        box.checked = false;
+        box.disabled = true;
+      }
+    });
+  });
+  probe.src = addRevToSrc(src);
 };
 
 const renderArtworksEditor = () => {
@@ -5785,6 +5990,7 @@ const renderArtworksEditor = () => {
 	            <label>Bildkälla (src) <input type="text" data-field="src" value="${escapeHtml(selectedItem.src || '')}" /></label>
 	            <label>Format (t.ex. 56 × 76 cm) <input type="text" data-field="format" value="${escapeHtml(selectedItem.format || '')}" /></label>
 	            <label class="checkbox-row"><input type="checkbox" data-field="fineArtPrint" ${selectedItem.fineArtPrint === true ? 'checked' : ''} /> <span>Finns även som Fine Art Print</span></label>
+	            ${buildPrintFormatMarkup(state.content.gallery.artworks[selectedIndex] || selectedItem)}
 	            <label>Tillgänglighet
 	              <select data-field="availability">
 	                <option value="" ${!selectedItem.availability ? 'selected' : ''}>Ingen status</option>
@@ -5918,6 +6124,7 @@ const renderArtworksEditor = () => {
   if (!detailNode) {
     return;
   }
+  bindPrintFormatControls(detailNode, selectedIndex);
 
 	  detailNode.querySelectorAll('[data-field]').forEach((fieldNode) => {
 	    const field = fieldNode.getAttribute('data-field');
