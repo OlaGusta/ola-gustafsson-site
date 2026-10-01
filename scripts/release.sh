@@ -57,6 +57,7 @@ Environment:
   FTP_PASS   FTP password (prompts if missing)
   FTP_HOST   Defaults to ftp.magicspaceillustration.com
   RELEASE_ENV_FILE  Optional path to env file (default: .release.env)
+  FORCE_IMAGES=1    Ladda upp alla bilder, även oförändrade (standard: bara nya/ändrade)
 USAGE
 }
 
@@ -90,7 +91,7 @@ target_web_base() {
 }
 
 require_tools() {
-  local tools=(curl find rg sed wc date mktemp)
+  local tools=(curl find rg sed wc date mktemp python3)
   local t
   for t in "${tools[@]}"; do
     command -v "$t" >/dev/null 2>&1 || die "Missing required tool: $t"
@@ -277,6 +278,65 @@ run_backup() {
   log "Backup complete: ${backup_dir}"
 }
 
+# Tar bort bilder ur fillistan som redan finns på servern med samma storlek och en
+# servertid som inte är äldre än den lokala filen. Servern sätter tiden vid uppladdning,
+# så en bild som ändrats lokalt efter senaste uppladdningen laddas upp igen.
+# Utan detta laddades alla ~1 200 bilder upp vid varje deploy (10+ minuter), och
+# filtiderna på servern blev oanvändbara som uppladdningsdatum.
+skip_unchanged_images() {
+  local remote_base="$1"
+  local file_list="$2"
+  local listing dir
+  listing="$(mktemp)"
+  while IFS= read -r dir; do
+    printf '#DIR %s\n' "$dir" >> "$listing"
+    curl -sS --ftp-method nocwd --user "$FTP_USER:$FTP_PASS" -X MLSD \
+      "ftp://${FTP_HOST}${remote_base}/${dir}/" >> "$listing" 2>/dev/null || true
+  done < <(grep '^images/' "$file_list" | sed 's|/[^/]*$||' | LC_ALL=C sort -u)
+
+  local filtered
+  filtered="$(mktemp)"
+  local status=0
+  ROOT_DIR="$ROOT_DIR" python3 - "$listing" "$file_list" > "$filtered" <<'PY' || status=$?
+import calendar, os, sys, time
+listing_path, list_path = sys.argv[1], sys.argv[2]
+root = os.environ["ROOT_DIR"]
+remote = {}
+current = ""
+for raw in open(listing_path, encoding="utf-8", errors="replace"):
+    line = raw.rstrip("\r\n")
+    if line.startswith("#DIR "):
+        current = line[5:]
+        continue
+    if "; " not in line:
+        continue
+    facts, name = line.split("; ", 1)
+    info = dict(f.split("=", 1) for f in facts.split(";") if "=" in f)
+    if info.get("type", "").lower() != "file":
+        continue
+    try:
+        size = int(info["size"])
+        mtime = calendar.timegm(time.strptime(info["modify"][:14], "%Y%m%d%H%M%S"))
+    except (KeyError, ValueError):
+        continue
+    remote[current + "/" + name] = (size, mtime)
+skipped = 0
+for raw in open(list_path, encoding="utf-8"):
+    rel = raw.rstrip("\n")
+    if rel.startswith("images/") and rel in remote:
+        st = os.stat(os.path.join(root, rel))
+        size, mtime = remote[rel]
+        if size == st.st_size and mtime >= int(st.st_mtime):
+            skipped += 1
+            continue
+    print(rel)
+print(skipped, file=sys.stderr)
+PY
+  rm -f "$listing"
+  [ "$status" -eq 0 ] || { rm -f "$filtered"; warn "Kunde inte jämföra bilder, laddar upp alla"; return 0; }
+  mv "$filtered" "$file_list"
+}
+
 run_deploy() {
   local target="$1"
   require_tools
@@ -294,6 +354,15 @@ run_deploy() {
   local total
   total="$(wc -l < "$file_list" | tr -d ' ')"
   [ "$total" -gt 0 ] || die "No files to deploy."
+
+  if [ "${FORCE_IMAGES:-0}" != "1" ]; then
+    local before_images after_images
+    before_images="$(grep -c '^images/' "$file_list" || true)"
+    skip_unchanged_images "$remote_base" "$file_list" 2>/dev/null
+    after_images="$(grep -c '^images/' "$file_list" || true)"
+    total="$(wc -l < "$file_list" | tr -d ' ')"
+    log "Images: ${after_images} new/changed, $((before_images - after_images)) unchanged skipped (FORCE_IMAGES=1 uploads all)"
+  fi
 
   # --ftp-create-dirs skapar inte mappar hos Oderland i nocwd-läge (uppladdning till
   # en ny mapp ger 553). Skapa alla mappar uttryckligen först; "*" = ignorera fel
