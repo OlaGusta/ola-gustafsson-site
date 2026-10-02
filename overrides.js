@@ -90,7 +90,7 @@ window.PORTFOLIO_OVERRIDES = {
         "imageAlt": "Akvarell i blå toner med stadsvy och långa skuggor.",
         "ctaPrimaryLabel": "Se målningar",
         "ctaSecondaryLabel": "100 dagar av sol",
-        "modeUpdatedAt": 1790764356793,
+        "modeUpdatedAt": 1790771649108,
         "ctaPrimaryHref": "gallery.html",
         "ctaSecondaryHref": "100-dagar-av-sol"
     },
@@ -108,7 +108,7 @@ window.PORTFOLIO_OVERRIDES = {
             "I akvarellen arbetar jag med förenklade valörer, större former och varierade kanter: mjuka, hårda och förlorade. Jag vill att bilden ska vara tydlig nog att bära riktning, men öppen nog att lämna något svårgripbart kvar.",
             "Det som intresserar mig mest är spänningen mellan kontroll och att släppa taget. När vatten, pigment, tid och beslut får samverka kan motivet bli mer än en beskrivning av en plats och i stället bära en erfarenhet av närvaro, förgänglighet och samhörighet."
         ],
-        "dayJobLine": "Till vardags arbetar jag som visuell kommunikatör på Stockholm School of Entrepreneurship. Den bakgrunden har gett mig ett starkt fokus på komposition, förenkling och visuell tydlighet.",
+        "dayJobLine": "Till vardags arbetar jag som visuell kommunikatör på [Stockholm School of Entrepreneurship](https://sses.se). Den bakgrunden har gett mig ett starkt fokus på komposition, förenkling och visuell tydlighet.",
         "materialsHeading": "Material",
         "materialsBody": "Jag målar oftast på Arches 300 g fin, Arches 640 g rough, samt Baohong 300 g rough och satin.\nFärgerna växlar mellan Daniel Smith, Winsor & Newton, Schmincke, Sennelier och Old Holland.\nNågra penslar jag ofta återkommer till är Escoda Perla, koreanska Eo eo, Princeton Nautilus och kinesiska kalligrafipenslar i olika storlekar.",
         "inspirationHeading": "Inspiration",
@@ -239,7 +239,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "slug": "saltos-sjal",
                 "priceLabel": "5 400 kr",
                 "availability": "available",
-                "addedAt": 1784578881000
+                "addedAt": 1784578881000,
+                "fineArtPrint": false
             },
             {
                 "src": "images/img-2707.webp",
@@ -3515,7 +3516,7 @@ window.PORTFOLIO_OVERRIDES = {
                 ],
                 "portraitImage": "images/ola-portrait.jpg",
                 "portraitAlt": "Portrait of Ola Gustafsson",
-                "dayJobLine": "In my day-to-day work, I’m a visual communicator at Stockholm School of Entrepreneurship. That background has given me a strong focus on composition, simplification, and visual clarity.",
+                "dayJobLine": "In my day-to-day work, I’m a visual communicator at [Stockholm School of Entrepreneurship](https://sses.se). That background has given me a strong focus on composition, simplification, and visual clarity.",
                 "materialsHeading": "Materials",
                 "materialsBody": "I usually paint on Arches 300 gsm fine, Arches 640 gsm rough, as well as Baohong 300 gsm rough and satin.\nThe paints vary between Daniel Smith, Winsor & Newton, Schmincke, Sennelier, and Old Holland.\nSome brushes I often come back to are Escoda Perla, Korean Eo eo, Princeton Nautilus, and Chinese calligraphy brushes in various sizes.",
                 "materialImage": "images/fa-rger2-2.jpg",

@@ -829,7 +829,10 @@ const bindTextContent = () => {
     const value = getBoundString(key);
     if (value !== '') {
       node.textContent = '';
-      node.appendChild(buildInlineFormattedFragment(value));
+      // data-bind-links: texten får innehålla länkar, [text](https://…), som i Studio.
+      node.appendChild(
+        node.hasAttribute('data-bind-links') ? buildLinkedTextFragment(value) : buildInlineFormattedFragment(value)
+      );
     }
   });
 };
@@ -4275,18 +4278,27 @@ const initWorkStrip = () => {
   update();
 
   // "Roll and stop": rulla fram ett verk i taget med paus emellan, som en slider.
-  // Pausar vid hover, fokus, touch och egen bläddring (återupptas efter en stund),
-  // när väggen inte syns eller fliken är dold. Av vid prefers-reduced-motion.
+  // Pausar när pekaren rör sig över väggen, vid fokus, touch och egen bläddring
+  // (återupptas efter en stund), när väggen inte syns eller fliken är dold.
+  // Av vid prefers-reduced-motion.
   const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduceMotion) {
     return;
   }
   const STEP_MS = 4200;
-  const RESUME_AFTER_HOVER_MS = 1500;
+  const RESUME_AFTER_LEAVE_MS = 1500;
+  const RESUME_AFTER_IDLE_POINTER_MS = 5000;
   const RESUME_AFTER_USER_MS = 6000;
   let timer = 0;
   let inView = false;
-  let pausedUntil = 0;
+  // Två pauser: en för egen bläddring (finger, hjul, dragning, pilar, tangenter) och
+  // en för pekare som rör sig över väggen. Båda löper ut av sig själva. Tidigare
+  // pausade :hover utan tidsgräns, vilket låste rullningen när pekaren låg kvar efter
+  // en dragning, när pennan lyfts från ritbrädan och på pekskärm (där :hover sitter
+  // kvar efter en beröring).
+  let userPausedUntil = 0;
+  let pointerPausedUntil = 0;
+  const pausedUntil = () => Math.max(userPausedUntil, pointerPausedUntil);
 
   const nextOffset = () => {
     const stripLeft = strip.getBoundingClientRect().left;
@@ -4313,19 +4325,23 @@ const initWorkStrip = () => {
 
   const canRoll = () =>
     inView &&
-    !strip.matches(':hover') &&
     !strip.classList.contains('is-pressed') &&
     !document.hidden &&
     !document.body.classList.contains('no-scroll') && // ljusboxen är öppen
-    Date.now() >= pausedUntil &&
+    Date.now() >= pausedUntil() &&
     strip.scrollWidth - strip.clientWidth > 8 &&
     !keyboardFocusInStrip();
 
-  // Ett steg i taget med setTimeout, så att nästa steg kan tidigareläggas när
-  // pekaren lämnar väggen (i stället för att vänta på ett fast intervall).
+  // Ett steg i taget med setTimeout. Pågår en paus väntar timern precis tills den
+  // löper ut, så att rullningen återupptas direkt då i stället för ett helt steg senare.
   const schedule = (delay = STEP_MS) => {
     window.clearTimeout(timer);
     timer = window.setTimeout(() => {
+      const remaining = pausedUntil() - Date.now();
+      if (remaining > 0) {
+        schedule(remaining + 30);
+        return;
+      }
       if (canRoll()) {
         strip.scrollTo({ left: nextOffset(), behavior: 'smooth' });
       }
@@ -4333,14 +4349,27 @@ const initWorkStrip = () => {
     }, delay);
   };
   const pauseForUser = () => {
-    pausedUntil = Date.now() + RESUME_AFTER_USER_MS;
+    userPausedUntil = Date.now() + RESUME_AFTER_USER_MS;
     schedule(RESUME_AFTER_USER_MS);
   };
+  const isHoverPointer = (event) => event.pointerType === 'mouse' || event.pointerType === 'pen';
 
-  strip.addEventListener('pointerleave', () => {
-    if (Date.now() + RESUME_AFTER_HOVER_MS >= pausedUntil) {
-      schedule(RESUME_AFTER_HOVER_MS);
+  // Pekare som rör sig över väggen pausar; ligger den still återupptas rullningen.
+  strip.addEventListener(
+    'pointermove',
+    (event) => {
+      if (isHoverPointer(event)) {
+        pointerPausedUntil = Date.now() + RESUME_AFTER_IDLE_POINTER_MS;
+      }
+    },
+    { passive: true }
+  );
+  strip.addEventListener('pointerleave', (event) => {
+    if (!isHoverPointer(event)) {
+      return;
     }
+    pointerPausedUntil = Date.now() + RESUME_AFTER_LEAVE_MS;
+    schedule(Math.max(pausedUntil() - Date.now(), 0) + 30);
   });
   ['touchstart', 'wheel', 'keydown', 'pointerdown'].forEach((type) => strip.addEventListener(type, pauseForUser, { passive: true }));
   buttons.forEach((button) => button.addEventListener('click', pauseForUser));

@@ -126,7 +126,7 @@ if (!$artwork) {
         <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
         <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
       <?php endif; ?>
-      <link rel="stylesheet" href="/styles.css?v=20261002-01" />
+      <link rel="stylesheet" href="/styles.css?v=20261002-02" />
     </head>
     <body id="page-top" data-page="artwork">
       <header class="site-header" id="top">
@@ -193,7 +193,7 @@ if (!$artwork) {
 
       <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
       <script src="/content.js?v=20260928-01" defer></script>
-      <script src="/script.js?v=20261002-01" defer></script>
+      <script src="/script.js?v=20261002-02" defer></script>
     </body>
   </html>
   <?php
@@ -655,10 +655,10 @@ if (!is_string($structuredJson)) {
       <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="/styles.css?v=20261002-01" />
+    <link rel="stylesheet" href="/styles.css?v=20261002-02" />
     <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="/content.js?v=20260928-01" defer></script>
-    <script src="/script.js?v=20261002-01" defer></script>
+    <script src="/script.js?v=20261002-02" defer></script>
   </head>
   <body id="page-top" data-page="artwork">
     <header class="site-header" id="top">

@@ -3748,6 +3748,7 @@ body[data-page='studio'] main {
 }
 
 .about-inspiration-card a,
+.about-dayjob a,
 .recognition-list a {
   color: var(--color-primary);
   font-weight: 600;
@@ -3767,6 +3768,8 @@ body[data-page='studio'] main {
 
 .about-inspiration-card a:hover,
 .about-inspiration-card a:focus-visible,
+.about-dayjob a:hover,
+.about-dayjob a:focus-visible,
 .recognition-list a:hover,
 .recognition-list a:focus-visible {
   color: color-mix(in srgb, var(--color-primary) 82%, black 18%);

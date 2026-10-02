@@ -338,9 +338,9 @@ if (!is_string($structuredJson)) {
       fetchpriority="high"
     />
     	    <script src="overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>" defer></script>
-	    <link rel="stylesheet" href="styles.css?v=20261002-01" />
+	    <link rel="stylesheet" href="styles.css?v=20261002-02" />
 	    <script src="content.js?v=20260928-01" defer></script>
-		    <script src="script.js?v=20261002-01" defer></script>
+		    <script src="script.js?v=20261002-02" defer></script>
 	  </head>
   <body id="page-top" data-page="home">
     <header class="site-header" id="top">
@@ -458,7 +458,7 @@ if (!is_string($structuredJson)) {
                   <p><?= seo_render_multiline_html($aboutParagraph) ?></p>
                 <?php endforeach; ?>
               </div>
-	            <p class="about-dayjob" data-bind="about.dayJobLine"><?= seo_escape_html($aboutDayJobLine) ?></p>
+	            <p class="about-dayjob" data-bind="about.dayJobLine" data-bind-links><?= seo_render_linkified_html($aboutDayJobLine) ?></p>
 	          </article>
 
 	          <div class="about-side">
