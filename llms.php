@@ -88,7 +88,7 @@ $out[] = '- Konstnär: Ola Gustafsson, Stockholm. Målar landskap, natur och sta
 if ($forSalePrices !== []) {
   $out[] = '- Original: ' . count($forSalePrices) . ' verk till salu, ' . $formatAmount(min($forSalePrices)) . ' till ' . $formatAmount(max($forSalePrices)) . '. Säljs oinramade och signerade. Pris och tillgänglighet står på varje verks sida.';
 }
-$out[] = '- Fine Art Print: tryck på ' . seo_print_paper_label('sv') . ', signerade och numrerade, upplaga om ' . SEO_PRINT_EDITION_SIZE . ' exemplar per bild. Format (ramens yttermått) och pris: ' . $printList . '.';
+$out[] = '- Fine Art Print: tryck på ' . seo_print_paper_label('sv') . ', signerade och numrerade, upplaga om ' . SEO_PRINT_EDITION_SIZE . ' exemplar per bild. Format (ramens yttermått) och pris inklusive moms: ' . $printList . '.';
 $out[] = '- Tillägg: ' . seo_order_extras_note('sv');
 $out[] = '- Köp: via intresseanmälan på verkets sida. Anmälan är inte bindande; konstnären svarar med totalpris och betalningsuppgifter.';
 if ($email !== '') {

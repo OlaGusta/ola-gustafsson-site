@@ -376,7 +376,7 @@ $priceNote = $lang === 'en'
   : 'Signerad av konstnären. Oinramat. Passepartout med bakstycke från 300 kr, ram till självkostnad. Frakt tillkommer.';
 $printFromLabel = seo_print_from_label($printSizes, $lang);
 $printFacts = [
-  seo_print_frame_range_label($printSizes, $lang) . ', ' . $printFromLabel,
+  seo_print_frame_range_label($printSizes, $lang) . ', ' . $printFromLabel . ' ' . seo_print_vat_label($lang),
   seo_print_paper_label($lang),
   seo_print_edition_label($lang)
 ];

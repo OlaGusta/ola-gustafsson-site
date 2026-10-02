@@ -1192,6 +1192,13 @@ function seo_print_sizes(array $payload, string $lang): array
   return $sizes;
 }
 
+// Printar är reproduktioner och säljs med 25 % moms (originalen är momsfria konstverk).
+// Priserna i listan är slutpris till kund, så momsen ingår.
+function seo_print_vat_label(string $lang): string
+{
+  return $lang === 'en' ? 'incl. VAT' : 'inkl. moms';
+}
+
 function seo_print_from_label(array $sizes, string $lang): string
 {
   $first = $sizes[0]['price'] ?? '';

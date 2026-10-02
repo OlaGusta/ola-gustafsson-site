@@ -136,7 +136,7 @@ window.PORTFOLIO_OVERRIDES = {
             "Vad kostar en originalmålning? Priset står vid varje verk. Just nu kostar originalen mellan 1 200 och 9 500 kr beroende på format. De säljs oinramade och är signerade.",
             "Vad betyder Reserverad, Såld och Ej till salu? Reserverad betyder att någon har tingat verket. Verk som är sålda eller inte till salu går inte att köpa, men du kan fråga om liknande verk eller kommande målningar.",
             "Vad är en Fine Art Print? Ett tryck av en målning på konstpapperet Hahnemühle Photo Rag. Varje tryck är signerat och numrerat av mig, och upplagan är högst 20 exemplar per bild. Verk som finns som print är märkta med Fine Art Print på verkets sida.",
-            "Vilka format och priser har printarna? Formaten anges som ramens yttermått: 30 × 40 cm för 1 800 kr, 40 × 60 cm för 2 900 kr och 50 × 70 cm för 3 800 kr. Bilden trycks mindre än ramen så att passepartouten får plats. Vilka format som finns för ett visst verk står på verkets sida.",
+            "Vilka format och priser har printarna? Formaten anges som ramens yttermått: 30 × 40 cm för 1 800 kr, 40 × 60 cm för 2 900 kr och 50 × 70 cm för 3 800 kr. Priserna inkluderar moms. Bilden trycks mindre än ramen så att passepartouten får plats. Vilka format som finns för ett visst verk står på verkets sida.",
             "Ingår ram och passepartout? Nej, både original och print säljs oinramade. Passepartout med bakstycke kostar från 300 kr beroende på format. Ram kan jag ordna till självkostnad.",
             "Vad kostar frakten? Frakt tillkommer på priset. Inom Sverige kostar den normalt 150–250 kr.",
             "Går solarna i 100 dagar av sol att köpa? Ja, som Fine Art Print. Alla hundra solar kan beställas var för sig, i olika format, på sidan 100 dagar av sol. Originalen är inte till salu.",
@@ -3543,7 +3543,7 @@ window.PORTFOLIO_OVERRIDES = {
                     "What does an original painting cost? The price is shown with each work. Originals currently cost between 1,200 and 9,500 SEK depending on size. They are sold unframed and are signed.",
                     "What do Reserved, Sold and Not for sale mean? Reserved means someone has asked me to hold the work. Works that are sold or not for sale cannot be bought, but you are welcome to ask about similar works or upcoming paintings.",
                     "What is a fine art print? A print of a painting on Hahnemühle Photo Rag fine art paper. Each print is signed and numbered by me, in an edition of at most 20 per image. Works available as prints are marked Fine Art Print on their page.",
-                    "Which sizes and prices do the prints come in? Sizes are given as the outer frame size: 30 × 40 cm for 1,800 SEK, 40 × 60 cm for 2,900 SEK and 50 × 70 cm for 3,800 SEK. The image is printed smaller than the frame to leave room for the mat. The sizes available for a given work are listed on its page.",
+                    "Which sizes and prices do the prints come in? Sizes are given as the outer frame size: 30 × 40 cm for 1,800 SEK, 40 × 60 cm for 2,900 SEK and 50 × 70 cm for 3,800 SEK. Prices include VAT. The image is printed smaller than the frame to leave room for the mat. The sizes available for a given work are listed on its page.",
                     "Are frame and mat included? No, both originals and prints are sold unframed. A mat with backing board costs from 300 SEK depending on size. I can arrange a frame at cost.",
                     "What does shipping cost? Shipping is added to the price. Within Sweden it is usually 150–250 SEK.",
                     "Can I buy the suns from 100 days of sun? Yes, as fine art prints. All one hundred suns can be ordered individually, in different sizes, on the 100 days of sun page. The originals are not for sale.",
@@ -4287,9 +4287,9 @@ window.PORTFOLIO_OVERRIDES = {
                         "updatedAt": "2026-10-02T08:51:48.010Z"
                     },
                     "array:about.faqItems[4]": {
-                        "sourceHash": "b4eab439",
-                        "translatedValue": "Which sizes and prices do the prints come in? Sizes are given as the outer frame size: 30 × 40 cm for 1,800 SEK, 40 × 60 cm for 2,900 SEK and 50 × 70 cm for 3,800 SEK. The image is printed smaller than the frame to leave room for the mat. The sizes available for a given work are listed on its page.",
-                        "updatedAt": "2026-10-02T08:51:48.010Z"
+                        "sourceHash": "1958d734",
+                        "translatedValue": "Which sizes and prices do the prints come in? Sizes are given as the outer frame size: 30 × 40 cm for 1,800 SEK, 40 × 60 cm for 2,900 SEK and 50 × 70 cm for 3,800 SEK. Prices include VAT. The image is printed smaller than the frame to leave room for the mat. The sizes available for a given work are listed on its page.",
+                        "updatedAt": "2026-10-02T12:43:50.945Z"
                     },
                     "array:about.faqItems[5]": {
                         "sourceHash": "b0720d04",

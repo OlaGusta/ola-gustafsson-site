@@ -171,7 +171,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                 </tbody>
               </table>
               <p class="sun-print-edition"><?= $h(seo_print_paper_label($lang)) ?>.<br /><?= $h(seo_print_edition_label($lang)) ?><?= $h($lang === 'en' ? ' per sun.' : ' per sol.') ?></p>
-              <p class="sun-print-extras"><?= $h(seo_order_extras_note($lang)) ?></p>
+              <p class="sun-print-extras"><?= $h($lang === 'en' ? 'Prices include VAT.' : 'Priserna inkluderar moms.') ?> <?= $h(seo_order_extras_note($lang)) ?></p>
               <a class="btn btn-primary" href="<?= $h($canonical) ?>#bestall"><?= $h($lang === 'en' ? 'Order prints' : 'Beställ print') ?></a>
             </aside>
           </div>
@@ -253,7 +253,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                 <p class="field-hint sun-picked-hint"><?= $h($lang === 'en' ? 'Different size for a single sun? Change it under that sun.' : 'Vill du ha ett annat format på en enskild sol? Ändra under den solen.') ?></p>
                 <div class="sun-order-total" id="sun-order-total" aria-live="polite" hidden>
                   <ul class="sun-order-lines" id="sun-order-lines"></ul>
-                  <p class="sun-order-sum"><span><?= $h($lang === 'en' ? 'Total for prints' : 'Summa prints') ?></span><strong id="sun-order-sum"></strong></p>
+                  <p class="sun-order-sum"><span><?= $h(($lang === 'en' ? 'Total for prints' : 'Summa prints') . ' (' . seo_print_vat_label($lang) . ')') ?></span><strong id="sun-order-sum"></strong></p>
                   <p class="field-hint"><?= $h($lang === 'en' ? 'Mat with backing board and shipping are added.' : 'Passepartout med bakstycke och frakt tillkommer.') ?></p>
                 </div>
 
