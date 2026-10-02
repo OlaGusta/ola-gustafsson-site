@@ -1192,6 +1192,28 @@ function seo_print_sizes(array $payload, string $lang): array
   return $sizes;
 }
 
+// Så levereras en print (beslut 2026-10-03, samma metod som Jenny): bilden renskuren,
+// limmad på en syrafri kapaskiva i ramens format. Skivans vita yta är kanten runt
+// bilden, så arket har ingen egen marginal. Passepartout är tillval.
+function seo_print_mount_label(string $lang): string
+{
+  return $lang === 'en' ? 'Mounted on acid-free board' : 'Monterad på syrafri skiva';
+}
+
+function seo_print_mount_note(string $lang): string
+{
+  return $lang === 'en'
+    ? 'The size is the frame size. The print comes mounted on an acid-free board of that size, without frame or glass, ready to frame.'
+    : 'Formatet är ramens mått. Printen levereras monterad på en syrafri skiva i det formatet, utan ram och glas, klar att rama in.';
+}
+
+function seo_print_extras_note(string $lang): string
+{
+  return $lang === 'en'
+    ? 'A mat is available as an option (from 300 SEK depending on size). Shipping is added (within Sweden usually 150–250 SEK).'
+    : 'Passepartout finns som tillval (från 300 kr beroende på format). Frakt tillkommer (inom Sverige normalt 150–250 kr).';
+}
+
 // Printar är reproduktioner och säljs med 25 % moms (originalen är momsfria konstverk).
 // Priserna i listan är slutpris till kund, så momsen ingår.
 function seo_print_vat_label(string $lang): string
@@ -1244,9 +1266,10 @@ function seo_print_frame_range_label(array $sizes, string $lang): string
   return ($lang === 'en' ? 'Frame ' : 'Ram ') . $range;
 }
 
-// Ungefärligt bildmått för ett grafiskt blad i en given ram, t.ex. "ca 15 × 23 cm".
-// Regler (lathunden): passepartouten visar bilden + 0,8 cm papper upptill/på sidorna
-// och 1,5 cm nedtill (upplaga/signatur); arket har 2 cm marginal; lika kant upptill
+// Ungefärligt bildmått för en print i en given ram, t.ex. "ca 15 × 23 cm".
+// Regler (lathunden): bilden sitter på en skiva i ramens format. Måtten är valda så
+// att en passepartout (tillval) visar bilden + 0,8 cm av skivan upptill/på sidorna
+// och 1,5 cm nedtill (upplaga/signatur); lika kant upptill
 // och på sidorna med 1–1,5 cm bredare nederkant om det ger kanter på 5–10 cm, annars
 // fast sidkant och överskottet vertikalt. Tomt om ramen inte passar förhållandet.
 // Standardförhållande = solarnas bildruta 14,5 × 22,5 (målad yta 14,2 × 22,2 på arket

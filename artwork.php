@@ -378,6 +378,7 @@ $printFromLabel = seo_print_from_label($printSizes, $lang);
 $printFacts = [
   seo_print_frame_range_label($printSizes, $lang) . ', ' . $printFromLabel . ' ' . seo_print_vat_label($lang),
   seo_print_paper_label($lang),
+  seo_print_mount_label($lang),
   seo_print_edition_label($lang)
 ];
 // Original tillgängligt eller inte: styr förvalt alternativ i formuläret.
@@ -800,6 +801,9 @@ if (!is_string($structuredJson)) {
               <h2><?= htmlspecialchars($inquiryHeading, ENT_QUOTES) ?></h2>
               <p><?= htmlspecialchars($artworkInquiryFormEnabled ? $inquiryBody : $inquiryFallbackBody, ENT_QUOTES) ?></p>
               <p class="artwork-inquiry-extras"><?= htmlspecialchars(seo_order_extras_note($lang), ENT_QUOTES) ?></p>
+              <?php if ($fineArtPrint): ?>
+                <p class="artwork-inquiry-extras"><?= htmlspecialchars('Fine Art Print: ' . seo_print_mount_note($lang) . ' ' . seo_print_extras_note($lang), ENT_QUOTES) ?></p>
+              <?php endif; ?>
               <?php if (($faqLinkHtml = seo_faq_link_html($payload, $lang)) !== ''): ?>
                 <p class="artwork-inquiry-faq"><?= $faqLinkHtml ?></p>
               <?php endif; ?>

@@ -171,7 +171,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                 </tbody>
               </table>
               <p class="sun-print-edition"><?= $h(seo_print_paper_label($lang)) ?>.<br /><?= $h(seo_print_edition_label($lang)) ?><?= $h($lang === 'en' ? ' per sun.' : ' per sol.') ?></p>
-              <p class="sun-print-extras"><?= $h($lang === 'en' ? 'Prices include VAT.' : 'Priserna inkluderar moms.') ?> <?= $h(seo_order_extras_note($lang)) ?></p>
+              <p class="sun-print-extras"><?= $h($lang === 'en' ? 'Prices include VAT.' : 'Priserna inkluderar moms.') ?> <?= $h(seo_print_mount_label($lang)) ?>. <?= $h(seo_print_extras_note($lang)) ?></p>
               <a class="btn btn-primary" href="<?= $h($canonical) ?>#bestall"><?= $h($lang === 'en' ? 'Order prints' : 'Beställ print') ?></a>
             </aside>
           </div>
@@ -208,10 +208,8 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
               <p><?= $h($lang === 'en'
                 ? sprintf('Each sun is printed on %s. %s.', seo_print_paper_label($lang), seo_print_edition_label($lang))
                 : sprintf('Varje sol trycks på %s. %s.', seo_print_paper_label($lang), seo_print_edition_label($lang))) ?></p>
-              <p><?= $h($lang === 'en'
-                ? 'The size is the frame size. The mat is cut to the frame so the whole image and the signature show.'
-                : 'Formatet är ramens mått. Passepartouten skärs till ramen så att hela bilden och signaturen syns.') ?></p>
-              <p><?= $h(seo_order_extras_note($lang)) ?></p>
+              <p><?= $h(seo_print_mount_note($lang)) ?></p>
+              <p><?= $h(seo_print_extras_note($lang)) ?></p>
               <p class="artwork-inquiry-fineprint"><?= $h($lang === 'en'
                 ? 'Sending the form is not a binding order. I reply with a total and payment details.'
                 : 'Formuläret är inte en bindande beställning. Jag svarar med totalpris och betalningsuppgifter.') ?></p>
@@ -254,7 +252,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                 <div class="sun-order-total" id="sun-order-total" aria-live="polite" hidden>
                   <ul class="sun-order-lines" id="sun-order-lines"></ul>
                   <p class="sun-order-sum"><span><?= $h(($lang === 'en' ? 'Total for prints' : 'Summa prints') . ' (' . seo_print_vat_label($lang) . ')') ?></span><strong id="sun-order-sum"></strong></p>
-                  <p class="field-hint"><?= $h($lang === 'en' ? 'Mat with backing board and shipping are added.' : 'Passepartout med bakstycke och frakt tillkommer.') ?></p>
+                  <p class="field-hint"><?= $h($lang === 'en' ? 'Mat (optional) and shipping are added.' : 'Passepartout (tillval) och frakt tillkommer.') ?></p>
                 </div>
 
 
@@ -268,7 +266,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                 </label>
 
                 <label><?= $h($lang === 'en' ? 'Message' : 'Meddelande') ?>
-                  <textarea name="message" rows="4" required placeholder="<?= $h($lang === 'en' ? 'Mat with backing? Pickup or shipping (address)?' : 'Passepartout med bakstycke? Hämtning eller frakt (adress)?') ?>"></textarea>
+                  <textarea name="message" rows="4" required placeholder="<?= $h($lang === 'en' ? 'Mat as an option? Pickup or shipping (address)?' : 'Passepartout som tillval? Hämtning eller frakt (adress)?') ?>"></textarea>
                 </label>
 
                 <label class="contact-honeypot" aria-hidden="true">
