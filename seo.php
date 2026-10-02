@@ -1194,7 +1194,8 @@ function seo_print_sizes(array $payload, string $lang): array
 
 // Så levereras en print (beslut 2026-10-03, samma metod som Jenny): bilden renskuren,
 // limmad på en syrafri kapaskiva i ramens format. Skivans vita yta är kanten runt
-// bilden, så arket har ingen egen marginal. Passepartout är tillval.
+// bilden, så arket har ingen egen marginal. Upplaga och signatur skrivs i bildens
+// nederkant (vänster/höger). Ingen passepartout säljs till printarna.
 function seo_print_mount_label(string $lang): string
 {
   return $lang === 'en' ? 'Mounted on acid-free board' : 'Monterad på syrafri skiva';
@@ -1210,8 +1211,8 @@ function seo_print_mount_note(string $lang): string
 function seo_print_extras_note(string $lang): string
 {
   return $lang === 'en'
-    ? 'A mat is available as an option (from 300 SEK depending on size). Shipping is added (within Sweden usually 150–250 SEK).'
-    : 'Passepartout finns som tillval (från 300 kr beroende på format). Frakt tillkommer (inom Sverige normalt 150–250 kr).';
+    ? 'Shipping is added (within Sweden usually 150–250 SEK).'
+    : 'Frakt tillkommer (inom Sverige normalt 150–250 kr).';
 }
 
 // Printar är reproduktioner och säljs med 25 % moms (originalen är momsfria konstverk).
@@ -1267,9 +1268,9 @@ function seo_print_frame_range_label(array $sizes, string $lang): string
 }
 
 // Ungefärligt bildmått för en print i en given ram, t.ex. "ca 15 × 23 cm".
-// Regler (lathunden): bilden sitter på en skiva i ramens format. Måtten är valda så
-// att en passepartout (tillval) visar bilden + 0,8 cm av skivan upptill/på sidorna
-// och 1,5 cm nedtill (upplaga/signatur); lika kant upptill
+// Regler (lathunden): bilden sitter på en skiva i ramens format. Måtten kommer från
+// den tidigare passepartoutmodellen (bild + 0,8 cm upptill/på sidorna och 1,5 cm
+// nedtill inom en tänkt öppning) och behålls så att bildstorlekarna är desamma; lika kant upptill
 // och på sidorna med 1–1,5 cm bredare nederkant om det ger kanter på 5–10 cm, annars
 // fast sidkant och överskottet vertikalt. Tomt om ramen inte passar förhållandet.
 // Standardförhållande = solarnas bildruta 14,5 × 22,5 (målad yta 14,2 × 22,2 på arket

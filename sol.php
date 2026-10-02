@@ -252,7 +252,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                 <div class="sun-order-total" id="sun-order-total" aria-live="polite" hidden>
                   <ul class="sun-order-lines" id="sun-order-lines"></ul>
                   <p class="sun-order-sum"><span><?= $h(($lang === 'en' ? 'Total for prints' : 'Summa prints') . ' (' . seo_print_vat_label($lang) . ')') ?></span><strong id="sun-order-sum"></strong></p>
-                  <p class="field-hint"><?= $h($lang === 'en' ? 'Mat (optional) and shipping are added.' : 'Passepartout (tillval) och frakt tillkommer.') ?></p>
+                  <p class="field-hint"><?= $h($lang === 'en' ? 'Shipping is added.' : 'Frakt tillkommer.') ?></p>
                 </div>
 
 
@@ -266,7 +266,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                 </label>
 
                 <label><?= $h($lang === 'en' ? 'Message' : 'Meddelande') ?>
-                  <textarea name="message" rows="4" required placeholder="<?= $h($lang === 'en' ? 'Mat as an option? Pickup or shipping (address)?' : 'Passepartout som tillval? Hämtning eller frakt (adress)?') ?>"></textarea>
+                  <textarea name="message" rows="4" required placeholder="<?= $h($lang === 'en' ? 'Pickup or shipping (address)?' : 'Hämtning eller frakt (adress)?') ?>"></textarea>
                 </label>
 
                 <label class="contact-honeypot" aria-hidden="true">
