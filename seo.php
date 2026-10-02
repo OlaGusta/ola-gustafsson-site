@@ -497,6 +497,42 @@ function seo_artwork_availability_meta(string $lang, string $key): array
   ];
 }
 
+// Vanliga frågor: en rad per fråga, "Fråga? Svar." (frågan slutar vid första
+// frågetecknet) eller "Fråga | Svar". Rader utan svar hoppas över.
+function seo_parse_faq_items(array $lines): array
+{
+  $items = [];
+  foreach ($lines as $line) {
+    if (!is_string($line)) {
+      continue;
+    }
+    $line = trim($line);
+    $question = '';
+    $answer = '';
+    $pipe = strpos($line, '|');
+    if ($pipe !== false) {
+      $question = trim(substr($line, 0, $pipe));
+      $answer = trim(substr($line, $pipe + 1));
+    } else {
+      $mark = strpos($line, '?');
+      if ($mark !== false) {
+        $question = trim(substr($line, 0, $mark + 1));
+        $answer = trim(substr($line, $mark + 1));
+      }
+    }
+    if ($question !== '' && $answer !== '') {
+      $items[] = ['q' => $question, 'a' => $answer];
+    }
+  }
+  return $items;
+}
+
+// Svarstext utan länkmarkeringar, för schema.org och llms.txt: "[text](url)" -> "text".
+function seo_strip_link_markup(string $value): string
+{
+  return trim((string) preg_replace('/\[([^\]]+)\]\s*\((https?:\/\/[^\s)]+)\)(\{nofollow\})?/i', '$1', $value));
+}
+
 function seo_normalize_string_list(array $value): array
 {
   $output = [];
@@ -1108,6 +1144,17 @@ function seo_order_extras_note(string $lang): string
   return $lang === 'en'
     ? 'Mat with backing board is added (from 300 SEK depending on size), as is shipping (within Sweden usually 150–250 SEK).'
     : 'Passepartout med bakstycke tillkommer (från 300 kr beroende på format), liksom frakt (inom Sverige normalt 150–250 kr).';
+}
+
+// Länk till Vanliga frågor på startsidan, för beställnings-/intresserutorna.
+// Tom sträng om inga frågor är inlagda.
+function seo_faq_link_html(array $payload, string $lang): string
+{
+  if (seo_parse_faq_items(seo_localized_payload_array($payload, $lang, ['about', 'faqItems'])) === []) {
+    return '';
+  }
+  $label = $lang === 'en' ? 'Common questions about buying, prints and shipping' : 'Vanliga frågor om köp, print och frakt';
+  return '<a class="artwork-inquiry-faq-link" href="/#faq" data-lang-link>' . seo_escape_html($label) . '</a>';
 }
 
 // Printprislista per format. Gäller alla Fine Art Prints (solar och galleriverk).

@@ -6279,3 +6279,75 @@ body:not([data-page='studio']) .contact-social-links {
     row-gap: var(--space-5);
   }
 }
+
+/* =====================================================================
+   Vanliga frågor (startsidan, #faq): lugn lista med utfällbara svar
+   ===================================================================== */
+.faq {
+  max-width: 46rem;
+}
+
+.faq h2 {
+  margin-bottom: var(--space-4);
+}
+
+.faq-list {
+  border-top: 1px solid var(--color-border);
+}
+
+.faq-item {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.faq-item summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+  cursor: pointer;
+  list-style: none;
+  color: var(--color-ink);
+  font-weight: var(--font-body-strong-weight);
+}
+
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item summary::after {
+  content: "+";
+  flex: none;
+  color: var(--color-primary);
+  font-size: 1.25rem;
+  line-height: 1;
+  font-weight: 400;
+}
+
+.faq-item[open] summary::after {
+  content: "−";
+}
+
+.faq-item summary:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.faq-item p {
+  margin: 0;
+  padding: 0 var(--space-6) var(--space-4) 0;
+  max-width: 62ch;
+  color: var(--color-soft-ink);
+}
+
+.faq-item p a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.artwork-inquiry-faq-link {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}

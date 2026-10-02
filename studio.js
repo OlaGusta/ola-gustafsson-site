@@ -115,6 +115,8 @@ const DEFAULT_CONTENT = {
     ambitions: [],
     recognitionHeading: 'Utmärkelser & utställningar',
     recognitionItems: [],
+    faqHeading: '',
+    faqItems: [],
     sideNote: ''
   },
   project: {
@@ -950,6 +952,7 @@ const STUDIO_STATIC_LINK_OPTIONS = [
   ['#galleri', 'Startsidan: utvalda verk'],
   ['#om', 'Startsidan: artist statement'],
   ['#projekt', 'Startsidan: 100 dagar av sol-avsnittet'],
+  ['#faq', 'Startsidan: vanliga frågor'],
   ['#kontakt', 'Startsidan: kontakt'],
   ['gallery.html', 'Galleriet'],
   ['100-dagar-av-sol', 'Solsidan (100 dagar av sol)'],
@@ -1423,6 +1426,7 @@ const EN_SYNC_STRING_JOBS = [
   { path: 'about.featureImageAlt', field: 'alt' },
   { path: 'about.ambitionsHeading', field: 'title' },
   { path: 'about.recognitionHeading', field: 'title' },
+  { path: 'about.faqHeading', field: 'title' },
   { path: 'project.eyebrow', field: 'generic' },
   { path: 'project.heading', field: 'title' },
   { path: 'project.description', field: 'generic' },
@@ -1439,7 +1443,8 @@ const EN_SYNC_STRING_JOBS = [
 const EN_SYNC_ARRAY_JOBS = [
   { path: 'about.paragraphs', field: 'generic' },
   { path: 'about.ambitions', field: 'generic' },
-  { path: 'about.recognitionItems', field: 'generic' }
+  { path: 'about.recognitionItems', field: 'generic' },
+  { path: 'about.faqItems', field: 'generic' }
 ];
 const EN_SYNC_IMAGE_ENTRY_JOBS = [
   { path: 'about.processImages', field: 'alt' },
@@ -2638,6 +2643,8 @@ const el = {
   ambitionsLines: document.getElementById('ambitions-lines'),
   recognitionHeading: document.getElementById('recognition-heading'),
   recognitionLines: document.getElementById('recognition-lines'),
+  faqHeading: document.getElementById('faq-heading'),
+  faqLines: document.getElementById('faq-lines'),
   contactEyebrow: document.getElementById('contact-eyebrow'),
   contactHeading: document.getElementById('contact-heading'),
   contactBody: document.getElementById('contact-body'),
@@ -4413,6 +4420,12 @@ const ensureAboutContact = () => {
   if (!Array.isArray(state.content.about.recognitionItems)) {
     state.content.about.recognitionItems = [];
   }
+  if (!Array.isArray(state.content.about.faqItems)) {
+    state.content.about.faqItems = [];
+  }
+  if (typeof state.content.about.faqHeading !== 'string') {
+    state.content.about.faqHeading = '';
+  }
   if (typeof state.content.about.recognitionHeading !== 'string' || state.content.about.recognitionHeading.trim() === '') {
     state.content.about.recognitionHeading = 'Utmärkelser & utställningar';
   }
@@ -4855,6 +4868,13 @@ const syncFormFromState = () => {
   }
   if (el.recognitionLines) {
     el.recognitionLines.value = arrayToLineText(localizedAbout.recognitionItems);
+  }
+  if (el.faqHeading) {
+    el.faqHeading.value = localizedAbout.faqHeading || '';
+  }
+  if (el.faqLines) {
+    // Tomrad mellan frågorna för läsbarhet; linesToArray tar bort dem vid sparning.
+    el.faqLines.value = (Array.isArray(localizedAbout.faqItems) ? localizedAbout.faqItems : []).join('\n\n');
   }
 
   if (el.projectEyebrow) {
@@ -6534,6 +6554,12 @@ const pullFormToState = () => {
   }
   if (el.recognitionLines) {
     setPath(localizedTarget, 'about.recognitionItems', linesToArray(el.recognitionLines.value));
+  }
+  if (el.faqHeading) {
+    setPath(localizedTarget, 'about.faqHeading', el.faqHeading.value.trim());
+  }
+  if (el.faqLines) {
+    setPath(localizedTarget, 'about.faqItems', linesToArray(el.faqLines.value));
   }
 
   if (el.projectEyebrow) {

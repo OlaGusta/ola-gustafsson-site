@@ -113,10 +113,10 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
       <link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20261002-02" />
+    <link rel="stylesheet" href="styles.css?v=20261003-01" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
-    <script src="script.js?v=20261002-02" defer></script>
+    <script src="script.js?v=20261003-01" defer></script>
     <script src="sol.js?v=20260928-05" defer></script>
   </head>
   <body id="page-top" data-page="sun" data-day-label="<?= $h($dayLabel) ?>" data-remove-label="<?= $h($lang === 'en' ? 'Remove day' : 'Ta bort dag') ?>">
@@ -215,6 +215,9 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
               <p class="artwork-inquiry-fineprint"><?= $h($lang === 'en'
                 ? 'Sending the form is not a binding order. I reply with a total and payment details.'
                 : 'Formuläret är inte en bindande beställning. Jag svarar med totalpris och betalningsuppgifter.') ?></p>
+              <?php if (($faqLinkHtml = seo_faq_link_html($payload, $lang)) !== ''): ?>
+                <p class="artwork-inquiry-faq"><?= $faqLinkHtml ?></p>
+              <?php endif; ?>
             </div>
             <?php if ($formEnabled): ?>
               <form

@@ -126,7 +126,7 @@ if (!$artwork) {
         <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
         <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
       <?php endif; ?>
-      <link rel="stylesheet" href="/styles.css?v=20261002-02" />
+      <link rel="stylesheet" href="/styles.css?v=20261003-01" />
     </head>
     <body id="page-top" data-page="artwork">
       <header class="site-header" id="top">
@@ -193,7 +193,7 @@ if (!$artwork) {
 
       <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
       <script src="/content.js?v=20260928-01" defer></script>
-      <script src="/script.js?v=20261002-02" defer></script>
+      <script src="/script.js?v=20261003-01" defer></script>
     </body>
   </html>
   <?php
@@ -655,10 +655,10 @@ if (!is_string($structuredJson)) {
       <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="/styles.css?v=20261002-02" />
+    <link rel="stylesheet" href="/styles.css?v=20261003-01" />
     <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="/content.js?v=20260928-01" defer></script>
-    <script src="/script.js?v=20261002-02" defer></script>
+    <script src="/script.js?v=20261003-01" defer></script>
   </head>
   <body id="page-top" data-page="artwork">
     <header class="site-header" id="top">
@@ -800,6 +800,9 @@ if (!is_string($structuredJson)) {
               <h2><?= htmlspecialchars($inquiryHeading, ENT_QUOTES) ?></h2>
               <p><?= htmlspecialchars($artworkInquiryFormEnabled ? $inquiryBody : $inquiryFallbackBody, ENT_QUOTES) ?></p>
               <p class="artwork-inquiry-extras"><?= htmlspecialchars(seo_order_extras_note($lang), ENT_QUOTES) ?></p>
+              <?php if (($faqLinkHtml = seo_faq_link_html($payload, $lang)) !== ''): ?>
+                <p class="artwork-inquiry-faq"><?= $faqLinkHtml ?></p>
+              <?php endif; ?>
             </div>
             <?php if ($artworkInquiryFormEnabled): ?>
               <form

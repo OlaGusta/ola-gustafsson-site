@@ -128,6 +128,8 @@ const DEFAULT_CONTENT = {
     ambitions: [],
     recognitionHeading: 'Utmärkelser & utställningar',
     recognitionItems: [],
+    faqHeading: '',
+    faqItems: [],
     sideNote: ''
   },
   project: {
@@ -2921,6 +2923,44 @@ const renderInspiration = () => {
   });
 };
 
+// Vanliga frågor: samma radformat som seo_parse_faq_items i seo.php.
+const parseFaqItems = (lines) =>
+  (Array.isArray(lines) ? lines : [])
+    .map((raw) => {
+      const line = typeof raw === 'string' ? raw.trim() : '';
+      const pipe = line.indexOf('|');
+      const mark = line.indexOf('?');
+      const cut = pipe >= 0 ? pipe : mark;
+      if (cut < 0) {
+        return null;
+      }
+      const q = line.slice(0, pipe >= 0 ? cut : cut + 1).trim();
+      const a = line.slice(cut + 1).trim();
+      return q && a ? { q, a } : null;
+    })
+    .filter(Boolean);
+
+const renderFaq = () => {
+  const list = document.getElementById('faq-list');
+  const section = document.getElementById('faq');
+  if (!list || !section) {
+    return;
+  }
+  const items = parseFaqItems(content.about && content.about.faqItems);
+  section.hidden = items.length === 0;
+  list.innerHTML = '';
+  items.forEach((item) => {
+    const details = document.createElement('details');
+    details.className = 'faq-item';
+    const summary = document.createElement('summary');
+    summary.textContent = item.q;
+    const answer = document.createElement('p');
+    answer.appendChild(buildLinkedTextFragment(item.a));
+    details.append(summary, answer);
+    list.appendChild(details);
+  });
+};
+
 const renderRecognition = () => {
   const list = document.getElementById('about-recognition');
   const recognitionItems = content.about && Array.isArray(content.about.recognitionItems) ? content.about.recognitionItems : [];
@@ -5090,6 +5130,7 @@ const bootstrap = async () => {
   renderInspiration();
   renderAmbitions();
   renderRecognition();
+  renderFaq();
   renderSunProject();
   renderContact();
   initArtworkPreviewPage();

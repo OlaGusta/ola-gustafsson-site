@@ -135,6 +135,11 @@ $ambitions = seo_normalize_string_list(seo_localized_payload_array($payload, $la
 $recognitionHeading = seo_localized_payload_string($payload, $lang, ['about', 'recognitionHeading']);
 $recognitionItems = seo_normalize_string_list(seo_localized_payload_array($payload, $lang, ['about', 'recognitionItems']));
 $aboutSideNote = seo_localized_payload_string($payload, $lang, ['about', 'sideNote']);
+$faqHeading = seo_localized_payload_string($payload, $lang, ['about', 'faqHeading']);
+if ($faqHeading === '') {
+  $faqHeading = $lang === 'en' ? 'Frequently asked questions' : 'Vanliga frågor';
+}
+$faqItems = seo_parse_faq_items(seo_localized_payload_array($payload, $lang, ['about', 'faqItems']));
 $portraitImageValue = seo_localized_payload_string($payload, 'sv', ['about', 'portraitImage']);
 $portraitImageSrc = $portraitImageValue !== '' ? seo_image_variant_src($portraitImageValue, false) : 'images/web/ola-portrait.jpg';
 $portraitAlt = seo_localized_payload_string($payload, $lang, ['about', 'portraitAlt']);
@@ -271,6 +276,20 @@ $structuredData = [
   ]
 ];
 
+if ($faqItems !== []) {
+  $structuredData[] = [
+    '@context' => 'https://schema.org',
+    '@type' => 'FAQPage',
+    '@id' => $canonical . '#faq',
+    'inLanguage' => seo_lang_locale($lang),
+    'mainEntity' => array_map(static fn (array $item): array => [
+      '@type' => 'Question',
+      'name' => $item['q'],
+      'acceptedAnswer' => ['@type' => 'Answer', 'text' => seo_strip_link_markup($item['a'])]
+    ], $faqItems)
+  ];
+}
+
 $structuredJson = json_encode($structuredData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 if (!is_string($structuredJson)) {
   $structuredJson = '[]';
@@ -338,9 +357,9 @@ if (!is_string($structuredJson)) {
       fetchpriority="high"
     />
     	    <script src="overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>" defer></script>
-	    <link rel="stylesheet" href="styles.css?v=20261002-02" />
+	    <link rel="stylesheet" href="styles.css?v=20261003-01" />
 	    <script src="content.js?v=20260928-01" defer></script>
-		    <script src="script.js?v=20261002-02" defer></script>
+		    <script src="script.js?v=20261003-01" defer></script>
 	  </head>
   <body id="page-top" data-page="home">
     <header class="site-header" id="top">
@@ -587,6 +606,20 @@ if (!is_string($structuredJson)) {
                 <?php endforeach; ?>
               </ul>
 	          </aside>
+	        </div>
+	      </section>
+
+	      <section id="faq" class="section reveal faq-section"<?= $faqItems === [] ? ' hidden' : '' ?>>
+	        <div class="container faq">
+	          <h2 data-bind="about.faqHeading"><?= seo_escape_html($faqHeading) ?></h2>
+	          <div id="faq-list" class="faq-list">
+	            <?php foreach ($faqItems as $faqItem): ?>
+	              <details class="faq-item">
+	                <summary><?= seo_escape_html($faqItem['q']) ?></summary>
+	                <p><?= seo_render_linkified_html($faqItem['a']) ?></p>
+	              </details>
+	            <?php endforeach; ?>
+	          </div>
 	        </div>
 	      </section>
 

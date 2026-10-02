@@ -27,6 +27,7 @@ Options -Indexes
   RewriteRule ^(?:sol|solar|100-days-of-sun)/?$ /100-dagar-av-sol [L,R=301,QSA]
   RewriteRule ^sitemap_index\.xml$ /sitemap.xml [L,R=301]
   RewriteRule ^robots\.txt$ robots.php [L]
+  RewriteRule ^llms\.txt$ llms.php [L]
   RewriteRule ^sitemap\.xml$ sitemap.php [L]
 
   # Harden live host if legacy WordPress files still exist on disk.

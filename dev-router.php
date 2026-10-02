@@ -21,6 +21,11 @@ if ($requestPath === '/robots.txt') {
   return true;
 }
 
+if ($requestPath === '/llms.txt') {
+  require __DIR__ . '/llms.php';
+  return true;
+}
+
 if ($requestPath === '/sitemap.xml') {
   require __DIR__ . '/sitemap.php';
   return true;
