@@ -290,7 +290,7 @@ skip_unchanged_images() {
   listing="$(mktemp)"
   while IFS= read -r dir; do
     printf '#DIR %s\n' "$dir" >> "$listing"
-    curl -sS --ftp-method nocwd --user "$FTP_USER:$FTP_PASS" -X MLSD \
+    curl -sS --connect-timeout 20 --max-time 60 --ftp-method nocwd --user "$FTP_USER:$FTP_PASS" -X MLSD \
       "ftp://${FTP_HOST}${remote_base}/${dir}/" >> "$listing" 2>/dev/null || true
   done < <(grep '^images/' "$file_list" | sed 's|/[^/]*$||' | LC_ALL=C sort -u)
 
@@ -373,7 +373,7 @@ run_deploy() {
   done < <(sed -n 's|/[^/]*$||p' "$file_list" | LC_ALL=C sort -u | awk -F/ '{p=""; for (i=1;i<=NF;i++){p=(p==""?$i:p"/"$i); print p}}' | LC_ALL=C sort -u)
   if [ "${#mkd_args[@]}" -gt 0 ]; then
     log "Ensuring $(( ${#mkd_args[@]} / 2 )) remote directories exist"
-    curl -sS --user "$FTP_USER:$FTP_PASS" "${mkd_args[@]}" "ftp://${FTP_HOST}/" -o /dev/null
+    curl -sS --connect-timeout 20 --max-time 120 --user "$FTP_USER:$FTP_PASS" "${mkd_args[@]}" "ftp://${FTP_HOST}/" -o /dev/null
   fi
 
   log "Deploying ${total} files to ${remote_base}"
@@ -385,7 +385,9 @@ run_deploy() {
     # Oderlands FTP svarar ibland 553 i perioder (troligen spärr mot många snabba
     # anslutningar). Samma fil går igenom efter en paus, så vänta allt längre.
     local attempt=1
-    until curl -sS --ftp-method nocwd --ftp-create-dirs --user "$FTP_USER:$FTP_PASS" -T "$src" "$url"; do
+    # Tidsgränser: utan dem kan en uppladdning hänga i det oändliga när servern slutar
+    # svara (hände 2026-10-03, deployen stod still i över 40 minuter).
+    until curl -sS --connect-timeout 20 --max-time 180 --ftp-method nocwd --ftp-create-dirs --user "$FTP_USER:$FTP_PASS" -T "$src" "$url"; do
       [ "$attempt" -lt 5 ] || die "Upload failed after ${attempt} attempts: ${rel}"
       warn "Upload failed (attempt ${attempt}), retrying in $((attempt * 10))s: ${rel}"
       sleep $((attempt * 10))

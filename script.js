@@ -828,7 +828,11 @@ const DARK_THEME_OVERRIDES = {
 const bindTextContent = () => {
   document.querySelectorAll('[data-bind]').forEach((node) => {
     const key = node.getAttribute('data-bind');
-    const value = getBoundString(key);
+    let value = getBoundString(key);
+    if (key === 'hero.title') {
+      // Namnet ska inte delas på två rader ("… Ola / Gustafsson").
+      value = value.replace(/Ola Gustafsson/g, 'Ola\u00a0Gustafsson');
+    }
     if (value !== '') {
       node.textContent = '';
       // data-bind-links: texten får innehålla länkar, [text](https://…), som i Studio.

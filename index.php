@@ -357,9 +357,9 @@ if (!is_string($structuredJson)) {
       fetchpriority="high"
     />
     	    <script src="overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>" defer></script>
-	    <link rel="stylesheet" href="styles.css?v=20261003-01" />
+	    <link rel="stylesheet" href="styles.css?v=20261003-02" />
 	    <script src="content.js?v=20260928-01" defer></script>
-		    <script src="script.js?v=20261003-01" defer></script>
+		    <script src="script.js?v=20261003-02" defer></script>
 	  </head>
   <body id="page-top" data-page="home">
     <header class="site-header" id="top">
@@ -419,7 +419,7 @@ if (!is_string($structuredJson)) {
         <div class="container hero-content">
           <div id="hero-copy-panel" class="hero-copy surface-glass">
             <p class="eyebrow" data-bind="hero.eyebrow"><?= seo_escape_html($heroEyebrow) ?></p>
-            <h1 data-bind="hero.title"><?= seo_escape_html($heroTitle) ?></h1>
+            <h1 data-bind="hero.title"><?= seo_escape_html(str_replace('Ola Gustafsson', "Ola\u{00a0}Gustafsson", $heroTitle)) ?></h1>
             <p class="hero-subtitle" data-bind="hero.subtitle"><?= seo_render_inline_formatted_html($heroSubtitle) ?></p>
             <p data-bind="hero.intro"><?= seo_render_multiline_html($heroIntro) ?></p>
             <p class="hero-line" data-bind="hero.line"><?= seo_escape_html($heroLine) ?></p>

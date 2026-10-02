@@ -6351,3 +6351,14 @@ body:not([data-page='studio']) .contact-social-links {
   text-decoration: underline;
   text-underline-offset: 0.18em;
 }
+
+/* Herorubriken: jämna rader, och namnet hålls ihop med hårt mellanslag (index.php/script.js). */
+.hero-copy h1 {
+  text-wrap: balance;
+}
+
+@media (min-width: 761px) {
+  .hero-copy h1 {
+    max-width: 18ch;
+  }
+}
