@@ -1142,8 +1142,20 @@ function seo_print_paper_label(string $lang): string
 function seo_order_extras_note(string $lang): string
 {
   return $lang === 'en'
-    ? 'Mat with backing board is added (from 300 SEK depending on size), as is shipping (within Sweden usually 150–250 SEK).'
-    : 'Passepartout med bakstycke tillkommer (från 300 kr beroende på format), liksom frakt (inom Sverige normalt 150–250 kr).';
+    ? 'Shipping is added (within Sweden usually 150–250 SEK).'
+    : 'Frakt tillkommer (inom Sverige normalt 150–250 kr).';
+}
+
+// Ram eller passepartout på beställning: materialkostnad + serviceavgift per verk
+// (beslut 2026-10-03, ersätter "passepartout från 300 kr" och "ram till självkostnad").
+// Gäller både original och print. Beloppet är slutpris till kund, inklusive moms.
+const SEO_FRAMING_SERVICE_FEE_SEK = 300;
+
+function seo_framing_service_note(string $lang): string
+{
+  return $lang === 'en'
+    ? sprintf('If you would like the work framed or matted, I can arrange it. The cost of materials and a service fee of %d SEK per work are then added.', SEO_FRAMING_SERVICE_FEE_SEK)
+    : sprintf('Vill du ha verket inramat eller i passepartout kan jag ordna det. Då tillkommer materialkostnaden och en serviceavgift på %d kr per verk.', SEO_FRAMING_SERVICE_FEE_SEK);
 }
 
 // Länk till Vanliga frågor på startsidan, för beställnings-/intresserutorna.
@@ -1195,7 +1207,8 @@ function seo_print_sizes(array $payload, string $lang): array
 // Så levereras en print (beslut 2026-10-03, samma metod som Jenny): bilden renskuren,
 // limmad på en syrafri kapaskiva i ramens format. Skivans vita yta är kanten runt
 // bilden, så arket har ingen egen marginal. Upplaga och signatur skrivs i bildens
-// nederkant (vänster/höger). Ingen passepartout säljs till printarna.
+// nederkant (vänster/höger). Ingen passepartout ingår; ram eller passepartout ordnas
+// på begäran mot serviceavgift (seo_framing_service_note).
 function seo_print_mount_label(string $lang): string
 {
   return $lang === 'en' ? 'Mounted on acid-free board' : 'Monterad på syrafri skiva';

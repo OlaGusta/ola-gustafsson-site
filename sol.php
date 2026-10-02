@@ -209,7 +209,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                 ? sprintf('Each sun is printed on %s. %s.', seo_print_paper_label($lang), seo_print_edition_label($lang))
                 : sprintf('Varje sol trycks på %s. %s.', seo_print_paper_label($lang), seo_print_edition_label($lang))) ?></p>
               <p><?= $h(seo_print_mount_note($lang)) ?></p>
-              <p><?= $h(seo_print_extras_note($lang)) ?></p>
+              <p><?= $h(seo_print_extras_note($lang) . ' ' . seo_framing_service_note($lang)) ?></p>
               <p class="artwork-inquiry-fineprint"><?= $h($lang === 'en'
                 ? 'Sending the form is not a binding order. I reply with a total and payment details.'
                 : 'Formuläret är inte en bindande beställning. Jag svarar med totalpris och betalningsuppgifter.') ?></p>
@@ -266,7 +266,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                 </label>
 
                 <label><?= $h($lang === 'en' ? 'Message' : 'Meddelande') ?>
-                  <textarea name="message" rows="4" required placeholder="<?= $h($lang === 'en' ? 'Pickup or shipping (address)?' : 'Hämtning eller frakt (adress)?') ?>"></textarea>
+                  <textarea name="message" rows="4" required placeholder="<?= $h($lang === 'en' ? 'Pickup or shipping (address)? Frame or mat?' : 'Hämtning eller frakt (adress)? Ram eller passepartout?') ?>"></textarea>
                 </label>
 
                 <label class="contact-honeypot" aria-hidden="true">

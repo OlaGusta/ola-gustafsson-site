@@ -372,8 +372,8 @@ $priceNoteVisible = $priceLabel !== ''
   && preg_match('/[0-9]/', $priceLabel) === 1
   && !in_array($availability, ['sold', 'nfs'], true);
 $priceNote = $lang === 'en'
-  ? 'Signed by the artist. Unframed. Mat with backing board from 300 SEK, framing at cost. Shipping is added.'
-  : 'Signerad av konstnären. Oinramat. Passepartout med bakstycke från 300 kr, ram till självkostnad. Frakt tillkommer.';
+  ? sprintf('Signed by the artist. Unframed. Frame or mat on request: cost of materials plus a service fee of %d SEK. Shipping is added.', SEO_FRAMING_SERVICE_FEE_SEK)
+  : sprintf('Signerad av konstnären. Oinramat. Ram eller passepartout ordnar jag mot materialkostnad och en serviceavgift på %d kr. Frakt tillkommer.', SEO_FRAMING_SERVICE_FEE_SEK);
 $printFromLabel = seo_print_from_label($printSizes, $lang);
 $printFacts = [
   seo_print_frame_range_label($printSizes, $lang) . ', ' . $printFromLabel . ' ' . seo_print_vat_label($lang),
@@ -800,9 +800,9 @@ if (!is_string($structuredJson)) {
               <p class="eyebrow"><?= htmlspecialchars($lang === 'en' ? 'Inquiry' : 'Intresseanmälan', ENT_QUOTES) ?></p>
               <h2><?= htmlspecialchars($inquiryHeading, ENT_QUOTES) ?></h2>
               <p><?= htmlspecialchars($artworkInquiryFormEnabled ? $inquiryBody : $inquiryFallbackBody, ENT_QUOTES) ?></p>
-              <p class="artwork-inquiry-extras"><?= htmlspecialchars(seo_order_extras_note($lang), ENT_QUOTES) ?></p>
+              <p class="artwork-inquiry-extras"><?= htmlspecialchars(seo_order_extras_note($lang) . ' ' . seo_framing_service_note($lang), ENT_QUOTES) ?></p>
               <?php if ($fineArtPrint): ?>
-                <p class="artwork-inquiry-extras"><?= htmlspecialchars('Fine Art Print: ' . seo_print_mount_note($lang) . ' ' . seo_print_extras_note($lang), ENT_QUOTES) ?></p>
+                <p class="artwork-inquiry-extras"><?= htmlspecialchars('Fine Art Print: ' . seo_print_mount_note($lang), ENT_QUOTES) ?></p>
               <?php endif; ?>
               <?php if (($faqLinkHtml = seo_faq_link_html($payload, $lang)) !== ''): ?>
                 <p class="artwork-inquiry-faq"><?= $faqLinkHtml ?></p>
