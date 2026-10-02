@@ -5514,8 +5514,11 @@ button:focus-visible {
 }
 
 @media (max-width: 760px) {
-  /* (1) Mobil: målningen först, i sin helhet, texten under i stället för ovanpå. */
+  /* (1) Mobil: målningen fyller första skärmen. Rubrik, underrubrik och länkar står
+     på bilden mot en toning i nederkanten; ingress och etikett visas inte, så att
+     bilden och texten hänger ihop och texten blir kort. */
   .hero {
+    position: relative;
     min-height: 0;
     display: block;
   }
@@ -5523,47 +5526,77 @@ button:focus-visible {
   .hero-media {
     position: relative;
     inset: auto;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 4 / 5;
+    max-height: calc(100svh - 9.5rem);
+    width: 100%;
   }
 
   .hero-overlay {
     display: none !important;
   }
 
+  .hero-media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+      to top,
+      rgba(5, 9, 16, 0.84) 0%,
+      rgba(5, 9, 16, 0.62) 20%,
+      rgba(5, 9, 16, 0.22) 40%,
+      rgba(5, 9, 16, 0) 56%
+    );
+  }
+
   .hero-content {
-    width: calc(100% - 2 * var(--space-5));
-    padding: var(--space-5) 0 var(--space-2);
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    margin: 0;
+    padding: 0 var(--space-5) var(--space-5);
   }
 
   .hero-copy {
+    max-width: none;
     padding: 0;
-    color: var(--color-ink);
+    color: #f6f8fb;
     background: none !important;
     border: 0;
     box-shadow: none;
     backdrop-filter: none;
+    text-shadow:
+      0 1px 2px rgba(4, 8, 14, 0.55),
+      0 2px 16px rgba(4, 8, 14, 0.5);
   }
 
-  .hero-copy .hero-subtitle,
+  .hero-copy h1 {
+    max-width: none;
+    font-size: clamp(1.45rem, 1rem + 2.6vw, 1.95rem);
+  }
+
+  .hero .eyebrow,
+  .hero-copy > p:not(.hero-subtitle),
   .hero-line {
-    color: var(--color-soft-ink);
+    display: none;
   }
 
-  .hero .eyebrow {
-    color: color-mix(in srgb, var(--color-primary) 78%, black 22%);
-  }
-
-  :root[data-color-mode="dark"] .hero .eyebrow {
-    color: var(--color-primary);
+  .hero-copy .hero-subtitle {
+    margin: 0.3rem 0 0;
+    font-size: 1.02rem;
+    color: rgba(244, 247, 251, 0.92);
   }
 
   body:not([data-page='studio']) .hero .btn-ghost {
-    color: var(--color-ink);
-    text-shadow: none;
+    color: #f6f8fb;
+    font-weight: var(--font-body-strong-weight);
   }
 
   .hero-actions {
-    margin-top: var(--space-4);
+    margin-top: var(--space-3);
   }
 
   /* (5) En kolumn: inga reserverade tomrader (de finns för att korten ska bli lika
@@ -6120,4 +6153,126 @@ body:not([data-page='studio']) .contact-social-links {
   width: auto;
   flex: none;
   margin: 0;
+}
+
+/* =====================================================================
+   Mobil gallerisida (2026-10-02): bilden först
+   Toppen tog över halva första skärmen (ingress, tre rader filterknappar, två
+   listrader, årsrubrik i två rader). Nu: rubrik, en rad filter som rullar i sidled,
+   en rad med år + sortering, sedan första målningen.
+   ===================================================================== */
+@media (max-width: 760px) {
+  .gallery-page.section {
+    padding-top: var(--space-5);
+  }
+
+  .gallery-page .section-head {
+    margin-bottom: var(--space-3);
+  }
+
+  .gallery-page .section-head h1 {
+    font-size: 1.6rem;
+  }
+
+  .gallery-page .gallery-page-lead {
+    display: none;
+  }
+
+  .gallery-page .gallery-controls {
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  /* Filterknapparna på en rad som rullar i sidled, ända ut i skärmkanten. */
+  .gallery-page .filter-group {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    width: calc(100% + 2 * var(--space-5));
+    margin-inline: calc(-1 * var(--space-5));
+    padding-inline: var(--space-5);
+    scroll-padding-inline: var(--space-5);
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .gallery-page .filter-group::-webkit-scrollbar {
+    display: none;
+  }
+
+  .gallery-page .filter-chip {
+    flex: none;
+    padding: 0.36rem 0.8rem;
+    font-size: 0.92rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* År och sortering sida vid sida. Listornas egna värden ("Alla år", "Nyast först")
+     förklarar sig själva, så etiketterna finns kvar bara för skärmläsare. */
+  .gallery-page .gallery-select-controls {
+    flex-wrap: nowrap;
+    gap: var(--space-2);
+    width: 100%;
+  }
+
+  .gallery-page .gallery-select-controls .sort-control {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+  }
+
+  .gallery-page .sort-control > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .gallery-page .sort-control select {
+    width: 100%;
+    font-size: 0.92rem;
+  }
+
+  /* Årsrubriken på en rad: "2026" till vänster, "20 verk" till höger. */
+  .gallery-page .gallery-year-divider {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+
+  /* Under verket: titel och pris på samma rad, mått m.m. på en liten rad under. */
+  .gallery-page .work-meta {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--space-3);
+    align-items: baseline;
+    padding-top: var(--space-2);
+  }
+
+  .gallery-page .work-meta h3 {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 1.05rem;
+  }
+
+  .gallery-page .work-meta .work-price {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .gallery-page .work-meta p:not(.work-price) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin-top: 0.1rem;
+    font-size: 0.8rem;
+    -webkit-line-clamp: 1;
+  }
+
+  .gallery-page .gallery-grid {
+    row-gap: var(--space-5);
+  }
 }

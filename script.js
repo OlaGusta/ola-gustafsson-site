@@ -2545,12 +2545,38 @@ const runHeroSlideshow = (slides, defaultDurationMs, options = {}) => {
     }
   };
 
+  // Smal skärm: mindre bildvariant (1280 px) och bara nästa bild laddas i förväg,
+  // i stället för alla på en gång.
+  const progressive = shouldUseStaticHeroOnMobile();
+  const slideSources = slides.map((slide) => {
+    if (!progressive) {
+      return [getArtworkDisplaySrc(slide.src)];
+    }
+    const src = normalizeSrcValue(slide.src);
+    return Array.from(new Set([getHeroDisplaySrc(src), getWebCandidateSrc(src), src].filter(Boolean)));
+  });
+  const loadSlideImage = (image, index) => {
+    if (!image || image.dataset.slideLoaded === '1') {
+      return;
+    }
+    image.dataset.slideLoaded = '1';
+    const sources = slideSources[index] || [];
+    if (sources.length > 1) {
+      image.dataset.fallbackSrcs = sources.join('\n');
+      image.dataset.fallbackIndex = '0';
+    }
+    image.src = addRevToSrc(sources[0] || '');
+  };
+
   slides.forEach((slide, index) => {
     const image = document.createElement('img');
     image.className = 'artwork-photo hero-slide';
-    image.src = addRevToSrc(getArtworkDisplaySrc(slide.src));
+    addImageFallback(image);
+    if (!progressive || index === 0) {
+      loadSlideImage(image, index);
+    }
     image.alt = slide.alt || `${getUiText('slideLabel', 'Bild')} ${index + 1}`;
-    image.loading = index < 2 ? 'eager' : 'lazy';
+    image.loading = index < 2 || progressive ? 'eager' : 'lazy';
     image.fetchPriority = index === 0 ? 'high' : 'auto';
     image.decoding = 'async';
     image.style.setProperty('--slide-duration', `${Number(slide.durationMs || defaultDurationMs)}ms`);
@@ -2559,7 +2585,6 @@ const runHeroSlideshow = (slides, defaultDurationMs, options = {}) => {
       image.addEventListener('load', markReady, { once: true });
       image.addEventListener('error', markReady, { once: true });
     }
-    addImageFallback(image);
     wrap.appendChild(image);
   });
 
@@ -2582,11 +2607,13 @@ const runHeroSlideshow = (slides, defaultDurationMs, options = {}) => {
   }
 
   // Preload all slides to avoid stalled transitions on slow connections.
-  slides.forEach((slide) => {
-    const pre = new Image();
-    pre.decoding = 'async';
-    pre.src = addRevToSrc(getArtworkDisplaySrc(slide.src));
-  });
+  if (!progressive) {
+    slides.forEach((slide) => {
+      const pre = new Image();
+      pre.decoding = 'async';
+      pre.src = addRevToSrc(getArtworkDisplaySrc(slide.src));
+    });
+  }
 
   const variants = ['kb-in', 'kb-out', 'kb-pan-left', 'kb-pan-right'];
   const applyKenBurnsVariant = (element) => {
@@ -2610,14 +2637,26 @@ const runHeroSlideshow = (slides, defaultDurationMs, options = {}) => {
     });
     applyKenBurnsVariant(elements[nextIndex]);
     heroSlideshowState.currentIndex = nextIndex;
+    // Hämta nästa bild medan den här visas.
+    const upcoming = (nextIndex + 1) % elements.length;
+    loadSlideImage(elements[upcoming], upcoming);
   };
 
   showSlide(0);
 
-  const tick = () => {
-    const durationMs = normalizeHeroSlideDuration(slides[heroSlideshowState.currentIndex].durationMs, defaultDurationMs);
+  const isSlideReady = (element) => !element || !element.isConnected || (element.complete && element.naturalWidth > 0);
+  const tick = (retries = 0) => {
+    const durationMs =
+      retries > 0
+        ? 700
+        : normalizeHeroSlideDuration(slides[heroSlideshowState.currentIndex].durationMs, defaultDurationMs);
     heroSlideshowState.timerId = window.setTimeout(() => {
       const nextIndex = (heroSlideshowState.currentIndex + 1) % elements.length;
+      // Nästa bild inte klar (långsam lina): stanna kvar en stund i stället för att tona till tomt.
+      if (progressive && !isSlideReady(elements[nextIndex]) && retries < 12) {
+        tick(retries + 1);
+        return;
+      }
       showSlide(nextIndex);
       tick();
     }, durationMs);
@@ -2686,7 +2725,9 @@ const renderHeroImage = () => {
     applyHeroImageSource(heroImage, firstSlide.src);
     heroImage.alt = firstSlide.alt || getUiText('heroImageFallbackAlt', 'Hero-bild');
     addImageFallback(heroImage);
-    if (shouldUseStaticHeroOnMobile()) {
+    // Stillbild bara vid datasparläge/mycket långsam lina. Smal skärm får bildspelet,
+    // men med mindre bilder som laddas en i taget (se runHeroSlideshow).
+    if (shouldSkipWarmImageCache()) {
       heroImage.addEventListener('load', clearHeroPreloadArtifacts, { once: true });
       heroImage.addEventListener('error', clearHeroPreloadArtifacts, { once: true });
       if (heroImage.complete) {
