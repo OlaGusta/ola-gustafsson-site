@@ -6362,3 +6362,23 @@ body:not([data-page='studio']) .contact-social-links {
     max-width: 18ch;
   }
 }
+
+/* Solbeställning: delsummor, frakt och "Att betala". */
+.sun-order-sum.sun-order-subtotal {
+  font-weight: var(--font-body-weight);
+  color: var(--color-soft-ink);
+  border-top: 0;
+  padding-top: 0.15rem;
+}
+.sun-order-lines + .sun-order-subtotal {
+  border-top: 1px solid var(--color-border);
+  padding-top: 0.4rem;
+}
+.sun-order-sum.sun-order-due {
+  margin-top: 0.35rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-border);
+}
+.sun-order-pay {
+  margin-top: 0.6rem;
+}

@@ -2651,6 +2651,8 @@ const el = {
   contactEmail: document.getElementById('contact-email'),
   contactEmailLabel: document.getElementById('contact-email-label'),
   contactEmailPublic: document.getElementById('contact-email-public'),
+  contactSwish: document.getElementById('contact-swish'),
+  contactBank: document.getElementById('contact-bank'),
   contactSocialEditor: document.getElementById('contact-social-editor'),
   addContactSocial: document.getElementById('add-contact-social'),
   galleryUpload: document.getElementById('gallery-upload'),
@@ -4919,6 +4921,12 @@ const syncFormFromState = () => {
   if (el.contactEmailPublic) {
     el.contactEmailPublic.checked = contact.emailPublic !== false;
   }
+  if (el.contactSwish) {
+    el.contactSwish.value = typeof contact.swishNumber === 'string' ? contact.swishNumber : '';
+  }
+  if (el.contactBank) {
+    el.contactBank.value = typeof contact.bankAccount === 'string' ? contact.bankAccount : '';
+  }
 
   refreshStudioLanguageUi();
   renderContactSocialEditor();
@@ -6622,6 +6630,12 @@ const pullFormToState = () => {
     getPath(localizedBeforeSave, 'contact.emailLabel') || state.content.contact.emailLabel || 'Skicka e-post';
   setPath(localizedTarget, 'contact.emailLabel', el.contactEmailLabel.value.trim() || fallbackEmailLabel);
   state.content.contact.emailPublic = el.contactEmailPublic ? el.contactEmailPublic.checked : true;
+  if (el.contactSwish) {
+    state.content.contact.swishNumber = el.contactSwish.value.trim();
+  }
+  if (el.contactBank) {
+    state.content.contact.bankAccount = el.contactBank.value.trim();
+  }
 
   const socialLinksSource =
     language === 'sv' ? state.content.contact.socialLinks || [] : ensureEditableContactSocialLinks(language);

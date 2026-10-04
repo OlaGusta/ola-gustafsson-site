@@ -373,7 +373,9 @@ run_deploy() {
   done < <(sed -n 's|/[^/]*$||p' "$file_list" | LC_ALL=C sort -u | awk -F/ '{p=""; for (i=1;i<=NF;i++){p=(p==""?$i:p"/"$i); print p}}' | LC_ALL=C sort -u)
   if [ "${#mkd_args[@]}" -gt 0 ]; then
     log "Ensuring $(( ${#mkd_args[@]} / 2 )) remote directories exist"
-    curl -sS --connect-timeout 20 --max-time 120 --user "$FTP_USER:$FTP_PASS" "${mkd_args[@]}" "ftp://${FTP_HOST}/" -o /dev/null
+    # Mapparna finns nästan alltid redan; ett timeout här ska inte stoppa deployen.
+    curl -sS --connect-timeout 20 --max-time 120 --user "$FTP_USER:$FTP_PASS" "${mkd_args[@]}" "ftp://${FTP_HOST}/" -o /dev/null \
+      || warn "Kunde inte verifiera mapparna (fortsätter ändå)"
   fi
 
   log "Deploying ${total} files to ${remote_base}"

@@ -113,11 +113,11 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
       <link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20261003-02" />
+    <link rel="stylesheet" href="styles.css?v=20261004-01" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <script src="script.js?v=20261003-02" defer></script>
-    <script src="sol.js?v=20260928-05" defer></script>
+    <script src="sol.js?v=20261004-01" defer></script>
   </head>
   <body id="page-top" data-page="sun" data-day-label="<?= $h($dayLabel) ?>" data-remove-label="<?= $h($lang === 'en' ? 'Remove day' : 'Ta bort dag') ?>">
     <header class="site-header" id="top">
@@ -210,9 +210,10 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                 : sprintf('Varje sol trycks på %s. %s.', seo_print_paper_label($lang), seo_print_edition_label($lang))) ?></p>
               <p><?= $h(seo_print_mount_note($lang)) ?></p>
               <p><?= $h(seo_print_extras_note($lang) . ' ' . seo_framing_service_note($lang)) ?></p>
+              <p><?= $h(seo_print_delivery_note($lang)) ?></p>
               <p class="artwork-inquiry-fineprint"><?= $h($lang === 'en'
-                ? 'Sending the form is not a binding order. I reply with a total and payment details.'
-                : 'Formuläret är inte en bindande beställning. Jag svarar med totalpris och betalningsuppgifter.') ?></p>
+                ? 'Sending the form is not a binding order. You can pay as soon as you have sent it, or wait for my confirmation by email.'
+                : 'Formuläret är inte en bindande beställning. Du kan betala direkt när du skickat den, eller vänta på min bekräftelse per mejl.') ?> <?= $h(seo_withdrawal_note($lang)) ?></p>
               <?php if (($faqLinkHtml = seo_faq_link_html($payload, $lang)) !== ''): ?>
                 <p class="artwork-inquiry-faq"><?= $faqLinkHtml ?></p>
               <?php endif; ?>
@@ -249,10 +250,15 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                 </label>
                 <ul class="sun-picked" id="sun-picked-form" aria-label="<?= $h($lang === 'en' ? 'Selected suns' : 'Valda solar') ?>" hidden></ul>
                 <p class="field-hint sun-picked-hint"><?= $h($lang === 'en' ? 'Different size for a single sun? Change it under that sun.' : 'Vill du ha ett annat format på en enskild sol? Ändra under den solen.') ?></p>
-                <div class="sun-order-total" id="sun-order-total" aria-live="polite" hidden>
+                <div class="sun-order-total" id="sun-order-total" aria-live="polite" data-shipping="<?= SEO_PRINT_SHIPPING_SEK ?>" hidden>
                   <ul class="sun-order-lines" id="sun-order-lines"></ul>
-                  <p class="sun-order-sum"><span><?= $h(($lang === 'en' ? 'Total for prints' : 'Summa prints') . ' (' . seo_print_vat_label($lang) . ')') ?></span><strong id="sun-order-sum"></strong></p>
-                  <p class="field-hint"><?= $h($lang === 'en' ? 'Shipping is added.' : 'Frakt tillkommer.') ?></p>
+                  <p class="sun-order-sum sun-order-subtotal"><span><?= $h(($lang === 'en' ? 'Prints' : 'Prints') . ' (' . seo_print_vat_label($lang) . ')') ?></span><span id="sun-order-sum"></span></p>
+                  <p class="sun-order-sum sun-order-subtotal"><span><?= $h($lang === 'en' ? 'Shipping within Sweden' : 'Frakt inom Sverige') ?></span><span><?= $h(number_format(SEO_PRINT_SHIPPING_SEK, 0, ',', ' ') . ($lang === 'en' ? ' SEK' : ' kr')) ?></span></p>
+                  <p class="sun-order-sum sun-order-due"><span><?= $h($lang === 'en' ? 'To pay' : 'Att betala') ?></span><strong id="sun-order-due"></strong></p>
+                  <?php $sunPaymentNote = seo_payment_note($payload, $lang, $lang === 'en' ? 'the sun numbers' : 'solens nummer'); ?>
+                  <?php if ($sunPaymentNote !== ''): ?>
+                    <p class="field-hint sun-order-pay"><?= $h($sunPaymentNote) ?></p>
+                  <?php endif; ?>
                 </div>
 
 

@@ -1221,11 +1221,62 @@ function seo_print_mount_note(string $lang): string
     : 'Formatet är ramens mått. Printen levereras monterad på en syrafri skiva i det formatet, utan ram och glas, klar att rama in.';
 }
 
+// Fast frakt för print (beslut 2026-10-04): ett belopp per beställning inom Sverige,
+// så att kunden kan betala direkt. Original har rörlig frakt (seo_order_extras_note).
+const SEO_PRINT_SHIPPING_SEK = 150;
+
 function seo_print_extras_note(string $lang): string
 {
   return $lang === 'en'
-    ? 'Shipping is added (within Sweden usually 150–250 SEK).'
-    : 'Frakt tillkommer (inom Sverige normalt 150–250 kr).';
+    ? sprintf('Shipping within Sweden is %d SEK per order. Outside Sweden: price on request.', SEO_PRINT_SHIPPING_SEK)
+    : sprintf('Frakt inom Sverige %d kr per beställning. Utanför Sverige: pris på förfrågan.', SEO_PRINT_SHIPPING_SEK);
+}
+
+// Leveranstid för print: görs på beställning, klar inom några timmar; ram beställs
+// separat och tar 4–5 dagar extra plus leverans.
+function seo_print_delivery_note(string $lang): string
+{
+  return $lang === 'en'
+    ? 'Prints are made to order and usually ship within a few days. If you order a frame, add about a week, and the frame is charged separately.'
+    : 'Printen görs på beställning och skickas normalt inom några dagar. Beställer du ram tar det cirka en vecka till, och ramen kostar extra.';
+}
+
+// Betalningsuppgifter från Studio (Kontakt → Swish-nummer / Bankkonto). Tomma = ingen text.
+function seo_payment_details(array $payload): array
+{
+  $contact = isset($payload['contact']) && is_array($payload['contact']) ? $payload['contact'] : [];
+  $swish = isset($contact['swishNumber']) && is_string($contact['swishNumber']) ? trim($contact['swishNumber']) : '';
+  $bank = isset($contact['bankAccount']) && is_string($contact['bankAccount']) ? trim($contact['bankAccount']) : '';
+  return ['swish' => $swish, 'bank' => $bank];
+}
+
+// "Betala med Swish till … eller till bankkonto …. Skriv ditt namn och {referens} som meddelande."
+function seo_payment_note(array $payload, string $lang, string $reference = ''): string
+{
+  $details = seo_payment_details($payload);
+  $ways = [];
+  if ($details['swish'] !== '') {
+    $ways[] = ($lang === 'en' ? 'Swish to ' : 'Swish till ') . $details['swish'];
+  }
+  if ($details['bank'] !== '') {
+    $ways[] = ($lang === 'en' ? 'bank transfer to ' : 'bankkonto ') . $details['bank'];
+  }
+  if ($ways === []) {
+    return '';
+  }
+  $joined = implode($lang === 'en' ? ' or ' : ' eller ', $ways);
+  $ref = $reference !== '' ? $reference : ($lang === 'en' ? 'the title of the work' : 'verkets titel');
+  return $lang === 'en'
+    ? sprintf('Pay by %s. Write your name and %s as the message.', $joined, $ref)
+    : sprintf('Betala med %s. Skriv ditt namn och %s som meddelande.', $joined, $ref);
+}
+
+// Ångerrätt vid distansköp (konsument): 14 dagar från mottagandet.
+function seo_withdrawal_note(string $lang): string
+{
+  return $lang === 'en'
+    ? 'As a private customer you have a 14-day right of withdrawal from the day you receive the work. Let me know within that time and return the work undamaged; you pay the return shipping.'
+    : 'Som privatperson har du 14 dagars ångerrätt från att du tagit emot verket. Meddela mig inom den tiden och skicka tillbaka verket oskadat; returfrakten betalar du själv.';
 }
 
 // Printar är reproduktioner och säljs med 25 % moms (originalen är momsfria konstverk).

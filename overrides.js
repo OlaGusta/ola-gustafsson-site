@@ -90,7 +90,7 @@ window.PORTFOLIO_OVERRIDES = {
         "imageAlt": "Akvarell i blå toner med stadsvy och långa skuggor.",
         "ctaPrimaryLabel": "Se målningar",
         "ctaSecondaryLabel": "100 dagar av sol",
-        "modeUpdatedAt": 1790771649108,
+        "modeUpdatedAt": 1790954757928,
         "ctaPrimaryHref": "gallery.html",
         "ctaSecondaryHref": "100-dagar-av-sol"
     },
@@ -127,9 +127,6 @@ window.PORTFOLIO_OVERRIDES = {
             "[Konstnärspresentation publicerad av NAS / Nordiska Akvarellsällskapet, 2026](https://nasmembers.org/index.php/2026/05/09/ola-gustafsson/)",
             "[NAS Internetutställning 2026](https://akvarellen.org/internetudstilling-2026/) – två juryantagna akvareller: State of mind och Utsikt från bryggareberget"
         ],
-        "sideNote": "",
-        "eyebrow": "Artist statement",
-        "processImages": [],
         "faqHeading": "Vanliga frågor",
         "faqItems": [
             "Hur köper jag en målning? Öppna verket i galleriet och skicka intresseanmälan längst ned på verkets sida. Anmälan är inte bindande. Jag svarar med totalpris och betalningsuppgifter.",
@@ -138,10 +135,16 @@ window.PORTFOLIO_OVERRIDES = {
             "Vad är en Fine Art Print? Ett tryck av en målning på konstpapperet Hahnemühle Photo Rag. Varje tryck är signerat och numrerat av mig, och upplagan är högst 20 exemplar per bild. Trycket levereras monterat på en syrafri skiva. Verk som finns som print är märkta med Fine Art Print på verkets sida.",
             "Vilka format och priser har printarna? Formaten anges som ramens yttermått: 30 × 40 cm för 1 800 kr, 40 × 60 cm för 2 900 kr och 50 × 70 cm för 3 800 kr. Priserna inkluderar moms. Bilden är mindre än formatet: skivan den sitter på har ramens mått och ger en vit kant runt bilden. Vilka format som finns för ett visst verk står på verkets sida.",
             "Ingår ram och passepartout? Nej. Original säljs som lösa ark, och print levereras monterad på en syrafri skiva i ramens format, klar att rama in. Vill du ha verket inramat eller i passepartout kan jag ordna det. Då tillkommer materialkostnaden och en serviceavgift på 300 kr per verk. Ramar du en print själv, använd gärna distanslist så att bilden inte ligger mot glaset.",
-            "Vad kostar frakten? Frakt tillkommer på priset. Inom Sverige kostar den normalt 150–250 kr.",
+            "Vad kostar frakten? För print är frakten 150 kr per beställning inom Sverige, oavsett hur många solar du beställer. För original tillkommer frakt, inom Sverige normalt 150–250 kr. Utanför Sverige: pris på förfrågan.",
+            "Hur betalar jag? Med Swish till 070-433 36 74 eller till mitt företagskonto i Swedbank, 8327-9, 903 671 334-6. Skriv ditt namn och verkets titel eller solens nummer som meddelande. Print kan du betala direkt när du skickat beställningen. För original väntar du på min bekräftelse med totalbelopp.",
+            "Hur lång är leveranstiden? Print görs på beställning och skickas normalt inom några dagar. Beställer du ram tar det cirka en vecka till. Original skickas när betalningen kommit in.",
+            "Har jag ångerrätt? Ja. Som privatperson har du 14 dagars ångerrätt från att du tagit emot verket. Meddela mig inom den tiden och skicka tillbaka verket oskadat; returfrakten betalar du själv. Jag betalar tillbaka när verket kommit fram.",
             "Går solarna i 100 dagar av sol att köpa? Ja, som Fine Art Print. Alla hundra solar kan beställas var för sig, i olika format, på sidan 100 dagar av sol. Originalen är inte till salu.",
             "Hur kommer jag i kontakt med dig? Mejla ola@olagustafsson.com eller skriv på Instagram, @holagustafsson. För frågor om ett visst verk finns ett formulär på verkets sida."
-        ]
+        ],
+        "sideNote": "",
+        "eyebrow": "Artist statement",
+        "processImages": []
     },
     "project": {
         "eyebrow": "Projekt",
@@ -192,7 +195,9 @@ window.PORTFOLIO_OVERRIDES = {
             }
         ],
         "instagramUrl": "",
-        "facebookUrl": ""
+        "facebookUrl": "",
+        "swishNumber": "070-433 36 74",
+        "bankAccount": "Swedbank 8327-9, 903 671 334-6"
     },
     "gallery": {
         "heading": "Akvareller",
@@ -2273,7 +2278,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Slussen, eftermiddag i September är ett akvarelloriginal från 2025 med stadsmotiv där ljus, arkitektur och rörelse står i centrum. Skriv gärna om du vill se fler detaljer, reservera verket eller veta mer om tillgänglighet.",
                 "priceLabel": "5 400 kr",
-                "availability": "available",
+                "availability": "reserved",
                 "addedAt": 1777841583000
             },
             {
@@ -3545,7 +3550,10 @@ window.PORTFOLIO_OVERRIDES = {
                     "What is a fine art print? A print of a painting on Hahnemühle Photo Rag fine art paper. Each print is signed and numbered by me, in an edition of at most 20 per image. The print comes mounted on an acid-free board. Works available as prints are marked Fine Art Print on their page.",
                     "Which sizes and prices do the prints come in? Sizes are given as the outer frame size: 30 × 40 cm for 1,800 SEK, 40 × 60 cm for 2,900 SEK and 50 × 70 cm for 3,800 SEK. Prices include VAT. The image is smaller than the stated size: the board it is mounted on has the frame size and gives a white border around the image. The sizes available for a given work are listed on its page.",
                     "Are frame and mat included? No. Originals are sold as loose sheets, and prints come mounted on an acid-free board in the frame size, ready to frame. If you would like the work framed or matted, I can arrange it. The cost of materials and a service fee of 300 SEK per work are then added. If you frame a print yourself, use a spacer so that the image does not rest against the glass.",
-                    "What does shipping cost? Shipping is added to the price. Within Sweden it is usually 150–250 SEK.",
+                    "What does shipping cost? For prints, shipping within Sweden is 150 SEK per order, however many suns you order. For originals, shipping is added, within Sweden usually 150–250 SEK. Outside Sweden: price on request.",
+                    "How do I pay? By Swish to 070-433 36 74 or to my business account at Swedbank, 8327-9, 903 671 334-6. Write your name and the title of the work or the sun numbers as the message. Prints can be paid as soon as you have sent the order. For originals, wait for my confirmation with the total.",
+                    "How long is the delivery time? Prints are made to order and usually ship within a few days. If you order a frame, add about a week. Originals ship once payment has arrived.",
+                    "Do I have a right of withdrawal? Yes. As a private customer you have 14 days from the day you receive the work. Let me know within that time and return the work undamaged; you pay the return shipping. I refund when the work has arrived.",
                     "Can I buy the suns from 100 days of sun? Yes, as fine art prints. All one hundred suns can be ordered individually, in different sizes, on the 100 days of sun page. The originals are not for sale.",
                     "How do I get in touch? Email ola@olagustafsson.com or write on Instagram, @holagustafsson. For questions about a specific work there is a form on its page."
                 ]
@@ -4269,47 +4277,62 @@ window.PORTFOLIO_OVERRIDES = {
                     "array:about.faqItems[0]": {
                         "sourceHash": "aad261bb",
                         "translatedValue": "How do I buy a painting? Open the work in the gallery and send the inquiry form at the bottom of its page. The inquiry is not binding. I reply with a total and payment details.",
-                        "updatedAt": "2026-10-02T08:51:48.010Z"
+                        "updatedAt": "2026-10-04T07:40:14.514Z"
                     },
                     "array:about.faqItems[1]": {
                         "sourceHash": "db2e20ee",
                         "translatedValue": "What does an original painting cost? The price is shown with each work. Originals currently cost between 1,200 and 9,500 SEK depending on size. They are sold unframed and are signed.",
-                        "updatedAt": "2026-10-02T08:51:48.010Z"
+                        "updatedAt": "2026-10-04T07:40:14.514Z"
                     },
                     "array:about.faqItems[2]": {
                         "sourceHash": "124c8169",
                         "translatedValue": "What do Reserved, Sold and Not for sale mean? Reserved means someone has asked me to hold the work. Works that are sold or not for sale cannot be bought, but you are welcome to ask about similar works or upcoming paintings.",
-                        "updatedAt": "2026-10-02T08:51:48.010Z"
+                        "updatedAt": "2026-10-04T07:40:14.514Z"
                     },
                     "array:about.faqItems[3]": {
                         "sourceHash": "53b2c3a4",
                         "translatedValue": "What is a fine art print? A print of a painting on Hahnemühle Photo Rag fine art paper. Each print is signed and numbered by me, in an edition of at most 20 per image. The print comes mounted on an acid-free board. Works available as prints are marked Fine Art Print on their page.",
-                        "updatedAt": "2026-10-02T12:51:47.394Z"
+                        "updatedAt": "2026-10-04T07:40:14.514Z"
                     },
                     "array:about.faqItems[4]": {
                         "sourceHash": "628f699c",
                         "translatedValue": "Which sizes and prices do the prints come in? Sizes are given as the outer frame size: 30 × 40 cm for 1,800 SEK, 40 × 60 cm for 2,900 SEK and 50 × 70 cm for 3,800 SEK. Prices include VAT. The image is smaller than the stated size: the board it is mounted on has the frame size and gives a white border around the image. The sizes available for a given work are listed on its page.",
-                        "updatedAt": "2026-10-02T12:51:47.399Z"
+                        "updatedAt": "2026-10-04T07:40:14.514Z"
                     },
                     "array:about.faqItems[5]": {
                         "sourceHash": "80cc46e4",
                         "translatedValue": "Are frame and mat included? No. Originals are sold as loose sheets, and prints come mounted on an acid-free board in the frame size, ready to frame. If you would like the work framed or matted, I can arrange it. The cost of materials and a service fee of 300 SEK per work are then added. If you frame a print yourself, use a spacer so that the image does not rest against the glass.",
-                        "updatedAt": "2026-10-02T14:31:18.557Z"
+                        "updatedAt": "2026-10-04T07:40:14.514Z"
                     },
                     "array:about.faqItems[6]": {
-                        "sourceHash": "8db971e7",
-                        "translatedValue": "What does shipping cost? Shipping is added to the price. Within Sweden it is usually 150–250 SEK.",
-                        "updatedAt": "2026-10-02T08:51:48.010Z"
+                        "sourceHash": "8afa0cb8",
+                        "translatedValue": "What does shipping cost? For prints, shipping within Sweden is 150 SEK per order, however many suns you order. For originals, shipping is added, within Sweden usually 150–250 SEK. Outside Sweden: price on request.",
+                        "updatedAt": "2026-10-04T07:40:14.514Z"
                     },
                     "array:about.faqItems[7]": {
-                        "sourceHash": "96c241a7",
-                        "translatedValue": "Can I buy the suns from 100 days of sun? Yes, as fine art prints. All one hundred suns can be ordered individually, in different sizes, on the 100 days of sun page. The originals are not for sale.",
-                        "updatedAt": "2026-10-02T08:51:48.010Z"
+                        "sourceHash": "31cfce5b",
+                        "translatedValue": "How do I pay? By Swish to 070-433 36 74 or to my business account at Swedbank, 8327-9, 903 671 334-6. Write your name and the title of the work or the sun numbers as the message. Prints can be paid as soon as you have sent the order. For originals, wait for my confirmation with the total.",
+                        "updatedAt": "2026-10-04T07:40:14.514Z"
                     },
                     "array:about.faqItems[8]": {
+                        "sourceHash": "d73bf55d",
+                        "translatedValue": "How long is the delivery time? Prints are made to order and usually ship within a few days. If you order a frame, add about a week. Originals ship once payment has arrived.",
+                        "updatedAt": "2026-10-04T07:40:14.514Z"
+                    },
+                    "array:about.faqItems[9]": {
+                        "sourceHash": "d321bdb0",
+                        "translatedValue": "Do I have a right of withdrawal? Yes. As a private customer you have 14 days from the day you receive the work. Let me know within that time and return the work undamaged; you pay the return shipping. I refund when the work has arrived.",
+                        "updatedAt": "2026-10-04T07:40:14.514Z"
+                    },
+                    "array:about.faqItems[10]": {
+                        "sourceHash": "96c241a7",
+                        "translatedValue": "Can I buy the suns from 100 days of sun? Yes, as fine art prints. All one hundred suns can be ordered individually, in different sizes, on the 100 days of sun page. The originals are not for sale.",
+                        "updatedAt": "2026-10-04T07:40:14.514Z"
+                    },
+                    "array:about.faqItems[11]": {
                         "sourceHash": "e5622f3e",
                         "translatedValue": "How do I get in touch? Email ola@olagustafsson.com or write on Instagram, @holagustafsson. For questions about a specific work there is a form on its page.",
-                        "updatedAt": "2026-10-02T08:51:48.010Z"
+                        "updatedAt": "2026-10-04T07:40:14.514Z"
                     }
                 }
             }

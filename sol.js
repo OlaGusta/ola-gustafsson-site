@@ -28,6 +28,8 @@
   const totalBox = document.getElementById('sun-order-total');
   const totalLines = document.getElementById('sun-order-lines');
   const totalSum = document.getElementById('sun-order-sum');
+  const totalDue = document.getElementById('sun-order-due');
+  const shipping = totalBox ? Number(totalBox.dataset.shipping || 0) : 0;
   const orderSection = document.getElementById('bestall');
   let orderInView = false;
   // Vald dag -> format (värdet i formatväljaren). Varje sol kan ha eget format.
@@ -197,6 +199,9 @@
         })
         .join('');
       totalSum.textContent = total > 0 ? formatAmount(total) : onRequest;
+      if (totalDue) {
+        totalDue.textContent = total > 0 ? formatAmount(total + shipping) : onRequest;
+      }
     }
     if (trayTotal) {
       trayTotal.textContent = total > 0 ? ` · ${formatAmount(total)}` : '';
@@ -209,7 +214,11 @@
     }
     if (priceField) {
       const parts = groups.map((group) => `${group.value} ×${group.days.length}${group.price ? ` à ${group.price}` : ''}`);
-      priceField.value = parts.length ? `${parts.join(', ')}${total > 0 ? ` = ${formatAmount(total)}` : ''}` : '';
+      const due =
+        total > 0
+          ? ` = ${formatAmount(total)} + ${isEnglish ? 'shipping' : 'frakt'} ${formatAmount(shipping)} = ${formatAmount(total + shipping)}`
+          : '';
+      priceField.value = parts.length ? `${parts.join(', ')}${due}` : '';
     }
   };
 

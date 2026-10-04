@@ -89,7 +89,12 @@ if ($forSalePrices !== []) {
   $out[] = '- Original: ' . count($forSalePrices) . ' verk till salu, ' . $formatAmount(min($forSalePrices)) . ' till ' . $formatAmount(max($forSalePrices)) . '. Säljs oinramade och signerade. Pris och tillgänglighet står på varje verks sida.';
 }
 $out[] = '- Fine Art Print: tryck på ' . seo_print_paper_label('sv') . ', signerade och numrerade, upplaga om ' . SEO_PRINT_EDITION_SIZE . ' exemplar per bild. Format (ramens yttermått) och pris inklusive moms: ' . $printList . '. ' . seo_print_mount_note('sv');
-$out[] = '- Frakt och inramning: ' . seo_order_extras_note('sv') . ' ' . seo_framing_service_note('sv');
+$out[] = '- Frakt och inramning: original: ' . lcfirst(seo_order_extras_note('sv')) . ' Print: ' . lcfirst(seo_print_extras_note('sv')) . ' ' . seo_framing_service_note('sv');
+$out[] = '- Leveranstid: ' . seo_print_delivery_note('sv');
+if (($paymentNote = seo_payment_note($payload, 'sv', 'verkets titel eller solens nummer')) !== '') {
+  $out[] = '- Betalning: ' . $paymentNote;
+}
+$out[] = '- Ångerrätt: ' . seo_withdrawal_note('sv');
 $out[] = '- Köp: via intresseanmälan på verkets sida. Anmälan är inte bindande; konstnären svarar med totalpris och betalningsuppgifter.';
 if ($email !== '') {
   $out[] = '- Kontakt: ' . $email;
