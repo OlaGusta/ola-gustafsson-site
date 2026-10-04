@@ -433,6 +433,32 @@ const updateFaviconForColorMode = () => {
   }
 };
 
+// Turnstile-rutan är alltid 300 px bred. I smala formulär (mobil) krymps den
+// proportionellt så att den inte sticker ut utanför fälten.
+const fitTurnstileWidget = (host) => {
+  if (!(host instanceof HTMLElement)) {
+    return;
+  }
+  const apply = () => {
+    const widget = host.firstElementChild;
+    if (!(widget instanceof HTMLElement)) {
+      return;
+    }
+    const available = host.clientWidth;
+    const scale = available > 0 ? Math.min(1, available / 300) : 1;
+    widget.style.transformOrigin = '0 0';
+    widget.style.transform = scale < 1 ? `scale(${scale.toFixed(3)})` : '';
+    widget.style.width = '300px';
+    host.style.height = scale < 1 ? `${Math.ceil(65 * scale)}px` : '';
+  };
+  apply();
+  if ('ResizeObserver' in window && !host.dataset.turnstileFit) {
+    host.dataset.turnstileFit = '1';
+    new ResizeObserver(apply).observe(host);
+  }
+  window.setTimeout(apply, 300);
+};
+
 const loadTurnstileScript = () => {
   if (window.turnstile && typeof window.turnstile.render === 'function') {
     return Promise.resolve(window.turnstile);
@@ -3775,6 +3801,7 @@ const initContactForm = () => {
             setContactFormStatus(getUiText('captchaVerifyError', 'Captcha kunde inte verifieras. Försök igen.'), 'error');
           }
         });
+        fitTurnstileWidget(turnstileHost);
       })
       .catch(() => {
         setContactFormStatus(
@@ -3996,6 +4023,7 @@ const initArtworkInquiryForm = () => {
             );
           }
         });
+        fitTurnstileWidget(turnstileHost);
       })
       .catch(() => {
         setArtworkInquiryStatus(

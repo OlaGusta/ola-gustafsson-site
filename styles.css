@@ -3994,6 +3994,11 @@ body[data-page='studio'] main {
 
 .contact-turnstile {
   min-height: 68px;
+  overflow: hidden;
+}
+
+.contact-turnstile > div {
+  transform-origin: 0 0;
 }
 
 .contact-honeypot {
