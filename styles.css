@@ -1180,7 +1180,7 @@ code {
   margin-top: var(--space-6);
   padding: var(--space-6);
   display: grid;
-  grid-template-columns: 0.92fr 1.08fr;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
   gap: var(--space-6);
   align-items: start;
 }
@@ -4382,7 +4382,7 @@ button:focus-visible {
   }
 
   .artwork-inquiry-card {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     padding: var(--space-5);
   }
 
@@ -6381,4 +6381,53 @@ body:not([data-page='studio']) .contact-social-links {
 }
 .sun-order-pay {
   margin-top: 0.6rem;
+}
+
+/* Beställningsrutan får inte bli bredare än skärmen: kolumnerna kan krympa under
+   innehållets naturliga bredd (långa alternativ i formatväljaren), och väljaren
+   fyller bara sin kolumn. */
+.artwork-inquiry-card > * {
+  min-width: 0;
+}
+.artwork-inquiry-form > label,
+.artwork-inquiry-form > fieldset,
+.artwork-inquiry-form > div {
+  min-width: 0;
+  max-width: 100%;
+}
+.artwork-inquiry-form select,
+.artwork-inquiry-form input:not([type="checkbox"]):not([type="radio"]),
+.artwork-inquiry-form textarea {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Tillval ram/passepartout i solbeställningen */
+.sun-order-extras {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md, 10px);
+  padding: 0.7rem 0.9rem 0.8rem;
+  margin: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+.sun-order-extras legend {
+  padding: 0 0.3rem;
+  font-size: 0.86rem;
+  color: var(--color-soft-ink);
+}
+.sun-order-extras .checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0;
+}
+.sun-order-extras .checkbox-row input {
+  width: auto;
+  margin: 0;
+}
+.sun-order-extras .field-hint {
+  margin-top: 0.3rem;
 }

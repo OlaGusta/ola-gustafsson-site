@@ -113,11 +113,11 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
       <link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20261004-01" />
+    <link rel="stylesheet" href="styles.css?v=20261004-03" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <script src="script.js?v=20261003-02" defer></script>
-    <script src="sol.js?v=20261004-01" defer></script>
+    <script src="sol.js?v=20261004-02" defer></script>
   </head>
   <body id="page-top" data-page="sun" data-day-label="<?= $h($dayLabel) ?>" data-remove-label="<?= $h($lang === 'en' ? 'Remove day' : 'Ta bort dag') ?>">
     <header class="site-header" id="top">
@@ -256,12 +256,22 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                   <p class="sun-order-sum sun-order-subtotal"><span><?= $h($lang === 'en' ? 'Shipping within Sweden' : 'Frakt inom Sverige') ?></span><span><?= $h(number_format(SEO_PRINT_SHIPPING_SEK, 0, ',', ' ') . ($lang === 'en' ? ' SEK' : ' kr')) ?></span></p>
                   <p class="sun-order-sum sun-order-due"><span><?= $h($lang === 'en' ? 'To pay' : 'Att betala') ?></span><strong id="sun-order-due"></strong></p>
                   <?php $sunPaymentNote = seo_payment_note($payload, $lang, $lang === 'en' ? 'the sun numbers' : 'solens nummer'); ?>
+                  <p class="field-hint sun-order-extras-note" id="sun-order-extras-note" hidden></p>
                   <?php if ($sunPaymentNote !== ''): ?>
                     <p class="field-hint sun-order-pay"><?= $h($sunPaymentNote) ?></p>
                   <?php endif; ?>
                 </div>
 
 
+
+                <fieldset class="sun-order-extras">
+                  <legend><?= $h($lang === 'en' ? 'Optional extras' : 'Tillval') ?></legend>
+                  <label class="checkbox-row"><input type="checkbox" name="sunExtra" value="<?= $h($lang === 'en' ? 'mat' : 'passepartout') ?>" /> <span><?= $h($lang === 'en' ? 'Mat' : 'Passepartout') ?></span></label>
+                  <label class="checkbox-row"><input type="checkbox" name="sunExtra" value="<?= $h($lang === 'en' ? 'frame' : 'ram') ?>" /> <span><?= $h($lang === 'en' ? 'Frame' : 'Ram') ?></span></label>
+                  <small class="field-hint"><?= $h($lang === 'en'
+                    ? sprintf('Cost of materials and a service fee of %d SEK per work are added. I confirm the price by email before you pay.', SEO_FRAMING_SERVICE_FEE_SEK)
+                    : sprintf('Materialkostnad och en serviceavgift på %d kr per verk tillkommer. Jag bekräftar priset per mejl innan du betalar.', SEO_FRAMING_SERVICE_FEE_SEK)) ?></small>
+                </fieldset>
 
                 <label><?= $h($lang === 'en' ? 'Name' : 'Namn') ?>
                   <input type="text" name="name" autocomplete="name" required />
@@ -272,7 +282,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                 </label>
 
                 <label><?= $h($lang === 'en' ? 'Message' : 'Meddelande') ?>
-                  <textarea name="message" rows="4" required placeholder="<?= $h($lang === 'en' ? 'Pickup or shipping (address)? Frame or mat?' : 'Hämtning eller frakt (adress)? Ram eller passepartout?') ?>"></textarea>
+                  <textarea name="message" rows="4" required placeholder="<?= $h($lang === 'en' ? 'Delivery address and any other wishes.' : 'Leveransadress och eventuella önskemål.') ?>"></textarea>
                 </label>
 
                 <label class="contact-honeypot" aria-hidden="true">

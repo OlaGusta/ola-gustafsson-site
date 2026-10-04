@@ -29,6 +29,9 @@
   const totalLines = document.getElementById('sun-order-lines');
   const totalSum = document.getElementById('sun-order-sum');
   const totalDue = document.getElementById('sun-order-due');
+  const extrasNote = document.getElementById('sun-order-extras-note');
+  const extraBoxes = form ? Array.from(form.querySelectorAll('input[name="sunExtra"]')) : [];
+  const chosenExtras = () => extraBoxes.filter((box) => box.checked).map((box) => box.value);
   const shipping = totalBox ? Number(totalBox.dataset.shipping || 0) : 0;
   const orderSection = document.getElementById('bestall');
   let orderInView = false;
@@ -202,6 +205,17 @@
       if (totalDue) {
         totalDue.textContent = total > 0 ? formatAmount(total + shipping) : onRequest;
       }
+      // Tillval (ram/passepartout) prissätts per mejl; visas som rad under summan.
+      if (extrasNote) {
+        const extras = chosenExtras();
+        extrasNote.hidden = extras.length === 0;
+        extrasNote.textContent =
+          extras.length === 0
+            ? ''
+            : isEnglish
+              ? `Extras (${extras.join(', ')}): materials and service fee are added. I confirm the amount by email.`
+              : `Tillval (${extras.join(', ')}): material och serviceavgift tillkommer. Jag bekräftar beloppet per mejl.`;
+      }
     }
     if (trayTotal) {
       trayTotal.textContent = total > 0 ? ` · ${formatAmount(total)}` : '';
@@ -218,7 +232,9 @@
         total > 0
           ? ` = ${formatAmount(total)} + ${isEnglish ? 'shipping' : 'frakt'} ${formatAmount(shipping)} = ${formatAmount(total + shipping)}`
           : '';
-      priceField.value = parts.length ? `${parts.join(', ')}${due}` : '';
+      const extras = chosenExtras();
+      const extrasText = extras.length ? ` · ${isEnglish ? 'Extras' : 'Tillval'}: ${extras.join(', ')}` : '';
+      priceField.value = parts.length ? `${parts.join(', ')}${due}${extrasText}` : '';
     }
   };
 
@@ -348,6 +364,10 @@
       window.setTimeout(() => render(), 0);
     });
   }
+
+  extraBoxes.forEach((box) =>
+    box.addEventListener('change', () => updateOrderFields(Array.from(picks.keys()).sort((a, b) => a - b)))
+  );
 
   // Stoppa sändning utan valda solar. Capture på document körs före
   // script.js:s submit-lyssnare på formuläret.
