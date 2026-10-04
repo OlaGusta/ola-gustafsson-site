@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<title>Beställ din egen sol – skylt A4</title>
+<style>
+  @page { size: A4 portrait; margin: 14mm; }
+  :root { --ink: #1c2226; --soft: #59636c; --accent: #3f7780; --line: #d9dcdb; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #fff; color: var(--ink); }
+  body { font-family: "Plus Jakarta Sans", "Avenir Next", "Helvetica Neue", Arial, sans-serif; font-size: 13.5pt; line-height: 1.45; }
+  .page { width: 182mm; min-height: 269mm; margin: 0 auto; padding: 4mm 0; display: grid; grid-template-rows: auto auto 1fr auto; gap: 7mm; }
+  .eyebrow { font-size: 9.5pt; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0 0 2mm; }
+  h1 { font-family: "Fraunces", "Iowan Old Style", Georgia, serif; font-weight: 600; font-size: 30pt; line-height: 1.08; margin: 0 0 3mm; letter-spacing: -0.01em; }
+  .lead { margin: 0; color: var(--soft); font-size: 13pt; max-width: 150mm; }
+  .prices { display: flex; gap: 6mm; margin: 0; padding: 4mm 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .prices div { flex: 1; }
+  .prices dt { font-size: 9.5pt; letter-spacing: 0.1em; text-transform: uppercase; color: var(--soft); font-weight: 700; }
+  .prices dd { margin: 0; font-size: 17pt; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .prices small { display: block; font-size: 9.5pt; color: var(--soft); font-weight: 400; }
+  .steps { display: grid; grid-template-columns: 1fr 58mm; gap: 8mm; align-items: start; }
+  ol { margin: 0; padding: 0; list-style: none; counter-reset: step; display: grid; gap: 4.5mm; }
+  ol li { counter-increment: step; display: grid; grid-template-columns: 9mm 1fr; gap: 3mm; align-items: start; }
+  ol li::before { content: counter(step); display: grid; place-items: center; width: 8mm; height: 8mm; border-radius: 999px; background: var(--accent); color: #fff; font-weight: 700; font-size: 11.5pt; margin-top: 0.5mm; }
+  ol strong { display: block; font-size: 13.5pt; }
+  ol span { color: var(--soft); font-size: 12pt; }
+  .qr { display: grid; gap: 5mm; }
+  .qr figure { margin: 0; text-align: center; }
+  .qr img { width: 52mm; height: 52mm; object-fit: contain; display: block; margin: 0 auto; }
+  .qr figcaption { font-size: 10.5pt; color: var(--soft); margin-top: 1.5mm; }
+  .qr figcaption strong { color: var(--ink); display: block; font-size: 11.5pt; }
+  .pay { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; padding-top: 4mm; border-top: 1px solid var(--line); font-size: 12pt; }
+  .pay strong { display: block; font-size: 9.5pt; letter-spacing: 0.1em; text-transform: uppercase; color: var(--soft); margin-bottom: 1mm; }
+  .pay .num { font-size: 15pt; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .foot { font-size: 10pt; color: var(--soft); margin: 0; }
+  @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+</head>
+<body>
+<main class="page">
+  <header>
+    <p class="eyebrow">100 dagar av sol · Fine Art Print</p>
+    <h1>Beställ din egen sol</h1>
+    <p class="lead">Alla hundra solar finns som print på Hahnemühle Photo Rag, monterade på syrafri skiva i ramens format. Signerade och numrerade, högst 20 exemplar per sol.</p>
+  </header>
+
+  <dl class="prices">
+    <div><dt>Ram 30 × 40 cm</dt><dd>1 800 kr<small>bild ca 15 × 23 cm</small></dd></div>
+    <div><dt>Ram 40 × 60 cm</dt><dd>2 900 kr<small>bild ca 25 × 39 cm</small></dd></div>
+    <div><dt>Ram 50 × 70 cm</dt><dd>3 800 kr<small>bild ca 32 × 50 cm</small></dd></div>
+  </dl>
+
+  <section class="steps">
+    <ol>
+      <li><div><strong>Skanna koden och öppna beställningssidan.</strong><span>olagustafsson.com/100-dagar-av-sol</span></div></li>
+      <li><div><strong>Välj en eller flera solar och format.</strong><span>Skicka beställningen i formuläret längst ned på sidan. Summan räknas ut åt dig.</span></div></li>
+      <li><div><strong>Betala summan plus 150 kr frakt.</strong><span>Swisha eller betala till bankkontot nedan. Skriv ditt namn och solens nummer som meddelande.</span></div></li>
+      <li><div><strong>Printen görs när du beställt.</strong><span>Den skickas normalt inom några dagar. Vill du ha ram tar det cirka en vecka till, och ramen kostar extra.</span></div></li>
+    </ol>
+    <aside class="qr">
+      <figure><img src="bestall-qr.png" alt="QR-kod till beställningssidan"><figcaption><strong>Beställningssidan</strong>Skanna med kameran</figcaption></figure>
+      <figure><img src="swish-qr.jpg" alt="QR-kod för Swish"><figcaption><strong>Swish</strong>Skanna i Swish-appen</figcaption></figure>
+    </aside>
+  </section>
+
+  <footer>
+    <div class="pay">
+      <div><strong>Swish</strong><span class="num">070-433 36 74</span></div>
+      <div><strong>Bankkonto</strong><span class="num">Swedbank 8327-9, 903 671 334-6</span></div>
+    </div>
+    <p class="foot" style="margin-top:4mm">Priserna inkluderar moms. Frakt 150 kr inom Sverige per beställning. Som privatperson har du 14 dagars ångerrätt. Frågor: ola@olagustafsson.com</p>
+  </footer>
+</main>
+</body>
+</html>
