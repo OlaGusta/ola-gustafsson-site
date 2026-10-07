@@ -357,7 +357,7 @@ if (!is_string($structuredJson)) {
       fetchpriority="high"
     />
     	    <script src="overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>" defer></script>
-	    <link rel="stylesheet" href="styles.css?v=20261007-01" />
+	    <link rel="stylesheet" href="styles.css?v=20261007-02" />
 	    <script src="content.js?v=20260928-01" defer></script>
 		    <script src="script.js?v=20261007-02" defer></script>
 	  </head>

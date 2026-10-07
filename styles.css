@@ -321,21 +321,23 @@ code {
     box-shadow var(--duration-fast) var(--ease-standard);
 }
 
+/* Tonat mot ytan, inte mot vitt: annars blir det aktiva läget ljus text på nästan vitt i mörkt
+   läge (2,1:1). Texten mörknar resp. ljusnar mot color-ink: 4,7:1 ljust, 6,5:1 mörkt. */
 .lang-switch-btn.is-active,
 .theme-switch-btn.is-active {
-  background: color-mix(in srgb, var(--color-primary) 14%, white 86%);
-  color: var(--color-primary);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-primary) 18%, white 82%);
+  background: color-mix(in srgb, var(--color-primary) 14%, var(--color-surface) 86%);
+  color: color-mix(in srgb, var(--color-primary) 78%, var(--color-ink) 22%);
+  box-shadow: inset 0 0 0 1px var(--color-primary);
 }
 
 .lang-switch-btn:hover,
 .theme-switch-btn:hover {
-  background: color-mix(in srgb, var(--color-primary) 8%, white 92%);
+  background: color-mix(in srgb, var(--color-primary) 8%, var(--color-surface) 92%);
 }
 
 .lang-switch-btn:focus-visible,
 .theme-switch-btn:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--color-primary) 45%, white 55%);
+  outline: 2px solid var(--color-primary);
   outline-offset: 1px;
 }
 
@@ -359,16 +361,6 @@ code {
 
 :root[data-color-mode="dark"] .main-nav a {
   color: color-mix(in srgb, var(--color-soft-ink) 92%, white 8%);
-}
-
-:root[data-color-mode="dark"] .btn-ghost {
-  color: #f6f8fb;
-  border-color: rgba(224, 233, 247, 0.34);
-  background: rgba(20, 31, 46, 0.56);
-}
-
-:root[data-color-mode="dark"] .btn-ghost:hover {
-  background: rgba(30, 43, 62, 0.74);
 }
 
 :root[data-color-mode="dark"] .surface-soft {
