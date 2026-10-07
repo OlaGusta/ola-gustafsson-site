@@ -842,9 +842,9 @@ const DARK_THEME_OVERRIDES = {
   '--color-bg': '#0f141d',
   '--color-surface': '#161d28',
   '--color-border': 'rgba(224, 233, 247, 0.18)',
-  '--color-primary': '#7ea9dc',
-  '--color-primary-soft': '#21364f',
-  '--color-accent': '#d0ab77',
+  '--color-primary': '#7ab1b8',
+  '--color-primary-soft': '#21454a',
+  '--color-accent': '#7ab1b8',
   '--color-header-bg': '#0f141d',
   '--color-footer-bg': '#0f141d',
   '--shadow-sm': '0 14px 28px rgba(0, 0, 0, 0.28)',
@@ -1020,6 +1020,11 @@ const applyColorMode = () => {
 
   const root = document.documentElement;
   const mode = activeColorMode === 'dark' ? 'dark' : 'light';
+  // Clear earlier dark overrides: applyTheme() does not reset the shadows or --color-primary-soft,
+  // so without this they would linger after switching from dark to light.
+  Object.keys(DARK_THEME_OVERRIDES).forEach((cssVar) => {
+    root.style.removeProperty(cssVar);
+  });
   // Restore configured light theme first. Dark mode then overrides selected tokens below.
   applyTheme();
   root.setAttribute('data-color-mode', mode);

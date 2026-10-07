@@ -56,9 +56,12 @@
   --color-bg: #0f141d;
   --color-surface: #161d28;
   --color-border: rgba(224, 233, 247, 0.18);
-  --color-primary: #7ea9dc;
-  --color-primary-soft: #21364f;
-  --color-accent: #d0ab77;
+  /* Teal även i mörkt läge (2026-10-07), ljusad för att hålla 7:1 på de blåsvarta ytorna. */
+  --color-primary: #7ab1b8;
+  --color-primary-soft: #21454a;
+  --color-accent: #7ab1b8;
+  /* Etiketter: color-mix-formeln ger bara 4,45:1 på ytan med den här tealen. */
+  --color-eyebrow: #60a1a9;
   --color-header-bg: #0f141d;
   --color-footer-bg: #0f141d;
   --header-bg-opacity: 88;
@@ -581,7 +584,7 @@ code {
   letter-spacing: 0.16em;
   text-transform: uppercase;
   font-weight: var(--font-body-strong-weight);
-  color: color-mix(in srgb, var(--color-primary) 78%, black 22%);
+  color: var(--color-eyebrow, color-mix(in srgb, var(--color-primary) 78%, black 22%));
   margin-bottom: var(--space-3);
 }
 
