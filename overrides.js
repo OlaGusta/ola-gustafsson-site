@@ -90,7 +90,7 @@ window.PORTFOLIO_OVERRIDES = {
         "imageAlt": "Akvarell i blå toner med stadsvy och långa skuggor.",
         "ctaPrimaryLabel": "Se målningar",
         "ctaSecondaryLabel": "100 dagar av sol",
-        "modeUpdatedAt": 1790954757928,
+        "modeUpdatedAt": 1791270984084,
         "ctaPrimaryHref": "gallery.html",
         "ctaSecondaryHref": "100-dagar-av-sol"
     },
@@ -136,7 +136,7 @@ window.PORTFOLIO_OVERRIDES = {
             "Vilka format och priser har printarna? Formaten anges som ramens yttermått: 30 × 40 cm för 1 800 kr, 40 × 60 cm för 2 900 kr och 50 × 70 cm för 3 800 kr. Priserna inkluderar moms. Bilden är mindre än formatet: skivan den sitter på har ramens mått och ger en vit kant runt bilden. Vilka format som finns för ett visst verk står på verkets sida.",
             "Ingår ram och passepartout? Nej. Original säljs som lösa ark, och print levereras monterad på en syrafri skiva i ramens format, klar att rama in. Vill du ha verket inramat eller i passepartout kan jag ordna det. Då tillkommer materialkostnaden och en serviceavgift på 300 kr per verk. Ramar du en print själv, använd gärna distanslist så att bilden inte ligger mot glaset.",
             "Vad kostar frakten? För print är frakten 150 kr per beställning inom Sverige, oavsett hur många solar du beställer. För original tillkommer frakt, inom Sverige normalt 150–250 kr. Utanför Sverige: pris på förfrågan.",
-            "Hur betalar jag? Med Swish till 070-433 36 74 eller till mitt företagskonto i Swedbank, 8327-9, 903 671 334-6. Skriv ditt namn och verkets titel eller solens nummer som meddelande. Print kan du betala direkt när du skickat beställningen. För original väntar du på min bekräftelse med totalbelopp.",
+            "Hur betalar jag? Med Swish till 123 704 88 20 eller till mitt företagskonto i Swedbank, 8327-9, 903 671 334-6. Skriv ditt namn och verkets titel eller solens nummer som meddelande. Print kan du betala direkt när du skickat beställningen. För original väntar du på min bekräftelse med totalbelopp.",
             "Hur lång är leveranstiden? Print görs på beställning och skickas normalt inom några dagar. Beställer du ram tar det cirka en vecka till. Original skickas när betalningen kommit in.",
             "Har jag ångerrätt? Ja. Som privatperson har du 14 dagars ångerrätt från att du tagit emot verket. Meddela mig inom den tiden och skicka tillbaka verket oskadat; returfrakten betalar du själv. Jag betalar tillbaka när verket kommit fram.",
             "Går solarna i 100 dagar av sol att köpa? Ja, som Fine Art Print. Alla hundra solar kan beställas var för sig, i olika format, på sidan 100 dagar av sol. Originalen är inte till salu.",
@@ -196,7 +196,7 @@ window.PORTFOLIO_OVERRIDES = {
         ],
         "instagramUrl": "",
         "facebookUrl": "",
-        "swishNumber": "070-433 36 74",
+        "swishNumber": "123 704 88 20",
         "bankAccount": "Swedbank 8327-9, 903 671 334-6"
     },
     "gallery": {
@@ -281,7 +281,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "collectorNote": "Förstudie till ett helark 56 x 76 cm",
                 "slug": "reflected-sun",
                 "priceLabel": "5 400 kr",
-                "availability": "available",
+                "availability": "reserved",
                 "addedAt": 1782996313000
             },
             {
@@ -2210,7 +2210,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "collectorNote": "Johanna i köket är ett akvarelloriginal från 2025 med figurmotiv där närvaro, blick och relationen mellan människa och plats står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
                 "priceLabel": "1 200 kr",
-                "availability": "available",
+                "availability": "reserved",
                 "addedAt": 1777841583000
             },
             {
@@ -3551,7 +3551,7 @@ window.PORTFOLIO_OVERRIDES = {
                     "Which sizes and prices do the prints come in? Sizes are given as the outer frame size: 30 × 40 cm for 1,800 SEK, 40 × 60 cm for 2,900 SEK and 50 × 70 cm for 3,800 SEK. Prices include VAT. The image is smaller than the stated size: the board it is mounted on has the frame size and gives a white border around the image. The sizes available for a given work are listed on its page.",
                     "Are frame and mat included? No. Originals are sold as loose sheets, and prints come mounted on an acid-free board in the frame size, ready to frame. If you would like the work framed or matted, I can arrange it. The cost of materials and a service fee of 300 SEK per work are then added. If you frame a print yourself, use a spacer so that the image does not rest against the glass.",
                     "What does shipping cost? For prints, shipping within Sweden is 150 SEK per order, however many suns you order. For originals, shipping is added, within Sweden usually 150–250 SEK. Outside Sweden: price on request.",
-                    "How do I pay? By Swish to 070-433 36 74 or to my business account at Swedbank, 8327-9, 903 671 334-6. Write your name and the title of the work or the sun numbers as the message. Prints can be paid as soon as you have sent the order. For originals, wait for my confirmation with the total.",
+                    "How do I pay? By Swish to 123 704 88 20 or to my business account at Swedbank, 8327-9, 903 671 334-6. Write your name and the title of the work or the sun numbers as the message. Prints can be paid as soon as you have sent the order. For originals, wait for my confirmation with the total.",
                     "How long is the delivery time? Prints are made to order and usually ship within a few days. If you order a frame, add about a week. Originals ship once payment has arrived.",
                     "Do I have a right of withdrawal? Yes. As a private customer you have 14 days from the day you receive the work. Let me know within that time and return the work undamaged; you pay the return shipping. I refund when the work has arrived.",
                     "Can I buy the suns from 100 days of sun? Yes, as fine art prints. All one hundred suns can be ordered individually, in different sizes, on the 100 days of sun page. The originals are not for sale.",
@@ -4310,9 +4310,9 @@ window.PORTFOLIO_OVERRIDES = {
                         "updatedAt": "2026-10-04T07:40:14.514Z"
                     },
                     "array:about.faqItems[7]": {
-                        "sourceHash": "31cfce5b",
-                        "translatedValue": "How do I pay? By Swish to 070-433 36 74 or to my business account at Swedbank, 8327-9, 903 671 334-6. Write your name and the title of the work or the sun numbers as the message. Prints can be paid as soon as you have sent the order. For originals, wait for my confirmation with the total.",
-                        "updatedAt": "2026-10-04T07:40:14.514Z"
+                        "sourceHash": "aa9cc466",
+                        "translatedValue": "How do I pay? By Swish to 123 704 88 20 or to my business account at Swedbank, 8327-9, 903 671 334-6. Write your name and the title of the work or the sun numbers as the message. Prints can be paid as soon as you have sent the order. For originals, wait for my confirmation with the total.",
+                        "updatedAt": "2026-10-07T12:42:56.186Z"
                     },
                     "array:about.faqItems[8]": {
                         "sourceHash": "d73bf55d",
