@@ -171,7 +171,7 @@ $mailBody .= "Meddelande:\n{$message}\n\n";
 $mailBody .= 'Tid (UTC): ' . api_security_now_sql() . "\n";
 $mailBody .= 'IP-hash: ' . api_security_hash('ip:' . api_security_client_ip()) . "\n";
 
-$mailDelivered = api_security_send_mail($recipient, $mailSubject, $mailBody);
+$mailDelivered = api_security_send_mail($recipient, $mailSubject, $mailBody, $email);
 
 api_security_save_contact_message($pdo, $name, $email, $message, $mailDelivered, [
   'leadKind' => $leadKind,

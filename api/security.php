@@ -810,7 +810,7 @@ function api_security_mail_sender(): string
   return 'noreply@' . $domain;
 }
 
-function api_security_send_mail(string $to, string $subject, string $body): bool
+function api_security_send_mail(string $to, string $subject, string $body, string $replyTo = ''): bool
 {
   $to = trim($to);
   if ($to === '' || !filter_var($to, FILTER_VALIDATE_EMAIL)) {
@@ -818,8 +818,12 @@ function api_security_send_mail(string $to, string $subject, string $body): bool
   }
 
   $from = api_security_mail_sender();
-  $replyToConfigured = (string) (api_security_config()['mailerReplyTo'] ?? '');
-  $replyTo = filter_var($replyToConfigured, FILTER_VALIDATE_EMAIL) ? $replyToConfigured : $from;
+  // noreply@ har ingen brevlåda: utan explicit Reply-To studsar "Svara" i mejlklienten.
+  $replyTo = trim($replyTo);
+  if (!filter_var($replyTo, FILTER_VALIDATE_EMAIL)) {
+    $replyToConfigured = (string) (api_security_config()['mailerReplyTo'] ?? '');
+    $replyTo = filter_var($replyToConfigured, FILTER_VALIDATE_EMAIL) ? $replyToConfigured : $from;
+  }
 
   $headers = [
     'MIME-Version: 1.0',
