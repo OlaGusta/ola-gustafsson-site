@@ -164,10 +164,10 @@ if (!is_string($structuredJson)) {
       <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20261007-02" />
+    <link rel="stylesheet" href="styles.css?v=20261007-03" />
     <script src="overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
-    <script src="script.js?v=20261007-02" defer></script>
+    <script src="script.js?v=20261007-03" defer></script>
   </head>
   <body id="page-top" data-page="gallery">
     <header class="site-header" id="top">
@@ -192,6 +192,7 @@ if (!is_string($structuredJson)) {
         <div class="theme-switch" role="group" aria-label="Välj färgläge" data-bind-aria="ui.themeSwitcherAria">
           <button type="button" class="theme-switch-btn" data-theme-option="light" aria-label="Ljus" data-bind="ui.themeOptionLight">Ljus</button>
           <button type="button" class="theme-switch-btn" data-theme-option="dark" aria-label="Mörk" data-bind="ui.themeOptionDark">Mörk</button>
+          <button type="button" class="theme-switch-btn" data-theme-option="contrast" aria-label="Hög kontrast">Kontrast</button>
         </div>
         <button
           class="menu-toggle"
@@ -257,6 +258,7 @@ if (!is_string($structuredJson)) {
         </div>
         <div class="footer-tools">
           <a id="studio-footer-link" class="footer-auth-btn" href="/studio.html">Studio</a>
+          <button type="button" class="footer-contrast-toggle" data-contrast-toggle aria-pressed="false">Hög kontrast</button>
           <a href="#page-top" data-scroll-top data-bind="ui.scrollTop">Till toppen</a>
         </div>
       </div>

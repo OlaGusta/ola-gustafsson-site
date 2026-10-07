@@ -301,7 +301,7 @@ const STORAGE_KEY = 'olaPortfolioOverridesV1';
 const LANGUAGE_STORAGE_KEY = 'olaSiteLanguageV1';
 const SUPPORTED_LANGUAGES = ['sv', 'en'];
 const COLOR_MODE_STORAGE_KEY = 'olaSiteColorModeV1';
-const SUPPORTED_COLOR_MODES = ['light', 'dark'];
+const SUPPORTED_COLOR_MODES = ['light', 'dark', 'contrast'];
 const STUDIO_AUTH_KEY = 'olaStudioUnlockedV1';
 const ASSET_REV = '20260317-07';
 const LEGACY_CACHE_CLEANUP_KEY = 'olaLegacyCleanupDoneV1';
@@ -395,6 +395,10 @@ const resolveActiveColorMode = () => {
     return storedMode;
   }
   try {
+    // Besökare som valt högre kontrast i systemet får högkontrastläget, även om systemet är mörkt.
+    if (window.matchMedia && window.matchMedia('(prefers-contrast: more)').matches) {
+      return 'contrast';
+    }
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       return 'dark';
     }
@@ -851,6 +855,27 @@ const DARK_THEME_OVERRIDES = {
   '--shadow-md': '0 26px 62px rgba(0, 0, 0, 0.44)'
 };
 
+// Hög kontrast (WCAG AAA, utgår från ljust läge): all text minst 7:1, kanter minst 3:1.
+// Fasta värden som skriver över Studios ljusa tema. Samma som designsystemets tema "contrast".
+const CONTRAST_THEME_OVERRIDES = {
+  '--color-ink': '#10131b',
+  '--color-soft-ink': '#4f5766',
+  '--color-bg': '#ffffff',
+  '--color-surface': '#ffffff',
+  '--color-border': '#6b7280',
+  '--color-primary': '#2c585e',
+  '--color-accent': '#2c585e',
+  '--color-eyebrow': '#224549',
+  '--color-header-bg': '#ffffff',
+  '--color-footer-bg': '#ffffff',
+  '--button-gradient-start': '#2c585e',
+  '--button-gradient-end': '#1d3f43',
+  '--header-bg-opacity': '100'
+};
+
+// Läget man hade innan högkontrast slogs på; dit går sidfotsknappen tillbaka.
+let colorModeBeforeContrast = null;
+
 const bindTextContent = () => {
   document.querySelectorAll('[data-bind]').forEach((node) => {
     const key = node.getAttribute('data-bind');
@@ -1019,19 +1044,22 @@ const applyColorMode = () => {
   }
 
   const root = document.documentElement;
-  const mode = activeColorMode === 'dark' ? 'dark' : 'light';
-  // Clear earlier dark overrides: applyTheme() does not reset the shadows or --color-primary-soft,
-  // so without this they would linger after switching from dark to light.
-  Object.keys(DARK_THEME_OVERRIDES).forEach((cssVar) => {
-    root.style.removeProperty(cssVar);
+  const mode = activeColorMode === 'dark' || activeColorMode === 'contrast' ? activeColorMode : 'light';
+  // Clear earlier dark/contrast overrides: applyTheme() does not reset the shadows, --color-primary-soft
+  // or --color-eyebrow, so without this they would linger after switching mode.
+  [DARK_THEME_OVERRIDES, CONTRAST_THEME_OVERRIDES].forEach((overrides) => {
+    Object.keys(overrides).forEach((cssVar) => {
+      root.style.removeProperty(cssVar);
+    });
   });
-  // Restore configured light theme first. Dark mode then overrides selected tokens below.
+  // Restore configured light theme first. Dark and contrast mode then override selected tokens below.
   applyTheme();
   root.setAttribute('data-color-mode', mode);
-  root.style.setProperty('color-scheme', mode);
+  root.style.setProperty('color-scheme', mode === 'dark' ? 'dark' : 'light');
 
-  if (mode === 'dark') {
-    Object.entries(DARK_THEME_OVERRIDES).forEach(([cssVar, value]) => {
+  const modeOverrides = mode === 'dark' ? DARK_THEME_OVERRIDES : mode === 'contrast' ? CONTRAST_THEME_OVERRIDES : null;
+  if (modeOverrides) {
+    Object.entries(modeOverrides).forEach(([cssVar, value]) => {
       root.style.setProperty(cssVar, value);
     });
   }
@@ -1040,6 +1068,8 @@ const applyColorMode = () => {
   const fallbackDarkLabel = activeLanguage === 'en' ? 'Dark' : 'Mörk';
   const lightLabel = getUiText('themeOptionLight', fallbackLightLabel);
   const darkLabel = getUiText('themeOptionDark', fallbackDarkLabel);
+  const contrastShort = activeLanguage === 'en' ? 'Contrast' : 'Kontrast';
+  const contrastLabel = activeLanguage === 'en' ? 'High contrast' : 'Hög kontrast';
 
   document.querySelectorAll('[data-theme-option]').forEach((button) => {
     const buttonMode = normalizeColorMode(button.getAttribute('data-theme-option'));
@@ -1052,7 +1082,16 @@ const applyColorMode = () => {
     } else if (buttonMode === 'dark') {
       button.setAttribute('aria-label', darkLabel);
       button.setAttribute('title', darkLabel);
+    } else if (buttonMode === 'contrast') {
+      button.textContent = contrastShort;
+      button.setAttribute('aria-label', contrastLabel);
+      button.setAttribute('title', contrastLabel);
     }
+  });
+
+  document.querySelectorAll('[data-contrast-toggle]').forEach((button) => {
+    button.textContent = contrastLabel;
+    button.setAttribute('aria-pressed', String(mode === 'contrast'));
   });
 
   const themeColorMeta = document.querySelector('meta[name="theme-color"]');
@@ -1080,15 +1119,17 @@ const initSystemColorModeObserver = () => {
     if (readStoredColorMode()) {
       return;
     }
-    activeColorMode = event.matches ? 'dark' : 'light';
+    activeColorMode = resolveActiveColorMode();
     applyColorMode();
   };
 
-  if (typeof mediaQuery.addEventListener === 'function') {
-    mediaQuery.addEventListener('change', handleChange);
-  } else if (typeof mediaQuery.addListener === 'function') {
-    mediaQuery.addListener(handleChange);
-  }
+  [mediaQuery, window.matchMedia('(prefers-contrast: more)')].forEach((query) => {
+    if (typeof query.addEventListener === 'function') {
+      query.addEventListener('change', handleChange);
+    } else if (typeof query.addListener === 'function') {
+      query.addListener(handleChange);
+    }
+  });
 
   updateFaviconForColorMode();
 };
@@ -1097,6 +1138,24 @@ const initColorModeSwitcher = () => {
   if (!colorModeEnabled) {
     return;
   }
+
+  // Sidfotens knapp slår högkontrast av och på och går tillbaka till läget man hade innan.
+  document.querySelectorAll('[data-contrast-toggle]').forEach((button) => {
+    if (button.dataset.contrastInit === '1') {
+      return;
+    }
+    button.dataset.contrastInit = '1';
+    button.addEventListener('click', () => {
+      if (activeColorMode === 'contrast') {
+        activeColorMode = colorModeBeforeContrast || resolveBrowserColorMode();
+      } else {
+        colorModeBeforeContrast = activeColorMode;
+        activeColorMode = 'contrast';
+      }
+      storeColorMode(activeColorMode);
+      applyColorMode();
+    });
+  });
 
   const buttons = Array.from(document.querySelectorAll('[data-theme-option]'));
   if (buttons.length === 0) {

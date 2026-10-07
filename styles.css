@@ -70,6 +70,26 @@
   --shadow-md: 0 26px 62px rgba(0, 0, 0, 0.44);
 }
 
+/* Hög kontrast (2026-10-07): utgår från ljust läge, all text minst 7:1 (WCAG AAA), kanter minst 3:1.
+   Samma värden sätts inline av script.js (CONTRAST_THEME_OVERRIDES); blocket här gäller före skriptet. */
+:root[data-color-mode="contrast"] {
+  color-scheme: light;
+  --color-ink: #10131b;
+  --color-soft-ink: #4f5766;
+  --color-bg: #ffffff;
+  --color-surface: #ffffff;
+  --color-border: #6b7280;
+  --color-primary: #2c585e;
+  --color-accent: #2c585e;
+  --color-eyebrow: #224549;
+  --color-header-bg: #ffffff;
+  --color-footer-bg: #ffffff;
+  --button-gradient-start: #2c585e;
+  --button-gradient-end: #1d3f43;
+  --header-bg-opacity: 100;
+  --header-border-opacity: 100;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -6430,4 +6450,96 @@ body:not([data-page='studio']) .contact-social-links {
 }
 .sun-order-extras .field-hint {
   margin-top: 0.3rem;
+}
+
+/* =====================================================================
+   Hög kontrast (2026-10-07): ingen akvarelltoning, heldragna kanter, starkare toning
+   bakom text på målningar och ingen nedtonad text. Färgerna står i :root-blocket ovan.
+   ===================================================================== */
+.footer-contrast-toggle {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  color: inherit;
+  cursor: pointer;
+}
+.footer-contrast-toggle:hover {
+  color: var(--color-ink);
+}
+.footer-contrast-toggle[aria-pressed="true"] {
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.32em;
+}
+.footer-contrast-toggle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+:root[data-color-mode="contrast"] body,
+:root[data-color-mode="contrast"] .contact {
+  background: var(--color-bg);
+}
+:root[data-color-mode="contrast"] .contact::before {
+  display: none;
+}
+/* Mobilmenyns panel är annars krämvit (rgba(252, 248, 241, 0.98)). */
+:root[data-color-mode="contrast"] body:not([data-page='studio']) .main-nav {
+  background: var(--color-surface);
+}
+/* Markeringsranden under länkarna i Om-avsnitten sänker kontrasten till ~6,3:1; understrykningen räcker. */
+:root[data-color-mode="contrast"] .about-inspiration-card a,
+:root[data-color-mode="contrast"] .about-dayjob a,
+:root[data-color-mode="contrast"] .recognition-list a {
+  background-image: none;
+}
+:root[data-color-mode="contrast"] .site-footer,
+:root[data-color-mode="contrast"] .artwork-collector-note {
+  border-color: var(--color-border);
+}
+:root[data-color-mode="contrast"] .work-image .artwork-photo {
+  box-shadow: 0 0 0 1px #6b7280, 0 2px 4px rgba(16, 19, 27, 0.06);
+}
+:root[data-color-mode="contrast"] .work-image .artwork-status-badge {
+  background: #ffffff;
+  border-color: var(--color-border);
+}
+:root[data-color-mode="contrast"] .artwork-status-badge.is-reserved {
+  color: #5a3d0b;
+}
+:root[data-color-mode="contrast"] .artwork-status-badge.is-sold,
+:root[data-color-mode="contrast"] .artwork-status-badge.is-nfs {
+  color: #343d4a;
+}
+:root[data-color-mode="contrast"] body:not([data-page='studio']) .btn-ghost {
+  text-decoration-color: currentColor;
+}
+:root[data-color-mode="contrast"] .header-inner > .lang-switch .lang-switch-btn:not(.is-active) {
+  opacity: 1;
+  color: var(--color-soft-ink);
+}
+:root[data-color-mode="contrast"] .hero-copy,
+:root[data-color-mode="contrast"] .hero-copy .hero-subtitle,
+:root[data-color-mode="contrast"] .hero .eyebrow {
+  color: #ffffff;
+}
+@media (min-width: 761px) {
+  :root[data-color-mode="contrast"] .hero-media::after {
+    background:
+      radial-gradient(ellipse 70% 85% at 0% 100%, rgba(5, 9, 16, 0.9) 0%, rgba(5, 9, 16, 0.7) 45%, rgba(5, 9, 16, 0) 76%),
+      linear-gradient(to top, rgba(5, 9, 16, 0.55) 0%, rgba(5, 9, 16, 0.2) 30%, rgba(5, 9, 16, 0) 52%);
+  }
+}
+@media (max-width: 760px) {
+  :root[data-color-mode="contrast"] .hero-media::after {
+    background: linear-gradient(
+      to top,
+      rgba(5, 9, 16, 0.92) 0%,
+      rgba(5, 9, 16, 0.75) 20%,
+      rgba(5, 9, 16, 0.35) 40%,
+      rgba(5, 9, 16, 0) 56%
+    );
+  }
 }
