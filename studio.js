@@ -3617,7 +3617,7 @@ const openInquiryOrderForm = async (card, item) => {
         <label>Språk <select name="lang"><option value="sv" ${lang === 'sv' ? 'selected' : ''}>Svenska</option><option value="en" ${lang === 'en' ? 'selected' : ''}>English</option></select></label>
         <label class="inquiry-order-check"><input type="checkbox" name="notify" checked /> <span>Mejla kunden ordern (betalningsuppgifter + ordersida)</span></label>
       </div>
-      <label class="inquiry-order-intro">Inledning i kundens mejl <small>(valfritt, ersätter "Tack för din beställning.")</small><textarea name="intro" rows="2">Tack för ditt intresse, här kommer beställningen vi pratat om.</textarea></label>
+      <label class="inquiry-order-intro">Inledning i kundens mejl <small>(valfritt, ersätter "Tack för din beställning." Börjar du med en egen hälsning, t.ex. "Hej Kerstin!", läggs ingen automatisk "Hej Namn," till.)</small><textarea name="intro" rows="3">Tack för ditt intresse, här kommer beställningen vi pratat om.</textarea></label>
       <p class="field-hint" data-order-total></p>
       <div class="order-action-row">
         <button type="button" class="btn btn-ghost" data-order-preview>Förhandsgranska mejlet</button>

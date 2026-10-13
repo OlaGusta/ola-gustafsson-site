@@ -629,10 +629,13 @@ function shop_customer_order_mail(array $order, string $lang, string $intro = ''
     $pay[] = ($lang === 'en' ? 'bank transfer to ' : 'bankkonto ') . $details['bank'];
   }
   $payText = $pay !== [] ? implode($lang === 'en' ? ' or ' : ' eller ', $pay) : '';
+  // Börjar inledningen med en egen hälsning ("Hej Kerstin!") används ingen automatisk.
+  $hasOwnGreeting = preg_match('/^\s*(hej|hejsan|hallå|tjena|hi|hello|dear|god\s+(morgon|dag|kväll))\b/iu', $intro) === 1;
+  $greeting = $hasOwnGreeting ? '' : ($lang === 'en' ? "Hi {$order['customer_name']},\n\n" : "Hej {$order['customer_name']},\n\n");
 
   if ($lang === 'en') {
     $customerSubject = sprintf('Order %s – Ola Gustafsson', $order['order_no']);
-    $customerBody = "Hi {$order['customer_name']},\n\n" . ($intro !== '' ? $intro : 'Thank you for your order.') . "\n\n{$summary}\n\n"
+    $customerBody = $greeting . ($intro !== '' ? $intro : 'Thank you for your order.') . "\n\n{$summary}\n\n"
       . "Pay by {$payText}. Write {$order['order_no']} as the message, and the order is confirmed as soon as the payment has arrived.\n"
       . ($choice === 'swish' ? "On the order page there is a Swish code with the amount and order number filled in.\n\n" : "\n")
       . "Order page with status and payment details: {$url}\n\n"
@@ -641,7 +644,7 @@ function shop_customer_order_mail(array $order, string $lang, string $intro = ''
     return ['subject' => $customerSubject, 'body' => $customerBody];
   }
     $customerSubject = sprintf('Beställning %s – Ola Gustafsson', $order['order_no']);
-    $customerBody = "Hej {$order['customer_name']},\n\n" . ($intro !== '' ? $intro : 'Tack för din beställning.') . "\n\n{$summary}\n\n"
+    $customerBody = $greeting . ($intro !== '' ? $intro : 'Tack för din beställning.') . "\n\n{$summary}\n\n"
       . "Betala med {$payText}. Skriv {$order['order_no']} som meddelande, så bekräftas beställningen så snart betalningen kommit in.\n"
       . ($choice === 'swish' ? "På ordersidan finns en Swish-kod med belopp och ordernummer ifyllda.\n\n" : "\n")
       . "Ordersidan med status och betalningsuppgifter: {$url}\n\n"

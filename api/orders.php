@@ -80,7 +80,9 @@ if ($action === 'create' || $action === 'preview') {
   if ($action === 'preview') {
     $preview = shop_preview_order($lines, $customer, $lang, $shippingOverride);
     $mail = shop_customer_order_mail($preview, $lang, $clean($request['intro'] ?? '', 1000));
-    api_respond_json(200, ['ok' => true, 'preview' => true, 'to' => $customer['email'], 'subject' => $mail['subject'], 'body' => $mail['body'], 'total' => $preview['total_sek'], 'vat' => $preview['vat_sek']]);
+    $placeholder = $lang === 'en' ? '[link to the order page, created when the order is saved]' : '[länk till ordersidan, skapas när ordern sparas]';
+    $body = str_replace(shop_order_url($preview, $lang), $placeholder, $mail['body']);
+    api_respond_json(200, ['ok' => true, 'preview' => true, 'to' => $customer['email'], 'subject' => $mail['subject'], 'body' => $body, 'total' => $preview['total_sek'], 'vat' => $preview['vat_sek']]);
   }
   $order = shop_create_order($pdo, $lines, $customer, $lang, $shippingOverride);
   $inquiryId = isset($request['inquiryId']) ? (int) $request['inquiryId'] : 0;
