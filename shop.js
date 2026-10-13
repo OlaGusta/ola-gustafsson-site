@@ -91,6 +91,9 @@
         if (matBox) {
           entry.mat = matBox.checked;
         }
+        if (button.dataset.token) {
+          entry.token = button.dataset.token;
+        }
         cart.add([entry]);
         window.location.href = withLang('/kassa');
       });
@@ -155,7 +158,8 @@
             problems.push({ index, text: T('Verket finns inte längre.', 'The work no longer exists.') });
             return;
           }
-          if (!art.originalForSale) {
+          const viaBuyLink = art.availability === 'reserved' && art.price > 0 && typeof item.token === 'string' && item.token !== '';
+          if (!art.originalForSale && !viaBuyLink) {
             problems.push({ index, text: T(`"${art.title}" är inte längre tillgänglig.`, `"${art.title}" is no longer available.`) });
             return;
           }

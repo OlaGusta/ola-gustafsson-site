@@ -21,6 +21,24 @@ api_ensure_schema($pdo);
 if ($method === 'POST') {
   $request = api_decode_request_json();
   $id = isset($request['id']) ? (int) $request['id'] : 0;
+  if (($request['action'] ?? '') === 'buy_link') {
+    require_once __DIR__ . '/shop_lib.php';
+    shop_ensure_schema($pdo);
+    $stmt = $pdo->prepare('SELECT id, inquiry_slug, inquiry_language FROM contact_messages WHERE id = :id');
+    $stmt->execute([':id' => $id]);
+    $inquiry = $stmt->fetch();
+    if (!is_array($inquiry) || trim((string) $inquiry['inquiry_slug']) === '') {
+      api_respond_json(422, ['ok' => false, 'error' => 'invalid_request', 'message' => 'Förfrågan gäller inget verk, så ingen köplänk kan skapas.']);
+    }
+    $days = isset($request['days']) && is_numeric($request['days']) ? max(1, min(60, (int) $request['days'])) : 7;
+    $token = bin2hex(random_bytes(20));
+    // Sista giltiga dag räknas i svensk tid (dygnets slut) och lagras i UTC.
+    $expires = (new DateTimeImmutable('now', new DateTimeZone('Europe/Stockholm')))->modify("+{$days} days")->setTime(23, 59, 59)
+      ->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+    $pdo->prepare('UPDATE contact_messages SET buy_token = :token, buy_token_expires_at = :expires WHERE id = :id')
+      ->execute([':token' => $token, ':expires' => $expires, ':id' => $id]);
+    api_respond_json(200, ['ok' => true, 'id' => $id, 'url' => shop_buy_link_url($inquiry, $token), 'buyToken' => $token, 'expiresAt' => $expires]);
+  }
   if (($request['action'] ?? '') === 'delete') {
     if ($id <= 0) {
       api_respond_json(422, ['ok' => false, 'error' => 'invalid_request', 'message' => 'Ogiltigt id.']);
@@ -77,6 +95,8 @@ SELECT
   inquiry_price_label,
   inquiry_source_url,
   inquiry_language,
+  buy_token,
+  buy_token_expires_at,
   follow_up_status,
   mail_delivered,
   created_at

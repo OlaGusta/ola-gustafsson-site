@@ -87,6 +87,16 @@ if ($order === []) {
   api_respond_json(500, ['ok' => false, 'error' => 'order_failed', 'message' => $t('Beställningen kunde inte sparas.', 'The order could not be saved.')]);
 }
 
+// Köpt via personlig köplänk: notera förfrågan på ordern och sätt den till Besvarad.
+$inquiryIds = array_values(array_unique(array_filter(array_map(static fn (array $line): int => (int) ($line['inquiryId'] ?? 0), $lines))));
+if ($inquiryIds !== []) {
+  $note = 'Via köplänk från förfrågan #' . implode(', #', $inquiryIds);
+  $pdo->prepare('UPDATE shop_orders SET admin_note = :note WHERE id = :id')->execute([':note' => $note, ':id' => (int) $order['id']]);
+  foreach ($inquiryIds as $inquiryId) {
+    $pdo->prepare("UPDATE contact_messages SET follow_up_status = 'replied' WHERE id = :id AND follow_up_status = 'new'")->execute([':id' => $inquiryId]);
+  }
+}
+
 $mailOk = shop_send_order_mails($order, $lang);
 $pdo->prepare('UPDATE shop_orders SET mail_delivered = :ok WHERE id = :id')->execute([':ok' => $mailOk ? 1 : 0, ':id' => (int) $order['id']]);
 $registerAttempt();

@@ -164,11 +164,11 @@ if (!is_string($structuredJson)) {
       <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20261013-10" />
+    <link rel="stylesheet" href="styles.css?v=20261013-11" />
     <script src="overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <script src="script.js?v=20261007-03" defer></script>
-    <script src="shop.js?v=20261013-05" defer></script>
+    <script src="shop.js?v=20261013-06" defer></script>
   </head>
   <body id="page-top" data-page="gallery">
     <header class="site-header" id="top">

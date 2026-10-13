@@ -74,6 +74,31 @@ CREATE TABLE IF NOT EXISTS shop_order_items (
 SQL
   );
   api_schema_add_column_if_missing($pdo, 'shop_orders', 'payment_choice', "VARCHAR(16) NOT NULL DEFAULT 'swish'");
+  // Personlig köplänk från en förfrågan: låter just den kunden köpa ett reserverat verk.
+  api_schema_add_column_if_missing($pdo, 'contact_messages', 'buy_token', 'VARCHAR(40) NULL');
+  api_schema_add_column_if_missing($pdo, 'contact_messages', 'buy_token_expires_at', 'DATETIME NULL');
+}
+
+// Förfrågan som köplänken hör till, om token är giltig för verket och inte gått ut.
+function shop_find_buy_link(PDO $pdo, string $slug, string $token): ?array
+{
+  if ($slug === '' || preg_match('/^[a-f0-9]{40}$/', $token) !== 1) {
+    return null;
+  }
+  $stmt = $pdo->prepare(
+    'SELECT id, name, email, inquiry_slug, inquiry_language, buy_token_expires_at FROM contact_messages
+     WHERE buy_token = :token AND inquiry_slug = :slug AND (buy_token_expires_at IS NULL OR buy_token_expires_at >= UTC_TIMESTAMP()) LIMIT 1'
+  );
+  $stmt->execute([':token' => $token, ':slug' => $slug]);
+  $row = $stmt->fetch();
+  return is_array($row) ? $row : null;
+}
+
+function shop_buy_link_url(array $inquiry, string $token): string
+{
+  $lang = ($inquiry['inquiry_language'] ?? 'sv') === 'en' ? 'en' : 'sv';
+  $url = seo_artwork_url((string) $inquiry['inquiry_slug'], $lang);
+  return $url . (str_contains($url, '?') ? '&' : '?') . 'for=' . $token;
 }
 
 // Leveransblock för mejl. Ordrar som skapas i Studio kan sakna adress.
@@ -224,6 +249,11 @@ function shop_resolve_items(PDO $pdo, array $cartItems, string $lang, bool $allo
         throw new InvalidArgumentException($lang === 'en' ? 'A work in the cart could not be found.' : 'Ett verk i kundvagnen gick inte att hitta.');
       }
       $reservedOk = $allowReserved && $art['availability'] === 'reserved' && (int) $art['price'] > 0;
+      $buyLink = null;
+      if (!$reservedOk && $art['availability'] === 'reserved' && (int) $art['price'] > 0 && isset($raw['token']) && is_string($raw['token'])) {
+        $buyLink = shop_find_buy_link($pdo, $ref, strtolower(trim($raw['token'])));
+        $reservedOk = $buyLink !== null;
+      }
       if (!$art['originalForSale'] && !$reservedOk) {
         throw new InvalidArgumentException(sprintf($lang === 'en' ? '"%s" is no longer available.' : '"%s" är inte längre tillgänglig.', $art['title']));
       }
@@ -231,7 +261,8 @@ function shop_resolve_items(PDO $pdo, array $cartItems, string $lang, bool $allo
       $lines[] = [
         'kind' => 'original', 'ref' => $ref, 'title' => $art['title'],
         'detail' => trim(($lang === 'en' ? 'Original, watercolour' : 'Original, akvarell') . ($art['format'] !== '' ? ', ' . $art['format'] : '')),
-        'qty' => 1, 'unit' => (int) $art['price'], 'vat' => SHOP_VAT_RATE_ORIGINAL, 'edition' => null, 'sort' => $sort++
+        'qty' => 1, 'unit' => (int) $art['price'], 'vat' => SHOP_VAT_RATE_ORIGINAL, 'edition' => null, 'sort' => $sort++,
+        'inquiryId' => $buyLink ? (int) $buyLink['id'] : 0
       ];
       if (!empty($raw['mat']) && $art['matPrice'] > 0) {
         $lines[] = [

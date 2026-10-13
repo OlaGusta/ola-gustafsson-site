@@ -7276,3 +7276,9 @@ body:not([data-page='studio']) .contact-social-links {
   padding: 0.8rem 1rem;
   border: 1px solid var(--color-border);
 }
+
+.artwork-buy-reserved {
+  margin: 0 0 0.6rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}

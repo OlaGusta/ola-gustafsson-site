@@ -3469,12 +3469,14 @@ const renderInquiriesPanel = () => {
           <span class="inquiry-chip">${escapeHtml(leadKind === 'artwork' ? 'Verksförfrågan' : 'Kontakt')}</span>
           ${inquiryStatus ? `<span class="inquiry-chip">${escapeHtml(getInquiryAvailabilityLabel(inquiryStatus))}</span>` : ''}
           ${priceLabel ? `<span class="inquiry-chip">${escapeHtml(priceLabel)}</span>` : ''}
+          ${inquiryBuyLink(item) ? `<span class="inquiry-chip">Köplänk till ${escapeHtml(inquiryBuyLink(item).until)}</span>` : ''}
           <span class="inquiry-chip">${delivered ? 'Mail skickat' : 'Mail ej skickat'}</span>
         </div>
         ${message ? `<p class="inquiry-message">${escapeHtml(message)}</p>` : ''}
         <div class="inquiry-tools">
           ${sourceUrl ? `<a class="btn btn-ghost" href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer">Öppna verk-sida</a>` : ''}
           <button type="button" class="btn btn-ghost" data-inquiry-tool="order">Skapa order</button>
+          ${item.inquiry_slug ? '<button type="button" class="btn btn-ghost" data-inquiry-tool="buylink">Skapa köplänk</button>' : ''}
           <button type="button" class="btn btn-ghost" data-inquiry-tool="mail">Mejlmall</button>
           <button type="button" class="btn btn-ghost btn-danger" data-inquiry-tool="delete">Ta bort</button>
         </div>
@@ -3496,6 +3498,8 @@ const renderInquiriesPanel = () => {
         openInquiryOrderForm(card, item);
       } else if (tool === 'mail') {
         openInquiryMailTemplate(card, item);
+      } else if (tool === 'buylink') {
+        createInquiryBuyLink(card, item);
       }
     });
   });
@@ -3543,6 +3547,37 @@ const deleteInquiry = async (item) => {
     setInquiriesPanelStatus('Förfrågan borttagen.', 'success');
   } catch (error) {
     setInquiriesPanelStatus(error instanceof Error && error.message ? error.message : 'Kunde inte ta bort förfrågan.', 'error');
+  }
+};
+
+// Köplänk: giltig om den finns och inte gått ut.
+const inquiryBuyLink = (item) => {
+  const token = String(item.buy_token || '').trim();
+  if (!token || !item.inquiry_slug) return null;
+  const expires = item.buy_token_expires_at ? new Date(String(item.buy_token_expires_at).replace(' ', 'T') + 'Z') : null;
+  if (expires && !Number.isNaN(expires.getTime()) && expires.getTime() < Date.now()) return null;
+  const lang = String(item.inquiry_language || 'sv') === 'en' ? 'en' : 'sv';
+  return {
+    url: `${window.location.origin}/verk/${encodeURIComponent(item.inquiry_slug)}?${lang === 'en' ? 'lang=en&' : ''}for=${token}`,
+    until: expires ? expires.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long' }) : ''
+  };
+};
+
+const createInquiryBuyLink = async (card, item) => {
+  const existing = inquiryBuyLink(item);
+  const days = window.prompt(existing ? `Det finns redan en köplänk som gäller till ${existing.until}. Skapa en ny? Antal dagar den ska gälla:` : 'Hur många dagar ska köplänken gälla?', '7');
+  if (days === null) return;
+  try {
+    setInquiriesPanelStatus('Skapar köplänk...', 'info');
+    const response = await apiJson('api/inquiries.php', { method: 'POST', withCsrf: isSecureAuthStudio(), body: { action: 'buy_link', id: Number(item.id), days: Number(days) || 7 } });
+    uiState.inquiriesData = uiState.inquiriesData.map((entry) => (Number(entry && entry.id) === Number(item.id) ? { ...entry, buy_token: response.buyToken, buy_token_expires_at: response.expiresAt } : entry));
+    renderInquiriesPanel();
+    const refreshed = uiState.inquiriesData.find((entry) => Number(entry && entry.id) === Number(item.id));
+    const refreshedCard = el.inquiriesPanelList.querySelector(`.inquiry-card[data-id="${Number(item.id)}"]`);
+    if (refreshed && refreshedCard) openInquiryMailTemplate(refreshedCard, refreshed);
+    setInquiriesPanelStatus('Köplänk skapad. Mejlmallen använder den nu.', 'success');
+  } catch (error) {
+    setInquiriesPanelStatus(error instanceof Error && error.message ? error.message : 'Kunde inte skapa köplänk.', 'error');
   }
 };
 
@@ -3722,14 +3757,21 @@ const buildInquiryMailTemplate = (item, variant) => {
   const title = String(item.inquiry_title || 'verket').trim();
   const firstName = String(item.name || '').trim().split(/\s+/)[0] || '';
   const url = slug ? `${window.location.origin}/verk/${encodeURIComponent(slug)}` : `${window.location.origin}/gallery.html`;
+  const buyLink = inquiryBuyLink(item);
   const until = new Date();
   until.setDate(until.getDate() + 7);
-  const untilLabel = until.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
+  const untilLabel = buyLink && buyLink.until ? buyLink.until : until.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
   const price = String(item.inquiry_price_label || '').trim();
   if (variant === 'taken') {
     return {
       subject: `Angående "${title}"`,
       body: `Hej ${firstName},\n\nTack för ditt intresse för "${title}". Verket är just nu tingat av en annan köpare till och med ${untilLabel}. Blir det ledigt hör jag av mig direkt.\n\nFler verk som är lediga hittar du här: ${window.location.origin}/gallery.html\n\nVänliga hälsningar\nOla Gustafsson\nola@olagustafsson.com`
+    };
+  }
+  if (buyLink) {
+    return {
+      subject: `"${title}" – reserverad för dig, så beställer du`,
+      body: `Hej ${firstName},\n\nTack för ditt intresse för "${title}". Verket är reserverat för dig till och med ${untilLabel}.\n\nDu beställer via din personliga länk: ${buyLink.url}\nTryck "Köp originalet", välj om du vill ha passepartout med bakstycke, fyll i adress och välj Swish eller bankkonto. Du får en ordersida med betalningsuppgifter och ordernummer.${price ? ` Pris ${price}.` : ''} Frakt inom Sverige 150 kr.\n\nVill du hellre ha verket inramat svarar du på det här mejlet, så räknar jag på ram med passepartout. Då tillkommer materialkostnad och 300 kr i serviceavgift.\n\nVänliga hälsningar\nOla Gustafsson\nola@olagustafsson.com`
     };
   }
   return {
@@ -3750,8 +3792,8 @@ const openInquiryMailTemplate = async (card, item) => {
       const art = catalog.artworks.find((entry) => entry.slug === slug);
       if (!art) {
         availabilityWarning = 'Verket är inte till salu (sålt eller ej till salu), så kunden kan inte beställa det på sajten.';
-      } else if (art.availability === 'reserved') {
-        availabilityWarning = 'Verket är markerat Reserverad, och då visas ingen köpknapp på sajten. Använd Skapa order i stället, eller sätt verket till Tillgänglig under Verk innan du skickar.';
+      } else if (art.availability === 'reserved' && !inquiryBuyLink(item)) {
+        availabilityWarning = 'Verket är markerat Reserverad, och då visas ingen köpknapp på sajten. Tryck Skapa köplänk så får kunden en personlig länk som fungerar ändå, eller använd Skapa order.';
       }
     } catch (error) {
       availabilityWarning = '';

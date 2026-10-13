@@ -126,7 +126,7 @@ if (!$artwork) {
         <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
         <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
       <?php endif; ?>
-      <link rel="stylesheet" href="/styles.css?v=20261013-10" />
+      <link rel="stylesheet" href="/styles.css?v=20261013-11" />
     </head>
     <body id="page-top" data-page="artwork">
       <header class="site-header" id="top">
@@ -196,7 +196,7 @@ if (!$artwork) {
       <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
       <script src="/content.js?v=20260928-01" defer></script>
       <script src="/script.js?v=20261007-03" defer></script>
-    <script src="/shop.js?v=20261013-05" defer></script>
+    <script src="/shop.js?v=20261013-06" defer></script>
     </body>
   </html>
   <?php
@@ -659,11 +659,11 @@ if (!is_string($structuredJson)) {
       <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="/styles.css?v=20261013-10" />
+    <link rel="stylesheet" href="/styles.css?v=20261013-11" />
     <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="/content.js?v=20260928-01" defer></script>
     <script src="/script.js?v=20261007-03" defer></script>
-    <script src="/shop.js?v=20261013-05" defer></script>
+    <script src="/shop.js?v=20261013-06" defer></script>
   </head>
   <body id="page-top" data-page="artwork">
     <header class="site-header" id="top">
@@ -797,12 +797,40 @@ if (!is_string($structuredJson)) {
                 $shopCatalogItem = seo_shop_catalog($payload)['artworks'][$canonicalSlug] ?? null;
                 $buyOriginal = $shopCatalogItem && $shopCatalogItem['originalForSale'];
                 $buyPrints = $shopCatalogItem ? $shopCatalogItem['prints'] : [];
+                // Personlig köplänk (?for=token) från en förfrågan: reserverat verk får köpas av just den kunden.
+                $buyToken = isset($_GET['for']) && is_string($_GET['for']) ? strtolower(trim($_GET['for'])) : '';
+                $buyLink = null;
+                if ($buyToken !== '' && $shopCatalogItem && $shopCatalogItem['availability'] === 'reserved' && (int) $shopCatalogItem['price'] > 0) {
+                  try {
+                    require_once __DIR__ . '/api/shop_lib.php';
+                    $buyLinkPdo = api_get_pdo();
+                    shop_ensure_schema($buyLinkPdo);
+                    $buyLink = shop_find_buy_link($buyLinkPdo, $canonicalSlug, $buyToken);
+                  } catch (Throwable $error) {
+                    $buyLink = null;
+                  }
+                  if ($buyLink) {
+                    $buyOriginal = true;
+                  }
+                }
+                $buyLinkUntil = '';
+                if ($buyLink && !empty($buyLink['buy_token_expires_at'])) {
+                  try {
+                    $untilDate = (new DateTimeImmutable((string) $buyLink['buy_token_expires_at'], new DateTimeZone('UTC')))->setTimezone(new DateTimeZone('Europe/Stockholm'));
+                    $buyLinkUntil = $lang === 'en' ? $untilDate->format('j F') : $untilDate->format('j') . ' ' . ['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'][(int) $untilDate->format('n') - 1];
+                  } catch (Throwable $error) {
+                    $buyLinkUntil = '';
+                  }
+                }
               ?>
               <?php if ($buyOriginal || $buyPrints !== []): ?>
                 <div class="artwork-buy" id="artwork-buy">
+                  <?php if ($buyLink): ?>
+                    <p class="artwork-buy-reserved"><?= htmlspecialchars(($lang === 'en' ? 'Reserved for you' : 'Reserverat för dig') . ($buyLinkUntil !== '' ? ($lang === 'en' ? ' until ' : ' till och med ') . $buyLinkUntil : '') . '.', ENT_QUOTES) ?></p>
+                  <?php endif; ?>
                   <?php if ($buyOriginal): ?>
                     <div class="artwork-buy-row">
-                      <button type="button" class="btn btn-primary" data-shop-add="original" data-ref="<?= htmlspecialchars($canonicalSlug, ENT_QUOTES) ?>" data-mat-checkbox="artwork-buy-mat"><?= htmlspecialchars(($lang === 'en' ? 'Buy the original – ' : 'Köp originalet – ') . shop_money_label((int) $shopCatalogItem['price'], $lang), ENT_QUOTES) ?></button>
+                      <button type="button" class="btn btn-primary" data-shop-add="original" data-ref="<?= htmlspecialchars($canonicalSlug, ENT_QUOTES) ?>" data-mat-checkbox="artwork-buy-mat"<?= $buyLink ? ' data-token="' . htmlspecialchars($buyToken, ENT_QUOTES) . '"' : '' ?>><?= htmlspecialchars(($lang === 'en' ? 'Buy the original – ' : 'Köp originalet – ') . shop_money_label((int) $shopCatalogItem['price'], $lang), ENT_QUOTES) ?></button>
                     </div>
                     <?php if ($shopCatalogItem['matPrice'] > 0): ?>
                       <label class="checkbox-row"><input type="checkbox" id="artwork-buy-mat" /> <span><?= htmlspecialchars(($lang === 'en' ? 'Add mat with backing board, frame size ' : 'Lägg till passepartout med bakstycke, ramformat ') . str_replace('x', ' × ', $shopCatalogItem['matClass']) . ' cm, +' . shop_money_label((int) $shopCatalogItem['matPrice'], $lang), ENT_QUOTES) ?></span></label>
