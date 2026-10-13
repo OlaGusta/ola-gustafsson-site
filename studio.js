@@ -3765,18 +3765,18 @@ const buildInquiryMailTemplate = (item, variant) => {
   if (variant === 'taken') {
     return {
       subject: `Angående "${title}"`,
-      body: `Hej ${firstName},\n\nTack för ditt intresse för "${title}". Verket är just nu tingat av en annan köpare till och med ${untilLabel}. Blir det ledigt hör jag av mig direkt.\n\nFler verk som är lediga hittar du här: ${window.location.origin}/gallery.html\n\nVänliga hälsningar\nOla Gustafsson\nola@olagustafsson.com`
+      body: `Hej igen ${firstName}!\n\nTack för ditt intresse för min akvarell "${title}". Verket är just nu tingat av en annan köpare till och med ${untilLabel}. Blir det ledigt hör jag av mig direkt.\n\nFler verk som är lediga hittar du här: ${window.location.origin}/gallery.html\n\nMå så gott - och tack än en gång :-)\nOla Gustafsson\nola@olagustafsson.com`
     };
   }
   if (buyLink) {
     return {
       subject: `"${title}" – reserverad för dig, så beställer du`,
-      body: `Hej ${firstName},\n\nTack för ditt intresse för "${title}". Verket är reserverat för dig till och med ${untilLabel}.\n\nDu beställer via din personliga länk: ${buyLink.url}\nTryck "Köp originalet", välj om du vill ha passepartout med bakstycke, fyll i adress och välj Swish eller bankkonto. Du får en ordersida med betalningsuppgifter och ordernummer.${price ? ` Pris ${price}.` : ''} Frakt inom Sverige 150 kr.\n\nVill du hellre ha verket inramat svarar du på det här mejlet, så räknar jag på ram med passepartout. Då tillkommer materialkostnad och 300 kr i serviceavgift.\n\nVänliga hälsningar\nOla Gustafsson\nola@olagustafsson.com`
+      body: `Hej igen ${firstName}!\n\nTack för ditt intresse för min akvarell "${title}". Jag har reserverat för dig till och med ${untilLabel}.\n\nDu beställer via din personliga länk: ${buyLink.url}\nTryck "Köp originalet", välj om du vill ha passepartout med bakstycke, fyll i adress och välj Swish eller bankkonto. Du får en ordersida med betalningsuppgifter och ordernummer.${price ? ` Pris ${price}.` : ''} Frakt inom Sverige 150 kr.\n\nVill du hellre ha verket inramat svarar du på det här mejlet, så räknar jag på ram med passepartout. Då tillkommer materialkostnad och 300 kr i serviceavgift.\n\nMå så gott - och tack än en gång :-)\nOla Gustafsson\nola@olagustafsson.com`
     };
   }
   return {
     subject: `"${title}" – så beställer du`,
-    body: `Hej ${firstName},\n\nTack för ditt intresse för "${title}". Verket är ledigt och jag håller det för dig till och med ${untilLabel}.\n\nDu beställer enklast här: ${url}\nTryck "Köp originalet", fyll i adress och välj Swish eller bankkonto. Du får en ordersida med betalningsuppgifter och ordernummer.${price ? ` Pris ${price}.` : ''} Frakt inom Sverige 150 kr.\n\nVill du ha det monterat med passepartout eller i ram ordnar jag det mot materialkostnad plus 300 kr i serviceavgift. Säg till så räknar jag på det.\n\nVänliga hälsningar\nOla Gustafsson\nola@olagustafsson.com`
+    body: `Hej igen ${firstName}!\n\nTack för ditt intresse för min akvarell "${title}". Verket är ledigt och jag håller det för dig till och med ${untilLabel}.\n\nDu beställer enklast här: ${url}\nTryck "Köp originalet", välj om du vill ha passepartout med bakstycke, fyll i adress och välj Swish eller bankkonto. Du får en ordersida med betalningsuppgifter och ordernummer.${price ? ` Pris ${price}.` : ''} Frakt inom Sverige 150 kr.\n\nVill du hellre ha verket inramat svarar du på det här mejlet, så räknar jag på ram med passepartout. Då tillkommer materialkostnad och 300 kr i serviceavgift.\n\nMå så gott - och tack än en gång :-)\nOla Gustafsson\nola@olagustafsson.com`
   };
 };
 
