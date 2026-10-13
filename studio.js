@@ -3771,7 +3771,7 @@ const buildInquiryMailTemplate = (item, variant) => {
   if (buyLink) {
     return {
       subject: `"${title}" – reserverad för dig, så beställer du`,
-      body: `Hej igen ${firstName}!\n\nTack för ditt intresse för min akvarell "${title}". Jag har reserverat för dig till och med ${untilLabel}.\n\nDu beställer via din personliga länk: ${buyLink.url}\nTryck "Köp originalet", välj om du vill ha passepartout med bakstycke, fyll i adress och välj Swish eller bankkonto. Du får en ordersida med betalningsuppgifter och ordernummer.${price ? ` Pris ${price}.` : ''} Frakt inom Sverige 150 kr.\n\nVill du hellre ha verket inramat svarar du på det här mejlet, så räknar jag på ram med passepartout. Då tillkommer materialkostnad och 300 kr i serviceavgift.\n\nMå så gott - och tack än en gång :-)`
+      body: `Hej igen ${firstName}!\n\nTack för ditt intresse för min akvarell "${title}". Jag har reserverat den för dig till och med ${untilLabel}.\n\nDu beställer via din personliga länk: ${buyLink.url}\nTryck "Köp originalet", välj om du vill ha passepartout med bakstycke, fyll i adress och välj Swish eller bankkonto. Du får en ordersida med betalningsuppgifter och ordernummer.${price ? ` Pris ${price}.` : ''} Frakt inom Sverige 150 kr.\n\nVill du hellre ha verket inramat svarar du på det här mejlet, så räknar jag på ram med passepartout. Då tillkommer materialkostnad och 300 kr i serviceavgift.\n\nMå så gott - och tack än en gång :-)`
     };
   }
   return {
