@@ -27,6 +27,10 @@ const STUDIO_VIEW_META = {
     title: 'Kontakt',
     subtitle: 'Kontakttext, e-postknapp och sociala kanaler.'
   },
+  orders: {
+    title: 'Ordrar',
+    subtitle: 'Beställningar från kassan: betalning, leverans och status.'
+  },
   inquiries: {
     title: 'Förfrågningar',
     subtitle: 'Inkomna meddelanden och intresseanmälningar.'
@@ -2549,6 +2553,10 @@ const el = {
   analyticsKpiEngagedDelta: document.getElementById('analytics-kpi-engaged-delta'),
   analyticsKpiEvents: document.getElementById('analytics-kpi-events'),
   analyticsKpiEventsDelta: document.getElementById('analytics-kpi-events-delta'),
+  ordersPanelFilter: document.getElementById('orders-panel-filter'),
+  ordersPanelRefresh: document.getElementById('orders-panel-refresh'),
+  ordersPanelStatus: document.getElementById('orders-panel-status'),
+  ordersPanelList: document.getElementById('orders-panel-list'),
   inquiriesPanelFilter: document.getElementById('inquiries-panel-filter'),
   inquiriesPanelRefresh: document.getElementById('inquiries-panel-refresh'),
   inquiriesPanelStatus: document.getElementById('inquiries-panel-status'),
@@ -3514,6 +3522,165 @@ const fetchInquiriesPanel = async () => {
     setInquiriesPanelStatus(message, 'error');
   }
 };
+
+// ---- Ordrar (kassan) --------------------------------------------------------
+const ORDER_STATUS_TONE = { pending: 'reserved', paid: 'available', shipped: 'available', completed: 'sold', cancelled: 'sold' };
+const formatOrderAmount = (value) => `${Number(value || 0).toLocaleString('sv-SE')}\u00a0kr`;
+const formatOrderTimestamp = (value) => {
+  if (!value) return '';
+  const date = new Date(String(value).replace(' ', 'T') + (String(value).endsWith('Z') ? '' : 'Z'));
+  return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString('sv-SE', { dateStyle: 'short', timeStyle: 'short' });
+};
+
+const setOrdersPanelStatus = (text, kind = 'info') => {
+  if (!el.ordersPanelStatus) return;
+  el.ordersPanelStatus.textContent = text;
+  el.ordersPanelStatus.dataset.kind = kind;
+};
+
+const renderOrdersPanel = (orders) => {
+  if (!el.ordersPanelList) return;
+  const list = Array.isArray(orders) ? orders : [];
+  uiState.ordersData = list;
+  if (list.length === 0) {
+    el.ordersPanelList.innerHTML = '<p class="gallery-empty">Inga ordrar för valt filter.</p>';
+    return;
+  }
+  el.ordersPanelList.innerHTML = list
+    .map((order) => {
+      const id = Number(order.id);
+      const status = String(order.status || 'pending');
+      const items = Array.isArray(order.items) ? order.items : [];
+      const rows = items
+        .map((item) => {
+          const qty = Number(item.qty) || 1;
+          const amount = (Number(item.unit_sek) || 0) * qty;
+          const edition = item.edition_label ? ` · ex ${item.edition_label}` : '';
+          return `<li><span>${escapeHtml(qty > 1 ? `${qty} × ${item.title}` : item.title)}<small>${escapeHtml(item.detail || '')}${escapeHtml(edition)}</small></span><span>${formatOrderAmount(amount)}</span></li>`;
+        })
+        .join('');
+      const paidInfo = status !== 'pending' && order.paid_at
+        ? `<span class="inquiry-chip">Betald ${escapeHtml(formatOrderTimestamp(order.paid_at))}${order.paid_method ? ` (${escapeHtml(order.paid_method)})` : ''}${Number(order.paid_sek) && Number(order.paid_sek) !== Number(order.total_sek) ? `, mottaget ${formatOrderAmount(order.paid_sek)}` : ''}</span>`
+        : '';
+      const shippedInfo = order.shipped_at
+        ? `<span class="inquiry-chip">Skickad ${escapeHtml(formatOrderTimestamp(order.shipped_at))}${order.tracking_no ? ` · ${escapeHtml(order.tracking_no)}` : ''}</span>`
+        : '';
+      let actions = '';
+      if (status === 'pending') {
+        actions = `
+          <div class="order-action-row">
+            <label>Mottaget belopp <input type="number" min="0" step="1" value="${Number(order.total_sek) || 0}" data-order-field="paidAmount" /></label>
+            <label>Betalsätt
+              <select data-order-field="method"><option value="swish">Swish</option><option value="bank">Bankkonto</option><option value="other">Annat</option></select>
+            </label>
+            <button type="button" class="btn btn-primary" data-order-action="mark_paid">Markera betald</button>
+            <button type="button" class="btn btn-ghost" data-order-action="cancel" data-confirm="Avbryt ordern ${escapeHtml(order.order_no)}? Reserverade original blir tillgängliga igen.">Avbryt order</button>
+          </div>`;
+      } else if (status === 'paid') {
+        actions = `
+          <div class="order-action-row">
+            <label>Spårningsnummer <input type="text" value="${escapeHtml(order.tracking_no || '')}" data-order-field="trackingNo" placeholder="t.ex. PostNord-nummer" /></label>
+            <button type="button" class="btn btn-primary" data-order-action="mark_shipped">Markera skickad</button>
+            <button type="button" class="btn btn-ghost" data-order-action="cancel" data-confirm="Avbryt ordern ${escapeHtml(order.order_no)}? Betalningen måste du återbetala själv.">Avbryt order</button>
+          </div>`;
+      } else if (status === 'shipped') {
+        actions = `
+          <div class="order-action-row">
+            <label>Spårningsnummer <input type="text" value="${escapeHtml(order.tracking_no || '')}" data-order-field="trackingNo" /></label>
+            <button type="button" class="btn btn-ghost" data-order-action="mark_shipped">Uppdatera spårning</button>
+            <button type="button" class="btn btn-ghost" data-order-action="complete">Markera klar</button>
+          </div>`;
+      }
+      return `<article class="inquiry-card order-card" data-id="${id}">
+        <div class="inquiry-card-head">
+          <div>
+            <h3>${escapeHtml(order.order_no)} · ${formatOrderAmount(order.total_sek)}</h3>
+            <p class="inquiry-meta">${escapeHtml([order.customer_name, order.customer_email, order.customer_phone, formatOrderTimestamp(order.created_at)].filter(Boolean).join(' · '))}</p>
+          </div>
+          <span class="artwork-status-badge is-${ORDER_STATUS_TONE[status] || 'available'}">${escapeHtml(order.status_label || status)}</span>
+        </div>
+        <ul class="order-card-items">${rows}
+          <li><span>Frakt</span><span>${formatOrderAmount(order.shipping_sek)}</span></li>
+          <li class="order-card-total"><span>Att betala<small>varav moms ${formatOrderAmount(order.vat_sek)}</small></span><span>${formatOrderAmount(order.total_sek)}</span></li>
+        </ul>
+        <p class="inquiry-message"><strong>Leverans:</strong> ${escapeHtml(`${order.customer_name}, ${order.address_line}, ${order.postal_code} ${order.city}`)}${order.note ? `<br /><strong>Kundens meddelande:</strong> ${escapeHtml(order.note)}` : ''}</p>
+        <div class="inquiry-badges">${paidInfo}${shippedInfo}<span class="inquiry-chip">${Number(order.mail_delivered) === 1 ? 'Bekräftelse mejlad' : 'Mejl ej levererat'}</span></div>
+        ${actions}
+        <div class="order-action-row order-note-row">
+          <label>Egen anteckning <input type="text" value="${escapeHtml(order.admin_note || '')}" data-order-field="adminNote" placeholder="t.ex. tryck beställt 14/10" /></label>
+          <button type="button" class="btn btn-ghost" data-order-action="note">Spara anteckning</button>
+        </div>
+        <p class="inquiry-link-row"><a href="${escapeHtml(order.order_url || '#')}" target="_blank" rel="noopener noreferrer">Öppna kundens ordersida</a></p>
+      </article>`;
+    })
+    .join('');
+
+  el.ordersPanelList.querySelectorAll('[data-order-action]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const card = button.closest('.order-card');
+      const id = Number(card && card.getAttribute('data-id'));
+      const action = button.getAttribute('data-order-action');
+      if (!Number.isFinite(id) || !action) return;
+      const confirmText = button.getAttribute('data-confirm');
+      if (confirmText && !window.confirm(confirmText)) return;
+      const field = (name) => {
+        const node = card.querySelector(`[data-order-field="${name}"]`);
+        return node ? String(node.value || '').trim() : '';
+      };
+      const body = { action, id };
+      if (action === 'mark_paid') {
+        body.paidAmount = Number(field('paidAmount')) || 0;
+        body.method = field('method') || 'swish';
+      } else if (action === 'mark_shipped') {
+        body.trackingNo = field('trackingNo');
+      } else if (action === 'note') {
+        body.adminNote = field('adminNote');
+      }
+      try {
+        button.disabled = true;
+        setOrdersPanelStatus('Uppdaterar ordern...', 'info');
+        await apiJson('api/orders.php', { method: 'POST', withCsrf: isSecureAuthStudio(), body });
+        await fetchOrdersPanel();
+        if (action === 'mark_paid' || action === 'cancel') {
+          // Original kan ha bytt status (såld/tillgänglig): läs om innehållet.
+          autoLoadPublishedState();
+        }
+      } catch (error) {
+        const message = error instanceof Error && error.message ? error.message : 'Kunde inte uppdatera ordern.';
+        setOrdersPanelStatus(message, 'error');
+        button.disabled = false;
+      }
+    });
+  });
+};
+
+const fetchOrdersPanel = async () => {
+  if (!el.ordersPanelList) return;
+  setOrdersPanelStatus('Hämtar ordrar...', 'info');
+  try {
+    const filter = uiState.ordersFilter || 'open';
+    const response = await apiJson(`api/orders.php?status=${encodeURIComponent(filter)}`, { method: 'GET', withCsrf: isSecureAuthStudio() });
+    renderOrdersPanel(response.orders);
+    const open = (Array.isArray(response.orders) ? response.orders : []).filter((o) => o.status === 'pending').length;
+    setOrdersPanelStatus(`Uppdaterad: ${new Date().toLocaleString('sv-SE')}${filter === 'open' ? ` · ${open} väntar på betalning` : ''}`, 'success');
+  } catch (error) {
+    const message = error instanceof Error && error.message ? error.message : 'Kunde inte hämta ordrar.';
+    setOrdersPanelStatus(message, 'error');
+  }
+};
+
+const initOrdersPanel = () => {
+  if (!el.ordersPanelRefresh || !el.ordersPanelFilter || !el.ordersPanelList) return;
+  uiState.ordersFilter = 'open';
+  el.ordersPanelFilter.value = 'open';
+  el.ordersPanelRefresh.addEventListener('click', () => fetchOrdersPanel());
+  el.ordersPanelFilter.addEventListener('change', () => {
+    uiState.ordersFilter = String(el.ordersPanelFilter.value || 'open');
+    fetchOrdersPanel();
+  });
+  fetchOrdersPanel();
+};
+window.olaRenderOrdersPanel = renderOrdersPanel;
 
 const initInquiriesPanel = () => {
   if (!el.inquiriesPanelRefresh || !el.inquiriesPanelFilter || !el.inquiriesPanelList) {
@@ -8875,6 +9042,7 @@ const init = async () => {
   if (!isLocalStaticStudioPreview()) {
     initAnalyticsDashboard();
     initInquiriesPanel();
+    initOrdersPanel();
   } else {
     if (typeof setAnalyticsPanelStatus === 'function') {
       setAnalyticsPanelStatus('Lokalt previewläge: analytics kräver PHP-backend.', 'info');

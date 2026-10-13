@@ -22,7 +22,7 @@
     <script src="overrides.js?v=20260323-04"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <script src="vendor/qrcode.min.js?v=20260216-01" defer></script>
-    <script src="studio.js?v=20261004-01" defer></script>
+    <script src="studio.js?v=20261013-01" defer></script>
   </head>
   <body id="page-top" data-page="studio">
     <header class="site-header" id="top">
@@ -155,6 +155,9 @@
               </button>
               <button type="button" class="studio-nav-item" data-studio-tab="contact" data-icon="@" aria-pressed="false">
                 Kontakt
+              </button>
+              <button type="button" class="studio-nav-item" data-studio-tab="orders" data-icon="◎" aria-pressed="false">
+                Ordrar
               </button>
               <button type="button" class="studio-nav-item" data-studio-tab="inquiries" data-icon="✉" aria-pressed="false">
                 Förfrågningar
@@ -865,6 +868,29 @@
                 <p id="analytics-kpi-events-delta" class="analytics-kpi-delta">-</p>
               </article>
             </div>
+          </section>
+
+          <section class="studio-card surface-soft" data-studio-view="orders" hidden>
+            <div class="studio-row">
+              <h2>Ordrar</h2>
+              <div class="analytics-toolbar">
+                <label>Visa
+                  <select id="orders-panel-filter">
+                    <option value="open">Öppna (väntar + betalda)</option>
+                    <option value="pending">Väntar på betalning</option>
+                    <option value="paid">Betalda</option>
+                    <option value="shipped">Skickade</option>
+                    <option value="completed">Klara</option>
+                    <option value="cancelled">Avbrutna</option>
+                    <option value="all">Alla</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-ghost" id="orders-panel-refresh">Uppdatera</button>
+              </div>
+            </div>
+            <p class="studio-note">Beställningar från kassan. När pengarna kommit in: Markera betald. Originalet blir då sålt och kunden får mejl. Vid Markera skickad får kunden spårningsnumret.</p>
+            <div id="orders-panel-status" class="analytics-panel-status" data-kind="info" aria-live="polite">Väntar på uppdatering...</div>
+            <div id="orders-panel-list" class="inquiries-panel-list orders-panel-list"></div>
           </section>
 
           <section class="studio-card surface-soft" data-studio-view="inquiries" hidden>

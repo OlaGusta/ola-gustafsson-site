@@ -110,13 +110,14 @@ function shop_edition_used(PDO $pdo, string $kind, string $ref): int
   return (int) $stmt->fetchColumn();
 }
 
-// Nästa lediga upplagenummer för ett tryck.
+// Nästa lediga upplagenummer för ett tryck. Rader med flera exemplar upptar
+// intervallet edition_no .. edition_no + qty - 1.
 function shop_next_edition_no(PDO $pdo, string $kind, string $ref): int
 {
   $stmt = $pdo->prepare(
-    'SELECT COALESCE(MAX(i.edition_no), 0) FROM shop_order_items i
+    'SELECT COALESCE(MAX(i.edition_no + i.qty - 1), 0) FROM shop_order_items i
      JOIN shop_orders o ON o.id = i.order_id
-     WHERE i.kind = :kind AND i.ref = :ref AND o.status <> \'cancelled\''
+     WHERE i.kind = :kind AND i.ref = :ref AND i.edition_no IS NOT NULL AND o.status <> \'cancelled\''
   );
   $stmt->execute([':kind' => $kind, ':ref' => $ref]);
   return (int) $stmt->fetchColumn() + 1;
@@ -331,6 +332,139 @@ function shop_swish_qr_url(array $order): string
   return '/api/swish-qr.php?token=' . $order['token'];
 }
 
+function shop_edition_label(array $item): string
+{
+  $first = (int) ($item['edition_no'] ?? 0);
+  $qty = max(1, (int) ($item['qty'] ?? 1));
+  if ($first <= 0) {
+    return '';
+  }
+  $range = $qty > 1 ? sprintf('%d–%d', $first, $first + $qty - 1) : (string) $first;
+  return $range . '/' . SEO_PRINT_EDITION_SIZE;
+}
+
+function shop_find_order_by_id(PDO $pdo, int $id): ?array
+{
+  $stmt = $pdo->prepare('SELECT * FROM shop_orders WHERE id = :id LIMIT 1');
+  $stmt->execute([':id' => $id]);
+  $order = $stmt->fetch();
+  if (!is_array($order)) {
+    return null;
+  }
+  $order['items'] = shop_order_items($pdo, (int) $order['id']);
+  return $order;
+}
+
+function shop_list_orders(PDO $pdo, string $status = '', int $limit = 60): array
+{
+  $where = '';
+  $params = [];
+  if ($status !== '' && in_array($status, SHOP_STATUSES, true)) {
+    $where = 'WHERE status = :status';
+    $params[':status'] = $status;
+  } elseif ($status === 'open') {
+    $where = "WHERE status IN ('pending', 'paid')";
+  }
+  $stmt = $pdo->prepare("SELECT * FROM shop_orders {$where} ORDER BY created_at DESC LIMIT " . max(1, min(200, $limit)));
+  $stmt->execute($params);
+  $orders = $stmt->fetchAll();
+  if (!is_array($orders) || $orders === []) {
+    return [];
+  }
+  $ids = array_map(static fn (array $o): int => (int) $o['id'], $orders);
+  $in = implode(',', array_fill(0, count($ids), '?'));
+  $itemStmt = $pdo->prepare("SELECT * FROM shop_order_items WHERE order_id IN ({$in}) ORDER BY sort ASC, id ASC");
+  $itemStmt->execute($ids);
+  $byOrder = [];
+  foreach ($itemStmt->fetchAll() ?: [] as $item) {
+    $byOrder[(int) $item['order_id']][] = $item;
+  }
+  foreach ($orders as &$order) {
+    $order['items'] = $byOrder[(int) $order['id']] ?? [];
+  }
+  unset($order);
+  return $orders;
+}
+
+// Markera betald: status, belopp, sätt; original blir sålda; kunden får mejl.
+function shop_mark_paid(PDO $pdo, array $order, int $paidAmount, string $method): array
+{
+  if ($order['status'] !== 'pending') {
+    throw new InvalidArgumentException('Bara ordrar som väntar på betalning kan markeras betalda.');
+  }
+  $pdo->prepare('UPDATE shop_orders SET status = \'paid\', paid_sek = :amount, paid_method = :method, paid_at = UTC_TIMESTAMP() WHERE id = :id')
+    ->execute([':amount' => $paidAmount, ':method' => $method !== '' ? $method : null, ':id' => (int) $order['id']]);
+  foreach ($order['items'] as $item) {
+    if ($item['kind'] === 'original') {
+      try {
+        portfolio_set_artwork_availability((string) $item['ref'], 'sold', $pdo);
+      } catch (Throwable $error) {
+        // Statusen i innehållet får rättas för hand i Studio om skrivningen misslyckas.
+      }
+    }
+  }
+  $updated = shop_find_order_by_id($pdo, (int) $order['id']) ?? $order;
+  $lang = $updated['language'] === 'en' ? 'en' : 'sv';
+  $url = shop_order_url($updated, $lang);
+  $summary = shop_order_summary_text($updated, $lang);
+  $body = $lang === 'en'
+    ? "Hi {$updated['customer_name']},\n\nThank you, your payment for order {$updated['order_no']} has arrived.\n\n{$summary}\n\nThe order is now being prepared and ships to:\n{$updated['customer_name']}\n{$updated['address_line']}\n{$updated['postal_code']} {$updated['city']}\n\nYou will get another email with the tracking number when it is on its way. Order page: {$url}\n\nOla Gustafsson\nola@olagustafsson.com"
+    : "Hej {$updated['customer_name']},\n\nTack, din betalning för beställning {$updated['order_no']} har kommit in.\n\n{$summary}\n\nBeställningen görs nu i ordning och skickas till:\n{$updated['customer_name']}\n{$updated['address_line']}\n{$updated['postal_code']} {$updated['city']}\n\nDu får ett nytt mejl med spårningsnummer när den är på väg. Ordersida: {$url}\n\nOla Gustafsson\nola@olagustafsson.com";
+  $subject = $lang === 'en' ? "Payment received – order {$updated['order_no']}" : "Betalning mottagen – beställning {$updated['order_no']}";
+  api_security_send_mail($updated['customer_email'], $subject, $body, api_security_contact_recipient());
+  return $updated;
+}
+
+function shop_mark_shipped(PDO $pdo, array $order, string $trackingNo): array
+{
+  if (!in_array($order['status'], ['paid', 'shipped'], true)) {
+    throw new InvalidArgumentException('Bara betalda ordrar kan markeras skickade.');
+  }
+  $pdo->prepare('UPDATE shop_orders SET status = \'shipped\', shipped_at = UTC_TIMESTAMP(), tracking_no = :tracking WHERE id = :id')
+    ->execute([':tracking' => $trackingNo !== '' ? $trackingNo : null, ':id' => (int) $order['id']]);
+  $updated = shop_find_order_by_id($pdo, (int) $order['id']) ?? $order;
+  $lang = $updated['language'] === 'en' ? 'en' : 'sv';
+  $url = shop_order_url($updated, $lang);
+  $tracking = $trackingNo !== ''
+    ? ($lang === 'en' ? "Tracking number: {$trackingNo}\n\n" : "Spårningsnummer: {$trackingNo}\n\n")
+    : '';
+  $body = $lang === 'en'
+    ? "Hi {$updated['customer_name']},\n\nYour order {$updated['order_no']} has been shipped.\n\n{$tracking}Order page: {$url}\n\nAs a private customer you have a 14-day right of withdrawal from the day you receive the work.\n\nOla Gustafsson\nola@olagustafsson.com"
+    : "Hej {$updated['customer_name']},\n\nDin beställning {$updated['order_no']} är skickad.\n\n{$tracking}Ordersida: {$url}\n\nSom privatperson har du 14 dagars ångerrätt från att du tagit emot verket.\n\nOla Gustafsson\nola@olagustafsson.com";
+  $subject = $lang === 'en' ? "Shipped – order {$updated['order_no']}" : "Skickad – beställning {$updated['order_no']}";
+  api_security_send_mail($updated['customer_email'], $subject, $body, api_security_contact_recipient());
+  return $updated;
+}
+
+// Avbryt: original släpps (tillgängliga igen), upplagenummer frigörs genom statusen.
+function shop_cancel_order(PDO $pdo, array $order): array
+{
+  if (in_array($order['status'], ['cancelled', 'completed'], true)) {
+    throw new InvalidArgumentException('Ordern kan inte avbrytas.');
+  }
+  $pdo->prepare('UPDATE shop_orders SET status = \'cancelled\', cancelled_at = UTC_TIMESTAMP() WHERE id = :id')
+    ->execute([':id' => (int) $order['id']]);
+  foreach ($order['items'] as $item) {
+    if ($item['kind'] === 'original') {
+      try {
+        portfolio_set_artwork_availability((string) $item['ref'], 'available', $pdo);
+      } catch (Throwable $error) {
+        // Rättas för hand om skrivningen misslyckas.
+      }
+    }
+  }
+  return shop_find_order_by_id($pdo, (int) $order['id']) ?? $order;
+}
+
+function shop_complete_order(PDO $pdo, array $order): array
+{
+  if ($order['status'] !== 'shipped') {
+    throw new InvalidArgumentException('Bara skickade ordrar kan markeras klara.');
+  }
+  $pdo->prepare('UPDATE shop_orders SET status = \'completed\' WHERE id = :id')->execute([':id' => (int) $order['id']]);
+  return shop_find_order_by_id($pdo, (int) $order['id']) ?? $order;
+}
+
 function shop_status_label(string $status, string $lang): string
 {
   $labels = [
@@ -444,7 +578,7 @@ function shop_create_order(PDO $pdo, array $lines, array $customer, string $lang
     );
     foreach ($lines as $line) {
       $edition = null;
-      if (($line['kind'] === 'print' || $line['kind'] === 'sun') && (int) $line['qty'] === 1) {
+      if ($line['kind'] === 'print' || $line['kind'] === 'sun') {
         $edition = shop_next_edition_no($pdo, $line['kind'], $line['ref']);
       }
       $itemStmt->execute([
