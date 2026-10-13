@@ -90,7 +90,7 @@ window.PORTFOLIO_OVERRIDES = {
         "imageAlt": "Akvarell i blå toner med stadsvy och långa skuggor.",
         "ctaPrimaryLabel": "Se målningar",
         "ctaSecondaryLabel": "100 dagar av sol",
-        "modeUpdatedAt": 1791270984084,
+        "modeUpdatedAt": 1791898071584,
         "ctaPrimaryHref": "gallery.html",
         "ctaSecondaryHref": "100-dagar-av-sol"
     },
@@ -129,14 +129,14 @@ window.PORTFOLIO_OVERRIDES = {
         ],
         "faqHeading": "Vanliga frågor",
         "faqItems": [
-            "Hur köper jag en målning? Öppna verket i galleriet och skicka intresseanmälan längst ned på verkets sida. Anmälan är inte bindande. Jag svarar med totalpris och betalningsuppgifter.",
+            "Hur köper jag en målning? Öppna verket i galleriet och tryck Köp originalet. I kassan fyller du i leveransadress och väljer Swish eller bankkonto, och får sedan en ordersida med betalningsuppgifter och ordernummer. Verket reserveras för dig direkt när du beställer. Vill du hellre fråga något först finns ett formulär längst ned på verkets sida.",
             "Vad kostar en originalmålning? Priset står vid varje verk. Just nu kostar originalen mellan 1 200 och 9 500 kr beroende på format. De säljs oinramade och är signerade.",
             "Vad betyder Reserverad, Såld och Ej till salu? Reserverad betyder att någon har tingat verket. Verk som är sålda eller inte till salu går inte att köpa, men du kan fråga om liknande verk eller kommande målningar.",
             "Vad är en Fine Art Print? Ett tryck av en målning på konstpapperet Hahnemühle Photo Rag. Varje tryck är signerat och numrerat av mig, och upplagan är högst 20 exemplar per bild. Trycket levereras monterat på en syrafri skiva. Verk som finns som print är märkta med Fine Art Print på verkets sida.",
             "Vilka format och priser har printarna? Formaten anges som ramens yttermått: 30 × 40 cm för 1 800 kr, 40 × 60 cm för 2 900 kr och 50 × 70 cm för 3 800 kr. Priserna inkluderar moms. Bilden är mindre än formatet: skivan den sitter på har ramens mått och ger en vit kant runt bilden. Vilka format som finns för ett visst verk står på verkets sida.",
             "Ingår ram och passepartout? Nej. Original säljs som lösa ark, och print levereras monterad på en syrafri skiva i ramens format, klar att rama in. Vill du ha verket inramat eller i passepartout kan jag ordna det. Då tillkommer materialkostnaden och en serviceavgift på 300 kr per verk. Ramar du en print själv, använd gärna distanslist så att bilden inte ligger mot glaset.",
-            "Vad kostar frakten? För print är frakten 150 kr per beställning inom Sverige, oavsett hur många solar du beställer. För original tillkommer frakt, inom Sverige normalt 150–250 kr. Utanför Sverige: pris på förfrågan.",
-            "Hur betalar jag? Med Swish till 123 704 88 20 eller till mitt företagskonto i Swedbank, 8327-9, 903 671 334-6. Skriv ditt namn och verkets titel eller solens nummer som meddelande. Print kan du betala direkt när du skickat beställningen. För original väntar du på min bekräftelse med totalbelopp.",
+            "Vad kostar frakten? 150 kr per beställning inom Sverige, för både original och print, oavsett hur många verk du beställer. Utanför Sverige: pris på förfrågan.",
+            "Hur betalar jag? Med Swish till 123 704 88 20 eller till mitt företagskonto i Swedbank, 8327-9, 903 671 334-6. Skriv ordernumret som meddelande. Väljer du Swish får du en Swish-kod med belopp och ordernummer ifyllda på ordersidan. Beställningen bekräftas så snart betalningen kommit in.",
             "Hur lång är leveranstiden? Print görs på beställning och skickas normalt inom några dagar. Beställer du ram tar det cirka en vecka till. Original skickas när betalningen kommit in.",
             "Har jag ångerrätt? Ja. Som privatperson har du 14 dagars ångerrätt från att du tagit emot verket. Meddela mig inom den tiden och skicka tillbaka verket oskadat; returfrakten betalar du själv. Jag betalar tillbaka när verket kommit fram.",
             "Går solarna i 100 dagar av sol att köpa? Ja, som Fine Art Print. Alla hundra solar kan beställas var för sig, i olika format, på sidan 100 dagar av sol. Originalen är inte till salu.",
@@ -255,7 +255,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "collectorNote": "Minnesbild från en varm, lång dag i Karlskrona för ett par år sedan. Jag har fokuserat en enkel kontrasterande färgställning i ett försök att framhäva detta orörliga stenblocks väsen. ",
                 "slug": "saltos-sjal",
                 "priceLabel": "5 400 kr",
-                "availability": "available",
+                "availability": "reserved",
                 "addedAt": 1784578881000,
                 "fineArtPrint": false
             },
@@ -331,7 +331,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "previewSrc": "",
                 "collectorNote": "Visas/publicerad hos NAS",
                 "priceLabel": "5 400 kr",
-                "availability": "available",
+                "availability": "reserved",
                 "addedAt": 1777925214000
             },
             {
@@ -3544,14 +3544,14 @@ window.PORTFOLIO_OVERRIDES = {
                 "inspirationBody": "I’m inspired, among others, by [Ylva Carlgren](https://www.ylvacarlgren.com/), [Marc Folly](https://marc-folly.com/), [Richard Thorn](https://www.richardthornart.co.uk/), [Lars A Persson](https://larsapersson.com/), [Lena Amstrand](https://lenaamstrand.se/), [Nicolas Lopez](https://www.instagram.com/nicolas.lopez.art/?hl=en), [Andy Evansen](https://www.evansenartstudio.com/), [Axel Thorenfeldt](https://www.axelthorenfeldt.com/), [Patric Lee](https://patrickleefineart.com/), [Herman Pekel](https://www.hermanpekel.net/), [David Lidbetter](https://dlidbetter.com/) and [Mitchell Albala](https://mitchalbala.com/). What they have in common is painters who move between control and dissolution, structure and flow—the balance I myself pursue.",
                 "faqHeading": "Frequently asked questions",
                 "faqItems": [
-                    "How do I buy a painting? Open the work in the gallery and send the inquiry form at the bottom of its page. The inquiry is not binding. I reply with a total and payment details.",
+                    "How do I buy a painting? Open the work in the gallery and press Buy the original. At checkout you enter a delivery address and choose Swish or bank transfer, and then get an order page with payment details and an order number. The work is reserved for you as soon as you order. If you would rather ask something first, there is a form at the bottom of the work's page.",
                     "What does an original painting cost? The price is shown with each work. Originals currently cost between 1,200 and 9,500 SEK depending on size. They are sold unframed and are signed.",
                     "What do Reserved, Sold and Not for sale mean? Reserved means someone has asked me to hold the work. Works that are sold or not for sale cannot be bought, but you are welcome to ask about similar works or upcoming paintings.",
                     "What is a fine art print? A print of a painting on Hahnemühle Photo Rag fine art paper. Each print is signed and numbered by me, in an edition of at most 20 per image. The print comes mounted on an acid-free board. Works available as prints are marked Fine Art Print on their page.",
                     "Which sizes and prices do the prints come in? Sizes are given as the outer frame size: 30 × 40 cm for 1,800 SEK, 40 × 60 cm for 2,900 SEK and 50 × 70 cm for 3,800 SEK. Prices include VAT. The image is smaller than the stated size: the board it is mounted on has the frame size and gives a white border around the image. The sizes available for a given work are listed on its page.",
                     "Are frame and mat included? No. Originals are sold as loose sheets, and prints come mounted on an acid-free board in the frame size, ready to frame. If you would like the work framed or matted, I can arrange it. The cost of materials and a service fee of 300 SEK per work are then added. If you frame a print yourself, use a spacer so that the image does not rest against the glass.",
-                    "What does shipping cost? For prints, shipping within Sweden is 150 SEK per order, however many suns you order. For originals, shipping is added, within Sweden usually 150–250 SEK. Outside Sweden: price on request.",
-                    "How do I pay? By Swish to 123 704 88 20 or to my business account at Swedbank, 8327-9, 903 671 334-6. Write your name and the title of the work or the sun numbers as the message. Prints can be paid as soon as you have sent the order. For originals, wait for my confirmation with the total.",
+                    "What does shipping cost? 150 SEK per order within Sweden, for originals as well as prints, however many works you order. Outside Sweden: price on request.",
+                    "How do I pay? By Swish to 123 704 88 20 or to my business account at Swedbank, 8327-9, 903 671 334-6. Write the order number as the message. If you choose Swish, the order page shows a Swish code with the amount and order number filled in. The order is confirmed as soon as the payment has arrived.",
                     "How long is the delivery time? Prints are made to order and usually ship within a few days. If you order a frame, add about a week. Originals ship once payment has arrived.",
                     "Do I have a right of withdrawal? Yes. As a private customer you have 14 days from the day you receive the work. Let me know within that time and return the work undamaged; you pay the return shipping. I refund when the work has arrived.",
                     "Can I buy the suns from 100 days of sun? Yes, as fine art prints. All one hundred suns can be ordered individually, in different sizes, on the 100 days of sun page. The originals are not for sale.",
@@ -4275,9 +4275,9 @@ window.PORTFOLIO_OVERRIDES = {
                         "updatedAt": "2026-10-02T08:51:48.010Z"
                     },
                     "array:about.faqItems[0]": {
-                        "sourceHash": "aad261bb",
-                        "translatedValue": "How do I buy a painting? Open the work in the gallery and send the inquiry form at the bottom of its page. The inquiry is not binding. I reply with a total and payment details.",
-                        "updatedAt": "2026-10-04T07:40:14.514Z"
+                        "sourceHash": "482ea377",
+                        "translatedValue": "How do I buy a painting? Open the work in the gallery and press Buy the original. At checkout you enter a delivery address and choose Swish or bank transfer, and then get an order page with payment details and an order number. The work is reserved for you as soon as you order. If you would rather ask something first, there is a form at the bottom of the work's page.",
+                        "updatedAt": "2026-10-13T13:39:41.000Z"
                     },
                     "array:about.faqItems[1]": {
                         "sourceHash": "db2e20ee",
@@ -4305,14 +4305,14 @@ window.PORTFOLIO_OVERRIDES = {
                         "updatedAt": "2026-10-04T07:40:14.514Z"
                     },
                     "array:about.faqItems[6]": {
-                        "sourceHash": "8afa0cb8",
-                        "translatedValue": "What does shipping cost? For prints, shipping within Sweden is 150 SEK per order, however many suns you order. For originals, shipping is added, within Sweden usually 150–250 SEK. Outside Sweden: price on request.",
-                        "updatedAt": "2026-10-04T07:40:14.514Z"
+                        "sourceHash": "9366131e",
+                        "translatedValue": "What does shipping cost? 150 SEK per order within Sweden, for originals as well as prints, however many works you order. Outside Sweden: price on request.",
+                        "updatedAt": "2026-10-13T13:39:41.000Z"
                     },
                     "array:about.faqItems[7]": {
-                        "sourceHash": "aa9cc466",
-                        "translatedValue": "How do I pay? By Swish to 123 704 88 20 or to my business account at Swedbank, 8327-9, 903 671 334-6. Write your name and the title of the work or the sun numbers as the message. Prints can be paid as soon as you have sent the order. For originals, wait for my confirmation with the total.",
-                        "updatedAt": "2026-10-07T12:42:56.186Z"
+                        "sourceHash": "dfe6c2c8",
+                        "translatedValue": "How do I pay? By Swish to 123 704 88 20 or to my business account at Swedbank, 8327-9, 903 671 334-6. Write the order number as the message. If you choose Swish, the order page shows a Swish code with the amount and order number filled in. The order is confirmed as soon as the payment has arrived.",
+                        "updatedAt": "2026-10-13T13:39:41.000Z"
                     },
                     "array:about.faqItems[8]": {
                         "sourceHash": "d73bf55d",
