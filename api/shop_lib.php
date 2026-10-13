@@ -73,6 +73,13 @@ CREATE TABLE IF NOT EXISTS shop_order_items (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 SQL
   );
+  api_schema_add_column_if_missing($pdo, 'shop_orders', 'payment_choice', "VARCHAR(16) NOT NULL DEFAULT 'swish'");
+}
+
+// Betalsätt kunden valt i kassan: swish eller bank.
+function shop_payment_choice(array $order): string
+{
+  return isset($order['payment_choice']) && $order['payment_choice'] === 'bank' ? 'bank' : 'swish';
 }
 
 function shop_payload(): array
@@ -477,6 +484,23 @@ function shop_cancel_order(PDO $pdo, array $order): array
   return shop_find_order_by_id($pdo, (int) $order['id']) ?? $order;
 }
 
+// Kunden avbryter själv från ordersidan, bara så länge ordern inte är betald.
+function shop_customer_cancel(PDO $pdo, array $order): array
+{
+  if ($order['status'] !== 'pending') {
+    throw new InvalidArgumentException('Ordern är redan betald. Mejla ola@olagustafsson.com om du vill ångra köpet.');
+  }
+  $updated = shop_cancel_order($pdo, $order);
+  $lang = $updated['language'] === 'en' ? 'en' : 'sv';
+  $subject = $lang === 'en' ? "Order {$updated['order_no']} cancelled" : "Beställning {$updated['order_no']} avbruten";
+  $body = $lang === 'en'
+    ? "Hi {$updated['customer_name']},\n\nYour order {$updated['order_no']} has been cancelled as requested. Nothing has been charged.\n\nOla Gustafsson\nola@olagustafsson.com"
+    : "Hej {$updated['customer_name']},\n\nDin beställning {$updated['order_no']} är avbruten enligt önskemål. Inget har debiterats.\n\nOla Gustafsson\nola@olagustafsson.com";
+  api_security_send_mail($updated['customer_email'], $subject, $body, api_security_contact_recipient());
+  api_security_send_mail(api_security_contact_recipient(), "Kunden avbröt beställning {$updated['order_no']}", "Kunden {$updated['customer_name']} avbröt beställning {$updated['order_no']} (" . shop_money((int) $updated['total_sek']) . ") från ordersidan innan betalning.\n", $updated['customer_email']);
+  return $updated;
+}
+
 function shop_complete_order(PDO $pdo, array $order): array
 {
   if ($order['status'] !== 'shipped') {
@@ -519,11 +543,12 @@ function shop_send_order_mails(array $order, string $lang): bool
   $details = seo_payment_details($payload);
   $url = shop_order_url($order, $lang);
   $summary = shop_order_summary_text($order, $lang);
+  $choice = shop_payment_choice($order);
   $pay = [];
-  if ($details['swish'] !== '') {
-    $pay[] = ($lang === 'en' ? 'Swish ' : 'Swish ') . $details['swish'];
+  if ($details['swish'] !== '' && ($choice === 'swish' || $details['bank'] === '')) {
+    $pay[] = 'Swish ' . $details['swish'];
   }
-  if ($details['bank'] !== '') {
+  if ($details['bank'] !== '' && ($choice === 'bank' || $details['swish'] === '')) {
     $pay[] = ($lang === 'en' ? 'bank transfer to ' : 'bankkonto ') . $details['bank'];
   }
   $payText = $pay !== [] ? implode($lang === 'en' ? ' or ' : ' eller ', $pay) : '';
@@ -531,8 +556,8 @@ function shop_send_order_mails(array $order, string $lang): bool
   if ($lang === 'en') {
     $customerSubject = sprintf('Order %s – Ola Gustafsson', $order['order_no']);
     $customerBody = "Hi {$order['customer_name']},\n\nThank you for your order.\n\n{$summary}\n\n"
-      . "Pay {$payText}. Write {$order['order_no']} as the message, and the order is confirmed as soon as the payment has arrived.\n"
-      . "On the order page there is a Swish code with the amount and order number filled in.\n\n"
+      . "Pay by {$payText}. Write {$order['order_no']} as the message, and the order is confirmed as soon as the payment has arrived.\n"
+      . ($choice === 'swish' ? "On the order page there is a Swish code with the amount and order number filled in.\n\n" : "\n")
       . "Order page with status and payment details: {$url}\n\n"
       . "Delivery to:\n{$order['customer_name']}\n{$order['address_line']}\n{$order['postal_code']} {$order['city']}\n\n"
       . "As a private customer you have a 14-day right of withdrawal from the day you receive the work.\n\nOla Gustafsson\nola@olagustafsson.com";
@@ -540,14 +565,14 @@ function shop_send_order_mails(array $order, string $lang): bool
     $customerSubject = sprintf('Beställning %s – Ola Gustafsson', $order['order_no']);
     $customerBody = "Hej {$order['customer_name']},\n\nTack för din beställning.\n\n{$summary}\n\n"
       . "Betala med {$payText}. Skriv {$order['order_no']} som meddelande, så bekräftas beställningen så snart betalningen kommit in.\n"
-      . "På ordersidan finns en Swish-kod med belopp och ordernummer ifyllda.\n\n"
+      . ($choice === 'swish' ? "På ordersidan finns en Swish-kod med belopp och ordernummer ifyllda.\n\n" : "\n")
       . "Ordersidan med status och betalningsuppgifter: {$url}\n\n"
       . "Leverans till:\n{$order['customer_name']}\n{$order['address_line']}\n{$order['postal_code']} {$order['city']}\n\n"
       . "Som privatperson har du 14 dagars ångerrätt från att du tagit emot verket.\n\nOla Gustafsson\nola@olagustafsson.com";
   }
   $customerOk = api_security_send_mail($order['customer_email'], $customerSubject, $customerBody, api_security_contact_recipient());
 
-  $adminBody = "Ny beställning {$order['order_no']}\n\n{$summary}\n\n"
+  $adminBody = "Ny beställning {$order['order_no']}\n\n{$summary}\n\nKunden betalar med: " . ($choice === 'bank' ? 'bankkonto' : 'Swish') . "\n"
     . "Kund: {$order['customer_name']} <{$order['customer_email']}>" . ($order['customer_phone'] ? ", {$order['customer_phone']}" : '') . "\n"
     . "Adress: {$order['address_line']}, {$order['postal_code']} {$order['city']}\n"
     . ($order['note'] ? "Meddelande: {$order['note']}\n" : '')
@@ -569,9 +594,9 @@ function shop_create_order(PDO $pdo, array $lines, array $customer, string $lang
     $orderNo = shop_next_order_no($pdo);
     $stmt = $pdo->prepare(
       'INSERT INTO shop_orders (order_no, token, status, language, customer_name, customer_email, customer_phone, address_line, postal_code, city, country, note,
-        subtotal_sek, shipping_sek, shipping_vat_rate, total_sek, vat_sek, ip_hash)
+        subtotal_sek, shipping_sek, shipping_vat_rate, total_sek, vat_sek, ip_hash, payment_choice)
        VALUES (:order_no, :token, \'pending\', :language, :name, :email, :phone, :address, :postal, :city, \'SE\', :note,
-        :subtotal, :shipping, :shipping_vat_rate, :total, :vat, :ip_hash)'
+        :subtotal, :shipping, :shipping_vat_rate, :total, :vat, :ip_hash, :payment_choice)'
     );
     $stmt->execute([
       ':order_no' => $orderNo,
@@ -589,7 +614,8 @@ function shop_create_order(PDO $pdo, array $lines, array $customer, string $lang
       ':shipping_vat_rate' => $totals['shippingVatRate'],
       ':total' => $totals['total'],
       ':vat' => $totals['vat'],
-      ':ip_hash' => api_security_hash('ip:' . api_security_client_ip())
+      ':ip_hash' => api_security_hash('ip:' . api_security_client_ip()),
+      ':payment_choice' => ($customer['payment'] ?? '') === 'bank' ? 'bank' : 'swish'
     ]);
     $orderId = (int) $pdo->lastInsertId();
 

@@ -3571,7 +3571,7 @@ const renderOrdersPanel = (orders) => {
           <div class="order-action-row">
             <label>Mottaget belopp <input type="number" min="0" step="1" value="${Number(order.total_sek) || 0}" data-order-field="paidAmount" /></label>
             <label>Betalsätt
-              <select data-order-field="method"><option value="swish">Swish</option><option value="bank">Bankkonto</option><option value="other">Annat</option></select>
+              <select data-order-field="method"><option value="swish" ${order.payment_choice !== 'bank' ? 'selected' : ''}>Swish</option><option value="bank" ${order.payment_choice === 'bank' ? 'selected' : ''}>Bankkonto</option><option value="other">Annat</option></select>
             </label>
             <button type="button" class="btn btn-primary" data-order-action="mark_paid" data-confirm="Markera ${escapeHtml(order.order_no)} som betald? Kunden får ett mejl om att betalningen kommit in, och original i ordern blir sålda.">Markera betald</button>
             <button type="button" class="btn btn-ghost" data-order-action="cancel" data-confirm="Avbryt ordern ${escapeHtml(order.order_no)}? Reserverade original blir tillgängliga igen.">Avbryt order</button>
@@ -3605,7 +3605,7 @@ const renderOrdersPanel = (orders) => {
           <li class="order-card-total"><span>Att betala<small>varav moms ${formatOrderAmount(order.vat_sek)}</small></span><span>${formatOrderAmount(order.total_sek)}</span></li>
         </ul>
         <p class="inquiry-message"><strong>Leverans:</strong> ${escapeHtml(`${order.customer_name}, ${order.address_line}, ${order.postal_code} ${order.city}`)}${order.note ? `<br /><strong>Kundens meddelande:</strong> ${escapeHtml(order.note)}` : ''}</p>
-        <div class="inquiry-badges">${paidInfo}${shippedInfo}<span class="inquiry-chip">${Number(order.mail_delivered) === 1 ? 'Bekräftelse mejlad' : 'Mejl ej levererat'}</span></div>
+        <div class="inquiry-badges"><span class="inquiry-chip">Vill betala med ${order.payment_choice === 'bank' ? 'bankkonto' : 'Swish'}</span>${paidInfo}${shippedInfo}<span class="inquiry-chip">${Number(order.mail_delivered) === 1 ? 'Bekräftelse mejlad' : 'Mejl ej levererat'}</span></div>
         ${actions}
         <div class="order-action-row order-note-row">
           <label>Egen anteckning <input type="text" value="${escapeHtml(order.admin_note || '')}" data-order-field="adminNote" placeholder="t.ex. tryck beställt 14/10" /></label>

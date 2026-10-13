@@ -31,6 +31,9 @@ $pageTitle = $order
   ? sprintf($t('Beställning %s | Ola Gustafsson', 'Order %s | Ola Gustafsson'), $order['order_no'])
   : $t('Beställningen hittades inte | Ola Gustafsson', 'Order not found | Ola Gustafsson');
 $swishQrUrl = $order && seo_payment_details($payload)['swish'] !== '' ? shop_swish_qr_url($order) : '';
+$paymentChoice = $order ? shop_payment_choice($order) : 'swish';
+$showSwish = $swishQrUrl !== '' && ($paymentChoice === 'swish' || $paymentDetails['bank'] === '');
+$showBank = $paymentDetails['bank'] !== '' && ($paymentChoice === 'bank' || $swishQrUrl === '');
 $status = $order ? (string) $order['status'] : '';
 ?>
 <!DOCTYPE html>
@@ -49,11 +52,11 @@ $status = $order ? (string) $order['status'] : '';
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
       <link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" />
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20261013-03" />
+    <link rel="stylesheet" href="styles.css?v=20261013-04" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <script src="script.js?v=20261007-03" defer></script>
-    <script src="shop.js?v=20261013-03" defer></script>
+    <script src="shop.js?v=20261013-04" defer></script>
   </head>
   <body id="page-top" data-page="order">
     <header class="site-header" id="top">
@@ -110,21 +113,28 @@ $status = $order ? (string) $order['status'] : '';
                   <section class="surface-soft order-pay">
                     <h2><?= $h($t('Så betalar du', 'How to pay')) ?></h2>
                     <p class="order-pay-amount"><span><?= $h($t('Att betala', 'To pay')) ?></span><strong><?= $h(shop_money((int) $order['total_sek'], $lang)) ?></strong></p>
-                    <div class="order-pay-grid">
-                      <?php if ($swishQrUrl !== ''): ?>
+                    <div class="order-pay-grid<?= $showSwish ? '' : ' is-bank-only' ?>">
+                      <?php if ($showSwish): ?>
                         <div class="order-pay-swish">
                           <img class="order-swish-qr" src="<?= $h($swishQrUrl) ?>" width="200" height="200" alt="<?= $h($t('Swish-kod med belopp och ordernummer', 'Swish code with amount and order number')) ?>" />
                           <p><strong>Swish <?= $h($paymentDetails['swish']) ?></strong><br /><?= $h($t('Öppna Swish, välj Skanna och rikta kameran mot koden. Belopp och ordernummer är ifyllda.', 'Open Swish, choose Scan and point the camera at the code. Amount and order number are filled in.')) ?></p>
                         </div>
                       <?php endif; ?>
                       <div class="order-pay-bank">
-                        <?php if ($paymentDetails['bank'] !== ''): ?>
+                        <?php if ($showBank): ?>
                           <p><strong><?= $h($t('Bankkonto', 'Bank account')) ?></strong><br /><?= $h($paymentDetails['bank']) ?></p>
+                          <p><strong><?= $h($t('Belopp', 'Amount')) ?></strong><br /><?= $h(shop_money((int) $order['total_sek'], $lang)) ?></p>
                         <?php endif; ?>
                         <p><strong><?= $h($t('Meddelande', 'Message')) ?></strong><br /><?= $h($order['order_no']) ?></p>
-                        <p class="field-hint"><?= $h($t('Beställningen bekräftas så snart betalningen kommit in. Du får ett mejl med kvitto.', 'The order is confirmed as soon as the payment has arrived. You will get an email with a receipt.')) ?></p>
+                        <p class="field-hint"><?= $h($t('Beställningen bekräftas så snart betalningen kommit in. Du får ett mejl när den är registrerad.', 'The order is confirmed as soon as the payment has arrived. You will get an email when it is registered.')) ?></p>
+                        <?php if ($showSwish && $paymentDetails['bank'] !== ''): ?>
+                          <p class="field-hint"><?= $h($t('Vill du hellre betala via bankkonto: ', 'Prefer a bank transfer: ') . $paymentDetails['bank'] . $t(', med ordernumret som meddelande.', ', with the order number as the message.')) ?></p>
+                        <?php elseif ($showBank && $swishQrUrl !== ''): ?>
+                          <p class="field-hint"><?= $h($t('Vill du hellre swisha: ', 'Prefer Swish: ') . $paymentDetails['swish'] . $t(', samma belopp och meddelande.', ', same amount and message.')) ?></p>
+                        <?php endif; ?>
                       </div>
                     </div>
+                    <p class="order-cancel-row"><button type="button" class="checkout-remove" data-order-cancel="<?= $h((string) $order['token']) ?>"><?= $h($t('Avbryt beställningen', 'Cancel the order')) ?></button> <span class="field-hint"><?= $h($t('Går så länge den inte är betald. Efter betalning: mejla ola@olagustafsson.com, ångerrätten är 14 dagar från leverans.', 'Possible until it is paid. After payment: email ola@olagustafsson.com; the right of withdrawal is 14 days from delivery.')) ?></span></p>
                   </section>
                 <?php elseif ($status === 'paid'): ?>
                   <section class="surface-soft order-pay">

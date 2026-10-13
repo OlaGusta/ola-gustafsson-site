@@ -254,6 +254,11 @@
               <label>${esc(T('Ort', 'City'))}<input type="text" name="city" autocomplete="address-level2" required /></label>
             </div>
             <label>${esc(T('Meddelande', 'Message'))} <small>${esc(T('(valfritt)', '(optional)'))}</small><textarea name="note" rows="3"></textarea></label>
+            <fieldset class="checkout-payment">
+              <legend>${esc(T('Betalsätt', 'Payment method'))}</legend>
+              ${app.dataset.swish ? `<label class="checkout-payment-option"><input type="radio" name="payment" value="swish" checked /> <span><strong>Swish</strong><small>${esc(T('Du får en Swish-kod med belopp och ordernummer ifyllda.', 'You get a Swish code with the amount and order number filled in.'))}</small></span></label>` : ''}
+              ${app.dataset.bank ? `<label class="checkout-payment-option"><input type="radio" name="payment" value="bank" ${app.dataset.swish ? '' : 'checked'} /> <span><strong>${esc(T('Bankkonto', 'Bank transfer'))}</strong><small>${esc(T('Överföring till', 'Transfer to'))} ${esc(app.dataset.bank)}. ${esc(T('Ordernumret som meddelande.', 'Order number as the message.'))}</small></span></label>` : ''}
+            </fieldset>
             <label class="contact-honeypot" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
             <label class="checkout-terms"><input type="checkbox" name="terms" required /> <span>${esc(T('Jag godkänner köpvillkoren: betalning med Swish eller bankgiro inom 7 dagar, leverans inom Sverige, 14 dagars ångerrätt från mottagandet.', 'I accept the terms: payment by Swish or bank transfer within 7 days, delivery within Sweden, 14-day right of withdrawal from receipt.'))} <a href="${esc(app.dataset.termsUrl || '/#faq')}" target="_blank" rel="noopener">${esc(T('Läs mer', 'Read more'))}</a></span></label>
             <div id="checkout-turnstile" class="contact-turnstile" hidden></div>
@@ -281,14 +286,19 @@
     const saveCustomer = (form) => {
       try {
         const data = new FormData(form);
-        window.sessionStorage.setItem(CUSTOMER_STORE, JSON.stringify(['name', 'email', 'phone', 'address', 'postal', 'city', 'note'].map((key) => [key, String(data.get(key) || '')])));
+        window.sessionStorage.setItem(CUSTOMER_STORE, JSON.stringify(['name', 'email', 'phone', 'address', 'postal', 'city', 'note', 'payment'].map((key) => [key, String(data.get(key) || '')])));
       } catch (error) { /* ingen lagring */ }
     };
     const restoreCustomer = (form) => {
       try {
         const stored = JSON.parse(window.sessionStorage.getItem(CUSTOMER_STORE) || 'null');
         if (Array.isArray(stored)) {
-          stored.forEach(([key, value]) => { const field = form.elements[key]; if (field) field.value = value; });
+          stored.forEach(([key, value]) => {
+            const field = form.elements[key];
+            if (!field) return;
+            if (key === 'payment') { const radio = form.querySelector(`input[name="payment"][value="${value}"]`); if (radio) radio.checked = true; return; }
+            field.value = value;
+          });
         }
       } catch (error) { /* ingen lagring */ }
     };
@@ -355,7 +365,7 @@
         return;
       }
       const data = new FormData(form);
-      const customer = Object.fromEntries(['name', 'email', 'phone', 'address', 'postal', 'city', 'note'].map((key) => [key, String(data.get(key) || '').trim()]));
+      const customer = Object.fromEntries(['name', 'email', 'phone', 'address', 'postal', 'city', 'note', 'payment'].map((key) => [key, String(data.get(key) || '').trim()]));
       if (!customer.name || !customer.email || !customer.address || !customer.postal || !customer.city) {
         setStatus(T('Fyll i namn, e-post och leveransadress.', 'Fill in name, email and delivery address.'), 'error');
         return;
@@ -414,10 +424,42 @@
   };
 
 
+  // Ordersidan: kunden kan avbryta en obetald beställning.
+  const initOrderCancel = () => {
+    const button = document.querySelector('[data-order-cancel]');
+    if (!button) {
+      return;
+    }
+    button.addEventListener('click', async () => {
+      if (!window.confirm(T('Avbryta beställningen? Reserverade verk släpps och ingenting debiteras.', 'Cancel the order? Reserved works are released and nothing is charged.'))) {
+        return;
+      }
+      button.disabled = true;
+      try {
+        const response = await fetch('api/order-cancel.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ token: button.dataset.orderCancel })
+        });
+        const payload = await response.json().catch(() => null);
+        if (!response.ok || !payload || payload.ok !== true) {
+          window.alert(payload && payload.message ? payload.message : T('Beställningen kunde inte avbrytas.', 'The order could not be cancelled.'));
+          button.disabled = false;
+          return;
+        }
+        window.location.reload();
+      } catch (error) {
+        button.disabled = false;
+      }
+    });
+  };
+
   const start = () => {
     renderCartLink();
     bindAddButtons();
     initCheckout();
+    initOrderCancel();
   };
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', start);

@@ -51,7 +51,8 @@ $customer = [
   'address' => $clean($customerRaw['address'] ?? '', 190),
   'postal' => $clean($customerRaw['postal'] ?? '', 16),
   'city' => $clean($customerRaw['city'] ?? '', 80),
-  'note' => is_string($customerRaw['note'] ?? null) ? (function_exists('mb_substr') ? (string) mb_substr(trim($customerRaw['note']), 0, 2000) : substr(trim($customerRaw['note']), 0, 2000)) : ''
+  'note' => is_string($customerRaw['note'] ?? null) ? (function_exists('mb_substr') ? (string) mb_substr(trim($customerRaw['note']), 0, 2000) : substr(trim($customerRaw['note']), 0, 2000)) : '',
+  'payment' => ($customerRaw['payment'] ?? '') === 'bank' ? 'bank' : 'swish'
 ];
 
 $missing = [];
