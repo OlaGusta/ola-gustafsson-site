@@ -21,6 +21,13 @@ api_ensure_schema($pdo);
 if ($method === 'POST') {
   $request = api_decode_request_json();
   $id = isset($request['id']) ? (int) $request['id'] : 0;
+  if (($request['action'] ?? '') === 'delete') {
+    if ($id <= 0) {
+      api_respond_json(422, ['ok' => false, 'error' => 'invalid_request', 'message' => 'Ogiltigt id.']);
+    }
+    $pdo->prepare('DELETE FROM contact_messages WHERE id = :id')->execute([':id' => $id]);
+    api_respond_json(200, ['ok' => true, 'id' => $id, 'deleted' => true]);
+  }
   $followUpStatus = isset($request['followUpStatus']) && is_string($request['followUpStatus'])
     ? trim($request['followUpStatus'])
     : '';

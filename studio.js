@@ -3463,10 +3463,33 @@ const renderInquiriesPanel = () => {
           <span class="inquiry-chip">${delivered ? 'Mail skickat' : 'Mail ej skickat'}</span>
         </div>
         ${message ? `<p class="inquiry-message">${escapeHtml(message)}</p>` : ''}
-        ${sourceUrl ? `<p class="inquiry-link-row"><a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer">Öppna verk-sida</a></p>` : ''}
+        <div class="inquiry-tools">
+          ${sourceUrl ? `<a class="btn btn-ghost" href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer">Öppna verk-sida</a>` : ''}
+          <button type="button" class="btn btn-ghost" data-inquiry-tool="order">Skapa order</button>
+          <button type="button" class="btn btn-ghost" data-inquiry-tool="mail">Mejlmall</button>
+          <button type="button" class="btn btn-ghost btn-danger" data-inquiry-tool="delete">Ta bort</button>
+        </div>
+        <div class="inquiry-tool-panel" data-inquiry-panel hidden></div>
       </article>`;
     })
     .join('');
+
+  el.inquiriesPanelList.querySelectorAll('[data-inquiry-tool]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const card = button.closest('.inquiry-card');
+      const id = Number(card && card.getAttribute('data-id'));
+      const item = uiState.inquiriesData.find((entry) => Number(entry && entry.id) === id);
+      if (!item) return;
+      const tool = button.getAttribute('data-inquiry-tool');
+      if (tool === 'delete') {
+        deleteInquiry(item);
+      } else if (tool === 'order') {
+        openInquiryOrderForm(card, item);
+      } else if (tool === 'mail') {
+        openInquiryMailTemplate(card, item);
+      }
+    });
+  });
 
   el.inquiriesPanelList.querySelectorAll('[data-action="follow-up"]').forEach((selectNode) => {
     selectNode.addEventListener('change', async () => {
@@ -3497,6 +3520,205 @@ const renderInquiriesPanel = () => {
       }
     });
   });
+};
+
+// ---- Förfrågan → ta bort / skapa order / mejlmall ----------------------------
+const deleteInquiry = async (item) => {
+  const label = item.inquiry_title || item.name || `#${item.id}`;
+  if (!window.confirm(`Ta bort förfrågan "${label}" permanent?`)) return;
+  try {
+    setInquiriesPanelStatus('Tar bort förfrågan...', 'info');
+    await apiJson('api/inquiries.php', { method: 'POST', withCsrf: isSecureAuthStudio(), body: { action: 'delete', id: Number(item.id) } });
+    uiState.inquiriesData = uiState.inquiriesData.filter((entry) => Number(entry && entry.id) !== Number(item.id));
+    renderInquiriesPanel();
+    setInquiriesPanelStatus('Förfrågan borttagen.', 'success');
+  } catch (error) {
+    setInquiriesPanelStatus(error instanceof Error && error.message ? error.message : 'Kunde inte ta bort förfrågan.', 'error');
+  }
+};
+
+const toggleInquiryPanel = (card, key) => {
+  const panel = card.querySelector('[data-inquiry-panel]');
+  if (!panel) return null;
+  if (!panel.hidden && panel.dataset.tool === key) {
+    panel.hidden = true;
+    panel.innerHTML = '';
+    return null;
+  }
+  panel.dataset.tool = key;
+  panel.hidden = false;
+  return panel;
+};
+
+let studioOrderCatalog = null;
+const loadStudioOrderCatalog = async () => {
+  if (studioOrderCatalog) return studioOrderCatalog;
+  const response = await apiJson('api/orders.php?catalog=1', { method: 'GET', withCsrf: isSecureAuthStudio() });
+  studioOrderCatalog = { artworks: Array.isArray(response.artworks) ? response.artworks : [], shipping: Number(response.shipping) || 0 };
+  return studioOrderCatalog;
+};
+
+const openInquiryOrderForm = async (card, item) => {
+  const panel = toggleInquiryPanel(card, 'order');
+  if (!panel) return;
+  panel.innerHTML = '<p class="field-hint">Hämtar verk...</p>';
+  let catalog;
+  try {
+    catalog = await loadStudioOrderCatalog();
+  } catch (error) {
+    panel.innerHTML = `<p class="field-hint">${escapeHtml(error instanceof Error ? error.message : 'Kunde inte hämta verk.')}</p>`;
+    return;
+  }
+  const slug = String(item.inquiry_slug || '').trim();
+  const lang = String(item.inquiry_language || 'sv') === 'en' ? 'en' : 'sv';
+  const options = catalog.artworks
+    .map((art) => `<option value="${escapeHtml(art.slug)}" data-price="${Number(art.price) || 0}" data-mat="${Number(art.matPrice) || 0}" data-mat-class="${escapeHtml(art.matClass || '')}" ${art.slug === slug ? 'selected' : ''}>${escapeHtml(art.title)} – ${Number(art.price || 0).toLocaleString('sv-SE')} kr${art.availability === 'reserved' ? ' (reserverad)' : ''}</option>`)
+    .join('');
+  panel.innerHTML = `
+    <form class="inquiry-order-form" novalidate>
+      <h4>Skapa order åt kunden</h4>
+      <div class="order-action-row">
+        <label>Verk <select name="slug">${options || '<option value="">Inga original till salu</option>'}</select></label>
+        <label class="inquiry-order-check"><input type="checkbox" name="mat" /> <span>Passepartout + bakstycke (<span data-mat-price>0</span> kr)</span></label>
+      </div>
+      <div class="order-action-row">
+        <label>Namn <input type="text" name="name" value="${escapeHtml(item.name || '')}" required /></label>
+        <label>E-post <input type="email" name="email" value="${escapeHtml(item.email || '')}" required /></label>
+        <label>Telefon <input type="text" name="phone" /></label>
+      </div>
+      <div class="order-action-row">
+        <label>Adress <input type="text" name="address" placeholder="kan lämnas tom" /></label>
+        <label>Postnr <input type="text" name="postal" /></label>
+        <label>Ort <input type="text" name="city" /></label>
+      </div>
+      <div class="order-action-row">
+        <label>Betalsätt <select name="payment"><option value="swish">Swish</option><option value="bank">Bankkonto</option></select></label>
+        <label>Språk <select name="lang"><option value="sv" ${lang === 'sv' ? 'selected' : ''}>Svenska</option><option value="en" ${lang === 'en' ? 'selected' : ''}>English</option></select></label>
+        <label class="inquiry-order-check"><input type="checkbox" name="notify" checked /> <span>Mejla kunden ordern (betalningsuppgifter + ordersida)</span></label>
+      </div>
+      <label class="inquiry-order-intro">Inledning i kundens mejl <small>(valfritt, ersätter "Tack för din beställning.")</small><textarea name="intro" rows="2">Tack för ditt intresse, här kommer beställningen vi pratat om.</textarea></label>
+      <p class="field-hint" data-order-total></p>
+      <div class="order-action-row">
+        <button type="submit" class="btn btn-primary">Skapa order</button>
+        <span class="field-hint">Verket reserveras direkt. Du markerar betald under Ordrar när pengarna kommit in.</span>
+      </div>
+    </form>`;
+  const form = panel.querySelector('form');
+  const slugSelect = form.elements.slug;
+  const matBox = form.elements.mat;
+  const updateTotal = () => {
+    const opt = slugSelect.options[slugSelect.selectedIndex];
+    const price = opt ? Number(opt.dataset.price) || 0 : 0;
+    const mat = opt ? Number(opt.dataset.mat) || 0 : 0;
+    panel.querySelector('[data-mat-price]').textContent = mat.toLocaleString('sv-SE');
+    matBox.disabled = mat <= 0;
+    if (mat <= 0) matBox.checked = false;
+    const total = price + (matBox.checked ? mat : 0) + catalog.shipping;
+    panel.querySelector('[data-order-total]').textContent = opt ? `Att betala: ${total.toLocaleString('sv-SE')} kr inkl. frakt ${catalog.shipping} kr.` : '';
+  };
+  slugSelect.addEventListener('change', updateTotal);
+  matBox.addEventListener('change', updateTotal);
+  updateTotal();
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const data = new FormData(form);
+    const value = (key) => String(data.get(key) || '').trim();
+    if (!value('slug')) {
+      setInquiriesPanelStatus('Välj ett verk.', 'error');
+      return;
+    }
+    if (!window.confirm(`Skapa order på "${slugSelect.options[slugSelect.selectedIndex].textContent.trim()}" till ${value('email')}?${data.get('notify') ? ' Kunden får ett mejl direkt.' : ' Inget mejl skickas till kunden.'}`)) return;
+    const button = form.querySelector('button[type="submit"]');
+    button.disabled = true;
+    try {
+      setInquiriesPanelStatus('Skapar order...', 'info');
+      const response = await apiJson('api/orders.php', {
+        method: 'POST',
+        withCsrf: isSecureAuthStudio(),
+        body: {
+          action: 'create',
+          inquiryId: Number(item.id),
+          lang: value('lang'),
+          notify: Boolean(data.get('notify')),
+          intro: value('intro'),
+          items: [{ kind: 'original', ref: value('slug'), mat: Boolean(data.get('mat')) }],
+          customer: { name: value('name'), email: value('email'), phone: value('phone'), address: value('address'), postal: value('postal'), city: value('city'), note: '', payment: value('payment') }
+        }
+      });
+      const order = response.order || {};
+      uiState.inquiriesData = uiState.inquiriesData.map((entry) => (Number(entry && entry.id) === Number(item.id) && entry.follow_up_status === 'new' ? { ...entry, follow_up_status: 'replied' } : entry));
+      renderInquiriesPanel();
+      setInquiriesPanelStatus(`Order ${order.order_no || ''} skapad${response.mailDelivered ? ', kunden mejlad' : data.get('notify') ? ', men mejlet kunde inte levereras' : ''}. Ordersida: ${order.order_url || ''}`, 'success');
+      studioOrderCatalog = null;
+      autoLoadPublishedState();
+      if (typeof fetchOrdersPanel === 'function') fetchOrdersPanel();
+    } catch (error) {
+      setInquiriesPanelStatus(error instanceof Error && error.message ? error.message : 'Kunde inte skapa ordern.', 'error');
+      button.disabled = false;
+    }
+  });
+};
+
+const buildInquiryMailTemplate = (item, variant) => {
+  const slug = String(item.inquiry_slug || '').trim();
+  const title = String(item.inquiry_title || 'verket').trim();
+  const firstName = String(item.name || '').trim().split(/\s+/)[0] || '';
+  const url = slug ? `${window.location.origin}/verk/${encodeURIComponent(slug)}` : `${window.location.origin}/gallery.html`;
+  const until = new Date();
+  until.setDate(until.getDate() + 7);
+  const untilLabel = until.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
+  const price = String(item.inquiry_price_label || '').trim();
+  if (variant === 'taken') {
+    return {
+      subject: `Angående "${title}"`,
+      body: `Hej ${firstName},\n\nTack för ditt intresse för "${title}". Verket är just nu tingat av en annan köpare till och med ${untilLabel}. Blir det ledigt hör jag av mig direkt.\n\nFler verk som är lediga hittar du här: ${window.location.origin}/gallery.html\n\nVänliga hälsningar\nOla Gustafsson\nola@olagustafsson.com`
+    };
+  }
+  return {
+    subject: `"${title}" – så beställer du`,
+    body: `Hej ${firstName},\n\nTack för ditt intresse för "${title}". Verket är ledigt och jag håller det för dig till och med ${untilLabel}.\n\nDu beställer enklast här: ${url}\nTryck "Köp originalet", fyll i adress och välj Swish eller bankkonto. Du får en ordersida med betalningsuppgifter och ordernummer.${price ? ` Pris ${price}.` : ''} Frakt inom Sverige 150 kr.\n\nVill du ha det monterat med passepartout eller i ram ordnar jag det mot materialkostnad plus 300 kr i serviceavgift. Säg till så räknar jag på det.\n\nVänliga hälsningar\nOla Gustafsson\nola@olagustafsson.com`
+  };
+};
+
+const openInquiryMailTemplate = (card, item) => {
+  const panel = toggleInquiryPanel(card, 'mail');
+  if (!panel) return;
+  const render = (variant) => {
+    const tpl = buildInquiryMailTemplate(item, variant);
+    panel.innerHTML = `
+      <div class="inquiry-mail-template">
+        <div class="order-action-row">
+          <label>Mall <select data-mail-variant><option value="order" ${variant === 'order' ? 'selected' : ''}>Beställ via sajten (förtur 7 dagar)</option><option value="taken" ${variant === 'taken' ? 'selected' : ''}>Tingat av annan köpare</option></select></label>
+          <label>Ämne <input type="text" value="${escapeHtml(tpl.subject)}" data-mail-subject /></label>
+        </div>
+        <textarea rows="12" data-mail-body>${escapeHtml(tpl.body)}</textarea>
+        <div class="order-action-row">
+          <a class="btn btn-primary" data-mail-open href="#">Öppna i mejlprogrammet</a>
+          <button type="button" class="btn btn-ghost" data-mail-copy>Kopiera texten</button>
+          <span class="field-hint">Sätt förfrågan till Besvarad när mejlet gått iväg.</span>
+        </div>
+      </div>`;
+    const subjectInput = panel.querySelector('[data-mail-subject]');
+    const bodyArea = panel.querySelector('[data-mail-body]');
+    const openLink = panel.querySelector('[data-mail-open]');
+    const syncLink = () => {
+      openLink.href = `mailto:${encodeURIComponent(String(item.email || ''))}?subject=${encodeURIComponent(subjectInput.value)}&body=${encodeURIComponent(bodyArea.value)}`;
+    };
+    subjectInput.addEventListener('input', syncLink);
+    bodyArea.addEventListener('input', syncLink);
+    syncLink();
+    panel.querySelector('[data-mail-variant]').addEventListener('change', (event) => render(event.target.value));
+    panel.querySelector('[data-mail-copy]').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(`${subjectInput.value}\n\n${bodyArea.value}`);
+        setInquiriesPanelStatus('Mejltexten kopierad.', 'success');
+      } catch (error) {
+        bodyArea.select();
+        setInquiriesPanelStatus('Markera texten och kopiera manuellt.', 'info');
+      }
+    });
+  };
+  render('order');
 };
 
 const fetchInquiriesPanel = async () => {
@@ -3573,7 +3795,8 @@ const renderOrdersPanel = (orders) => {
             <label>Betalsätt
               <select data-order-field="method"><option value="swish" ${order.payment_choice !== 'bank' ? 'selected' : ''}>Swish</option><option value="bank" ${order.payment_choice === 'bank' ? 'selected' : ''}>Bankkonto</option><option value="other">Annat</option></select>
             </label>
-            <button type="button" class="btn btn-primary" data-order-action="mark_paid" data-confirm="Markera ${escapeHtml(order.order_no)} som betald? Kunden får ett mejl om att betalningen kommit in, och original i ordern blir sålda.">Markera betald</button>
+            <label class="inquiry-order-check"><input type="checkbox" data-order-field="notify" checked /> <span>Mejla kunden</span></label>
+            <button type="button" class="btn btn-primary" data-order-action="mark_paid" data-confirm="Markera ${escapeHtml(order.order_no)} som betald? Original i ordern blir sålda.">Markera betald</button>
             <button type="button" class="btn btn-ghost" data-order-action="cancel" data-confirm="Avbryt ordern ${escapeHtml(order.order_no)}? Reserverade original blir tillgängliga igen.">Avbryt order</button>
           </div>`;
       } else if (status === 'paid') {
@@ -3632,6 +3855,8 @@ const renderOrdersPanel = (orders) => {
       if (action === 'mark_paid') {
         body.paidAmount = Number(field('paidAmount')) || 0;
         body.method = field('method') || 'swish';
+        const notifyBox = card.querySelector('[data-order-field="notify"]');
+        body.notify = notifyBox ? notifyBox.checked : true;
       } else if (action === 'mark_shipped') {
         body.trackingNo = field('trackingNo');
       } else if (action === 'note') {

@@ -52,7 +52,7 @@ $status = $order ? (string) $order['status'] : '';
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
       <link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" />
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20261013-04" />
+    <link rel="stylesheet" href="styles.css?v=20261013-05" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <script src="script.js?v=20261007-03" defer></script>
@@ -180,7 +180,12 @@ $status = $order ? (string) $order['status'] : '';
               <aside class="order-side">
                 <section class="surface-soft order-address">
                   <h3><?= $h($t('Levereras till', 'Delivery to')) ?></h3>
-                  <p><?= $h((string) $order['customer_name']) ?><br /><?= $h((string) $order['address_line']) ?><br /><?= $h((string) $order['postal_code']) ?> <?= $h((string) $order['city']) ?></p>
+                  <?php if (trim((string) $order['address_line']) !== ''): ?>
+                    <p><?= $h((string) $order['customer_name']) ?><br /><?= $h((string) $order['address_line']) ?><br /><?= $h((string) $order['postal_code']) ?> <?= $h((string) $order['city']) ?></p>
+                  <?php else: ?>
+                    <p><?= $h((string) $order['customer_name']) ?></p>
+                    <p class="field-hint"><?= $h($t('Leveransadress saknas. Mejla den till ola@olagustafsson.com, eller säg till om du hellre hämtar verket i Stockholm.', 'No delivery address yet. Email it to ola@olagustafsson.com, or let me know if you would rather collect the work in Stockholm.')) ?></p>
+                  <?php endif; ?>
                   <p class="field-hint"><?= $h((string) $order['customer_email']) ?><?php if (!empty($order['customer_phone'])): ?><br /><?= $h((string) $order['customer_phone']) ?><?php endif; ?></p>
                 </section>
                 <p class="field-hint order-fineprint"><?= $h(seo_withdrawal_note($lang)) ?> <?= $h($t('Frågor: ola@olagustafsson.com.', 'Questions: ola@olagustafsson.com.')) ?></p>

@@ -7003,3 +7003,60 @@ body:not([data-page='studio']) .contact-social-links {
   margin: var(--space-4) 0 0;
   font-size: 0.9rem;
 }
+
+/* Studio: verktyg på förfrågningar */
+.inquiry-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.inquiry-tools .btn-danger {
+  color: #a3261f;
+}
+.inquiry-tool-panel {
+  border-top: 1px solid rgba(16, 19, 27, 0.1);
+  padding-top: var(--space-3);
+  display: grid;
+  gap: var(--space-3);
+}
+.inquiry-tool-panel[hidden] {
+  display: none;
+}
+.inquiry-order-form {
+  display: grid;
+  gap: var(--space-3);
+}
+.inquiry-order-form h4 {
+  margin: 0;
+}
+.inquiry-order-check {
+  display: flex !important;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-ink) !important;
+}
+.inquiry-order-check input[type="checkbox"] {
+  min-width: 0;
+  width: auto;
+}
+.inquiry-order-intro,
+.inquiry-mail-template textarea {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  color: var(--color-soft-ink);
+}
+.inquiry-order-intro textarea,
+.inquiry-mail-template textarea {
+  width: 100%;
+  font: inherit;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--color-border);
+  background: #fff;
+  color: var(--color-ink);
+  box-sizing: border-box;
+}
+.inquiry-mail-template {
+  display: grid;
+  gap: var(--space-3);
+}

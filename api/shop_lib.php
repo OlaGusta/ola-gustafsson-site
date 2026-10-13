@@ -76,6 +76,19 @@ SQL
   api_schema_add_column_if_missing($pdo, 'shop_orders', 'payment_choice', "VARCHAR(16) NOT NULL DEFAULT 'swish'");
 }
 
+// Leveransblock för mejl. Ordrar som skapas i Studio kan sakna adress.
+function shop_address_text(array $order, string $lang): string
+{
+  $address = trim((string) ($order['address_line'] ?? ''));
+  if ($address === '') {
+    return $lang === 'en'
+      ? "Delivery address: please reply to this email with your address, or let me know if you would rather collect the work in Stockholm."
+      : "Leveransadress: svara på det här mejlet med din adress, eller säg till om du hellre hämtar verket i Stockholm.";
+  }
+  return ($lang === 'en' ? "Delivery to:\n" : "Leverans till:\n")
+    . "{$order['customer_name']}\n{$address}\n{$order['postal_code']} {$order['city']}";
+}
+
 // Betalsätt kunden valt i kassan: swish eller bank.
 function shop_payment_choice(array $order): string
 {
@@ -394,7 +407,7 @@ function shop_list_orders(PDO $pdo, string $status = '', int $limit = 60): array
 }
 
 // Markera betald: status, belopp, sätt; original blir sålda; kunden får mejl.
-function shop_mark_paid(PDO $pdo, array $order, int $paidAmount, string $method): array
+function shop_mark_paid(PDO $pdo, array $order, int $paidAmount, string $method, bool $notify = true): array
 {
   if ($order['status'] !== 'pending') {
     throw new InvalidArgumentException('Bara ordrar som väntar på betalning kan markeras betalda.');
@@ -414,9 +427,13 @@ function shop_mark_paid(PDO $pdo, array $order, int $paidAmount, string $method)
   $lang = $updated['language'] === 'en' ? 'en' : 'sv';
   $url = shop_order_url($updated, $lang);
   $summary = shop_order_summary_text($updated, $lang);
+  if (!$notify) {
+    return $updated;
+  }
+  $addressText = shop_address_text($updated, $lang);
   $body = $lang === 'en'
-    ? "Hi {$updated['customer_name']},\n\nThank you, your payment for order {$updated['order_no']} has arrived.\n\n{$summary}\n\nThe order is now being prepared and ships to:\n{$updated['customer_name']}\n{$updated['address_line']}\n{$updated['postal_code']} {$updated['city']}\n\nYou will get another email with the tracking number when it is on its way. Order page: {$url}\n\nOla Gustafsson\nola@olagustafsson.com"
-    : "Hej {$updated['customer_name']},\n\nTack, din betalning för beställning {$updated['order_no']} har kommit in.\n\n{$summary}\n\nBeställningen görs nu i ordning och skickas till:\n{$updated['customer_name']}\n{$updated['address_line']}\n{$updated['postal_code']} {$updated['city']}\n\nDu får ett nytt mejl med spårningsnummer när den är på väg. Ordersida: {$url}\n\nOla Gustafsson\nola@olagustafsson.com";
+    ? "Hi {$updated['customer_name']},\n\nThank you, your payment for order {$updated['order_no']} has arrived.\n\n{$summary}\n\nThe order is now being prepared.\n{$addressText}\n\nYou will get another email with the tracking number when it is on its way. Order page: {$url}\n\nOla Gustafsson\nola@olagustafsson.com"
+    : "Hej {$updated['customer_name']},\n\nTack, din betalning för beställning {$updated['order_no']} har kommit in.\n\n{$summary}\n\nBeställningen görs nu i ordning.\n{$addressText}\n\nDu får ett nytt mejl med spårningsnummer när den är på väg. Ordersida: {$url}\n\nOla Gustafsson\nola@olagustafsson.com";
   $subject = $lang === 'en' ? "Payment received – order {$updated['order_no']}" : "Betalning mottagen – beställning {$updated['order_no']}";
   api_security_send_mail($updated['customer_email'], $subject, $body, api_security_contact_recipient());
   return $updated;
@@ -537,7 +554,7 @@ function shop_order_summary_text(array $order, string $lang): string
   return implode("\n", $out);
 }
 
-function shop_send_order_mails(array $order, string $lang): bool
+function shop_send_order_mails(array $order, string $lang, bool $notifyCustomer = true, string $intro = ''): bool
 {
   $payload = shop_payload();
   $details = seo_payment_details($payload);
@@ -555,26 +572,28 @@ function shop_send_order_mails(array $order, string $lang): bool
 
   if ($lang === 'en') {
     $customerSubject = sprintf('Order %s – Ola Gustafsson', $order['order_no']);
-    $customerBody = "Hi {$order['customer_name']},\n\nThank you for your order.\n\n{$summary}\n\n"
+    $customerBody = "Hi {$order['customer_name']},\n\n" . ($intro !== '' ? $intro : 'Thank you for your order.') . "\n\n{$summary}\n\n"
       . "Pay by {$payText}. Write {$order['order_no']} as the message, and the order is confirmed as soon as the payment has arrived.\n"
       . ($choice === 'swish' ? "On the order page there is a Swish code with the amount and order number filled in.\n\n" : "\n")
       . "Order page with status and payment details: {$url}\n\n"
-      . "Delivery to:\n{$order['customer_name']}\n{$order['address_line']}\n{$order['postal_code']} {$order['city']}\n\n"
+      . shop_address_text($order, 'en') . "\n\n"
       . "As a private customer you have a 14-day right of withdrawal from the day you receive the work.\n\nOla Gustafsson\nola@olagustafsson.com";
   } else {
     $customerSubject = sprintf('Beställning %s – Ola Gustafsson', $order['order_no']);
-    $customerBody = "Hej {$order['customer_name']},\n\nTack för din beställning.\n\n{$summary}\n\n"
+    $customerBody = "Hej {$order['customer_name']},\n\n" . ($intro !== '' ? $intro : 'Tack för din beställning.') . "\n\n{$summary}\n\n"
       . "Betala med {$payText}. Skriv {$order['order_no']} som meddelande, så bekräftas beställningen så snart betalningen kommit in.\n"
       . ($choice === 'swish' ? "På ordersidan finns en Swish-kod med belopp och ordernummer ifyllda.\n\n" : "\n")
       . "Ordersidan med status och betalningsuppgifter: {$url}\n\n"
-      . "Leverans till:\n{$order['customer_name']}\n{$order['address_line']}\n{$order['postal_code']} {$order['city']}\n\n"
+      . shop_address_text($order, 'sv') . "\n\n"
       . "Som privatperson har du 14 dagars ångerrätt från att du tagit emot verket.\n\nOla Gustafsson\nola@olagustafsson.com";
   }
-  $customerOk = api_security_send_mail($order['customer_email'], $customerSubject, $customerBody, api_security_contact_recipient());
+  $customerOk = $notifyCustomer
+    ? api_security_send_mail($order['customer_email'], $customerSubject, $customerBody, api_security_contact_recipient())
+    : false;
 
   $adminBody = "Ny beställning {$order['order_no']}\n\n{$summary}\n\nKunden betalar med: " . ($choice === 'bank' ? 'bankkonto' : 'Swish') . "\n"
     . "Kund: {$order['customer_name']} <{$order['customer_email']}>" . ($order['customer_phone'] ? ", {$order['customer_phone']}" : '') . "\n"
-    . "Adress: {$order['address_line']}, {$order['postal_code']} {$order['city']}\n"
+    . "Adress: " . (trim((string) $order['address_line']) !== '' ? "{$order['address_line']}, {$order['postal_code']} {$order['city']}" : 'saknas, kunden ombeds svara med adress') . "\n"
     . ($order['note'] ? "Meddelande: {$order['note']}\n" : '')
     . "\nStatus: väntar på betalning. Markera betald i Studio när pengarna kommit in.\n"
     . "Ordersida: " . shop_order_url($order, 'sv') . "\n";
