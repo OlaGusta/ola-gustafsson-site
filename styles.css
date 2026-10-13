@@ -6900,3 +6900,15 @@ body:not([data-page='studio']) .contact-social-links {
     padding: var(--space-4);
   }
 }
+
+/* Kassan: kryssrutan för köpvillkoren på samma rad som texten (slår .contact-form label). */
+.checkout-form .checkout-terms {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+.checkout-form .checkout-terms input[type="checkbox"] {
+  width: auto;
+  flex: none;
+  margin: 0.25rem 0 0;
+}

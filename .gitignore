@@ -5,3 +5,4 @@ skills/
 .db-config.php
 .release.env
 *.log
+cache/swish-qr/*.png

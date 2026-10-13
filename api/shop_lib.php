@@ -293,21 +293,42 @@ function shop_order_url(array $order, string $lang = 'sv'): string
   return $lang === 'en' ? $url . '?lang=en' : $url;
 }
 
-// Swish-länk med belopp och ordernummer ifyllda, samma format som Swish egna QR-koder.
-function shop_swish_link(array $order): string
+// Förifylld Swish-QR från Swish egen generator (Guide Swish QR code specification,
+// avsnitt 4): nummer, belopp och meddelande låsta. Tom sträng om tjänsten inte svarar.
+function shop_fetch_swish_qr(string $payee, int $amount, string $message, bool $messageEditable = false): string
 {
-  $details = seo_payment_details(shop_payload());
-  $digits = preg_replace('/[^0-9]/', '', $details['swish']);
-  if (!is_string($digits) || $digits === '') {
+  $request = json_encode([
+    'format' => 'png',
+    'size' => 400,
+    'border' => 0,
+    'payee' => ['value' => $payee, 'editable' => false],
+    'amount' => ['value' => $amount, 'editable' => false],
+    'message' => ['value' => $message, 'editable' => $messageEditable]
+  ]);
+  if (!is_string($request) || !function_exists('curl_init')) {
     return '';
   }
-  return 'https://app.swish.nu/1/p/sw/?' . http_build_query([
-    'sw' => $digits,
-    'amt' => (string) (int) $order['total_sek'],
-    'cur' => 'SEK',
-    'msg' => $order['order_no'],
-    'edit' => ''
-  ], '', '&', PHP_QUERY_RFC3986);
+  $ch = curl_init('https://mpc.getswish.net/qrg-swish/api/v1/prefilled');
+  if ($ch === false) {
+    return '';
+  }
+  curl_setopt_array($ch, [
+    CURLOPT_POST => true,
+    CURLOPT_POSTFIELDS => $request,
+    CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_CONNECTTIMEOUT => 5,
+    CURLOPT_TIMEOUT => 10
+  ]);
+  $body = curl_exec($ch);
+  $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+  curl_close($ch);
+  return $status === 200 && is_string($body) && str_starts_with($body, "\x89PNG") ? $body : '';
+}
+
+function shop_swish_qr_url(array $order): string
+{
+  return '/api/swish-qr.php?token=' . $order['token'];
 }
 
 function shop_status_label(string $status, string $lang): string
@@ -356,7 +377,7 @@ function shop_send_order_mails(array $order, string $lang): bool
     $customerSubject = sprintf('Order %s – Ola Gustafsson', $order['order_no']);
     $customerBody = "Hi {$order['customer_name']},\n\nThank you for your order.\n\n{$summary}\n\n"
       . "Pay {$payText}. Write {$order['order_no']} as the message, and the order is confirmed as soon as the payment has arrived.\n"
-      . "Swish link with the amount filled in: " . shop_swish_link($order) . "\n\n"
+      . "On the order page there is a Swish code with the amount and order number filled in.\n\n"
       . "Order page with status and payment details: {$url}\n\n"
       . "Delivery to:\n{$order['customer_name']}\n{$order['address_line']}\n{$order['postal_code']} {$order['city']}\n\n"
       . "As a private customer you have a 14-day right of withdrawal from the day you receive the work.\n\nOla Gustafsson\nola@olagustafsson.com";
@@ -364,7 +385,7 @@ function shop_send_order_mails(array $order, string $lang): bool
     $customerSubject = sprintf('Beställning %s – Ola Gustafsson', $order['order_no']);
     $customerBody = "Hej {$order['customer_name']},\n\nTack för din beställning.\n\n{$summary}\n\n"
       . "Betala med {$payText}. Skriv {$order['order_no']} som meddelande, så bekräftas beställningen så snart betalningen kommit in.\n"
-      . "Swish-länk med beloppet ifyllt: " . shop_swish_link($order) . "\n\n"
+      . "På ordersidan finns en Swish-kod med belopp och ordernummer ifyllda.\n\n"
       . "Ordersidan med status och betalningsuppgifter: {$url}\n\n"
       . "Leverans till:\n{$order['customer_name']}\n{$order['address_line']}\n{$order['postal_code']} {$order['city']}\n\n"
       . "Som privatperson har du 14 dagars ångerrätt från att du tagit emot verket.\n\nOla Gustafsson\nola@olagustafsson.com";

@@ -241,7 +241,7 @@
               <div class="checkout-sum-total"><dt>${esc(T('Att betala', 'To pay'))}</dt><dd>${esc(money(sums.total))}</dd></div>
               <div class="checkout-sum-vat"><dt>${esc(T('Varav moms', 'Of which VAT'))}</dt><dd>${esc(money(sums.vat))}</dd></div>
             </dl>
-            <p class="field-hint">${esc(T('Original är momsfria konstverk. Print, passepartout och frakt har 25 % moms. Ram, hämtning och leverans utanför Sverige ordnas på förfrågan: mejla ola@olagustafsson.com.', 'Originals are VAT-exempt works of art. Prints, mats and shipping carry 25% VAT. Frames, pickup and delivery outside Sweden are arranged on request: email ola@olagustafsson.com.'))}</p>
+            <p class="field-hint">${esc(T('Original är momsfria konstverk. Print, passepartout och frakt har 25 % moms. Ram (passepartout ingår), hämtning och leverans utanför Sverige ordnas på förfrågan: mejla ola@olagustafsson.com.', 'Originals are VAT-exempt works of art. Prints, mats and shipping carry 25% VAT. Frames (mat included), pickup and delivery outside Sweden are arranged on request: email ola@olagustafsson.com.'))}</p>
           </section>
           <form class="checkout-form contact-form surface-soft" id="checkout-form" novalidate ${canOrder ? '' : 'hidden'}>
             <h2>${esc(T('Dina uppgifter', 'Your details'))}</h2>
@@ -413,30 +413,11 @@
     render();
   };
 
-  // ---- Ordersidan: Swish-QR -------------------------------------------------
-  const initOrderPage = () => {
-    const host = document.getElementById('order-swish-qr');
-    if (!host || !host.dataset.swishLink) {
-      return;
-    }
-    const draw = () => {
-      if (typeof window.QRCode !== 'function') {
-        return false;
-      }
-      host.innerHTML = '';
-      new window.QRCode(host, { text: host.dataset.swishLink, width: 200, height: 200, correctLevel: window.QRCode.CorrectLevel ? window.QRCode.CorrectLevel.M : undefined });
-      return true;
-    };
-    if (!draw()) {
-      window.addEventListener('load', draw, { once: true });
-    }
-  };
 
   const start = () => {
     renderCartLink();
     bindAddButtons();
     initCheckout();
-    initOrderPage();
   };
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', start);

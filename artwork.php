@@ -126,7 +126,7 @@ if (!$artwork) {
         <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
         <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
       <?php endif; ?>
-      <link rel="stylesheet" href="/styles.css?v=20261013-01" />
+      <link rel="stylesheet" href="/styles.css?v=20261013-02" />
     </head>
     <body id="page-top" data-page="artwork">
       <header class="site-header" id="top">
@@ -196,7 +196,7 @@ if (!$artwork) {
       <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
       <script src="/content.js?v=20260928-01" defer></script>
       <script src="/script.js?v=20261007-03" defer></script>
-    <script src="/shop.js?v=20261013-02" defer></script>
+    <script src="/shop.js?v=20261013-03" defer></script>
     </body>
   </html>
   <?php
@@ -659,11 +659,11 @@ if (!is_string($structuredJson)) {
       <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="/styles.css?v=20261013-01" />
+    <link rel="stylesheet" href="/styles.css?v=20261013-02" />
     <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="/content.js?v=20260928-01" defer></script>
     <script src="/script.js?v=20261007-03" defer></script>
-    <script src="/shop.js?v=20261013-02" defer></script>
+    <script src="/shop.js?v=20261013-03" defer></script>
   </head>
   <body id="page-top" data-page="artwork">
     <header class="site-header" id="top">
@@ -818,7 +818,7 @@ if (!is_string($structuredJson)) {
                       <button type="button" class="btn <?= $buyOriginal ? 'btn-ghost' : 'btn-primary' ?>" data-shop-add="print" data-ref="<?= htmlspecialchars($canonicalSlug, ENT_QUOTES) ?>" data-size-select="artwork-buy-print-size"><?= htmlspecialchars($lang === 'en' ? 'Order fine art print' : 'Beställ Fine Art Print', ENT_QUOTES) ?></button>
                     </div>
                   <?php endif; ?>
-                  <p class="field-hint"><?= htmlspecialchars($lang === 'en' ? 'Shipping 150 SEK within Sweden. Pay by Swish or bank transfer after ordering.' : 'Frakt 150 kr inom Sverige. Betala med Swish eller bankgiro efter beställningen.', ENT_QUOTES) ?></p>
+                  <p class="field-hint"><?= htmlspecialchars($lang === 'en' ? 'Shipping 150 SEK within Sweden. Pay by Swish or bank transfer after ordering. Frames are arranged on request; a frame includes a mat.' : 'Frakt 150 kr inom Sverige. Betala med Swish eller bankgiro efter beställningen. Ram ordnas på förfrågan, och då ingår passepartout.', ENT_QUOTES) ?></p>
                 </div>
               <?php endif; ?>
 

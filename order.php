@@ -30,7 +30,7 @@ if (!$order) {
 $pageTitle = $order
   ? sprintf($t('Beställning %s | Ola Gustafsson', 'Order %s | Ola Gustafsson'), $order['order_no'])
   : $t('Beställningen hittades inte | Ola Gustafsson', 'Order not found | Ola Gustafsson');
-$swishLink = $order ? shop_swish_link($order) : '';
+$swishQrUrl = $order && seo_payment_details($payload)['swish'] !== '' ? shop_swish_qr_url($order) : '';
 $status = $order ? (string) $order['status'] : '';
 ?>
 <!DOCTYPE html>
@@ -49,14 +49,11 @@ $status = $order ? (string) $order['status'] : '';
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
       <link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" />
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20261013-01" />
+    <link rel="stylesheet" href="styles.css?v=20261013-02" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <script src="script.js?v=20261007-03" defer></script>
-    <script src="shop.js?v=20261013-02" defer></script>
-    <?php if ($swishLink !== '' && $status === 'pending'): ?>
-      <script src="vendor/qrcode.min.js?v=20260216-01" defer></script>
-    <?php endif; ?>
+    <script src="shop.js?v=20261013-03" defer></script>
   </head>
   <body id="page-top" data-page="order">
     <header class="site-header" id="top">
@@ -114,11 +111,10 @@ $status = $order ? (string) $order['status'] : '';
                     <h2><?= $h($t('Så betalar du', 'How to pay')) ?></h2>
                     <p class="order-pay-amount"><span><?= $h($t('Att betala', 'To pay')) ?></span><strong><?= $h(shop_money((int) $order['total_sek'], $lang)) ?></strong></p>
                     <div class="order-pay-grid">
-                      <?php if ($swishLink !== ''): ?>
+                      <?php if ($swishQrUrl !== ''): ?>
                         <div class="order-pay-swish">
-                          <div id="order-swish-qr" class="order-swish-qr" data-swish-link="<?= $h($swishLink) ?>" aria-label="Swish-QR"></div>
-                          <p><strong>Swish <?= $h($paymentDetails['swish']) ?></strong><br /><?= $h($t('Skanna koden i Swish-appen: belopp och ordernummer är ifyllda.', 'Scan the code in the Swish app: amount and order number are filled in.')) ?></p>
-                          <a class="btn btn-primary order-swish-link" href="<?= $h($swishLink) ?>"><?= $h($t('Öppna Swish på mobilen', 'Open Swish on your phone')) ?></a>
+                          <img class="order-swish-qr" src="<?= $h($swishQrUrl) ?>" width="200" height="200" alt="<?= $h($t('Swish-kod med belopp och ordernummer', 'Swish code with amount and order number')) ?>" />
+                          <p><strong>Swish <?= $h($paymentDetails['swish']) ?></strong><br /><?= $h($t('Öppna Swish, välj Skanna och rikta kameran mot koden. Belopp och ordernummer är ifyllda.', 'Open Swish, choose Scan and point the camera at the code. Amount and order number are filled in.')) ?></p>
                         </div>
                       <?php endif; ?>
                       <div class="order-pay-bank">
