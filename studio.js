@@ -3765,18 +3765,18 @@ const buildInquiryMailTemplate = (item, variant) => {
   if (variant === 'taken') {
     return {
       subject: `Angående "${title}"`,
-      body: `Hej igen ${firstName}!\n\nTack för ditt intresse för min akvarell "${title}". Verket är just nu tingat av en annan köpare till och med ${untilLabel}. Blir det ledigt hör jag av mig direkt.\n\nFler verk som är lediga hittar du här: ${window.location.origin}/gallery.html\n\nMå så gott - och tack än en gång :-)\nOla Gustafsson\nola@olagustafsson.com`
+      body: `Hej igen ${firstName}!\n\nTack för ditt intresse för min akvarell "${title}". Verket är just nu tingat av en annan köpare till och med ${untilLabel}. Blir det ledigt hör jag av mig direkt.\n\nFler verk som är lediga hittar du här: ${window.location.origin}/gallery.html\n\nMå så gott - och tack än en gång :-)`
     };
   }
   if (buyLink) {
     return {
       subject: `"${title}" – reserverad för dig, så beställer du`,
-      body: `Hej igen ${firstName}!\n\nTack för ditt intresse för min akvarell "${title}". Jag har reserverat för dig till och med ${untilLabel}.\n\nDu beställer via din personliga länk: ${buyLink.url}\nTryck "Köp originalet", välj om du vill ha passepartout med bakstycke, fyll i adress och välj Swish eller bankkonto. Du får en ordersida med betalningsuppgifter och ordernummer.${price ? ` Pris ${price}.` : ''} Frakt inom Sverige 150 kr.\n\nVill du hellre ha verket inramat svarar du på det här mejlet, så räknar jag på ram med passepartout. Då tillkommer materialkostnad och 300 kr i serviceavgift.\n\nMå så gott - och tack än en gång :-)\nOla Gustafsson\nola@olagustafsson.com`
+      body: `Hej igen ${firstName}!\n\nTack för ditt intresse för min akvarell "${title}". Jag har reserverat för dig till och med ${untilLabel}.\n\nDu beställer via din personliga länk: ${buyLink.url}\nTryck "Köp originalet", välj om du vill ha passepartout med bakstycke, fyll i adress och välj Swish eller bankkonto. Du får en ordersida med betalningsuppgifter och ordernummer.${price ? ` Pris ${price}.` : ''} Frakt inom Sverige 150 kr.\n\nVill du hellre ha verket inramat svarar du på det här mejlet, så räknar jag på ram med passepartout. Då tillkommer materialkostnad och 300 kr i serviceavgift.\n\nMå så gott - och tack än en gång :-)`
     };
   }
   return {
     subject: `"${title}" – så beställer du`,
-    body: `Hej igen ${firstName}!\n\nTack för ditt intresse för min akvarell "${title}". Verket är ledigt och jag håller det för dig till och med ${untilLabel}.\n\nDu beställer enklast här: ${url}\nTryck "Köp originalet", välj om du vill ha passepartout med bakstycke, fyll i adress och välj Swish eller bankkonto. Du får en ordersida med betalningsuppgifter och ordernummer.${price ? ` Pris ${price}.` : ''} Frakt inom Sverige 150 kr.\n\nVill du hellre ha verket inramat svarar du på det här mejlet, så räknar jag på ram med passepartout. Då tillkommer materialkostnad och 300 kr i serviceavgift.\n\nMå så gott - och tack än en gång :-)\nOla Gustafsson\nola@olagustafsson.com`
+    body: `Hej igen ${firstName}!\n\nTack för ditt intresse för min akvarell "${title}". Verket är ledigt och jag håller det för dig till och med ${untilLabel}.\n\nDu beställer enklast här: ${url}\nTryck "Köp originalet", välj om du vill ha passepartout med bakstycke, fyll i adress och välj Swish eller bankkonto. Du får en ordersida med betalningsuppgifter och ordernummer.${price ? ` Pris ${price}.` : ''} Frakt inom Sverige 150 kr.\n\nVill du hellre ha verket inramat svarar du på det här mejlet, så räknar jag på ram med passepartout. Då tillkommer materialkostnad och 300 kr i serviceavgift.\n\nMå så gott - och tack än en gång :-)`
   };
 };
 
@@ -3810,9 +3810,9 @@ const openInquiryMailTemplate = async (card, item) => {
         </div>
         <textarea rows="12" data-mail-body>${escapeHtml(tpl.body)}</textarea>
         <div class="order-action-row">
-          <a class="btn btn-primary" data-mail-open href="#">Öppna i mejlprogrammet</a>
-          <button type="button" class="btn btn-ghost" data-mail-copy>Kopiera texten</button>
-          <span class="field-hint">Sätt förfrågan till Besvarad när mejlet gått iväg.</span>
+          <button type="button" class="btn btn-primary" data-mail-copy>Kopiera texten</button>
+          <a class="btn btn-ghost" data-mail-open href="#">Öppna i mejlprogrammet</a>
+          <span class="field-hint">Kopiera och klistra in i ett nytt mejl ger mejlprogrammets stil och din signatur. Öppna-länken skapar ett oformaterat mejl. Sätt förfrågan till Besvarad när det gått iväg.</span>
         </div>
       </div>`;
     const subjectInput = panel.querySelector('[data-mail-subject]');
@@ -3828,8 +3828,8 @@ const openInquiryMailTemplate = async (card, item) => {
     panel.querySelector('[data-mail-variant]').addEventListener('change', (event) => render(event.target.value));
     panel.querySelector('[data-mail-copy]').addEventListener('click', async () => {
       try {
-        await navigator.clipboard.writeText(`${subjectInput.value}\n\n${bodyArea.value}`);
-        setInquiriesPanelStatus('Mejltexten kopierad.', 'success');
+        await navigator.clipboard.writeText(bodyArea.value);
+        setInquiriesPanelStatus('Mejltexten kopierad. Klistra in i ett nytt mejl, så får den mejlprogrammets stil och signatur. Ämnet står i fältet ovanför.', 'success');
       } catch (error) {
         bodyArea.select();
         setInquiriesPanelStatus('Markera texten och kopiera manuellt.', 'info');
