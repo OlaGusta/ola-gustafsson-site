@@ -33,7 +33,7 @@ if ($method === 'GET' && isset($_GET['catalog'])) {
   $catalog = seo_shop_catalog(shop_payload());
   $artworks = [];
   foreach ($catalog['artworks'] as $slug => $art) {
-    if (!empty($art['originalForSale'])) {
+    if (!empty($art['originalForSale']) || ($art['availability'] === 'reserved' && (int) $art['price'] > 0)) {
       $artworks[] = ['slug' => $slug, 'title' => $art['title'], 'format' => $art['format'], 'price' => $art['price'], 'matClass' => $art['matClass'], 'matPrice' => $art['matPrice'], 'availability' => $art['availability']];
     }
   }
@@ -69,14 +69,15 @@ if ($action === 'create') {
   $lang = ($request['lang'] ?? 'sv') === 'en' ? 'en' : 'sv';
   $items = isset($request['items']) && is_array($request['items']) ? array_slice($request['items'], 0, 20) : [];
   try {
-    $lines = shop_resolve_items($pdo, $items, 'sv');
+    $lines = shop_resolve_items($pdo, $items, 'sv', true);
   } catch (InvalidArgumentException $error) {
     api_respond_json(422, ['ok' => false, 'error' => 'invalid_items', 'message' => $error->getMessage()]);
   }
   if ($lines === []) {
     api_respond_json(422, ['ok' => false, 'error' => 'empty', 'message' => 'Ordern saknar rader.']);
   }
-  $order = shop_create_order($pdo, $lines, $customer, $lang);
+  $shippingOverride = isset($request['shipping']) && is_numeric($request['shipping']) ? (int) $request['shipping'] : null;
+  $order = shop_create_order($pdo, $lines, $customer, $lang, $shippingOverride);
   $inquiryId = isset($request['inquiryId']) ? (int) $request['inquiryId'] : 0;
   $adminNote = 'Skapad i Studio' . ($inquiryId > 0 ? " från förfrågan #{$inquiryId}" : '');
   $pdo->prepare('UPDATE shop_orders SET admin_note = :note WHERE id = :id')->execute([':note' => $adminNote, ':id' => (int) $order['id']]);

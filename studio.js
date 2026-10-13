@@ -3571,16 +3571,28 @@ const openInquiryOrderForm = async (card, item) => {
   }
   const slug = String(item.inquiry_slug || '').trim();
   const lang = String(item.inquiry_language || 'sv') === 'en' ? 'en' : 'sv';
-  const options = catalog.artworks
-    .map((art) => `<option value="${escapeHtml(art.slug)}" data-price="${Number(art.price) || 0}" data-mat="${Number(art.matPrice) || 0}" data-mat-class="${escapeHtml(art.matClass || '')}" ${art.slug === slug ? 'selected' : ''}>${escapeHtml(art.title)} – ${Number(art.price || 0).toLocaleString('sv-SE')} kr${art.availability === 'reserved' ? ' (reserverad)' : ''}</option>`)
-    .join('');
+  const artworkOption = (art, selectedSlug) => `<option value="${escapeHtml(art.slug)}" data-price="${Number(art.price) || 0}" data-mat="${Number(art.matPrice) || 0}" data-mat-class="${escapeHtml(art.matClass || '')}" ${art.slug === selectedSlug ? 'selected' : ''}>${escapeHtml(art.title)}${art.format ? ` (${escapeHtml(art.format)})` : ''} – ${Number(art.price || 0).toLocaleString('sv-SE')} kr${art.availability === 'reserved' ? ' · reserverad' : ''}</option>`;
+  const buildOptions = (query, selectedSlug) => {
+    const q = String(query || '').trim().toLowerCase();
+    const hits = catalog.artworks.filter((art) => !q || `${art.title} ${art.slug} ${art.format || ''}`.toLowerCase().includes(q));
+    return hits.map((art) => artworkOption(art, selectedSlug)).join('') || `<option value="">${q ? 'Inget verk matchar' : 'Inga original till salu'}</option>`;
+  };
+  const options = buildOptions('', slug);
   panel.innerHTML = `
     <form class="inquiry-order-form" novalidate>
       <h4>Skapa order åt kunden</h4>
       <div class="order-action-row">
-        <label>Verk <select name="slug">${options || '<option value="">Inga original till salu</option>'}</select></label>
+        <label>Sök verk <input type="search" name="search" placeholder="titel eller format" autocomplete="off" /></label>
+        <label>Verk <select name="slug">${options}</select></label>
         <label class="inquiry-order-check"><input type="checkbox" name="mat" /> <span>Passepartout + bakstycke (<span data-mat-price>0</span> kr)</span></label>
       </div>
+      <p class="field-hint">Listan visar lediga och reserverade original med pris. Reserverade går att beställa, eftersom de oftast är reserverade just för kunden.</p>
+      <fieldset class="inquiry-order-extras">
+        <legend>Tillägg, t.ex. ram med passepartout (pris inkl. 25 % moms, lägg in serviceavgiften 300 kr i beloppet)</legend>
+        <div class="order-action-row"><label>Beskrivning <input type="text" name="extra1" placeholder="Ram 50 × 70 cm, svart trä, med passepartout" /></label><label>Belopp kr <input type="number" name="extra1Amount" min="0" step="1" placeholder="0" /></label></div>
+        <div class="order-action-row"><label>Beskrivning <input type="text" name="extra2" placeholder="Monteringsservice" /></label><label>Belopp kr <input type="number" name="extra2Amount" min="0" step="1" placeholder="0" /></label></div>
+        <div class="order-action-row"><label>Frakt kr <input type="number" name="shipping" min="0" step="1" value="${catalog.shipping}" /></label><span class="field-hint">0 kr om kunden hämtar. Inramat verk kostar normalt mer att skicka.</span></div>
+      </fieldset>
       <div class="order-action-row">
         <label>Namn <input type="text" name="name" value="${escapeHtml(item.name || '')}" required /></label>
         <label>E-post <input type="email" name="email" value="${escapeHtml(item.email || '')}" required /></label>
@@ -3613,11 +3625,20 @@ const openInquiryOrderForm = async (card, item) => {
     panel.querySelector('[data-mat-price]').textContent = mat.toLocaleString('sv-SE');
     matBox.disabled = mat <= 0;
     if (mat <= 0) matBox.checked = false;
-    const total = price + (matBox.checked ? mat : 0) + catalog.shipping;
-    panel.querySelector('[data-order-total]').textContent = opt ? `Att betala: ${total.toLocaleString('sv-SE')} kr inkl. frakt ${catalog.shipping} kr.` : '';
+    const extras = ['extra1Amount', 'extra2Amount'].reduce((sum, name) => sum + (Number(form.elements[name].value) || 0), 0);
+    const shipping = Math.max(0, Number(form.elements.shipping.value) || 0);
+    const total = price + (matBox.checked ? mat : 0) + extras + shipping;
+    panel.querySelector('[data-order-total]').textContent = opt ? `Att betala: ${total.toLocaleString('sv-SE')} kr${extras ? `, varav tillägg ${extras.toLocaleString('sv-SE')} kr` : ''}, inkl. frakt ${shipping} kr.` : '';
   };
+  ['extra1Amount', 'extra2Amount', 'shipping'].forEach((name) => form.elements[name].addEventListener('input', updateTotal));
   slugSelect.addEventListener('change', updateTotal);
   matBox.addEventListener('change', updateTotal);
+  form.elements.search.addEventListener('input', () => {
+    const current = slugSelect.value;
+    slugSelect.innerHTML = buildOptions(form.elements.search.value, current);
+    if (slugSelect.value !== current && slugSelect.options.length > 0) slugSelect.selectedIndex = 0;
+    updateTotal();
+  });
   updateTotal();
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -3641,7 +3662,11 @@ const openInquiryOrderForm = async (card, item) => {
           lang: value('lang'),
           notify: Boolean(data.get('notify')),
           intro: value('intro'),
-          items: [{ kind: 'original', ref: value('slug'), mat: Boolean(data.get('mat')) }],
+          shipping: Math.max(0, Number(value('shipping')) || 0),
+          items: [
+            { kind: 'original', ref: value('slug'), mat: Boolean(data.get('mat')) },
+            ...[1, 2].filter((n) => value(`extra${n}`) && Number(value(`extra${n}Amount`)) > 0).map((n) => ({ kind: 'extra', title: value(`extra${n}`), amount: Number(value(`extra${n}Amount`)) }))
+          ],
           customer: { name: value('name'), email: value('email'), phone: value('phone'), address: value('address'), postal: value('postal'), city: value('city'), note: '', payment: value('payment') }
         }
       });

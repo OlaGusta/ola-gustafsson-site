@@ -145,7 +145,7 @@ function shop_next_edition_no(PDO $pdo, string $kind, string $ref): int
 
 // Gör om kundvagnens rader till kontrollerade orderrader med serverns priser.
 // Kastar InvalidArgumentException med ett meddelande kunden kan visa.
-function shop_resolve_items(PDO $pdo, array $cartItems, string $lang): array
+function shop_resolve_items(PDO $pdo, array $cartItems, string $lang, bool $allowReserved = false): array
 {
   $payload = shop_payload();
   $catalog = seo_shop_catalog($payload);
@@ -163,12 +163,28 @@ function shop_resolve_items(PDO $pdo, array $cartItems, string $lang): array
     $size = isset($raw['size']) && is_string($raw['size']) ? trim($raw['size']) : '';
     $qty = isset($raw['qty']) && is_numeric($raw['qty']) ? max(1, min(20, (int) $raw['qty'])) : 1;
 
+    if ($kind === 'extra' && $allowReserved) {
+      // Fri rad från Studio: ram, montering, serviceavgift. Pris inkl. 25 % moms.
+      $title = isset($raw['title']) && is_string($raw['title']) ? trim($raw['title']) : '';
+      $amount = isset($raw['amount']) && is_numeric($raw['amount']) ? (int) round((float) $raw['amount']) : 0;
+      if ($title === '' || $amount <= 0) {
+        continue;
+      }
+      $lines[] = [
+        'kind' => 'extra', 'ref' => '', 'title' => function_exists('mb_substr') ? (string) mb_substr($title, 0, 190) : substr($title, 0, 190),
+        'detail' => isset($raw['detail']) && is_string($raw['detail']) ? trim($raw['detail']) : '',
+        'qty' => 1, 'unit' => $amount, 'vat' => SHOP_VAT_RATE_PRINT, 'edition' => null, 'sort' => $sort++
+      ];
+      continue;
+    }
+
     if ($kind === 'original') {
       $art = $catalog['artworks'][$ref] ?? null;
       if (!$art || isset($seenOriginals[$ref])) {
         throw new InvalidArgumentException($lang === 'en' ? 'A work in the cart could not be found.' : 'Ett verk i kundvagnen gick inte att hitta.');
       }
-      if (!$art['originalForSale']) {
+      $reservedOk = $allowReserved && $art['availability'] === 'reserved' && (int) $art['price'] > 0;
+      if (!$art['originalForSale'] && !$reservedOk) {
         throw new InvalidArgumentException(sprintf($lang === 'en' ? '"%s" is no longer available.' : '"%s" är inte längre tillgänglig.', $art['title']));
       }
       $seenOriginals[$ref] = true;
@@ -243,7 +259,7 @@ function shop_resolve_items(PDO $pdo, array $cartItems, string $lang): array
 
 // Summor: frakt 150 kr per beställning. Frakten följer momsen på varorna: 25 % om
 // något i ordern är momspliktigt, annars momsfri (bara original).
-function shop_totals(array $lines): array
+function shop_totals(array $lines, ?int $shippingOverride = null): array
 {
   $payload = shop_payload();
   $cfg = seo_shop_config($payload);
@@ -263,6 +279,9 @@ function shop_totals(array $lines): array
     if ($line['kind'] === 'original') {
       $shipping = max($shipping, (int) $cfg['shippingOriginalSmall']);
     }
+  }
+  if ($shippingOverride !== null) {
+    $shipping = max(0, $shippingOverride);
   }
   $shippingVatRate = $taxable ? SHOP_VAT_RATE_PRINT : 0;
   $vat += shop_vat_included($shipping, $shippingVatRate);
@@ -603,9 +622,9 @@ function shop_send_order_mails(array $order, string $lang, bool $notifyCustomer 
 }
 
 // Skapar ordern i en transaktion, reserverar original, tilldelar upplagenummer.
-function shop_create_order(PDO $pdo, array $lines, array $customer, string $lang): array
+function shop_create_order(PDO $pdo, array $lines, array $customer, string $lang, ?int $shippingOverride = null): array
 {
-  $totals = shop_totals($lines);
+  $totals = shop_totals($lines, $shippingOverride);
   $token = bin2hex(random_bytes(20));
 
   $pdo->beginTransaction();
