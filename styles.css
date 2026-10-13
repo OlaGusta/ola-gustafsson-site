@@ -7073,3 +7073,11 @@ body:not([data-page='studio']) .contact-social-links {
   color: var(--color-soft-ink);
   padding: 0 0.3rem;
 }
+
+.inquiry-mail-warning {
+  margin: 0;
+  padding: 0.6rem 0.8rem;
+  background: #f6e3cf;
+  color: #6b3b0b;
+  font-size: 0.9rem;
+}

@@ -3705,13 +3705,30 @@ const buildInquiryMailTemplate = (item, variant) => {
   };
 };
 
-const openInquiryMailTemplate = (card, item) => {
+const openInquiryMailTemplate = async (card, item) => {
   const panel = toggleInquiryPanel(card, 'mail');
   if (!panel) return;
+  // Köpknappen visas bara på lediga verk: varna om verket är reserverat eller sålt.
+  let availabilityWarning = '';
+  const slug = String(item.inquiry_slug || '').trim();
+  if (slug) {
+    try {
+      const catalog = await loadStudioOrderCatalog();
+      const art = catalog.artworks.find((entry) => entry.slug === slug);
+      if (!art) {
+        availabilityWarning = 'Verket är inte till salu (sålt eller ej till salu), så kunden kan inte beställa det på sajten.';
+      } else if (art.availability === 'reserved') {
+        availabilityWarning = 'Verket är markerat Reserverad, och då visas ingen köpknapp på sajten. Använd Skapa order i stället, eller sätt verket till Tillgänglig under Verk innan du skickar.';
+      }
+    } catch (error) {
+      availabilityWarning = '';
+    }
+  }
   const render = (variant) => {
     const tpl = buildInquiryMailTemplate(item, variant);
     panel.innerHTML = `
       <div class="inquiry-mail-template">
+        ${availabilityWarning && variant === 'order' ? `<p class="inquiry-mail-warning">${escapeHtml(availabilityWarning)}</p>` : ''}
         <div class="order-action-row">
           <label>Mall <select data-mail-variant><option value="order" ${variant === 'order' ? 'selected' : ''}>Beställ via sajten (förtur 7 dagar)</option><option value="taken" ${variant === 'taken' ? 'selected' : ''}>Tingat av annan köpare</option></select></label>
           <label>Ämne <input type="text" value="${escapeHtml(tpl.subject)}" data-mail-subject /></label>
