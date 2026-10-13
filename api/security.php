@@ -833,7 +833,11 @@ function api_security_send_mail(string $to, string $subject, string $body, strin
     'X-Content-Type-Options: nosniff'
   ];
 
-  return @mail($to, $subject, $body, implode("\r\n", $headers));
+  // Ämnesrader med å/ä/ö måste MIME-kodas, annars visar en del klienter skräptecken.
+  $encodedSubject = preg_match('/[^\x20-\x7e]/', $subject) === 1 && function_exists('mb_encode_mimeheader')
+    ? mb_encode_mimeheader($subject, 'UTF-8', 'B', "\r\n")
+    : $subject;
+  return @mail($to, $encodedSubject, $body, implode("\r\n", $headers));
 }
 
 function api_security_contact_recipient(): string
