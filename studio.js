@@ -3819,7 +3819,8 @@ const openInquiryMailTemplate = async (card, item) => {
     const bodyArea = panel.querySelector('[data-mail-body]');
     const openLink = panel.querySelector('[data-mail-open]');
     const syncLink = () => {
-      openLink.href = `mailto:${encodeURIComponent(String(item.email || ''))}?subject=${encodeURIComponent(subjectInput.value)}&body=${encodeURIComponent(bodyArea.value)}`;
+      // RFC 6068: radbrytningar i mailto-body ska vara %0D%0A, annars tappar en del mejlprogram dem.
+      openLink.href = `mailto:${encodeURIComponent(String(item.email || ''))}?subject=${encodeURIComponent(subjectInput.value)}&body=${encodeURIComponent(bodyArea.value.replace(/\r?\n/g, '\r\n'))}`;
     };
     subjectInput.addEventListener('input', syncLink);
     bodyArea.addEventListener('input', syncLink);
