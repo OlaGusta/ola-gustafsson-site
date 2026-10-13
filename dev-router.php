@@ -41,6 +41,12 @@ if (preg_match('#^/kassa/?$#', $requestPath) === 1) {
   return true;
 }
 
+if (preg_match('#^/order/([a-f0-9]{40})/kvitto/?$#', $requestPath, $matches) === 1) {
+  $_GET['token'] = $matches[1];
+  require __DIR__ . '/kvitto.php';
+  return true;
+}
+
 if (preg_match('#^/order/([a-f0-9]{40})/?$#', $requestPath, $matches) === 1) {
   $_GET['token'] = $matches[1];
   require __DIR__ . '/order.php';

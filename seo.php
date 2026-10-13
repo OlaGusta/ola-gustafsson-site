@@ -1145,6 +1145,20 @@ function seo_print_paper_label(string $lang): string
 // Kassan (beslut 2026-10-13): fasta priser så att en beställning inte kräver
 // korrespondens. Allt kan skrivas över i Studio via payload.shop.
 // ---------------------------------------------------------------------------
+// Säljarens uppgifter på kvitton (samma som på fakturorna i ~/Documents/Claude/fakturor/avsandare.json).
+function seo_receipt_sender(): array
+{
+  return [
+    'name' => 'Ola Gustafsson',
+    'address' => 'Olaus Magnus väg 21, 121 45 Stockholm',
+    'phone' => '070-433 36 74',
+    'email' => 'ola@olagustafsson.com',
+    'orgnr' => '700501-5131',
+    'vatNo' => 'SE700501513101',
+    'fTax' => 'Godkänd för F-skatt'
+  ];
+}
+
 function seo_shop_config(array $payload): array
 {
   $defaults = [

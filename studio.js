@@ -3826,6 +3826,9 @@ const renderOrdersPanel = (orders) => {
       const paidInfo = status !== 'pending' && order.paid_at
         ? `<span class="inquiry-chip">Betald ${escapeHtml(formatOrderTimestamp(order.paid_at))}${order.paid_method ? ` (${escapeHtml(order.paid_method)})` : ''}${Number(order.paid_sek) && Number(order.paid_sek) !== Number(order.total_sek) ? `, mottaget ${formatOrderAmount(order.paid_sek)}` : ''}</span>`
         : '';
+      const receiptLink = ['paid', 'shipped', 'completed'].includes(status) && order.order_url
+        ? `<a class="inquiry-chip" href="${escapeHtml(`${order.order_url}/kvitto`)}" target="_blank" rel="noopener noreferrer">Kvitto</a>`
+        : '';
       const shippedInfo = order.shipped_at
         ? `<span class="inquiry-chip">Skickad ${escapeHtml(formatOrderTimestamp(order.shipped_at))}${order.tracking_no ? ` · ${escapeHtml(order.tracking_no)}` : ''}</span>`
         : '';
@@ -3870,7 +3873,7 @@ const renderOrdersPanel = (orders) => {
           <li class="order-card-total"><span>Att betala<small>varav moms ${formatOrderAmount(order.vat_sek)}</small></span><span>${formatOrderAmount(order.total_sek)}</span></li>
         </ul>
         <p class="inquiry-message"><strong>Leverans:</strong> ${escapeHtml(`${order.customer_name}, ${order.address_line}, ${order.postal_code} ${order.city}`)}${order.note ? `<br /><strong>Kundens meddelande:</strong> ${escapeHtml(order.note)}` : ''}</p>
-        <div class="inquiry-badges"><span class="inquiry-chip">Vill betala med ${order.payment_choice === 'bank' ? 'bankkonto' : 'Swish'}</span>${paidInfo}${shippedInfo}<span class="inquiry-chip">${Number(order.mail_delivered) === 1 ? 'Bekräftelse mejlad' : 'Mejl ej levererat'}</span></div>
+        <div class="inquiry-badges"><span class="inquiry-chip">Vill betala med ${order.payment_choice === 'bank' ? 'bankkonto' : 'Swish'}</span>${paidInfo}${receiptLink}${shippedInfo}<span class="inquiry-chip">${Number(order.mail_delivered) === 1 ? 'Bekräftelse mejlad' : 'Mejl ej levererat'}</span></div>
         ${actions}
         <div class="order-action-row order-note-row">
           <label>Egen anteckning <input type="text" value="${escapeHtml(order.admin_note || '')}" data-order-field="adminNote" placeholder="t.ex. tryck beställt 14/10" /></label>

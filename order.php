@@ -52,7 +52,7 @@ $status = $order ? (string) $order['status'] : '';
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
       <link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" />
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20261013-07" />
+    <link rel="stylesheet" href="styles.css?v=20261013-08" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <script src="script.js?v=20261007-03" defer></script>
@@ -157,6 +157,9 @@ $status = $order ? (string) $order['status'] : '';
 
                 <section class="order-items">
                   <h2><?= $h($t('Varor', 'Items')) ?></h2>
+                  <?php if (in_array($status, ['paid', 'shipped', 'completed'], true)): ?>
+                    <p><a class="btn btn-ghost" href="/order/<?= $h((string) $order['token']) ?>/kvitto"><?= $h($t('Kvitto (skriv ut eller spara som PDF)', 'Receipt (print or save as PDF)')) ?></a></p>
+                  <?php endif; ?>
                   <table class="order-table">
                     <tbody>
                       <?php foreach ($order['items'] as $item): ?>
