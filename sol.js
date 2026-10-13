@@ -15,7 +15,12 @@
   const viewerPick = document.getElementById('sun-viewer-pick');
   const daysInput = document.getElementById('sun-order-days');
   const summary = document.getElementById('sun-order-summary');
-  const form = document.getElementById('artwork-inquiry-form');
+  const form = document.getElementById('sun-order-form') || document.getElementById('artwork-inquiry-form');
+  // Kassan (shop.js) hämtar de markerade solarna härifrån.
+  window.olaSunPicks = () =>
+    Array.from(picks.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([day, size]) => ({ day, size }));
   const titleField = form ? form.querySelector('input[name="inquiryTitle"]') : null;
   const priceField = form ? form.querySelector('input[name="inquiryPriceLabel"]') : null;
   const sizeSelect = document.getElementById('sun-order-size');

@@ -126,7 +126,7 @@ if (!$artwork) {
         <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
         <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
       <?php endif; ?>
-      <link rel="stylesheet" href="/styles.css?v=20261007-03" />
+      <link rel="stylesheet" href="/styles.css?v=20261013-01" />
     </head>
     <body id="page-top" data-page="artwork">
       <header class="site-header" id="top">
@@ -196,6 +196,7 @@ if (!$artwork) {
       <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
       <script src="/content.js?v=20260928-01" defer></script>
       <script src="/script.js?v=20261007-03" defer></script>
+    <script src="/shop.js?v=20261013-02" defer></script>
     </body>
   </html>
   <?php
@@ -658,10 +659,11 @@ if (!is_string($structuredJson)) {
       <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="/styles.css?v=20261007-03" />
+    <link rel="stylesheet" href="/styles.css?v=20261013-01" />
     <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="/content.js?v=20260928-01" defer></script>
     <script src="/script.js?v=20261007-03" defer></script>
+    <script src="/shop.js?v=20261013-02" defer></script>
   </head>
   <body id="page-top" data-page="artwork">
     <header class="site-header" id="top">
@@ -791,8 +793,37 @@ if (!is_string($structuredJson)) {
                 </section>
               <?php endif; ?>
 
+              <?php
+                $shopCatalogItem = seo_shop_catalog($payload)['artworks'][$canonicalSlug] ?? null;
+                $buyOriginal = $shopCatalogItem && $shopCatalogItem['originalForSale'];
+                $buyPrints = $shopCatalogItem ? $shopCatalogItem['prints'] : [];
+              ?>
+              <?php if ($buyOriginal || $buyPrints !== []): ?>
+                <div class="artwork-buy" id="artwork-buy">
+                  <?php if ($buyOriginal): ?>
+                    <div class="artwork-buy-row">
+                      <button type="button" class="btn btn-primary" data-shop-add="original" data-ref="<?= htmlspecialchars($canonicalSlug, ENT_QUOTES) ?>" data-mat-checkbox="artwork-buy-mat"><?= htmlspecialchars(($lang === 'en' ? 'Buy the original – ' : 'Köp originalet – ') . shop_money_label((int) $shopCatalogItem['price'], $lang), ENT_QUOTES) ?></button>
+                    </div>
+                    <?php if ($shopCatalogItem['matPrice'] > 0): ?>
+                      <label class="checkbox-row"><input type="checkbox" id="artwork-buy-mat" /> <span><?= htmlspecialchars(($lang === 'en' ? 'Add mat with backing board, frame size ' : 'Lägg till passepartout med bakstycke, ramformat ') . str_replace('x', ' × ', $shopCatalogItem['matClass']) . ' cm, +' . shop_money_label((int) $shopCatalogItem['matPrice'], $lang), ENT_QUOTES) ?></span></label>
+                    <?php endif; ?>
+                  <?php endif; ?>
+                  <?php if ($buyPrints !== []): ?>
+                    <div class="artwork-buy-row">
+                      <select id="artwork-buy-print-size" aria-label="<?= htmlspecialchars($lang === 'en' ? 'Print size' : 'Printformat', ENT_QUOTES) ?>">
+                        <?php foreach ($buyPrints as $i => $size): ?>
+                          <option value="<?= htmlspecialchars($size['format'], ENT_QUOTES) ?>" <?= $i === 0 ? 'selected' : '' ?>><?= htmlspecialchars(seo_print_frame_label($size['format'], $lang) . ($size['image'] !== '' ? ' (' . ($lang === 'en' ? 'image ' : 'bild ') . $size['image'] . ')' : '') . ' – ' . shop_money_label((int) $size['price'], $lang), ENT_QUOTES) ?></option>
+                        <?php endforeach; ?>
+                      </select>
+                      <button type="button" class="btn <?= $buyOriginal ? 'btn-ghost' : 'btn-primary' ?>" data-shop-add="print" data-ref="<?= htmlspecialchars($canonicalSlug, ENT_QUOTES) ?>" data-size-select="artwork-buy-print-size"><?= htmlspecialchars($lang === 'en' ? 'Order fine art print' : 'Beställ Fine Art Print', ENT_QUOTES) ?></button>
+                    </div>
+                  <?php endif; ?>
+                  <p class="field-hint"><?= htmlspecialchars($lang === 'en' ? 'Shipping 150 SEK within Sweden. Pay by Swish or bank transfer after ordering.' : 'Frakt 150 kr inom Sverige. Betala med Swish eller bankgiro efter beställningen.', ENT_QUOTES) ?></p>
+                </div>
+              <?php endif; ?>
+
               <div class="artwork-actions">
-                <a class="btn btn-primary" href="<?= htmlspecialchars($inquiryPrimaryHref, ENT_QUOTES) ?>"><?= htmlspecialchars($inquiryButtonLabel, ENT_QUOTES) ?></a>
+                <a class="btn btn-ghost" href="<?= htmlspecialchars($inquiryPrimaryHref, ENT_QUOTES) ?>"><?= htmlspecialchars($lang === 'en' ? 'Ask about the work' : 'Fråga om verket', ENT_QUOTES) ?></a>
                 <a class="btn btn-ghost" href="/gallery.html" data-lang-link><?= $lang === 'en' ? 'Back to gallery' : 'Till galleriet' ?></a>
               </div>
             </aside>

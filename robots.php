@@ -32,5 +32,7 @@ echo "User-agent: *\n";
 echo "Allow: /\n";
 echo "Disallow: /studio.html\n";
 echo "Disallow: /api/\n";
+echo "Disallow: /kassa\n";
+echo "Disallow: /order/\n";
 echo "\n";
 echo "Sitemap: {$baseUrl}/sitemap.xml\n";

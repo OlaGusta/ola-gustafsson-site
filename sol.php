@@ -113,11 +113,12 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
       <link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20261007-03" />
+    <link rel="stylesheet" href="styles.css?v=20261013-01" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <script src="script.js?v=20261007-03" defer></script>
-    <script src="sol.js?v=20261004-02" defer></script>
+    <script src="shop.js?v=20261013-02" defer></script>
+    <script src="sol.js?v=20261013-01" defer></script>
   </head>
   <body id="page-top" data-page="sun" data-day-label="<?= $h($dayLabel) ?>" data-remove-label="<?= $h($lang === 'en' ? 'Remove day' : 'Ta bort dag') ?>">
     <header class="site-header" id="top">
@@ -213,21 +214,16 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
               <p><?= $h(seo_print_extras_note($lang) . ' ' . seo_framing_service_note($lang)) ?></p>
               <p><?= $h(seo_print_delivery_note($lang)) ?></p>
               <p class="artwork-inquiry-fineprint"><?= $h($lang === 'en'
-                ? 'Sending the form is not a binding order. You can pay as soon as you have sent it, or wait for my confirmation by email.'
-                : 'Formuläret är inte en bindande beställning. Du kan betala direkt när du skickat den, eller vänta på min bekräftelse per mejl.') ?> <?= $h(seo_withdrawal_note($lang)) ?></p>
+                ? 'In the checkout you enter the delivery address and get the payment details with a Swish code. The order is confirmed when the payment has arrived.'
+                : 'I kassan fyller du i leveransadress och får betalningsuppgifter med Swish-kod. Beställningen bekräftas när betalningen kommit in.') ?> <?= $h(seo_withdrawal_note($lang)) ?></p>
               <?php if (($faqLinkHtml = seo_faq_link_html($payload, $lang)) !== ''): ?>
                 <p class="artwork-inquiry-faq"><?= $faqLinkHtml ?></p>
               <?php endif; ?>
             </div>
-            <?php if ($formEnabled): ?>
               <form
-                id="artwork-inquiry-form"
+                id="sun-order-form"
                 class="contact-form artwork-inquiry-form"
                 data-artwork-title="<?= $h($heading) ?>"
-                data-inquiry-mode="artwork"
-                data-prefill="<?= $h($lang === 'en' ? 'Hi! I would like to order fine art prints of the suns above.' : 'Hej! Jag vill beställa fine art print av solarna ovan.') ?>"
-                data-form-enabled="true"
-                data-turnstile-site-key="<?= $h((string) ($publicContactConfig['turnstileSiteKey'] ?? '')) ?>"
                 novalidate
               >
                 <input type="hidden" name="inquirySlug" value="100-dagar-av-sol" />
@@ -256,57 +252,15 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                   <p class="sun-order-sum sun-order-subtotal"><span><?= $h(($lang === 'en' ? 'Prints' : 'Prints') . ' (' . seo_print_vat_label($lang) . ')') ?></span><span id="sun-order-sum"></span></p>
                   <p class="sun-order-sum sun-order-subtotal"><span><?= $h($lang === 'en' ? 'Shipping within Sweden' : 'Frakt inom Sverige') ?></span><span><?= $h(number_format(SEO_PRINT_SHIPPING_SEK, 0, ',', ' ') . ($lang === 'en' ? ' SEK' : ' kr')) ?></span></p>
                   <p class="sun-order-sum sun-order-due"><span><?= $h($lang === 'en' ? 'To pay' : 'Att betala') ?></span><strong id="sun-order-due"></strong></p>
-                  <?php $sunPaymentNote = seo_payment_note($payload, $lang, $lang === 'en' ? 'the sun numbers' : 'solens nummer'); ?>
-                  <p class="field-hint sun-order-extras-note" id="sun-order-extras-note" hidden></p>
-                  <?php if ($sunPaymentNote !== ''): ?>
-                    <p class="field-hint sun-order-pay"><?= $h($sunPaymentNote) ?></p>
-                  <?php endif; ?>
                 </div>
 
 
-
-                <fieldset class="sun-order-extras">
-                  <legend><?= $h($lang === 'en' ? 'Optional extras' : 'Tillval') ?></legend>
-                  <label class="checkbox-row"><input type="checkbox" name="sunExtra" value="<?= $h($lang === 'en' ? 'mat' : 'passepartout') ?>" /> <span><?= $h($lang === 'en' ? 'Mat' : 'Passepartout') ?></span></label>
-                  <label class="checkbox-row"><input type="checkbox" name="sunExtra" value="<?= $h($lang === 'en' ? 'frame' : 'ram') ?>" /> <span><?= $h($lang === 'en' ? 'Frame' : 'Ram') ?></span></label>
-                  <small class="field-hint"><?= $h($lang === 'en'
-                    ? sprintf('Cost of materials and a service fee of %d SEK per work are added. I confirm the price by email before you pay.', SEO_FRAMING_SERVICE_FEE_SEK)
-                    : sprintf('Materialkostnad och en serviceavgift på %d kr per verk tillkommer. Jag bekräftar priset per mejl innan du betalar.', SEO_FRAMING_SERVICE_FEE_SEK)) ?></small>
-                </fieldset>
-
-                <label><?= $h($lang === 'en' ? 'Name' : 'Namn') ?>
-                  <input type="text" name="name" autocomplete="name" required />
-                </label>
-
-                <label><?= $h($lang === 'en' ? 'Email' : 'E-post') ?>
-                  <input type="email" name="email" autocomplete="email" required />
-                </label>
-
-                <label><?= $h($lang === 'en' ? 'Message' : 'Meddelande') ?>
-                  <textarea name="message" rows="4" required placeholder="<?= $h($lang === 'en' ? 'Delivery address and any other wishes.' : 'Leveransadress och eventuella önskemål.') ?>"></textarea>
-                </label>
-
-                <label class="contact-honeypot" aria-hidden="true">
-                  Website
-                  <input type="text" name="website" tabindex="-1" autocomplete="off" />
-                </label>
-
-                <div id="artwork-inquiry-turnstile" class="contact-turnstile" hidden></div>
 
                 <div class="artwork-inquiry-actions">
-                  <button class="btn btn-primary" type="submit"><?= $h($lang === 'en' ? 'Send order request' : 'Skicka beställning') ?></button>
+                  <button class="btn btn-primary" type="submit"><?= $h($lang === 'en' ? 'Go to checkout' : 'Till kassan') ?></button>
                 </div>
-
-                <p id="artwork-inquiry-status" class="contact-form-status" data-kind="info" aria-live="polite"></p>
+                <p id="sun-order-status" class="contact-form-status" data-kind="info" aria-live="polite"></p>
               </form>
-            <?php else: ?>
-              <?php $mail = (string) ($publicContactConfig['email'] ?? ''); ?>
-              <div class="artwork-inquiry-actions">
-                <?php if ($mail !== ''): ?>
-                  <a class="btn btn-primary" href="mailto:<?= $h($mail) ?>?subject=<?= rawurlencode('Fine Art Print – 100 dagar av sol') ?>"><?= $h($lang === 'en' ? 'Email your order' : 'Mejla din beställning') ?></a>
-                <?php endif; ?>
-              </div>
-            <?php endif; ?>
           </section>
 
           <div class="gallery-cta-row">

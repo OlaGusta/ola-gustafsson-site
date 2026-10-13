@@ -357,6 +357,44 @@ function portfolio_parse_overrides_file(string $raw): array
   return is_array($decoded) ? $decoded : [];
 }
 
+// Sparar hela innehållet till både overrides.js (filen sidorna läser) och
+// portfolio_state i databasen (det Studio läser), med samma hash som api/publish.php.
+// Används av kassan när ett original reserveras eller säljs.
+function portfolio_save_payload(array $payload, PDO $pdo): string
+{
+  portfolio_sanitize_payload($payload);
+  $jsonForDb = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+  $jsonForJs = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+  if (!is_string($jsonForDb) || !is_string($jsonForJs)) {
+    throw new RuntimeException('Kunde inte serialisera innehållet.');
+  }
+  $payloadHash = hash('sha256', $jsonForDb);
+  $statement = $pdo->prepare(
+    'INSERT INTO portfolio_state (id, payload_json, payload_hash) VALUES (1, :payload_json, :payload_hash)
+     ON DUPLICATE KEY UPDATE payload_json = VALUES(payload_json), payload_hash = VALUES(payload_hash), updated_at = CURRENT_TIMESTAMP'
+  );
+  $statement->execute([':payload_json' => $jsonForDb, ':payload_hash' => $payloadHash]);
+
+  $jsBody = "// Live overrides för hela sajten.\n// Auto-genererad av Studio API.\nwindow.PORTFOLIO_OVERRIDES = {$jsonForJs};\n";
+  if (@file_put_contents(__DIR__ . '/overrides.js', $jsBody, LOCK_EX) === false) {
+    throw new RuntimeException('Innehållet sparades i databasen men overrides.js kunde inte skrivas.');
+  }
+  return $payloadHash;
+}
+
+// Sätter tillgänglighet på ett verk (slug) och sparar. Returnerar false om verket saknas.
+function portfolio_set_artwork_availability(string $slug, string $availability, PDO $pdo): bool
+{
+  $payload = portfolio_load_overrides();
+  $map = portfolio_build_artwork_slug_map($payload);
+  if (!isset($map[$slug]) || !isset($payload['gallery']['artworks'][$map[$slug]])) {
+    return false;
+  }
+  $payload['gallery']['artworks'][$map[$slug]]['availability'] = $availability;
+  portfolio_save_payload($payload, $pdo);
+  return true;
+}
+
 function portfolio_load_overrides(): array
 {
   $path = __DIR__ . '/overrides.js';

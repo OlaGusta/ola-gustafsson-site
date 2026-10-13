@@ -1042,6 +1042,8 @@ function seo_canonical_url(string $pageType, string $lang): string
     $path = '/gallery.html';
   } elseif (strtolower(trim($pageType)) === 'sun') {
     $path = '/100-dagar-av-sol';
+  } elseif (strtolower(trim($pageType)) === 'checkout') {
+    $path = '/kassa';
   }
 
   // Keep Swedish/default canonical URLs clean (no lang query) for better social share consistency.
@@ -1139,6 +1141,138 @@ function seo_print_paper_label(string $lang): string
 }
 
 // Tilläggskostnader som ska synas vid varje beställning/intresseanmälan (original och print).
+// ---------------------------------------------------------------------------
+// Kassan (beslut 2026-10-13): fasta priser så att en beställning inte kräver
+// korrespondens. Allt kan skrivas över i Studio via payload.shop.
+// ---------------------------------------------------------------------------
+function seo_shop_config(array $payload): array
+{
+  $defaults = [
+    // Passepartout med bakstycke till original, per ramformat. Inkl. 300 kr serviceavgift
+    // och moms. Materialet från BGA: 50×70 ≈ 395 + bakstycke 180 + frakt 60 kr.
+    'matPrices' => ['30x40' => 600, '40x50' => 700, '50x70' => 950, '70x100' => 1500],
+    // Frakt: 150 kr per beställning oavsett storlek (beslut 2026-10-13; paket.se
+    // ligger på 62–300 kr beroende på fraktbolag, 150 täcker normalfallet).
+    'shippingOriginalSmall' => 150,
+    'shippingOriginalLarge' => 150,
+    'shippingPrint' => SEO_PRINT_SHIPPING_SEK,
+    'editionSize' => SEO_PRINT_EDITION_SIZE,
+    'largeSideCm' => 60,
+    'reservationDays' => 7,
+    'deliveryNoteOriginal' => ['sv' => 'Original skickas inom en vecka efter betalning.', 'en' => 'Originals ship within a week of payment.'],
+  ];
+  $shop = isset($payload['shop']) && is_array($payload['shop']) ? $payload['shop'] : [];
+  foreach (['shippingOriginalSmall', 'shippingOriginalLarge', 'shippingPrint', 'editionSize', 'largeSideCm', 'reservationDays'] as $key) {
+    if (isset($shop[$key]) && is_numeric($shop[$key]) && (int) $shop[$key] >= 0) {
+      $defaults[$key] = (int) $shop[$key];
+    }
+  }
+  if (isset($shop['matPrices']) && is_array($shop['matPrices'])) {
+    foreach ($shop['matPrices'] as $class => $price) {
+      if (is_string($class) && is_numeric($price) && (int) $price > 0) {
+        $defaults['matPrices'][seo_print_format_key($class) ?: $class] = (int) $price;
+      }
+    }
+  }
+  return $defaults;
+}
+
+// "38 × 56 cm" -> [38.0, 56.0] (bredd, höjd). Tom array om måttet inte går att läsa.
+function seo_format_dims(string $format): array
+{
+  if (preg_match('/(\d+(?:[.,]\d+)?)\s*[×x]\s*(\d+(?:[.,]\d+)?)/u', $format, $m) !== 1) {
+    return [];
+  }
+  return [(float) str_replace(',', '.', $m[1]), (float) str_replace(',', '.', $m[2])];
+}
+
+// Ramformat för passepartout till ett original, utifrån bildmåttet: bilden plus
+// minst 5 cm kant runt om ska rymmas i standardformatet.
+function seo_mat_frame_class(array $dims): string
+{
+  if (count($dims) !== 2) {
+    return '';
+  }
+  $short = min($dims);
+  $long = max($dims);
+  foreach ([[30, 40], [40, 50], [50, 70], [70, 100]] as [$fs, $fl]) {
+    if ($short + 10 <= $fs && $long + 10 <= $fl) {
+      return $fs . 'x' . $fl;
+    }
+  }
+  return '';
+}
+
+function shop_money_label(int $amount, string $lang = 'sv'): string
+{
+  return number_format($amount, 0, ',', "\u{00a0}") . ($lang === 'en' ? ' SEK' : ' kr');
+}
+
+function seo_price_amount(string $label): int
+{
+  if (preg_match('/[0-9]/', $label) !== 1 || preg_match('/förfrågan|request/i', $label) === 1) {
+    return 0;
+  }
+  return (int) preg_replace('/[^0-9]/', '', $label);
+}
+
+// Frakt för ett original utifrån formatet.
+function seo_original_shipping(array $payload, string $format): int
+{
+  $cfg = seo_shop_config($payload);
+  $dims = seo_format_dims($format);
+  $long = $dims !== [] ? max($dims) : 0;
+  return $long > $cfg['largeSideCm'] ? $cfg['shippingOriginalLarge'] : $cfg['shippingOriginalSmall'];
+}
+
+// Katalogen kassan räknar mot: samma data för JS (kundvagn) och för api/shop.php
+// (kontroll av priser på servern). Priser i hela kronor inkl. moms.
+function seo_shop_catalog(array $payload): array
+{
+  $cfg = seo_shop_config($payload);
+  $slugMap = portfolio_build_artwork_slug_map($payload);
+  $artworks = isset($payload['gallery']['artworks']) && is_array($payload['gallery']['artworks']) ? $payload['gallery']['artworks'] : [];
+  $items = [];
+  foreach ($slugMap as $slug => $index) {
+    $artwork = $artworks[$index] ?? null;
+    if (!is_array($artwork)) {
+      continue;
+    }
+    $title = isset($artwork['title']) && is_string($artwork['title']) ? trim($artwork['title']) : $slug;
+    $format = isset($artwork['format']) && is_string($artwork['format']) ? trim($artwork['format']) : '';
+    $availability = isset($artwork['availability']) && is_string($artwork['availability']) ? $artwork['availability'] : '';
+    $price = isset($artwork['priceLabel']) && is_string($artwork['priceLabel']) ? seo_price_amount($artwork['priceLabel']) : 0;
+    $matClass = seo_mat_frame_class(seo_format_dims($format));
+    $printSizes = !empty($artwork['fineArtPrint']) ? seo_artwork_print_sizes($payload, $artwork, 'sv') : [];
+    $items[(string) $slug] = [
+      'title' => $title,
+      'format' => $format,
+      'src' => isset($artwork['src']) && is_string($artwork['src']) ? $artwork['src'] : '',
+      'originalForSale' => $price > 0 && !in_array($availability, ['sold', 'nfs', 'reserved'], true),
+      'availability' => $availability,
+      'price' => $price,
+      'shipping' => seo_original_shipping($payload, $format),
+      'matClass' => $matClass,
+      'matPrice' => $matClass !== '' && isset($cfg['matPrices'][$matClass]) ? (int) $cfg['matPrices'][$matClass] : 0,
+      'prints' => array_values(array_map(static fn (array $size): array => [
+        'format' => $size['format'],
+        'price' => seo_price_amount($size['price']),
+        'image' => $size['image'] ?? ''
+      ], $printSizes)),
+    ];
+  }
+  return [
+    'artworks' => $items,
+    'sunPrints' => array_values(array_map(static fn (array $size): array => [
+      'format' => $size['format'],
+      'price' => seo_price_amount($size['price']),
+      'image' => seo_print_image_size($size['format'], 'sv')
+    ], seo_print_sizes($payload, 'sv'))),
+    'shippingPrint' => $cfg['shippingPrint'],
+    'editionSize' => $cfg['editionSize'],
+  ];
+}
+
 function seo_order_extras_note(string $lang): string
 {
   return $lang === 'en'
