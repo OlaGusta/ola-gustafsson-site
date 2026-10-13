@@ -1436,6 +1436,8 @@ const EN_SYNC_STRING_JOBS = [
   { path: 'project.description', field: 'generic' },
   { path: 'project.collageAlt', field: 'alt' },
   { path: 'project.sampleHeading', field: 'title' },
+  { path: 'project.poster.title', field: 'title' },
+  { path: 'project.poster.description', field: 'generic' },
   { path: 'contact.eyebrow', field: 'generic' },
   { path: 'contact.heading', field: 'title' },
   { path: 'contact.body', field: 'generic' },
@@ -2631,6 +2633,13 @@ const el = {
   projectCollageAlt: document.getElementById('project-collage-alt'),
   projectSampleHeading: document.getElementById('project-sample-heading'),
   projectPrintSizes: document.getElementById('project-print-sizes'),
+  projectPosterEnabled: document.getElementById('project-poster-enabled'),
+  projectPosterPrice: document.getElementById('project-poster-price'),
+  projectPosterStock: document.getElementById('project-poster-stock'),
+  projectPosterTitle: document.getElementById('project-poster-title'),
+  projectPosterDescription: document.getElementById('project-poster-description'),
+  projectPosterSrc: document.getElementById('project-poster-src'),
+  projectPosterAlt: document.getElementById('project-poster-alt'),
   projectSample1Src: document.getElementById('project-sample-1-src'),
   projectSample1Pick: document.getElementById('project-sample-1-pick'),
   projectSample1Preview: document.getElementById('project-sample-1-preview'),
@@ -4909,6 +4918,9 @@ const ensureAboutContact = () => {
   if (typeof state.content.project.sampleHeading !== 'string') {
     state.content.project.sampleHeading = '';
   }
+  if (!state.content.project.poster || typeof state.content.project.poster !== 'object') {
+    state.content.project.poster = { enabled: false, price: 350, stock: 0, title: '', description: '', src: '', alt: '' };
+  }
   if (!Array.isArray(state.content.project.samples)) {
     state.content.project.samples = [];
   }
@@ -5335,6 +5347,15 @@ const syncFormFromState = () => {
   if (el.projectSampleHeading) {
     el.projectSampleHeading.value = localizedProject.sampleHeading || '';
   }
+  const poster = project.poster && typeof project.poster === 'object' ? project.poster : {};
+  const localizedPoster = localizedProject.poster && typeof localizedProject.poster === 'object' ? localizedProject.poster : {};
+  if (el.projectPosterEnabled) el.projectPosterEnabled.checked = Boolean(poster.enabled);
+  if (el.projectPosterPrice) el.projectPosterPrice.value = Number.isFinite(Number(poster.price)) && poster.price !== '' && poster.price !== undefined ? String(poster.price) : '';
+  if (el.projectPosterStock) el.projectPosterStock.value = Number.isFinite(Number(poster.stock)) && poster.stock !== undefined ? String(poster.stock) : '';
+  if (el.projectPosterTitle) el.projectPosterTitle.value = localizedPoster.title || '';
+  if (el.projectPosterDescription) el.projectPosterDescription.value = localizedPoster.description || '';
+  if (el.projectPosterSrc) el.projectPosterSrc.value = poster.src || '';
+  if (el.projectPosterAlt) el.projectPosterAlt.value = poster.alt || '';
   if (el.projectPrintSizes) {
     el.projectPrintSizes.value = (Array.isArray(project.printSizes) ? project.printSizes : [])
       .map((row) => [row && row.format, row && row.price].filter(Boolean).join(' | '))
@@ -7029,6 +7050,19 @@ const pullFormToState = () => {
   }
   if (el.projectSampleHeading) {
     setPath(localizedTarget, 'project.sampleHeading', el.projectSampleHeading.value.trim());
+  }
+  if (el.projectPosterEnabled) {
+    const current = state.content.project.poster && typeof state.content.project.poster === 'object' ? state.content.project.poster : {};
+    state.content.project.poster = {
+      ...current,
+      enabled: el.projectPosterEnabled.checked,
+      price: Math.max(0, Number(el.projectPosterPrice.value) || 0),
+      stock: Math.max(0, Number(el.projectPosterStock.value) || 0),
+      src: el.projectPosterSrc.value.trim(),
+      alt: el.projectPosterAlt.value.trim()
+    };
+    setPath(localizedTarget, 'project.poster.title', el.projectPosterTitle.value.trim());
+    setPath(localizedTarget, 'project.poster.description', el.projectPosterDescription.value.trim());
   }
   if (el.projectPrintSizes) {
     // "30 × 40 cm | 1 800 kr" per rad -> [{ format, price }]

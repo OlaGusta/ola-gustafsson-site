@@ -23,6 +23,17 @@ $fontStylesheetHref = seo_google_fonts_href($payload);
 $publicContactConfig = portfolio_public_contact_config($payload);
 $formEnabled = !empty($publicContactConfig['formEnabled']);
 
+$poster = seo_poster_config($payload, $lang);
+$posterAvailable = 0;
+if ($poster['enabled']) {
+  try {
+    require_once __DIR__ . '/api/shop_lib.php';
+    $posterAvailable = shop_poster_available(api_get_pdo(), $payload);
+  } catch (Throwable $error) {
+    $posterAvailable = 0;
+  }
+}
+
 $sunCount = 100;
 $sunManifest = json_decode((string) @file_get_contents(__DIR__ . '/images/sol/manifest.json'), true);
 if (!is_array($sunManifest)) {
@@ -113,11 +124,11 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
       <link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20261013-08" />
+    <link rel="stylesheet" href="styles.css?v=20261013-09" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <script src="script.js?v=20261007-03" defer></script>
-    <script src="shop.js?v=20261013-04" defer></script>
+    <script src="shop.js?v=20261013-05" defer></script>
     <script src="sol.js?v=20261013-01" defer></script>
   </head>
   <body id="page-top" data-page="sun" data-day-label="<?= $h($dayLabel) ?>" data-remove-label="<?= $h($lang === 'en' ? 'Remove day' : 'Ta bort dag') ?>">
@@ -202,6 +213,33 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
               </li>
             <?php endfor; ?>
           </ol>
+
+          <?php if ($poster['enabled']): ?>
+            <section id="poster" class="artwork-inquiry-card surface-soft sun-poster">
+              <?php if ($poster['src'] !== ''): ?>
+                <img class="sun-poster-image" src="<?= $h($poster['src']) ?>" alt="<?= $h($poster['alt'] !== '' ? $poster['alt'] : $poster['title']) ?>" loading="lazy" decoding="async" />
+              <?php endif; ?>
+              <div class="sun-poster-body">
+                <p class="eyebrow"><?= $h($lang === 'en' ? 'Poster' : 'Poster') ?></p>
+                <h2><?= $h($poster['title']) ?></h2>
+                <?php if ($poster['description'] !== ''): ?><p><?= seo_render_multiline_html($poster['description']) ?></p><?php endif; ?>
+                <p class="sun-poster-price"><strong><?= $h(shop_money_label($poster['price'], $lang)) ?></strong> <span class="field-hint"><?= $h($lang === 'en' ? 'incl. VAT. Shipping within Sweden 150 SEK per order.' : 'inkl. moms. Frakt inom Sverige 150 kr per beställning.') ?></span></p>
+                <?php if ($posterAvailable > 0): ?>
+                  <div class="sun-poster-buy">
+                    <label><?= $h($lang === 'en' ? 'Quantity' : 'Antal') ?>
+                      <select id="sun-poster-qty">
+                        <?php for ($n = 1; $n <= min($poster['maxPerOrder'], $posterAvailable); $n++): ?><option value="<?= $n ?>"><?= $n ?></option><?php endfor; ?>
+                      </select>
+                    </label>
+                    <button type="button" class="btn btn-primary" data-shop-add="poster" data-ref="poster" data-qty-select="sun-poster-qty"><?= $h($lang === 'en' ? 'Add to cart' : 'Lägg i kundvagnen') ?></button>
+                    <?php if ($posterAvailable <= 10): ?><span class="field-hint"><?= $h(sprintf($lang === 'en' ? 'Only %d left.' : 'Bara %d kvar.', $posterAvailable)) ?></span><?php endif; ?>
+                  </div>
+                <?php else: ?>
+                  <p class="sun-poster-soldout"><?= $h($lang === 'en' ? 'Sold out.' : 'Slutsåld.') ?></p>
+                <?php endif; ?>
+              </div>
+            </section>
+          <?php endif; ?>
 
           <section id="bestall" class="artwork-inquiry-card surface-soft sun-order">
             <div class="artwork-inquiry-copy">

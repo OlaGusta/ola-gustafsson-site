@@ -1159,6 +1159,26 @@ function seo_receipt_sender(): array
   ];
 }
 
+// Postern "100 dagar av sol": tryckt upplaga som säljs från lager (inte print on demand).
+// Innehållet ligger i project.poster (Studio → Projekt). Antal kvar räknas i shop_lib
+// som lager minus sålda i ordrar som inte avbrutits.
+function seo_poster_config(array $payload, string $lang = 'sv'): array
+{
+  $raw = isset($payload['project']['poster']) && is_array($payload['project']['poster']) ? $payload['project']['poster'] : [];
+  $title = seo_localized_payload_string($payload, $lang, ['project', 'poster', 'title']);
+  $description = seo_localized_payload_string($payload, $lang, ['project', 'poster', 'description']);
+  return [
+    'enabled' => !empty($raw['enabled']),
+    'price' => isset($raw['price']) && is_numeric($raw['price']) ? (int) $raw['price'] : 350,
+    'stock' => isset($raw['stock']) && is_numeric($raw['stock']) ? max(0, (int) $raw['stock']) : 0,
+    'title' => $title !== '' ? $title : ($lang === 'en' ? 'Poster – 100 days of sun' : 'Poster – 100 dagar av sol'),
+    'description' => $description,
+    'src' => isset($raw['src']) && is_string($raw['src']) ? trim($raw['src']) : '',
+    'alt' => isset($raw['alt']) && is_string($raw['alt']) ? trim($raw['alt']) : '',
+    'maxPerOrder' => 10,
+  ];
+}
+
 function seo_shop_config(array $payload): array
 {
   $defaults = [
@@ -1284,6 +1304,7 @@ function seo_shop_catalog(array $payload): array
     ], seo_print_sizes($payload, 'sv'))),
     'shippingPrint' => $cfg['shippingPrint'],
     'editionSize' => $cfg['editionSize'],
+    'poster' => seo_poster_config($payload, 'sv'),
   ];
 }
 

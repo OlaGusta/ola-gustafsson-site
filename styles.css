@@ -7187,3 +7187,75 @@ body:not([data-page='studio']) .contact-social-links {
   .receipt { padding: 0; max-width: none; }
   @page { margin: 18mm; }
 }
+
+/* Solsidan: poster */
+.sun-poster {
+  display: grid;
+  grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+  margin-bottom: var(--space-6);
+}
+.sun-poster-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  box-shadow: var(--shadow-md);
+}
+.sun-poster-body h2 {
+  margin: 0.2rem 0 0.6rem;
+}
+.sun-poster-price {
+  margin: 0.8rem 0;
+  font-size: 1.1rem;
+}
+.sun-poster-buy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+}
+.sun-poster-buy label {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  color: var(--color-soft-ink);
+}
+.sun-poster-buy select {
+  font: inherit;
+  padding: 0.55rem 0.6rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  min-width: 5rem;
+}
+.sun-poster-soldout {
+  font-weight: 600;
+}
+@media (max-width: 640px) {
+  .sun-poster {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sun-poster-image {
+    max-width: 260px;
+  }
+}
+.studio-project-poster {
+  border: 1px solid var(--color-border);
+  padding: 0.8rem 1rem 1rem;
+  margin: 0 0 var(--space-4);
+  display: grid;
+  gap: var(--space-3);
+}
+.studio-project-poster legend {
+  font-weight: 600;
+  padding: 0 0.3rem;
+}
+.studio-project-poster .studio-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.studio-project-poster .studio-check input {
+  width: auto;
+}

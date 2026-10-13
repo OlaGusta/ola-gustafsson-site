@@ -16,7 +16,17 @@ $overridesRevParam = $overridesRev > 0 ? (string) $overridesRev : '0';
 $payload = portfolio_load_overrides();
 $fontStylesheetHref = seo_google_fonts_href($payload);
 $publicContactConfig = portfolio_public_contact_config($payload);
-$catalogJson = json_encode(seo_shop_catalog($payload), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP);
+$catalog = seo_shop_catalog($payload);
+$catalog['poster']['available'] = 0;
+if (!empty($catalog['poster']['enabled'])) {
+  try {
+    require_once __DIR__ . '/api/shop_lib.php';
+    $catalog['poster']['available'] = shop_poster_available(api_get_pdo(), $payload);
+  } catch (Throwable $error) {
+    $catalog['poster']['available'] = 0;
+  }
+}
+$catalogJson = json_encode($catalog, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP);
 if (!is_string($catalogJson)) {
   $catalogJson = '{}';
 }
@@ -42,11 +52,11 @@ $pageTitle = $lang === 'en' ? 'Checkout | Ola Gustafsson' : 'Kassa | Ola Gustafs
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
       <link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" />
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20261013-08" />
+    <link rel="stylesheet" href="styles.css?v=20261013-09" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <script src="script.js?v=20261007-03" defer></script>
-    <script src="shop.js?v=20261013-04" defer></script>
+    <script src="shop.js?v=20261013-05" defer></script>
   </head>
   <body id="page-top" data-page="checkout">
     <header class="site-header" id="top">

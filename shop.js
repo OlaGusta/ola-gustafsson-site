@@ -83,7 +83,8 @@
         const ref = button.dataset.ref || '';
         const sizeSelect = button.dataset.sizeSelect ? document.getElementById(button.dataset.sizeSelect) : null;
         const matBox = button.dataset.matCheckbox ? document.getElementById(button.dataset.matCheckbox) : null;
-        const entry = { kind, ref, qty: 1 };
+        const qtySelect = button.dataset.qtySelect ? document.getElementById(button.dataset.qtySelect) : null;
+        const entry = { kind, ref, qty: qtySelect ? Math.max(1, Number(qtySelect.value) || 1) : 1 };
         if (sizeSelect) {
           entry.size = sizeSelect.value;
         }
@@ -121,7 +122,7 @@
     if (!app || !catalogNode) {
       return;
     }
-    let catalog = { artworks: {}, sunPrints: [], shippingPrint: 150, editionSize: 20 };
+    let catalog = { artworks: {}, sunPrints: [], shippingPrint: 150, editionSize: 20, poster: { enabled: false, available: 0 } };
     try {
       catalog = { ...catalog, ...JSON.parse(catalogNode.textContent || '{}') };
     } catch (error) {
@@ -162,6 +163,16 @@
           if (item.mat && art.matPrice > 0) {
             lines.push({ index, kind: 'mat', title: `${T('Passepartout med bakstycke till', 'Mat with backing board for')} ${art.title}`, detail: `${T('Ramformat', 'Frame size')} ${art.matClass.replace('x', ' × ')} cm`, qty: 1, unit: art.matPrice, vat: 25, attached: true });
           }
+          return;
+        }
+        if (item.kind === 'poster') {
+          const poster = catalog.poster || {};
+          if (!poster.enabled || !(Number(poster.available) > 0)) {
+            problems.push({ index, text: poster.enabled ? T('Postern är slutsåld.', 'The poster is sold out.') : T('Postern säljs inte just nu.', 'The poster is not for sale right now.') });
+            return;
+          }
+          const qty = Math.min(Number(item.qty) || 1, Number(poster.available), Number(poster.maxPerOrder) || 10);
+          lines.push({ index, kind: 'poster', title: poster.title, detail: poster.description || T('Tryckt poster', 'Printed poster'), qty, unit: Number(poster.price) || 0, vat: 25, src: poster.src || '', maxQty: Math.min(Number(poster.available), Number(poster.maxPerOrder) || 10) });
           return;
         }
         if (item.kind === 'print') {
@@ -216,8 +227,8 @@
       const rows = lines
         .map((line) => {
           const thumb = line.src && !line.attached ? `<img class="checkout-thumb" src="${esc(line.src)}" alt="" loading="lazy" />` : '<span class="checkout-thumb checkout-thumb-empty"></span>';
-          const qty = line.kind === 'print' || line.kind === 'sun'
-            ? `<label class="checkout-qty">${esc(T('Antal', 'Qty'))} <input type="number" min="1" max="20" value="${line.qty}" data-qty-index="${line.index}" /></label>`
+          const qty = line.kind === 'print' || line.kind === 'sun' || line.kind === 'poster'
+            ? `<label class="checkout-qty">${esc(T('Antal', 'Qty'))} <input type="number" min="1" max="${line.maxQty || 20}" value="${line.qty}" data-qty-index="${line.index}" /></label>`
             : '';
           const mat = line.kind === 'original' && line.matOption
             ? `<label class="checkout-mat"><input type="checkbox" data-mat-index="${line.index}" ${line.mat ? 'checked' : ''} /> ${esc(T('Passepartout med bakstycke', 'Mat with backing board'))} (${esc(T('ramformat', 'frame size'))} ${esc(line.matOption.class.replace('x', ' × '))} cm, +${esc(money(line.matOption.price))})</label>`

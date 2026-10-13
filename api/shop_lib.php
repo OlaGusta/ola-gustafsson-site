@@ -89,6 +89,23 @@ function shop_address_text(array $order, string $lang): string
     . "{$order['customer_name']}\n{$address}\n{$order['postal_code']} {$order['city']}";
 }
 
+// Sålda postrar (alla ordrar utom avbrutna) och antal kvar att sälja.
+function shop_poster_sold(PDO $pdo): int
+{
+  $stmt = $pdo->prepare(
+    'SELECT COALESCE(SUM(i.qty), 0) FROM shop_order_items i JOIN shop_orders o ON o.id = i.order_id
+     WHERE i.kind = \'poster\' AND o.status <> \'cancelled\''
+  );
+  $stmt->execute();
+  return (int) $stmt->fetchColumn();
+}
+
+function shop_poster_available(PDO $pdo, array $payload): int
+{
+  $cfg = seo_poster_config($payload, 'sv');
+  return max(0, $cfg['stock'] - shop_poster_sold($pdo));
+}
+
 // Betalsätt kunden valt i kassan: swish eller bank.
 function shop_payment_choice(array $order): string
 {
@@ -162,6 +179,29 @@ function shop_resolve_items(PDO $pdo, array $cartItems, string $lang, bool $allo
     $ref = isset($raw['ref']) && is_string($raw['ref']) ? trim($raw['ref']) : (isset($raw['ref']) && is_int($raw['ref']) ? (string) $raw['ref'] : '');
     $size = isset($raw['size']) && is_string($raw['size']) ? trim($raw['size']) : '';
     $qty = isset($raw['qty']) && is_numeric($raw['qty']) ? max(1, min(20, (int) $raw['qty'])) : 1;
+
+    if ($kind === 'poster') {
+      $poster = seo_poster_config($payload, $lang);
+      if (!$poster['enabled'] || $poster['price'] <= 0) {
+        throw new InvalidArgumentException($lang === 'en' ? 'The poster is not for sale right now.' : 'Postern säljs inte just nu.');
+      }
+      $available = shop_poster_available($pdo, $payload);
+      if ($qty > $poster['maxPerOrder']) {
+        throw new InvalidArgumentException(sprintf($lang === 'en' ? 'At most %d posters per order.' : 'Högst %d postrar per beställning.', $poster['maxPerOrder']));
+      }
+      if ($available <= 0) {
+        throw new InvalidArgumentException($lang === 'en' ? 'The poster is sold out.' : 'Postern är slutsåld.');
+      }
+      if ($qty > $available) {
+        throw new InvalidArgumentException(sprintf($lang === 'en' ? 'Only %d posters left.' : 'Bara %d postrar kvar.', $available));
+      }
+      $lines[] = [
+        'kind' => 'poster', 'ref' => 'poster', 'title' => $poster['title'],
+        'detail' => $poster['description'] !== '' ? (function_exists('mb_substr') ? (string) mb_substr($poster['description'], 0, 190) : substr($poster['description'], 0, 190)) : ($lang === 'en' ? 'Printed poster' : 'Tryckt poster'),
+        'qty' => $qty, 'unit' => $poster['price'], 'vat' => SHOP_VAT_RATE_PRINT, 'edition' => null, 'sort' => $sort++
+      ];
+      continue;
+    }
 
     if ($kind === 'extra' && $allowReserved) {
       // Fri rad från Studio: ram, montering, serviceavgift. Pris inkl. 25 % moms.
