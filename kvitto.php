@@ -82,7 +82,7 @@ $pageTitle = sprintf($t('Kvitto %s – Ola Gustafsson', 'Receipt %s – Ola Gust
     <?php if ($fontStylesheetHref !== ''): ?>
       <link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" />
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20261013-09" />
+    <link rel="stylesheet" href="styles.css?v=20261013-10" />
   </head>
   <body class="receipt-body">
     <main class="receipt">

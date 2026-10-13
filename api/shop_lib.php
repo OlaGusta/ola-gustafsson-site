@@ -613,7 +613,8 @@ function shop_order_summary_text(array $order, string $lang): string
   return implode("\n", $out);
 }
 
-function shop_send_order_mails(array $order, string $lang, bool $notifyCustomer = true, string $intro = ''): bool
+// Kundens orderbekräftelse som [subject, body], utan att skicka något.
+function shop_customer_order_mail(array $order, string $lang, string $intro = ''): array
 {
   $payload = shop_payload();
   $details = seo_payment_details($payload);
@@ -637,7 +638,8 @@ function shop_send_order_mails(array $order, string $lang, bool $notifyCustomer 
       . "Order page with status and payment details: {$url}\n\n"
       . shop_address_text($order, 'en') . "\n\n"
       . "As a private customer you have a 14-day right of withdrawal from the day you receive the work.\n\nOla Gustafsson\nola@olagustafsson.com";
-  } else {
+    return ['subject' => $customerSubject, 'body' => $customerBody];
+  }
     $customerSubject = sprintf('Beställning %s – Ola Gustafsson', $order['order_no']);
     $customerBody = "Hej {$order['customer_name']},\n\n" . ($intro !== '' ? $intro : 'Tack för din beställning.') . "\n\n{$summary}\n\n"
       . "Betala med {$payText}. Skriv {$order['order_no']} som meddelande, så bekräftas beställningen så snart betalningen kommit in.\n"
@@ -645,7 +647,16 @@ function shop_send_order_mails(array $order, string $lang, bool $notifyCustomer 
       . "Ordersidan med status och betalningsuppgifter: {$url}\n\n"
       . shop_address_text($order, 'sv') . "\n\n"
       . "Som privatperson har du 14 dagars ångerrätt från att du tagit emot verket.\n\nOla Gustafsson\nola@olagustafsson.com";
-  }
+  return ['subject' => $customerSubject, 'body' => $customerBody];
+}
+
+function shop_send_order_mails(array $order, string $lang, bool $notifyCustomer = true, string $intro = ''): bool
+{
+  $summary = shop_order_summary_text($order, $lang);
+  $choice = shop_payment_choice($order);
+  $mail = shop_customer_order_mail($order, $lang, $intro);
+  $customerSubject = $mail['subject'];
+  $customerBody = $mail['body'];
   $customerOk = $notifyCustomer
     ? api_security_send_mail($order['customer_email'], $customerSubject, $customerBody, api_security_contact_recipient())
     : false;
@@ -659,6 +670,24 @@ function shop_send_order_mails(array $order, string $lang, bool $notifyCustomer 
   api_security_send_mail(api_security_contact_recipient(), "Ny beställning {$order['order_no']} – " . shop_money((int) $order['total_sek']), $adminBody, $order['customer_email']);
 
   return $customerOk;
+}
+
+// Order som den skulle bli, utan att något sparas: för förhandsgranskning i Studio.
+function shop_preview_order(array $lines, array $customer, string $lang, ?int $shippingOverride = null): array
+{
+  $totals = shop_totals($lines, $shippingOverride);
+  $items = [];
+  foreach ($lines as $line) {
+    $items[] = ['kind' => $line['kind'], 'ref' => $line['ref'], 'title' => $line['title'], 'detail' => $line['detail'], 'qty' => $line['qty'], 'unit_sek' => $line['unit'], 'vat_rate' => $line['vat'], 'edition_no' => null];
+  }
+  return [
+    'id' => 0, 'order_no' => date('Y') . '-XXXX', 'token' => str_repeat('0', 40), 'status' => 'pending', 'language' => $lang,
+    'customer_name' => $customer['name'], 'customer_email' => $customer['email'], 'customer_phone' => $customer['phone'],
+    'address_line' => $customer['address'], 'postal_code' => $customer['postal'], 'city' => $customer['city'], 'note' => $customer['note'],
+    'subtotal_sek' => $totals['subtotal'], 'shipping_sek' => $totals['shipping'], 'shipping_vat_rate' => $totals['shippingVatRate'],
+    'total_sek' => $totals['total'], 'vat_sek' => $totals['vat'], 'payment_choice' => ($customer['payment'] ?? '') === 'bank' ? 'bank' : 'swish',
+    'items' => $items
+  ];
 }
 
 // Skapar ordern i en transaktion, reserverar original, tilldelar upplagenummer.

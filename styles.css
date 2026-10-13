@@ -7259,3 +7259,20 @@ body:not([data-page='studio']) .contact-social-links {
 .studio-project-poster .studio-check input {
   width: auto;
 }
+
+.inquiry-order-preview {
+  border: 1px dashed var(--color-border);
+  padding: 0.8rem 1rem;
+  display: grid;
+  gap: 0.5rem;
+}
+.inquiry-order-preview-body {
+  margin: 0;
+  white-space: pre-wrap;
+  font: inherit;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  background: #fff;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--color-border);
+}

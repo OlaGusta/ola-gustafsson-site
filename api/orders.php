@@ -49,7 +49,7 @@ if ($method === 'GET') {
 $request = api_decode_request_json();
 $action = isset($request['action']) && is_string($request['action']) ? trim($request['action']) : '';
 
-if ($action === 'create') {
+if ($action === 'create' || $action === 'preview') {
   // Order skapad av Ola i Studio, oftast från en förfrågan. Adress får saknas.
   $clean = static fn ($value, int $max): string => is_string($value) ? (function_exists('mb_substr') ? (string) mb_substr(trim($value), 0, $max) : substr(trim($value), 0, $max)) : '';
   $customerRaw = isset($request['customer']) && is_array($request['customer']) ? $request['customer'] : [];
@@ -77,6 +77,11 @@ if ($action === 'create') {
     api_respond_json(422, ['ok' => false, 'error' => 'empty', 'message' => 'Ordern saknar rader.']);
   }
   $shippingOverride = isset($request['shipping']) && is_numeric($request['shipping']) ? (int) $request['shipping'] : null;
+  if ($action === 'preview') {
+    $preview = shop_preview_order($lines, $customer, $lang, $shippingOverride);
+    $mail = shop_customer_order_mail($preview, $lang, $clean($request['intro'] ?? '', 1000));
+    api_respond_json(200, ['ok' => true, 'preview' => true, 'to' => $customer['email'], 'subject' => $mail['subject'], 'body' => $mail['body'], 'total' => $preview['total_sek'], 'vat' => $preview['vat_sek']]);
+  }
   $order = shop_create_order($pdo, $lines, $customer, $lang, $shippingOverride);
   $inquiryId = isset($request['inquiryId']) ? (int) $request['inquiryId'] : 0;
   $adminNote = 'Skapad i Studio' . ($inquiryId > 0 ? " från förfrågan #{$inquiryId}" : '');

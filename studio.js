@@ -3620,9 +3620,11 @@ const openInquiryOrderForm = async (card, item) => {
       <label class="inquiry-order-intro">Inledning i kundens mejl <small>(valfritt, ersätter "Tack för din beställning.")</small><textarea name="intro" rows="2">Tack för ditt intresse, här kommer beställningen vi pratat om.</textarea></label>
       <p class="field-hint" data-order-total></p>
       <div class="order-action-row">
+        <button type="button" class="btn btn-ghost" data-order-preview>Förhandsgranska mejlet</button>
         <button type="submit" class="btn btn-primary">Skapa order</button>
         <span class="field-hint">Verket reserveras direkt. Du markerar betald under Ordrar när pengarna kommit in.</span>
       </div>
+      <div class="inquiry-order-preview" data-order-preview-box hidden></div>
     </form>`;
   const form = panel.querySelector('form');
   const slugSelect = form.elements.slug;
@@ -3649,6 +3651,44 @@ const openInquiryOrderForm = async (card, item) => {
     updateTotal();
   });
   updateTotal();
+  // Samma payload för förhandsgranskning och skapande.
+  const buildOrderBody = (action) => {
+    const data = new FormData(form);
+    const value = (key) => String(data.get(key) || '').trim();
+    return {
+      action,
+      inquiryId: Number(item.id),
+      lang: value('lang'),
+      notify: Boolean(data.get('notify')),
+      intro: value('intro'),
+      shipping: Math.max(0, Number(value('shipping')) || 0),
+      items: [
+        { kind: 'original', ref: value('slug'), mat: Boolean(data.get('mat')) },
+        ...[1, 2].filter((n) => value(`extra${n}`) && Number(value(`extra${n}Amount`)) > 0).map((n) => ({ kind: 'extra', title: value(`extra${n}`), amount: Number(value(`extra${n}Amount`)) }))
+      ],
+      customer: { name: value('name'), email: value('email'), phone: value('phone'), address: value('address'), postal: value('postal'), city: value('city'), note: '', payment: value('payment') }
+    };
+  };
+  panel.querySelector('[data-order-preview]').addEventListener('click', async () => {
+    const box = panel.querySelector('[data-order-preview-box]');
+    const body = buildOrderBody('preview');
+    if (!body.items[0].ref) {
+      setInquiriesPanelStatus('Välj ett verk.', 'error');
+      return;
+    }
+    box.hidden = false;
+    box.innerHTML = '<p class="field-hint">Bygger mejlet...</p>';
+    try {
+      const response = await apiJson('api/orders.php', { method: 'POST', withCsrf: isSecureAuthStudio(), body });
+      box.innerHTML = `
+        <p class="field-hint">Så här ser kundens mejl ut. Ordernumret sätts när ordern skapas, och länken till ordersidan blir riktig då. Inget är sparat eller skickat.</p>
+        <p><strong>Till:</strong> ${escapeHtml(response.to || '')}<br /><strong>Ämne:</strong> ${escapeHtml(response.subject || '')}</p>
+        <pre class="inquiry-order-preview-body">${escapeHtml(response.body || '')}</pre>`;
+    } catch (error) {
+      box.innerHTML = `<p class="field-hint">${escapeHtml(error instanceof Error && error.message ? error.message : 'Kunde inte bygga mejlet.')}</p>`;
+    }
+  });
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     const data = new FormData(form);
@@ -3662,23 +3702,7 @@ const openInquiryOrderForm = async (card, item) => {
     button.disabled = true;
     try {
       setInquiriesPanelStatus('Skapar order...', 'info');
-      const response = await apiJson('api/orders.php', {
-        method: 'POST',
-        withCsrf: isSecureAuthStudio(),
-        body: {
-          action: 'create',
-          inquiryId: Number(item.id),
-          lang: value('lang'),
-          notify: Boolean(data.get('notify')),
-          intro: value('intro'),
-          shipping: Math.max(0, Number(value('shipping')) || 0),
-          items: [
-            { kind: 'original', ref: value('slug'), mat: Boolean(data.get('mat')) },
-            ...[1, 2].filter((n) => value(`extra${n}`) && Number(value(`extra${n}Amount`)) > 0).map((n) => ({ kind: 'extra', title: value(`extra${n}`), amount: Number(value(`extra${n}Amount`)) }))
-          ],
-          customer: { name: value('name'), email: value('email'), phone: value('phone'), address: value('address'), postal: value('postal'), city: value('city'), note: '', payment: value('payment') }
-        }
-      });
+      const response = await apiJson('api/orders.php', { method: 'POST', withCsrf: isSecureAuthStudio(), body: buildOrderBody('create') });
       const order = response.order || {};
       uiState.inquiriesData = uiState.inquiriesData.map((entry) => (Number(entry && entry.id) === Number(item.id) && entry.follow_up_status === 'new' ? { ...entry, follow_up_status: 'replied' } : entry));
       renderInquiriesPanel();

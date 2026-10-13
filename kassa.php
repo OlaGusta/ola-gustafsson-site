@@ -52,7 +52,7 @@ $pageTitle = $lang === 'en' ? 'Checkout | Ola Gustafsson' : 'Kassa | Ola Gustafs
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
       <link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" />
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20261013-09" />
+    <link rel="stylesheet" href="styles.css?v=20261013-10" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <script src="script.js?v=20261007-03" defer></script>
