@@ -3573,7 +3573,7 @@ const renderOrdersPanel = (orders) => {
             <label>Betalsätt
               <select data-order-field="method"><option value="swish">Swish</option><option value="bank">Bankkonto</option><option value="other">Annat</option></select>
             </label>
-            <button type="button" class="btn btn-primary" data-order-action="mark_paid">Markera betald</button>
+            <button type="button" class="btn btn-primary" data-order-action="mark_paid" data-confirm="Markera ${escapeHtml(order.order_no)} som betald? Kunden får ett mejl om att betalningen kommit in, och original i ordern blir sålda.">Markera betald</button>
             <button type="button" class="btn btn-ghost" data-order-action="cancel" data-confirm="Avbryt ordern ${escapeHtml(order.order_no)}? Reserverade original blir tillgängliga igen.">Avbryt order</button>
           </div>`;
       } else if (status === 'paid') {
@@ -3581,6 +3581,7 @@ const renderOrdersPanel = (orders) => {
           <div class="order-action-row">
             <label>Spårningsnummer <input type="text" value="${escapeHtml(order.tracking_no || '')}" data-order-field="trackingNo" placeholder="t.ex. PostNord-nummer" /></label>
             <button type="button" class="btn btn-primary" data-order-action="mark_shipped">Markera skickad</button>
+            <button type="button" class="btn btn-ghost" data-order-action="unmark_paid" data-confirm="Ångra betald för ${escapeHtml(order.order_no)}? Ordern går tillbaka till väntar på betalning och original blir reserverade igen. Mejlet som kunden redan fått går inte att ta tillbaka.">Ångra betald</button>
             <button type="button" class="btn btn-ghost" data-order-action="cancel" data-confirm="Avbryt ordern ${escapeHtml(order.order_no)}? Betalningen måste du återbetala själv.">Avbryt order</button>
           </div>`;
       } else if (status === 'shipped') {
@@ -3641,7 +3642,7 @@ const renderOrdersPanel = (orders) => {
         setOrdersPanelStatus('Uppdaterar ordern...', 'info');
         await apiJson('api/orders.php', { method: 'POST', withCsrf: isSecureAuthStudio(), body });
         await fetchOrdersPanel();
-        if (action === 'mark_paid' || action === 'cancel') {
+        if (action === 'mark_paid' || action === 'unmark_paid' || action === 'cancel') {
           // Original kan ha bytt status (såld/tillgänglig): läs om innehållet.
           autoLoadPublishedState();
         }

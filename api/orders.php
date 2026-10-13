@@ -49,6 +49,9 @@ try {
       $paymentMethod = isset($request['method']) && is_string($request['method']) ? trim($request['method']) : 'swish';
       $order = shop_mark_paid($pdo, $order, $amount, in_array($paymentMethod, ['swish', 'bank', 'other'], true) ? $paymentMethod : 'swish');
       break;
+    case 'unmark_paid':
+      $order = shop_unmark_paid($pdo, $order);
+      break;
     case 'mark_shipped':
       $tracking = isset($request['trackingNo']) && is_string($request['trackingNo']) ? trim($request['trackingNo']) : '';
       $order = shop_mark_shipped($pdo, $order, function_exists('mb_substr') ? (string) mb_substr($tracking, 0, 80) : substr($tracking, 0, 80));

@@ -415,6 +415,27 @@ function shop_mark_paid(PDO $pdo, array $order, int $paidAmount, string $method)
   return $updated;
 }
 
+// Ångra "betald": tillbaka till väntar på betalning. Mejlet som gick ut går inte att
+// ta tillbaka; original som blivit sålda blir reserverade igen.
+function shop_unmark_paid(PDO $pdo, array $order): array
+{
+  if ($order['status'] !== 'paid') {
+    throw new InvalidArgumentException('Bara betalda, ännu inte skickade, ordrar kan ångras.');
+  }
+  $pdo->prepare('UPDATE shop_orders SET status = \'pending\', paid_sek = NULL, paid_method = NULL, paid_at = NULL WHERE id = :id')
+    ->execute([':id' => (int) $order['id']]);
+  foreach ($order['items'] as $item) {
+    if ($item['kind'] === 'original') {
+      try {
+        portfolio_set_artwork_availability((string) $item['ref'], 'reserved', $pdo);
+      } catch (Throwable $error) {
+        // Rättas för hand om skrivningen misslyckas.
+      }
+    }
+  }
+  return shop_find_order_by_id($pdo, (int) $order['id']) ?? $order;
+}
+
 function shop_mark_shipped(PDO $pdo, array $order, string $trackingNo): array
 {
   if (!in_array($order['status'], ['paid', 'shipped'], true)) {
