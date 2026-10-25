@@ -30,6 +30,7 @@ readonly EXCLUDED_PREFIXES=(
   ".claude/"
   ".codex/"
   ".git/"
+  ".gstack/"
   ".playwright-mcp/"
   "KRO_bilder/"
   "skills/"

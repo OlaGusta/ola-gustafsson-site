@@ -6,3 +6,4 @@ skills/
 .release.env
 *.log
 cache/swish-qr/*.png
+.gstack/
