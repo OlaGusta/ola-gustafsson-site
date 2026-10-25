@@ -2,9 +2,7 @@
 # Bygger webbversioner av bilderna till utställningssidan Ljusets återkomst
 # (/ljusets-aterkomst) till images/ljusets-aterkomst/.
 # Källor: fotografens mapp "Husby utställningsfix" på SSES3 och Olas egna filer
-# i ~/Documents/Claude/husby-2026/bilder (andra argumentet). Där ligger också
-# ola-demo-kort-skarpedjup.jpg: ola-demo-original.jpg med kort skärpedjup
-# (Apple Vision-masker + oskärpa) och tätare beskärning.
+# i ~/Documents/Claude/husby-2026/bilder (andra argumentet).
 # Ut: <id>.jpg (1600 px lång sida) + thumb/<id>.jpg (800 px), båda med
 # .webp-sidecar som .htaccess serverar automatiskt, och manifest.json med mått.
 # Befintliga bilder byggs inte om (FORCE=1 bygger alla), så att deployen bara
@@ -31,7 +29,7 @@ IMAGES=(
   "09-oppningstal|Husby_vernissage&demodag14.jpg"
   "10-ola-och-jenny|own:ola-och-jenny.jpg"
   "11-blommor|Husby_vernissage&demodag15.jpg"
-  "12-ola-demo|own:ola-demo-kort-skarpedjup.jpg"
+  "12-ola-demo|own:ola-demo-original.jpg"
   "13-jenny-demo|Husby_vernissage&demodag52.jpg"
   "14-pensel|Husby_vernissage&demodag66.jpg"
   "15-solvaggen|Husby_vernissage&demodag38.jpg"
