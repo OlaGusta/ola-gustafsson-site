@@ -167,7 +167,7 @@ if (!is_string($structuredJson)) {
     <link rel="stylesheet" href="styles.css?v=20261013-11" />
     <script src="overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
-    <script src="script.js?v=20261025-02" defer></script>
+    <script src="script.js?v=20261025-03" defer></script>
     <script src="shop.js?v=20261013-06" defer></script>
   </head>
   <body id="page-top" data-page="gallery">

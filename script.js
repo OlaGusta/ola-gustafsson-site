@@ -3268,7 +3268,9 @@ const renderProjectCards = () => {
       }
       const img = document.createElement('img');
       img.className = 'artwork-photo';
-      const sources = getImageFallbackSources(image, { preferThumb: false });
+      // Webb- och miniatyrversioner finns bara för bilder direkt i images/ (Studio-uppladdade);
+      // bilder i en undermapp (t.ex. images/ljusets-aterkomst/) används som de är.
+      const sources = /^images\/[^/]+\//.test(image) ? [image] : getImageFallbackSources(image, { preferThumb: false });
       if (sources.length > 1) {
         img.dataset.fallbackSrcs = sources.join('\n');
         img.dataset.fallbackIndex = '0';

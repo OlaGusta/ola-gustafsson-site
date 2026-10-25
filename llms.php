@@ -142,7 +142,7 @@ $out[] = '';
 $out[] = '- [Home](' . seo_canonical_url('home', 'en') . '): Ola Gustafsson is a Swedish watercolour artist based in Stockholm, painting landscapes, nature and city views.';
 $out[] = '- [Gallery](' . seo_canonical_url('gallery', 'en') . '): all paintings with size, year, availability and price in SEK.';
 $out[] = '- [100 days of sun](' . seo_canonical_url('sun', 'en') . '): one hundred sun watercolours, each available as a signed fine art print in an edition of ' . SEO_PRINT_EDITION_SIZE . '.';
-$out[] = '- [Ljusets återkomst](' . seo_canonical_url('exhibition-husby', 'en') . '): exhibition with Jenny Övrebö at Husby konsthall, 3–25 October 2026, with 100 Days of Sun and ten large watercolours of the sun in water.';
+$out[] = '- [The Return of Light (Ljusets återkomst)](' . seo_canonical_url('exhibition-husby', 'en') . '): exhibition with Jenny Övrebö at Husby konsthall, 3–25 October 2026, with 100 Days of Sun and ten large watercolours of the sun in water.';
 
 $out[] = '';
 $out[] = '## Upphovsrätt';

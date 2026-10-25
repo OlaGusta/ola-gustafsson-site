@@ -31,14 +31,16 @@ if (!is_array($manifest)) {
   $manifest = [];
 }
 
-$heading = 'Ljusets återkomst';
+// Utställningens engelska titel; den svenska originaltiteln nämns i texten och i strukturerad data.
+$heading = $en ? 'The Return of Light' : 'Ljusets återkomst';
+$headingAlt = $en ? 'Ljusets återkomst' : 'The Return of Light';
 $sunTitle = $en ? '100 Days of Sun' : '100 dagar av sol';
 $meta = $en ? 'Husby konsthall · 3–25 October 2026 · with Jenny Övrebö' : 'Husby konsthall · 3–25 oktober 2026 · tillsammans med Jenny Övrebö';
 $title = $en
-  ? 'Ljusets återkomst – exhibition at Husby konsthall 2026 | Ola Gustafsson'
+  ? 'The Return of Light – exhibition at Husby konsthall 2026 | Ola Gustafsson'
   : 'Ljusets återkomst – utställning i Husby konsthall 2026 | Ola Gustafsson';
 $description = $en
-  ? 'Ljusets återkomst, an exhibition of watercolors by Ola Gustafsson and Jenny Övrebö at Husby konsthall, 3–25 October 2026: 100 Days of Sun and ten large watercolors of the sun in water.'
+  ? 'The Return of Light (Ljusets återkomst), an exhibition of watercolors by Ola Gustafsson and Jenny Övrebö at Husby konsthall, 3–25 October 2026: 100 Days of Sun and ten large watercolors of the sun in water.'
   : 'Ljusets återkomst, en utställning med akvareller av Ola Gustafsson och Jenny Övrebö i Husby konsthall 3–25 oktober 2026: 100 dagar av sol och tio stora akvareller med solen i vatten.';
 $ogImage = $baseUrl . '/' . $imageDir . '/og.jpg';
 
@@ -205,7 +207,7 @@ $essay = $en ? [
   'One sun, a hundred moments. Sometimes visible as a clear disc, sometimes dissolved in light or hidden behind clouds. The same star, but every encounter with it is different.',
   'My watercolors revolve around the lasting and the transient — permanence and impermanence. The starting point is our relationship with the sun: a star at an unimaginable distance, whose presence is at the same time part of our most everyday experience. We feel its warmth, follow the changes in its light and count our days and years. The sun marks our place in the universe and provides the conditions for life here. It also holds a force that can consume.',
   'The sun is there whatever clouds obscure it. Measured against our lives, it seems permanent. Yet our experience of it is constantly changing. The light shifts with the weather, the time of day and the place where we are. What returns never meets us in quite the same way.',
-  'In the exhibition <em>Ljusets återkomst</em> at Husby konsthall, two parts of my work met: a hundred small sun paintings and ten large watercolors in which the sun is present through water. Together they explore how something so distant can become close and concrete, and how a returning light can hold moments that never come back.',
+  'In the exhibition <em>The Return of Light</em> at Husby konsthall, two parts of my work met: a hundred small sun paintings and ten large watercolors in which the sun is present through water. Together they explore how something so distant can become close and concrete, and how a returning light can hold moments that never come back.',
   '<em>100 Days of Sun</em> consists of a hundred watercolors. Each image is a brief visit, an encounter with the sun for a limited time. The repetition holds the series together, while the differences between the images are given room. The sun appears, disappears and returns. A clear shape can be almost dissolved in the next image.',
   'The title also holds the time the work is made of. A hundred days is a sequence of single moments, each with its own presence. Seen together, the images become a way of looking at both what lasts and what changes. The same sun is in all of them, but the days are different.',
   ['02-ola-vid-solvaggen'],
@@ -222,7 +224,7 @@ $essay = $en ? [
   'Water is also in the painting itself. It carries the pigment across the paper, lets shapes emerge and edges dissolve. I work with it and try to leave room for what I cannot fully control. The changeability of the material is part of the work on the images.',
   'When I think about what we have and what we lose, it is about the moments and what they hold. A meeting, a feeling, someone’s presence. Something that matters while it lasts, but that we can only partly carry with us as memory.',
   'The light can return without the moment coming back. I want to linger in the joy of being here, knowing that the moment changes even as we experience it.',
-  '<em>Ljusets återkomst</em> was shown at Husby konsthall from 3 to 25 October 2026, together with Jenny Övrebö.',
+  '<em>The Return of Light</em> (<em>Ljusets återkomst</em>) was shown at Husby konsthall from 3 to 25 October 2026, together with Jenny Övrebö.',
 ] : [
   'En sol, hundra ögonblick. Ibland synlig som en tydlig skiva, ibland upplöst i ljus eller dold bakom moln. Samma stjärna, men varje möte med den är annorlunda.',
   'Mina akvareller kretsar kring det beständiga och det förgängliga — permanens och impermanens. Utgångspunkten är vår relation till solen: en stjärna på ett ofattbart avstånd, vars närvaro samtidigt är en del av vår mest vardagliga erfarenhet. Vi känner dess värme, följer ljusets förändringar och räknar våra dagar och år. Solen anger vår plats i universum och ger förutsättningarna för livet här. Den rymmer också en kraft som kan förtära.',
@@ -315,6 +317,7 @@ $structuredData = [
     '@type' => 'ExhibitionEvent',
     '@id' => $canonical . '#exhibition',
     'name' => $heading,
+    'alternateName' => $headingAlt,
     'description' => $description,
     'startDate' => '2026-10-03',
     'endDate' => '2026-10-25',
@@ -393,7 +396,7 @@ $sunUrl = seo_canonical_url('sun', $lang);
     <link rel="stylesheet" href="styles.css?v=20261025-04" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
-    <script src="script.js?v=20261025-02" defer></script>
+    <script src="script.js?v=20261025-03" defer></script>
     <script src="shop.js?v=20261013-06" defer></script>
   </head>
   <body id="page-top" data-page="exhibition">

@@ -964,7 +964,7 @@ const STUDIO_STATIC_LINK_OPTIONS = [
   ['#galleri', 'Startsidan: utvalda verk'],
   ['#om', 'Startsidan: artist statement'],
   ['#projekt', 'Startsidan: projektavsnittet'],
-  ['ljusets-aterkomst', 'Utställningssidan: Ljusets återkomst'],
+  ['ljusets-aterkomst', 'Utställningssidan: Ljusets återkomst / The Return of Light'],
   ['#faq', 'Startsidan: vanliga frågor'],
   ['#kontakt', 'Startsidan: kontakt'],
   ['gallery.html', 'Galleriet'],
