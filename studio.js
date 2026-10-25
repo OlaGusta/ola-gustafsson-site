@@ -23,6 +23,10 @@ const STUDIO_VIEW_META = {
     title: 'Projekt',
     subtitle: 'Projektsektion, kollage och exempelbilder.'
   },
+  exhibitions: {
+    title: 'Utställningar',
+    subtitle: 'Utställningssidor: text, bilder och verk.'
+  },
   contact: {
     title: 'Kontakt',
     subtitle: 'Kontakttext, e-postknapp och sociala kanaler.'
@@ -896,6 +900,17 @@ const collectSectionImageCandidates = () => {
   samples.forEach((entry) => push(entry && entry.src));
   const cards = Array.isArray(project.cards) ? project.cards : [];
   cards.forEach((card) => push(card && card.image));
+  const exhibitions = Array.isArray(state.content?.exhibitions) ? state.content.exhibitions : [];
+  exhibitions.forEach((exhibition) => {
+    if (!exhibition || typeof exhibition !== 'object') {
+      return;
+    }
+    [exhibition.heroImage, exhibition.ogImage, exhibition.ctaImage].forEach(push);
+    (Array.isArray(exhibition.blocks) ? exhibition.blocks : []).forEach((block) => {
+      push(block && block.image);
+      push(block && block.image2);
+    });
+  });
   const serverList = Array.isArray(serverImageCandidates) ? serverImageCandidates : [];
   serverList.forEach((src) => push(src));
 
@@ -964,7 +979,6 @@ const STUDIO_STATIC_LINK_OPTIONS = [
   ['#galleri', 'Startsidan: utvalda verk'],
   ['#om', 'Startsidan: artist statement'],
   ['#projekt', 'Startsidan: projektavsnittet'],
-  ['ljusets-aterkomst', 'Utställningssidan: Ljusets återkomst / The Return of Light'],
   ['#faq', 'Startsidan: vanliga frågor'],
   ['#kontakt', 'Startsidan: kontakt'],
   ['gallery.html', 'Galleriet'],
@@ -988,7 +1002,13 @@ const renderStudioLinkOptions = () => {
     })
     .filter((option) => option && !seen.has(option[0]) && seen.add(option[0]))
     .sort((a, b) => a[1].localeCompare(b[1], 'sv'));
-  list.innerHTML = [...STUDIO_STATIC_LINK_OPTIONS, ...artworkOptions]
+  const exhibitionOptions = (Array.isArray(state.content.exhibitions) ? state.content.exhibitions : [])
+    .map((item) => {
+      const slug = typeof item?.slug === 'string' ? item.slug.trim() : '';
+      return slug ? [exhibitionPath(slug).replace(/^\//, ''), `Utställning: ${(item.title || slug).trim()}`] : null;
+    })
+    .filter(Boolean);
+  list.innerHTML = [...STUDIO_STATIC_LINK_OPTIONS, ...exhibitionOptions, ...artworkOptions]
     .map(([value, label]) => `<option value="${escapeHtml(value)}" label="${escapeHtml(label)}"></option>`)
     .join('');
 };
@@ -5231,6 +5251,433 @@ const applyStudioThemePreview = () => {
   renderInlineFormattedText(el.studioThemePreviewBody, body);
 };
 
+// ---------- Utställningar (payload.exhibitions) ----------
+// Struktur, bilder och grunduppgifter ligger i grundinnehållet; texten per språk.
+// Svenska i state.content.exhibitions, övriga språk i språkpaketets exhibitions på
+// samma plats (block på samma plats inom utställningen). Samma fält som
+// exhibition_core.php läser.
+const EXHIBITION_TEXT_KEYS = [
+  'title', 'altTitle', 'eyebrow', 'meta', 'description', 'heroAlt', 'heroCaption',
+  'worksHeading', 'worksNote', 'worksText', 'ctaEyebrow', 'ctaHeading', 'ctaText', 'ctaLinkLabel', 'ctaImageAlt'
+];
+const EXHIBITION_BLOCK_TEXT_KEYS = ['heading', 'body', 'alt', 'caption', 'alt2', 'caption2'];
+const EXHIBITION_BOOLEAN_KEYS = ['enabled', 'ctaEnabled', 'ctaPoster'];
+// Utställningar som hade en egen adress innan sidorna blev allmänna (samma lista som PHP).
+const EXHIBITION_LEGACY_PATHS = { 'ljusets-aterkomst': '/ljusets-aterkomst' };
+const EXHIBITION_BLOCK_LABELS = { text: 'Text', image: 'Bild', pair: 'Bildpar' };
+
+const exhibitionPath = (slug) => EXHIBITION_LEGACY_PATHS[slug] || `/utstallning/${slug}`;
+
+const ensureExhibitions = () => {
+  if (!Array.isArray(state.content.exhibitions)) {
+    state.content.exhibitions = [];
+  }
+  return state.content.exhibitions;
+};
+
+// Språkpaketets utställning på plats index (skapas vid behov).
+const exhibitionPackEntry = (language, index, create) => {
+  const pack = create ? ensureLanguageOverridePack(language) : getLanguageOverridePack(language);
+  if (!Array.isArray(pack.exhibitions)) {
+    if (!create) {
+      return null;
+    }
+    pack.exhibitions = [];
+  }
+  while (create && pack.exhibitions.length <= index) {
+    pack.exhibitions.push({});
+  }
+  const entry = pack.exhibitions[index];
+  if (!entry || typeof entry !== 'object') {
+    if (!create) {
+      return null;
+    }
+    pack.exhibitions[index] = {};
+  }
+  return pack.exhibitions[index];
+};
+
+// Kör fn för varje språkpakets lista med utställningar (för strukturella ändringar).
+const forEachExhibitionPack = (fn) => {
+  Object.keys(state.translations || {}).forEach((language) => {
+    const pack = state.translations[language];
+    if (pack && Array.isArray(pack.exhibitions)) {
+      fn(pack.exhibitions, language);
+    }
+  });
+};
+
+const uniqueExhibitionSlug = (base) => {
+  const taken = new Set(ensureExhibitions().map((item) => item && item.slug));
+  let slug = base;
+  let n = 2;
+  while (taken.has(slug)) {
+    slug = `${base}-${n}`;
+    n += 1;
+  }
+  return slug;
+};
+
+const exhibitionImageField = (id, value, label, path) => `
+  <div class="studio-project-media-card exhibition-image-field">
+    <div class="studio-project-media-fields">
+      <input type="hidden" id="${id}" value="${escapeHtml(value)}" ${path} />
+      <label>${escapeHtml(label)}
+        <select data-ex-pick="${id}"></select>
+      </label>
+      <button type="button" class="btn btn-ghost" data-ex-upload="${id}">Ladda upp bild</button>
+    </div>
+    <div class="section-image-preview" data-ex-preview="${id}" aria-live="polite"></div>
+  </div>`;
+
+const renderExhibitionsEditor = () => {
+  const root = document.getElementById('exhibitions-editor');
+  if (!root) {
+    return;
+  }
+  const list = ensureExhibitions();
+  const language = getEditingLanguage();
+  if (!Number.isInteger(uiState.selectedExhibitionIndex) || uiState.selectedExhibitionIndex >= list.length) {
+    uiState.selectedExhibitionIndex = list.length > 0 ? 0 : -1;
+  }
+  const index = uiState.selectedExhibitionIndex;
+  const base = index >= 0 && list[index] && typeof list[index] === 'object' ? list[index] : null;
+  const local = base && language !== 'sv' ? exhibitionPackEntry(language, index, false) || {} : base;
+  const localBlocks = local && Array.isArray(local.blocks) ? local.blocks : [];
+
+  const str = (source, key) => (source && typeof source[key] === 'string' ? source[key] : '');
+  // Textfält: värdet för språket som redigeras; på engelska syns svenskan som platshållare.
+  const textAttrs = (source, svSource, key, attr) =>
+    `${attr} value="${escapeHtml(str(source, key))}"${language !== 'sv' ? ` placeholder="${escapeHtml(str(svSource, key))}"` : ''}`;
+  const textInput = (label, key, hint = '') => `
+    <label>${escapeHtml(label)}
+      <input type="text" ${textAttrs(local, base, key, `data-ex-text="${key}"`)} />
+      ${hint ? `<small class="field-hint">${hint}</small>` : ''}
+    </label>`;
+  const textArea = (label, key, rows, hint = '') => `
+    <div class="studio-grid exhibition-grid-full"><label>${escapeHtml(label)}
+      <textarea rows="${rows}" data-ex-text="${key}"${language !== 'sv' ? ` placeholder="${escapeHtml(str(base, key))}"` : ''}>${escapeHtml(str(local, key))}</textarea>
+      ${hint ? `<small class="field-hint">${hint}</small>` : ''}
+    </label></div>`;
+  const sharedInput = (label, key, type = 'text', extra = '') => `
+    <label>${escapeHtml(label)}
+      <input type="${type}" data-ex-shared="${key}" value="${escapeHtml(str(base, key))}" ${extra} />
+    </label>`;
+  const check = (label, key) => `
+    <label class="studio-check"><input type="checkbox" data-ex-shared="${key}"${base && base[key] ? ' checked' : ''} /> ${escapeHtml(label)}</label>`;
+
+  const options = list
+    .map((item, i) => `<option value="${i}"${i === index ? ' selected' : ''}>${escapeHtml((item && (item.title || item.slug)) || `Utställning ${i + 1}`)}${item && item.enabled ? '' : ' (dold)'}</option>`)
+    .join('');
+  const header = `
+    <div class="exhibitions-toolbar">
+      ${list.length > 0 ? `<label>Utställning <select data-ex-select>${options}</select></label>` : '<p class="studio-note">Inga utställningar ännu.</p>'}
+      <button type="button" class="btn btn-ghost" data-ex-action="add-exhibition">Ny utställning</button>
+      ${base ? `<a class="btn btn-ghost" href="${escapeHtml(exhibitionPath(base.slug || ''))}${language !== 'sv' ? `?lang=${language}` : ''}" target="_blank" rel="noopener">Öppna sidan ↗</a>
+      <button type="button" class="btn btn-ghost" data-ex-action="remove-exhibition">Ta bort utställningen</button>` : ''}
+    </div>
+    ${language !== 'sv' ? '<p class="studio-note exhibitions-lang-note">Du redigerar engelska. Tomma textfält visar den svenska texten (grå) på den engelska sidan.</p>' : ''}`;
+  if (!base) {
+    root.innerHTML = header;
+    return;
+  }
+
+  const legacy = Object.prototype.hasOwnProperty.call(EXHIBITION_LEGACY_PATHS, base.slug);
+  const blocks = Array.isArray(base.blocks) ? base.blocks : [];
+  const blockHtml = blocks
+    .map((block, j) => {
+      const type = block && EXHIBITION_BLOCK_LABELS[block.type] ? block.type : 'text';
+      const lb = localBlocks[j] && typeof localBlocks[j] === 'object' ? localBlocks[j] : {};
+      const lsrc = language === 'sv' ? block : lb;
+      const btext = (label, key, rows = 0, hint = '') => {
+        const attrs = `data-ex-block="${j}" data-ex-btext="${key}"`;
+        const ph = language !== 'sv' ? ` placeholder="${escapeHtml(str(block, key))}"` : '';
+        return rows > 0
+          ? `<label>${escapeHtml(label)}<textarea rows="${rows}" ${attrs}${ph}>${escapeHtml(str(lsrc, key))}</textarea>${hint ? `<small class="field-hint">${hint}</small>` : ''}</label>`
+          : `<label>${escapeHtml(label)}<input type="text" ${attrs} value="${escapeHtml(str(lsrc, key))}"${ph} />${hint ? `<small class="field-hint">${hint}</small>` : ''}</label>`;
+      };
+      let fields = '';
+      if (type === 'text') {
+        fields = `<div class="studio-grid exhibition-grid-full">${btext('Rubrik (valfri)', 'heading', 0, 'En rubrik börjar ett nytt avsnitt.')}${btext('Text', 'body', 8, 'Tom rad mellan stycken. &lt;em&gt;Titel&lt;/em&gt; ger kursiv. Länk: [text](https://…).')}</div>`;
+      } else {
+        const image = (n) => {
+          const k = n === 2 ? '2' : '';
+          return exhibitionImageField(`ex-${index}-b${j}-img${k}`, str(block, `image${k}`), n === 2 ? 'Bild 2' : (type === 'pair' ? 'Bild 1' : 'Bild'), `data-ex-block="${j}" data-ex-bshared="image${k}"`)
+            + `<div class="studio-grid ${type === 'pair' ? 'exhibition-grid-full' : 'exhibition-grid-half'}">${btext('Alt-text (beskriv bilden)', `alt${k}`)}${btext('Bildtext', `caption${k}`)}</div>`;
+        };
+        fields = type === 'pair' ? `<div class="exhibition-pair-fields"><div>${image(1)}</div><div>${image(2)}</div></div>` : image(1);
+      }
+      return `
+        <article class="exhibition-block" data-ex-block-card="${j}">
+          <div class="exhibition-block-head">
+            <strong>${j + 1}. ${EXHIBITION_BLOCK_LABELS[type]}</strong>
+            <span class="exhibition-block-actions">
+              <button type="button" class="btn btn-ghost" data-ex-action="move-up" data-ex-block="${j}" aria-label="Flytta upp"${j === 0 ? ' disabled' : ''}>↑</button>
+              <button type="button" class="btn btn-ghost" data-ex-action="move-down" data-ex-block="${j}" aria-label="Flytta ned"${j === blocks.length - 1 ? ' disabled' : ''}>↓</button>
+              <button type="button" class="btn btn-ghost" data-ex-action="remove-block" data-ex-block="${j}" aria-label="Ta bort">Ta bort</button>
+            </span>
+          </div>
+          ${fields}
+        </article>`;
+    })
+    .join('');
+
+  root.innerHTML = `${header}
+    <fieldset class="exhibitions-fieldset">
+      <legend>Grunduppgifter (båda språken)</legend>
+      ${check('Visa sidan på sajten', 'enabled')}
+      <div class="studio-grid">
+        <label>Adress
+          <input type="text" data-ex-shared="slug" value="${escapeHtml(base.slug || '')}"${legacy ? ' readonly' : ''} />
+          <small class="field-hint">olagustafsson.com${escapeHtml(exhibitionPath(base.slug || ''))}${legacy ? ' (fast adress)' : ' – små bokstäver, siffror och bindestreck. Byt inte efter att sidan delats.'}</small>
+        </label>
+        ${sharedInput('Plats', 'venue')}
+        ${sharedInput('Ort', 'city')}
+        ${sharedInput('Startdatum', 'startDate', 'date')}
+        ${sharedInput('Slutdatum', 'endDate', 'date')}
+        ${sharedInput('Ställer ut tillsammans med (kommaseparerat)', 'artists')}
+      </div>
+    </fieldset>
+
+    <fieldset class="exhibitions-fieldset">
+      <legend>Överst på sidan</legend>
+      <div class="studio-grid">
+        ${textInput('Rad ovanför rubriken', 'eyebrow')}
+        ${textInput('Rubrik', 'title')}
+        ${textInput('Rad under rubriken', 'meta')}
+        ${textInput('Titeln på det andra språket', 'altTitle', 'Används av sökmotorer.')}
+      </div>
+      ${textArea('Beskrivning för sökmotorer och delning', 'description', 3)}
+      ${exhibitionImageField(`ex-${index}-hero`, str(base, 'heroImage'), 'Toppbild', 'data-ex-shared="heroImage"')}
+      <div class="studio-grid">
+        ${textInput('Toppbild: alt-text', 'heroAlt')}
+        ${textInput('Toppbild: bildtext', 'heroCaption')}
+      </div>
+      ${exhibitionImageField(`ex-${index}-og`, str(base, 'ogImage'), 'Delningsbild (valfri, annars toppbilden)', 'data-ex-shared="ogImage"')}
+    </fieldset>
+
+    <fieldset class="exhibitions-fieldset">
+      <legend>Innehåll</legend>
+      <div class="exhibition-blocks">${blockHtml || '<p class="studio-note">Inga block ännu.</p>'}</div>
+      <div class="exhibition-add">
+        <button type="button" class="btn btn-ghost" data-ex-action="add-block" data-ex-type="text">+ Text</button>
+        <button type="button" class="btn btn-ghost" data-ex-action="add-block" data-ex-type="image">+ Bild</button>
+        <button type="button" class="btn btn-ghost" data-ex-action="add-block" data-ex-type="pair">+ Bildpar</button>
+      </div>
+    </fieldset>
+
+    <fieldset class="exhibitions-fieldset">
+      <legend>Verk</legend>
+      <div class="studio-grid">
+        ${textInput('Rubrik', 'worksHeading')}
+        ${textInput('Rad under rubriken', 'worksNote')}
+      </div>
+      ${textArea('Verk, ett per rad: Titel | mått', 'worksText', 6, 'Lämnas tomt för att dölja avsnittet.')}
+    </fieldset>
+
+    <fieldset class="exhibitions-fieldset">
+      <legend>Avslutande ruta</legend>
+      ${check('Visa rutan', 'ctaEnabled')}
+      ${exhibitionImageField(`ex-${index}-cta`, str(base, 'ctaImage'), 'Bild', 'data-ex-shared="ctaImage"')}
+      <div class="studio-grid">
+        ${textInput('Bild: alt-text', 'ctaImageAlt')}
+        ${textInput('Rad ovanför rubriken', 'ctaEyebrow')}
+        ${textInput('Rubrik', 'ctaHeading')}
+        ${textInput('Länktext', 'ctaLinkLabel')}
+        ${sharedInput('Länk', 'ctaHref', 'text', 'list="studio-link-options" autocomplete="off"')}
+      </div>
+      ${textArea('Text', 'ctaText', 3)}
+      ${check('Visa knapp till postern (när postern är påslagen)', 'ctaPoster')}
+    </fieldset>`;
+
+  root.querySelectorAll('[data-ex-pick]').forEach((select) => {
+    const input = document.getElementById(select.getAttribute('data-ex-pick'));
+    renderImagePickerSelect(select, input, 'Välj bild');
+    renderSectionImagePreview(root.querySelector(`[data-ex-preview="${select.getAttribute('data-ex-pick')}"]`), input, 'Ingen bild vald.');
+  });
+  bindExhibitionsEditor(root);
+};
+
+const bindExhibitionsEditor = (root) => {
+  if (root.dataset.bound === '1') {
+    return;
+  }
+  root.dataset.bound = '1';
+
+  const current = () => {
+    const list = ensureExhibitions();
+    const index = uiState.selectedExhibitionIndex;
+    return index >= 0 && list[index] ? { list, index, base: list[index] } : null;
+  };
+  // Mål för text: svenskan i grundposten, övriga språk i språkpaketet.
+  const textTarget = (ctx, blockIndex) => {
+    const language = getEditingLanguage();
+    if (language === 'sv') {
+      if (blockIndex === null) {
+        return ctx.base;
+      }
+      ctx.base.blocks = Array.isArray(ctx.base.blocks) ? ctx.base.blocks : [];
+      return ctx.base.blocks[blockIndex];
+    }
+    const entry = exhibitionPackEntry(language, ctx.index, true);
+    if (blockIndex === null) {
+      return entry;
+    }
+    entry.blocks = Array.isArray(entry.blocks) ? entry.blocks : [];
+    while (entry.blocks.length <= blockIndex) {
+      entry.blocks.push({});
+    }
+    if (!entry.blocks[blockIndex] || typeof entry.blocks[blockIndex] !== 'object') {
+      entry.blocks[blockIndex] = {};
+    }
+    return entry.blocks[blockIndex];
+  };
+
+  const onChange = (event) => {
+    const node = event.target;
+    const ctx = current();
+    if (!ctx || !(node instanceof HTMLElement)) {
+      return;
+    }
+    if (node.hasAttribute('data-ex-select')) {
+      uiState.selectedExhibitionIndex = Number(node.value);
+      renderExhibitionsEditor();
+      return;
+    }
+    if (node.hasAttribute('data-ex-pick')) {
+      const input = document.getElementById(node.getAttribute('data-ex-pick'));
+      if (input && node.value) {
+        input.value = node.value;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      return;
+    }
+    const blockAttr = node.getAttribute('data-ex-block');
+    const blockIndex = blockAttr === null ? null : Number(blockAttr);
+    const value = node.type === 'checkbox' ? node.checked : node.value;
+    if (node.hasAttribute('data-ex-shared')) {
+      const key = node.getAttribute('data-ex-shared');
+      if (key === 'slug') {
+        const slug = String(value).toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/-{2,}/g, '-');
+        ctx.base.slug = slug;
+        if (event.type === 'change') {
+          ctx.base.slug = slug.replace(/^-+|-+$/g, '') || uniqueExhibitionSlug('utstallning');
+          renderExhibitionsEditor();
+          renderStudioLinkOptions();
+        }
+        return;
+      }
+      ctx.base[key] = EXHIBITION_BOOLEAN_KEYS.includes(key) ? Boolean(value) : String(value);
+      if (key === 'enabled' && event.type === 'change') {
+        renderExhibitionsEditor();
+      }
+    } else if (node.hasAttribute('data-ex-bshared') && blockIndex !== null) {
+      const block = ctx.base.blocks && ctx.base.blocks[blockIndex];
+      if (block) {
+        block[node.getAttribute('data-ex-bshared')] = String(value);
+      }
+    } else if (node.hasAttribute('data-ex-text')) {
+      textTarget(ctx, null)[node.getAttribute('data-ex-text')] = String(value);
+      if (node.getAttribute('data-ex-text') === 'title' && getEditingLanguage() === 'sv') {
+        const option = node.closest('#exhibitions-editor').querySelector(`[data-ex-select] option[value="${ctx.index}"]`);
+        if (option) {
+          option.textContent = String(value) || ctx.base.slug;
+        }
+      }
+    } else if (node.hasAttribute('data-ex-btext') && blockIndex !== null) {
+      const target = textTarget(ctx, blockIndex);
+      if (target) {
+        target[node.getAttribute('data-ex-btext')] = String(value);
+      }
+    }
+    // Bildfält: uppdatera väljare och förhandsvisning.
+    if (node.type === 'hidden' && node.id) {
+      const root = node.closest('#exhibitions-editor');
+      const select = root && root.querySelector(`[data-ex-pick="${node.id}"]`);
+      renderImagePickerSelect(select, node, 'Välj bild');
+      renderSectionImagePreview(root && root.querySelector(`[data-ex-preview="${node.id}"]`), node, 'Ingen bild vald.');
+    }
+  };
+  root.addEventListener('input', onChange);
+  root.addEventListener('change', onChange);
+
+  root.addEventListener('click', (event) => {
+    const button = event.target instanceof HTMLElement ? event.target.closest('[data-ex-action], [data-ex-upload]') : null;
+    if (!button) {
+      return;
+    }
+    if (button.hasAttribute('data-ex-upload')) {
+      if (!el.sectionImageUpload) {
+        setStatus('Uppladdning är inte tillgänglig i den här Studio-versionen.', 'error');
+        return;
+      }
+      uiState.pendingSectionUploadTarget = button.getAttribute('data-ex-upload');
+      uiState.pendingSectionUploadLabel = 'bild';
+      el.sectionImageUpload.click();
+      return;
+    }
+    const action = button.getAttribute('data-ex-action');
+    const list = ensureExhibitions();
+    const ctx = current();
+    const j = Number(button.getAttribute('data-ex-block'));
+
+    if (action === 'add-exhibition') {
+      list.push({
+        slug: uniqueExhibitionSlug('ny-utstallning'),
+        enabled: false,
+        title: 'Ny utställning',
+        eyebrow: 'Utställning',
+        blocks: [{ type: 'text', heading: '', body: '' }],
+        ctaEnabled: false
+      });
+      uiState.selectedExhibitionIndex = list.length - 1;
+    } else if (action === 'remove-exhibition' && ctx) {
+      if (!window.confirm(`Ta bort utställningen "${ctx.base.title || ctx.base.slug}"? Sidan försvinner när du publicerar.`)) {
+        return;
+      }
+      list.splice(ctx.index, 1);
+      forEachExhibitionPack((packList) => packList.splice(ctx.index, 1));
+      uiState.selectedExhibitionIndex = Math.min(ctx.index, list.length - 1);
+    } else if (ctx && action === 'add-block') {
+      const type = button.getAttribute('data-ex-type');
+      ctx.base.blocks = Array.isArray(ctx.base.blocks) ? ctx.base.blocks : [];
+      ctx.base.blocks.push(type === 'text' ? { type, heading: '', body: '' } : type === 'pair' ? { type, image: '', image2: '' } : { type, image: '' });
+    } else if (ctx && (action === 'move-up' || action === 'move-down' || action === 'remove-block')) {
+      const target = action === 'move-up' ? j - 1 : j + 1;
+      const apply = (blocks) => {
+        if (!Array.isArray(blocks)) {
+          return;
+        }
+        if (action === 'remove-block') {
+          blocks.splice(j, 1);
+          return;
+        }
+        while (blocks.length <= Math.max(j, target)) {
+          blocks.push({});
+        }
+        [blocks[j], blocks[target]] = [blocks[target], blocks[j]];
+      };
+      if (action === 'remove-block' && !window.confirm('Ta bort blocket?')) {
+        return;
+      }
+      if (action !== 'remove-block' && (target < 0 || target >= ctx.base.blocks.length)) {
+        return;
+      }
+      apply(ctx.base.blocks);
+      forEachExhibitionPack((packList) => {
+        const entry = packList[ctx.index];
+        if (entry && Array.isArray(entry.blocks)) {
+          apply(entry.blocks);
+        }
+      });
+    } else {
+      return;
+    }
+    renderExhibitionsEditor();
+    renderStudioLinkOptions();
+  });
+};
+
 const syncFormFromState = () => {
   const localized = getLocalizedContentForEditor();
   const { theme, hero, gallery, about, project, contact, analytics, seo } = state.content;
@@ -5512,6 +5959,7 @@ const syncFormFromState = () => {
 
   refreshStudioLanguageUi();
   renderContactSocialEditor();
+  renderExhibitionsEditor();
 };
 
 const renderContactSocialEditor = () => {
@@ -7297,6 +7745,7 @@ const getPayload = () => {
     hero: state.content.hero,
     about: state.content.about,
     project: state.content.project,
+    exhibitions: Array.isArray(state.content.exhibitions) ? state.content.exhibitions : [],
     contact: state.content.contact,
     gallery: {
       ...state.content.gallery,

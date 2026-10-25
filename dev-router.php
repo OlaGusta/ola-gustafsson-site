@@ -59,7 +59,14 @@ if (preg_match('#^/100-dagar-av-sol/?$#', $requestPath) === 1) {
 }
 
 if (preg_match('#^/ljusets-aterkomst/?$#', $requestPath) === 1) {
-  require __DIR__ . '/ljusets-aterkomst.php';
+  $_GET['slug'] = 'ljusets-aterkomst';
+  require __DIR__ . '/exhibition.php';
+  return true;
+}
+
+if (preg_match('#^/utstallning/([a-z0-9-]+)/?$#', $requestPath, $matches) === 1) {
+  $_GET['slug'] = $matches[1];
+  require __DIR__ . '/exhibition.php';
   return true;
 }
 

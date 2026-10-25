@@ -209,6 +209,7 @@ if (is_array($projectCardsBase)) {
     ];
   }
 }
+$sunPoster = seo_poster_config($payload, $lang);
 $hasProjectContent = $projectCards !== [] || trim($projectHeading) !== '' || trim($projectDescription) !== '' || trim($projectCollageImageValue) !== '' || $projectSamples !== [];
 $contactEyebrow = seo_localized_payload_string($payload, $lang, ['contact', 'eyebrow']);
 if ($contactEyebrow === '') {
@@ -397,7 +398,7 @@ if (!is_string($structuredJson)) {
       fetchpriority="high"
     />
     	    <script src="overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>" defer></script>
-	    <link rel="stylesheet" href="styles.css?v=20261025-04" />
+	    <link rel="stylesheet" href="styles.css?v=20261025-06" />
 	    <script src="content.js?v=20260928-01" defer></script>
 		    <script src="script.js?v=20261025-03" defer></script>
     <script src="shop.js?v=20261013-06" defer></script>
@@ -615,6 +616,9 @@ if (!is_string($structuredJson)) {
                 </div>
                 <div class="sun-project-cta">
                   <a class="btn btn-primary" href="100-dagar-av-sol" data-lang-link><?= seo_escape_html($lang === 'en' ? 'See all 100 suns · order prints' : 'Se alla 100 solar · beställ print') ?></a>
+                  <?php if ($sunPoster['enabled']): ?>
+                    <a class="btn btn-ghost" href="100-dagar-av-sol#poster" data-lang-link><?= seo_escape_html(($lang === 'en' ? 'Poster with all 100 suns · ' : 'Poster med alla 100 solar · ') . shop_money_label($sunPoster['price'], $lang)) ?></a>
+                  <?php endif; ?>
                 </div>
 	            </article>
 	          </div>

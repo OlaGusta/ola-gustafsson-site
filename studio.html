@@ -18,11 +18,11 @@
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..800&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Lora:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=20261025-04" />
+    <link rel="stylesheet" href="styles.css?v=20261025-06" />
     <script src="overrides.js?v=20260323-04"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <script src="vendor/qrcode.min.js?v=20260216-01" defer></script>
-    <script src="studio.js?v=20261025-03" defer></script>
+    <script src="studio.js?v=20261025-04" defer></script>
   </head>
   <body id="page-top" data-page="studio">
     <header class="site-header" id="top">
@@ -152,6 +152,9 @@
               </button>
               <button type="button" class="studio-nav-item" data-studio-tab="projects" data-icon="☼" aria-pressed="false">
                 Projekt
+              </button>
+              <button type="button" class="studio-nav-item" data-studio-tab="exhibitions" data-icon="▤" aria-pressed="false">
+                Utställningar
               </button>
               <button type="button" class="studio-nav-item" data-studio-tab="contact" data-icon="@" aria-pressed="false">
                 Kontakt
@@ -709,6 +712,12 @@
                 <textarea id="ambitions-lines" rows="6"></textarea>
               </label>
             </div>
+          </section>
+
+          <section class="studio-card surface-soft" data-studio-view="exhibitions" hidden>
+            <h2>Utställningar</h2>
+            <p class="studio-note">Varje utställning får en egen sida. Text, bilder och ordning ändrar du här. Texten skriver du per språk med språkknapparna; bilder, ordning och uppgifterna under Grunduppgifter gäller båda språken. Tryck Publicera när du är klar.</p>
+            <div id="exhibitions-editor" class="exhibitions-editor"></div>
           </section>
 
           <section class="studio-card surface-soft" data-studio-view="contact" hidden>

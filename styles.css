@@ -5051,6 +5051,44 @@ button:focus-visible {
   color: var(--color-soft-ink);
 }
 
+/* Genväg från priskortet till postern längre ned på sidan. */
+.sun-print-poster {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  margin-top: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+  color: inherit;
+  text-decoration: none;
+}
+
+.sun-print-poster img {
+  flex: none;
+  width: 48px;
+  height: auto;
+  border: 1px solid var(--color-border);
+}
+
+.sun-print-poster span {
+  display: grid;
+  gap: 0.1rem;
+  font-size: 0.92rem;
+  text-decoration: underline;
+  text-decoration-color: var(--color-primary);
+  text-underline-offset: 0.2em;
+}
+
+.sun-print-poster strong {
+  text-decoration: none;
+  display: inline-block;
+}
+
+.sun-print-poster:hover span {
+  text-decoration-thickness: 2px;
+}
+
 .sun-grid-hint {
   color: var(--color-soft-ink);
   font-size: 0.92rem;
@@ -7532,4 +7570,108 @@ body:not([data-page='studio']) .contact-social-links {
 }
 .studio-project-subhead {
   margin: 0 0 var(--space-3);
+}
+
+/* Studio: utställningar */
+.exhibitions-editor {
+  display: grid;
+  gap: var(--space-5);
+}
+.exhibitions-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--space-3);
+}
+.exhibitions-toolbar label {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 16rem;
+}
+.exhibitions-toolbar select {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--studio-line, var(--color-border));
+  border-radius: var(--studio-radius, 0);
+  background: var(--color-surface);
+  color: inherit;
+  font: inherit;
+}
+.exhibitions-fieldset {
+  border: 1px solid var(--color-border);
+  padding: 0.8rem 1rem 1rem;
+  margin: 0;
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+.exhibitions-fieldset legend {
+  font-weight: 600;
+  padding: 0 0.3rem;
+}
+.exhibitions-fieldset .studio-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.exhibitions-fieldset .studio-check input {
+  width: auto;
+}
+.exhibitions-fieldset textarea {
+  width: 100%;
+}
+.exhibition-blocks {
+  display: grid;
+  gap: var(--space-3);
+}
+.exhibition-block {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+.exhibition-block-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+}
+.exhibition-block-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+.exhibition-block-actions .btn {
+  padding: 0.25rem 0.6rem;
+  min-height: 0;
+}
+.exhibition-pair-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+.exhibition-pair-fields > div {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+}
+.studio-page .exhibition-grid-full > label,
+.studio-page .exhibition-grid-full > label:has(textarea) {
+  grid-column: 1 / -1;
+}
+.studio-page .exhibition-grid-half > label {
+  grid-column: span 6;
+}
+.exhibition-add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.exhibitions-lang-note {
+  color: var(--color-primary);
+}
+@media (max-width: 760px) {
+  .exhibition-pair-fields {
+    grid-template-columns: 1fr;
+  }
 }

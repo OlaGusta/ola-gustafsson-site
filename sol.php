@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/seo.php';
 require_once __DIR__ . '/portfolio_core.php';
+require_once __DIR__ . '/exhibition_core.php';
 
 // Sidan med alla 100 solar från projektet "100 dagar av sol", i dagordning.
 // Varje sol kan beställas som Fine Art Print (upplaga om 20 ex per sol).
@@ -124,7 +125,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
       <link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20261025-04" />
+    <link rel="stylesheet" href="styles.css?v=20261025-06" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <script src="script.js?v=20261025-03" defer></script>
@@ -168,9 +169,11 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
               <p class="eyebrow"><?= $h($lang === 'en' ? 'Project · Summer 2025' : 'Projekt · Sommaren 2025') ?></p>
               <h1><?= $h($heading) ?></h1>
               <p class="section-lead"><?= seo_render_multiline_html($projectDescription) ?></p>
-              <p class="sun-exhibition-note"><?= $lang === 'en'
-                ? 'The whole series was shown in the exhibition <a href="' . $h(seo_canonical_url('exhibition-husby', $lang)) . '">The Return of Light</a> at Husby konsthall, October 2026.'
-                : 'Hela serien visades i utställningen <a href="' . $h(seo_canonical_url('exhibition-husby', $lang)) . '">Ljusets återkomst</a> i Husby konsthall, oktober 2026.' ?></p>
+              <?php if (($sunExhibition = seo_exhibition_find($payload, 'ljusets-aterkomst', $lang)) !== null && !empty($sunExhibition['enabled'])): ?>
+                <p class="sun-exhibition-note"><?= $lang === 'en'
+                  ? 'The whole series was shown in the exhibition <a href="' . $h(seo_exhibition_url('ljusets-aterkomst', $lang)) . '">' . $h($sunExhibition['title']) . '</a> at Husby konsthall, October 2026.'
+                  : 'Hela serien visades i utställningen <a href="' . $h(seo_exhibition_url('ljusets-aterkomst', $lang)) . '">' . $h($sunExhibition['title']) . '</a> i Husby konsthall, oktober 2026.' ?></p>
+              <?php endif; ?>
             </div>
             <aside class="sun-print-card surface-soft" aria-labelledby="sun-print-heading">
               <p class="artwork-market-label" id="sun-print-heading">Fine Art Print</p>
@@ -189,6 +192,14 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
               <p class="sun-print-edition"><?= $h(seo_print_paper_label($lang)) ?>.<br /><?= $h(seo_print_edition_label($lang)) ?><?= $h($lang === 'en' ? ' per sun.' : ' per sol.') ?></p>
               <p class="sun-print-extras"><?= $h($lang === 'en' ? 'Prices include VAT.' : 'Priserna inkluderar moms.') ?> <?= $h(seo_print_mount_label($lang)) ?>. <?= $h(seo_print_extras_note($lang)) ?></p>
               <a class="btn btn-primary" href="<?= $h($canonical) ?>#bestall"><?= $h($lang === 'en' ? 'Order prints' : 'Beställ print') ?></a>
+              <?php if ($poster['enabled'] && $posterAvailable > 0): ?>
+                <a class="sun-print-poster" href="<?= $h($canonical) ?>#poster">
+                  <?php if ($poster['src'] !== ''): ?>
+                    <img src="<?= $h(seo_image_variant_src($poster['src'], true)) ?>" alt="" width="48" height="67" loading="lazy" decoding="async" />
+                  <?php endif; ?>
+                  <span><?= $h($lang === 'en' ? 'Or all hundred suns on one poster' : 'Eller alla hundra solar på en poster') ?><strong><?= $h(shop_money_label($poster['price'], $lang)) ?></strong></span>
+                </a>
+              <?php endif; ?>
             </aside>
           </div>
 
