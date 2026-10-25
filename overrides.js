@@ -90,7 +90,7 @@ window.PORTFOLIO_OVERRIDES = {
         "imageAlt": "Akvarell i blå toner med stadsvy och långa skuggor.",
         "ctaPrimaryLabel": "Se målningar",
         "ctaSecondaryLabel": "100 dagar av sol",
-        "modeUpdatedAt": 1791898071584,
+        "modeUpdatedAt": 1791970916063,
         "ctaPrimaryHref": "gallery.html",
         "ctaSecondaryHref": "100-dagar-av-sol"
     },
@@ -115,17 +115,19 @@ window.PORTFOLIO_OVERRIDES = {
         "inspirationBody": "Jag inspireras bland annat av [Ylva Carlgren](https://www.ylvacarlgren.com/), [Marc Folly](https://marc-folly.com/), [Richard Thorn](https://www.richardthornart.co.uk/), [Lars A Persson](https://larsapersson.com/), [Lena Amstrand](https://lenaamstrand.se/), [Nicolas Lopez](https://www.instagram.com/nicolas.lopez.art/?hl=en), [Andy Evansen](https://www.evansenartstudio.com/), [Axel Thorenfeldt](https://www.axelthorenfeldt.com/), [Patric Lee](https://patrickleefineart.com/), [Herman Pekel](https://www.hermanpekel.net/), [David Lidbetter](https://dlidbetter.com/) och [Mitchell Albala](https://mitchalbala.com/). Gemensamt är målare som rör sig mellan kontroll och upplösning, struktur och flöde, den balans jag själv jagar.",
         "ambitionsHeading": "Just <i>nu</i>",
         "ambitions": [
-            "Förbereder utställning för Husby konsthall med Jenny Övrebö  i Oktober.",
+            "Min och Jenny Övrebös utställning pågår för fullt i  Husby konsthall fram till 25:e Oktober.",
+            "Utställning 17 Oktober - 1 November med Le Venezie Watercolour 2026 i Treviso, Italien.",
             "Utställning  med ECWS i Gdansk, Polen.",
-            "Fler motiv i serie: samma plats, olika ljus, olika utfall.",
-            "Mer negativt måleri och mer “vatten får synas” när det gör bilden bättre."
+            "Fler motiv i serie: samma plats, olika ljus, olika utfall."
         ],
         "recognitionHeading": "Jurybedömda utställningar & <i>urval</i>",
         "recognitionItems": [
             "[Fabriano in Aquarello] (https://www.internationalwatercolormuseum.com/fabrianoinacquarello) 2025 - jurybedömd internationell utställning",
             "[Nordiska Akvarellsällskapets triennal 2025] (https://akvarellen.org/akvarellen/)  - jurybedömd utställning i Fredrikshavn, Danmark",
             "[Konstnärspresentation publicerad av NAS / Nordiska Akvarellsällskapet, 2026](https://nasmembers.org/index.php/2026/05/09/ola-gustafsson/)",
-            "[NAS Internetutställning 2026](https://akvarellen.org/internetudstilling-2026/) – två juryantagna akvareller: State of mind och Utsikt från bryggareberget"
+            "[NAS Internetutställning 2026](https://akvarellen.org/internetudstilling-2026/) – två juryantagna akvareller: State of mind och Utsikt från bryggareberget",
+            "[Le Venezie Watercolour Festival 2026](https://www.venicewatercolor.com/) - en juryantagen akvarell: Reflected sun",
+            "[Ljusets återkomst](https://husbygard.nu/) - Separatutställning med Jenny Övrebö i Husby konsthall 3 - 25 Oktober 2026"
         ],
         "faqHeading": "Vanliga frågor",
         "faqItems": [
@@ -171,7 +173,16 @@ window.PORTFOLIO_OVERRIDES = {
                 "alt": "Solstudie i blågrått och guld."
             }
         ],
-        "printSizes": []
+        "printSizes": [],
+        "poster": {
+            "enabled": false,
+            "price": 0,
+            "stock": 0,
+            "src": "",
+            "alt": "",
+            "title": "",
+            "description": ""
+        }
     },
     "contact": {
         "eyebrow": "Kontakt",
@@ -255,7 +266,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "collectorNote": "Minnesbild från en varm, lång dag i Karlskrona för ett par år sedan. Jag har fokuserat en enkel kontrasterande färgställning i ett försök att framhäva detta orörliga stenblocks väsen. ",
                 "slug": "saltos-sjal",
                 "priceLabel": "5 400 kr",
-                "availability": "reserved",
+                "availability": "available",
                 "addedAt": 1784578881000,
                 "fineArtPrint": false
             },
@@ -286,7 +297,7 @@ window.PORTFOLIO_OVERRIDES = {
             },
             {
                 "src": "images/img-2702.webp",
-                "title": "Under ytan (förstudie)",
+                "title": "Under ytan",
                 "format": "19 x 28 cm",
                 "medium": "Akvarell på papper",
                 "alt": "Förstudie av vattenytan och stenar vid fartygskyrkogåden i Karlskrona.",
@@ -331,7 +342,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "previewSrc": "",
                 "collectorNote": "Visas/publicerad hos NAS",
                 "priceLabel": "5 400 kr",
-                "availability": "reserved",
+                "availability": "available",
                 "addedAt": 1777925214000
             },
             {
@@ -534,7 +545,7 @@ window.PORTFOLIO_OVERRIDES = {
                 ],
                 "heroExclude": true,
                 "collectorNote": "Marinmuseet i juli, Karlskrona är ett akvarelloriginal från 2023 med kust- och vattenmotiv där ljus, vatten och horisont står i centrum. Kontakta mig gärna för aktuell tillgänglighet, pris eller fler bilder av verket.",
-                "availability": "reserved",
+                "availability": "sold",
                 "priceLabel": "5 400 kr",
                 "addedAt": 1777841583000
             },
@@ -2193,7 +2204,7 @@ window.PORTFOLIO_OVERRIDES = {
             },
             {
                 "src": "images/ola-05.jpg",
-                "title": "Johanna i köket (förstudie)",
+                "title": "Johanna i köket",
                 "medium": "Akvarell på papper",
                 "alt": "Figur i interiör med varma orange och violetta toner.",
                 "category": "portrait",
