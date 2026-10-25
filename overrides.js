@@ -90,7 +90,7 @@ window.PORTFOLIO_OVERRIDES = {
         "imageAlt": "Akvarell i blå toner med stadsvy och långa skuggor.",
         "ctaPrimaryLabel": "Se målningar",
         "ctaSecondaryLabel": "100 dagar av sol",
-        "modeUpdatedAt": 1791970916063,
+        "modeUpdatedAt": 1792923166998,
         "ctaPrimaryHref": "gallery.html",
         "ctaSecondaryHref": "100-dagar-av-sol"
     },
@@ -175,10 +175,10 @@ window.PORTFOLIO_OVERRIDES = {
         ],
         "printSizes": [],
         "poster": {
-            "enabled": false,
-            "price": 0,
-            "stock": 0,
-            "src": "",
+            "enabled": true,
+            "price": 350,
+            "stock": 56,
+            "src": "images/100dagaravsol50x70.webp",
             "alt": "",
             "title": "",
             "description": ""
@@ -193,6 +193,26 @@ window.PORTFOLIO_OVERRIDES = {
                 "text": "I utställningen Ljusets återkomst på Husby konsthall möttes två delar av mitt arbete: hundra små solbilder och tio stora akvareller där solen är närvarande genom vatten.",
                 "imageAlt": "Besökare bland fristående skärmar med akvareller i Husby konsthall, med solljus över golvet.",
                 "linkLabel": "Läs om utställningen"
+            },
+            {
+                "enabled": false,
+                "image": "",
+                "href": "",
+                "title": "",
+                "meta": "",
+                "text": "",
+                "imageAlt": "",
+                "linkLabel": ""
+            },
+            {
+                "enabled": false,
+                "image": "",
+                "href": "",
+                "title": "",
+                "meta": "",
+                "text": "",
+                "imageAlt": "",
+                "linkLabel": ""
             }
         ]
     },
@@ -2404,7 +2424,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "line": "",
                 "eyebrow": "Stockholm · Since 2021",
                 "ctaPrimaryLabel": "View paintings",
-                "ctaSecondaryLabel": "Read artist statement"
+                "ctaSecondaryLabel": "100 days of sun"
             },
             "gallery": {
                 "artworkTextBySrc": {
@@ -3633,8 +3653,26 @@ window.PORTFOLIO_OVERRIDES = {
                         "text": "In the exhibition The Return of Light at Husby konsthall, two parts of my work met: a hundred small sun paintings and ten large watercolors in which the sun is present through water.",
                         "imageAlt": "Visitors among free-standing panels with watercolors at Husby konsthall, with sunlight across the floor.",
                         "linkLabel": "Read about the exhibition"
+                    },
+                    {
+                        "title": "",
+                        "meta": "",
+                        "text": "",
+                        "imageAlt": "",
+                        "linkLabel": ""
+                    },
+                    {
+                        "title": "",
+                        "meta": "",
+                        "text": "",
+                        "imageAlt": "",
+                        "linkLabel": ""
                     }
-                ]
+                ],
+                "poster": {
+                    "title": "",
+                    "description": ""
+                }
             },
             "_studioSyncFromSv": {
                 "entries": {
@@ -4369,7 +4407,282 @@ window.PORTFOLIO_OVERRIDES = {
                         "updatedAt": "2026-10-04T07:40:14.514Z"
                     }
                 }
-            }
+            },
+            "exhibitions": [
+                {
+                    "title": "The Return of Light",
+                    "altTitle": "Ljusets återkomst",
+                    "eyebrow": "Exhibition · October 2026",
+                    "meta": "Husby konsthall · 3–25 October 2026 · with Jenny Övrebö",
+                    "description": "The Return of Light (Ljusets återkomst), an exhibition of watercolors by Ola Gustafsson and Jenny Övrebö at Husby konsthall, 3–25 October 2026: 100 Days of Sun and ten large watercolors of the sun in water.",
+                    "heroAlt": "Visitors among free-standing panels with watercolors at Husby konsthall, with sunlight across the floor.",
+                    "heroCaption": "Time, Suspended II and III on the left, watercolors by Jenny Övrebö on the right.",
+                    "worksHeading": "The works",
+                    "worksNote": "Watercolor on paper, height × width.",
+                    "worksText": "The Long Now | 76 × 56 cm\nTime, Suspended I–III | 56 × 76 cm\nSeveral Suns Ago I–III | I and III 76 × 56 cm, II 56 × 76 cm\nThe Hours Between I–III | 56 × 76 cm\n100 Days of Sun | 100 watercolors, 26 × 18 cm each, sold as one collected work",
+                    "ctaEyebrow": "Fine Art Print",
+                    "ctaHeading": "The suns are still here",
+                    "ctaText": "All hundred suns from 100 Days of Sun are available as signed Fine Art Prints.",
+                    "ctaLinkLabel": "See all 100 suns",
+                    "ctaImageAlt": "The wall with all hundred sun watercolors in ten rows.",
+                    "blocks": [
+                        {
+                            "heading": "",
+                            "body": "One sun, a hundred moments. Sometimes visible as a clear disc, sometimes dissolved in light or hidden behind clouds. The same star, but every encounter with it is different.\n\nMy watercolors revolve around the lasting and the transient — permanence and impermanence. The starting point is our relationship with the sun: a star at an unimaginable distance, whose presence is at the same time part of our most everyday experience. We feel its warmth, follow the changes in its light and count our days and years. The sun marks our place in the universe and provides the conditions for life here. It also holds a force that can consume.\n\nThe sun is there whatever clouds obscure it. Measured against our lives, it seems permanent. Yet our experience of it is constantly changing. The light shifts with the weather, the time of day and the place where we are. What returns never meets us in quite the same way.\n\nIn the exhibition <em>The Return of Light</em> at Husby konsthall, two parts of my work met: a hundred small sun paintings and ten large watercolors in which the sun is present through water. Together they explore how something so distant can become close and concrete, and how a returning light can hold moments that never come back.\n\n<em>100 Days of Sun</em> consists of a hundred watercolors. Each image is a brief visit, an encounter with the sun for a limited time. The repetition holds the series together, while the differences between the images are given room. The sun appears, disappears and returns. A clear shape can be almost dissolved in the next image.\n\nThe title also holds the time the work is made of. A hundred days is a sequence of single moments, each with its own presence. Seen together, the images become a way of looking at both what lasts and what changes. The same sun is in all of them, but the days are different."
+                        },
+                        {
+                            "alt": "Ola Gustafsson standing in front of the wall with the hundred sun watercolors.",
+                            "caption": "Ola Gustafsson by 100 Days of Sun."
+                        },
+                        {
+                            "heading": "",
+                            "body": "In the large watercolors I meet the sun through water. The light is reflected in the surface, refracted on its way through the water and changed by the movement of the waves. A single sun can be split into thousands of fleeting suns. The glitter is familiar, but it can also bring a starry sky to mind. The concrete and the cosmic are close to each other.\n\nThe three paintings <em>Several Suns Ago I, II and III</em> revolve around these reflections. The title lets the sun become a measure of time gone by. The surface of the water carries the light for a moment, before the movement changes it. The next reflection appears almost in the same place, but is already a different one."
+                        },
+                        {
+                            "alt": "A room with black walls, three watercolors of sun reflections in water and two suns.",
+                            "caption": "Several Suns Ago I–III and two suns as Fine Art Prints."
+                        },
+                        {
+                            "heading": "",
+                            "body": "In <em>The Long Now</em> a swimmer is surrounded by water, rings and glitter. Here the limited time of a human being meets the feeling of something that reaches far beyond her. A swim is a simple, bodily experience. At the same time such a moment can feel strangely vast, as if the present has been given more room."
+                        },
+                        {
+                            "alt": "A vertical watercolor between two windows: a swimmer surrounded by rings and glitter in dark water.",
+                            "caption": "The Long Now."
+                        },
+                        {
+                            "heading": "",
+                            "body": "<em>Time, Suspended I, II and III</em> take the eye below the surface. The bodies are in a state where movement, weight and light are experienced differently. The title approaches the feeling of stepping out of the ordinary flow of time for a while. Time goes on, but the experience of it changes. The pause is temporary; we will return to the surface."
+                        },
+                        {
+                            "alt": "A visitor in front of three watercolors of bodies below the surface of the water.",
+                            "caption": "Time, Suspended I–III."
+                        },
+                        {
+                            "heading": "",
+                            "body": "In <em>The Hours Between I, II and III</em> there are the birds, the boats and the open water. The motifs belong to a recognizable world, with moments that perhaps do not stand out through any particular event. Yet it is exactly such hours that can stay with us: the light over the water, a place, the feeling of being there."
+                        },
+                        {
+                            "alt": "Watercolor of a sailboat against the light on glittering water.",
+                            "caption": "The Hours Between II."
+                        },
+                        {
+                            "heading": "",
+                            "body": "The large formats give me room to linger over the fleeting. The motifs can feel slow, even though a reflection or the movement of a body changes in an instant. Here lies a connection between the small sun paintings and the large water paintings. Both are about time, but give it different room.\n\nWater is also in the painting itself. It carries the pigment across the paper, lets shapes emerge and edges dissolve. I work with it and try to leave room for what I cannot fully control. The changeability of the material is part of the work on the images.\n\nWhen I think about what we have and what we lose, it is about the moments and what they hold. A meeting, a feeling, someone’s presence. Something that matters while it lasts, but that we can only partly carry with us as memory.\n\nThe light can return without the moment coming back. I want to linger in the joy of being here, knowing that the moment changes even as we experience it.\n\n<em>The Return of Light</em> (<em>Ljusets återkomst</em>) was shown at Husby konsthall from 3 to 25 October 2026, together with Jenny Övrebö."
+                        },
+                        {
+                            "heading": "With Jenny Övrebö",
+                            "body": "Jenny Övrebö showed forests, fields and lakes, and I showed the sun and water. We share watercolor as a medium but come to the theme from different directions, and on the walls the paintings belonged together."
+                        },
+                        {
+                            "alt": "Visitors among free-standing panels with Jenny Övrebö’s landscape watercolors in sunlight.",
+                            "caption": "Watercolors by Jenny Övrebö.",
+                            "alt2": "Two visitors in front of a wall with twelve smaller watercolors by Jenny Övrebö.",
+                            "caption2": "Smaller watercolors by Jenny Övrebö."
+                        },
+                        {
+                            "heading": "The opening",
+                            "body": "The opening drew a large crowd, many of them our friends. Sven Einarsson opened the exhibition with a speech on the importance of light and of art. I was tense beforehand and left the gallery happy and grateful for all the kind words, flowers and gifts."
+                        },
+                        {
+                            "alt": "Sven Einarsson reading his opening speech in the gallery while visitors listen.",
+                            "caption": "Sven Einarsson gives the opening speech."
+                        },
+                        {
+                            "alt": "Jenny Övrebö and Ola Gustafsson in the gallery.",
+                            "caption": "Jenny Övrebö and Ola Gustafsson at the opening.",
+                            "alt2": "Bouquets of flowers on the floor in a beam of sunlight.",
+                            "caption2": "Flowers from the opening."
+                        },
+                        {
+                            "heading": "Painting in front of an audience",
+                            "body": "The day after the opening, Jenny and I painted live in the gallery. The audience was enthusiastic and stayed all day, through both Jenny’s demo and mine. Nyhetsbyrån Järva was there and wrote the report [Imponerande med akvarellmålning live](https://www.nyhetsbyranjarva.se/imponerande-med-akvarellmalning-live/) (in Swedish)."
+                        },
+                        {
+                            "alt": "Ola Gustafsson painting at a table with an audience around him.",
+                            "caption": "Painting demo the day after the opening."
+                        },
+                        {
+                            "alt": "Watercolor of a sunset with dark clouds and silhouetted trees.",
+                            "caption": "Sunset, one of my two demo paintings.",
+                            "alt2": "Watercolor of dark clouds over silhouettes against a light horizon.",
+                            "caption2": "Clouds, the second demo painting."
+                        },
+                        {
+                            "alt": "Jenny Övrebö showing a painting to the audience.",
+                            "caption": "Jenny Övrebö showing her work.",
+                            "alt2": "A hand with a brush painting a green tree on a sheet of watercolor paper.",
+                            "caption2": "Painting demo."
+                        },
+                        {
+                            "heading": "Afterwards",
+                            "body": "The preparations were far more extensive than I had expected. Then came the hanging, the opening, three weeks of the exhibition and finally taking it down. It has been a really fun and valuable experience."
+                        }
+                    ]
+                }
+            ]
         }
-    }
+    },
+    "exhibitions": [
+        {
+            "slug": "ljusets-aterkomst",
+            "enabled": true,
+            "title": "Ljusets återkomst",
+            "altTitle": "The Return of Light",
+            "eyebrow": "Utställning · Oktober 2026",
+            "meta": "Husby konsthall · 3–25 oktober 2026 · tillsammans med Jenny Övrebö",
+            "description": "Ljusets återkomst, en utställning med akvareller av Ola Gustafsson och Jenny Övrebö i Husby konsthall 3–25 oktober 2026: 100 dagar av sol och tio stora akvareller med solen i vatten.",
+            "heroAlt": "Besökare bland fristående skärmar med akvareller i Husby konsthall, med solljus över golvet.",
+            "heroCaption": "Tid i vila II och III till vänster, Jenny Övrebös akvareller till höger.",
+            "worksHeading": "Verken",
+            "worksNote": "Akvarell på papper, höjd × bredd.",
+            "worksText": "Det långa nuet | 76 × 56 cm\nTid i vila I–III | 56 × 76 cm\nFör flera solar sedan I–III | I och III 76 × 56 cm, II 56 × 76 cm\nTimmarna däremellan I–III | 56 × 76 cm\n100 dagar av sol | 100 akvareller, 26 × 18 cm per ark, säljs som samlat verk",
+            "ctaEyebrow": "Fine Art Print",
+            "ctaHeading": "Solarna finns kvar",
+            "ctaText": "Alla hundra solar från 100 dagar av sol finns som signerad Fine Art Print.",
+            "ctaLinkLabel": "Se alla 100 solar",
+            "ctaImageAlt": "Väggen med alla hundra solakvareller i tio rader.",
+            "blocks": [
+                {
+                    "type": "text",
+                    "heading": "",
+                    "body": "En sol, hundra ögonblick. Ibland synlig som en tydlig skiva, ibland upplöst i ljus eller dold bakom moln. Samma stjärna, men varje möte med den är annorlunda.\n\nMina akvareller kretsar kring det beständiga och det förgängliga — permanens och impermanens. Utgångspunkten är vår relation till solen: en stjärna på ett ofattbart avstånd, vars närvaro samtidigt är en del av vår mest vardagliga erfarenhet. Vi känner dess värme, följer ljusets förändringar och räknar våra dagar och år. Solen anger vår plats i universum och ger förutsättningarna för livet här. Den rymmer också en kraft som kan förtära.\n\nSolen finns där oavsett vilka moln som skymmer den. I förhållande till våra liv framstår den som bestående. Ändå är vår erfarenhet av den ständigt föränderlig. Ljuset skiftar med vädret, tiden på dagen och platsen där vi befinner oss. Det som återkommer möter oss aldrig riktigt på samma sätt.\n\nI utställningen <em>Ljusets återkomst</em> på Husby konsthall möttes två delar av mitt arbete: hundra små solbilder och tio stora akvareller där solen är närvarande genom vatten. Tillsammans undersöker de hur något så avlägset kan bli nära och konkret, och hur ett återkommande ljus kan rymma ögonblick som aldrig kommer tillbaka.\n\n<em>100 dagar av sol</em> består av hundra akvareller. Varje bild är ett kort nedslag, ett möte med solen under en begränsad stund. Upprepningen håller samman serien, samtidigt som skillnaderna mellan bilderna får ta plats. Solen framträder, försvinner och återkommer. En tydlig form kan i nästa bild vara nästan upplöst.\n\nTiteln rymmer också tiden som arbetet består av. Hundra dagar är en följd av enskilda stunder, var och en med sin egen närvaro. Sedda tillsammans blir bilderna ett sätt att betrakta både det som består och det som förändras. Samma sol finns i dem alla, men dagarna är olika."
+                },
+                {
+                    "type": "image",
+                    "image": "images/ljusets-aterkomst/02-ola-vid-solvaggen.jpg",
+                    "alt": "Ola Gustafsson står framför väggen med de hundra solakvarellerna.",
+                    "caption": "Ola Gustafsson vid 100 dagar av sol."
+                },
+                {
+                    "type": "text",
+                    "heading": "",
+                    "body": "I de stora akvarellerna möter jag solen genom vatten. Ljuset återspeglas i ytan, bryts på sin väg genom vattnet och förändras med vågornas rörelser. En enda sol kan delas i tusentals tillfälliga solar. Glittret är välbekant, men kan också föra tanken till en stjärnhimmel. Det konkreta och det kosmiska finns nära varandra.\n\nDe tre målningarna <em>För flera solar sedan I, II och III</em> kretsar kring dessa reflektioner. Titeln låter solen bli ett mått på förfluten tid. Vattenytan bär ljuset för ett ögonblick, innan rörelsen förändrar det. Nästa reflex uppstår nästan på samma plats, men är redan en annan."
+                },
+                {
+                    "type": "image",
+                    "image": "images/ljusets-aterkomst/03-svarta-rummet.jpg",
+                    "alt": "Ett rum med svarta väggar och tre akvareller av solreflexer i vatten samt två solar.",
+                    "caption": "För flera solar sedan I–III och två solar som Fine Art Print."
+                },
+                {
+                    "type": "text",
+                    "heading": "",
+                    "body": "I <em>Det långa nuet</em> omges en simmare av vatten, ringar och glitter. Här möts människans begränsade tid och känslan av något som sträcker sig långt bortom henne. Ett bad är en enkel, kroppslig erfarenhet. Samtidigt kan en sådan stund kännas märkligt vidsträckt, som om nuet har fått mer rum."
+                },
+                {
+                    "type": "image",
+                    "image": "images/ljusets-aterkomst/04-det-langa-nuet.jpg",
+                    "alt": "En stående akvarell mellan två fönster: en simmare omgiven av ringar och glitter i mörkt vatten.",
+                    "caption": "Det långa nuet."
+                },
+                {
+                    "type": "text",
+                    "heading": "",
+                    "body": "<em>Tid i vila I, II och III</em> för blicken under vattenytan. Kropparna befinner sig i ett tillstånd där rörelse, tyngd och ljus upplevs annorlunda. Titeln närmar sig känslan av att för en stund kliva ur den vanliga tidens gång. Tiden fortsätter, men upplevelsen av den förändras. Vilan är tillfällig; vi kommer att återvända till ytan."
+                },
+                {
+                    "type": "image",
+                    "image": "images/ljusets-aterkomst/05-tid-i-vila.jpg",
+                    "alt": "En besökare framför tre akvareller av kroppar under vattenytan.",
+                    "caption": "Tid i vila I–III."
+                },
+                {
+                    "type": "text",
+                    "heading": "",
+                    "body": "I <em>Timmarna däremellan I, II och III</em> finns fåglarna, båtarna och det öppna vattnet. Motiven hör till en igenkännbar värld, med stunder som kanske inte utmärker sig genom någon särskild händelse. Ändå kan just sådana timmar stanna kvar hos oss: ljuset över vattnet, en plats, känslan av att vara där."
+                },
+                {
+                    "type": "image",
+                    "image": "images/ljusets-aterkomst/06-timmarna-daremellan.jpg",
+                    "alt": "Akvarell av en segelbåt i motljus på glittrande vatten.",
+                    "caption": "Timmarna däremellan II."
+                },
+                {
+                    "type": "text",
+                    "heading": "",
+                    "body": "De stora formaten ger mig utrymme att dröja vid det flyktiga. Motiven kan upplevas som långsamma, trots att en reflex eller en kropps rörelse förändras på ett ögonblick. Där finns en förbindelse mellan de små solbilderna och de stora vattenbilderna. Båda handlar om tid, men ger den olika utrymme.\n\nVattnet finns också i själva måleriet. Det för pigmentet över papperet, låter former uppstå och gränser lösas upp. Jag arbetar med det och försöker lämna plats för sådant jag inte helt kan styra. Materialets föränderlighet är en del av arbetet med bilderna.\n\nNär jag tänker på vad vi har och vad vi förlorar handlar det om ögonblicken och det som ryms i dem. Ett möte, en känsla, någons närvaro. Något som är betydelsefullt medan det pågår, men som vi bara delvis kan bära med oss som minne.\n\nLjuset kan återkomma utan att stunden återvänder. Jag vill dröja i glädjen över att vara här, med vetskapen om att stunden förändras också medan vi upplever den.\n\n<em>Ljusets återkomst</em> visades på Husby konsthall den 3–25 oktober 2026, tillsammans med Jenny Övrebö."
+                },
+                {
+                    "type": "text",
+                    "heading": "Med Jenny Övrebö",
+                    "body": "Jenny Övrebö visade skog, fält och sjöar, jag solen och vattnet. Vi har akvarellen gemensamt men går in i temat från olika håll, och på väggarna hörde bilderna ihop."
+                },
+                {
+                    "type": "pair",
+                    "image": "images/ljusets-aterkomst/07-jenny-skarmar.jpg",
+                    "alt": "Besökare bland fristående skärmar med Jenny Övrebös landskapsakvareller i solljus.",
+                    "caption": "Jenny Övrebös akvareller.",
+                    "image2": "images/ljusets-aterkomst/08-jenny-vagg.jpg",
+                    "alt2": "Två besökare framför en vägg med tolv mindre akvareller av Jenny Övrebö.",
+                    "caption2": "Jenny Övrebös mindre akvareller."
+                },
+                {
+                    "type": "text",
+                    "heading": "Vernissagen",
+                    "body": "Vernissagen samlade många besökare, bland dem många av våra vänner. Sven Einarsson öppnade utställningen med ett tal om ljusets och konstens betydelse. Jag var spänd inför öppningen och lämnade konsthallen glad och tacksam för alla vänliga ord, blommor och presenter."
+                },
+                {
+                    "type": "image",
+                    "image": "images/ljusets-aterkomst/09-oppningstal.jpg",
+                    "alt": "Sven Einarsson läser sitt öppningstal i konsthallen medan besökare lyssnar.",
+                    "caption": "Sven Einarsson håller öppningstalet."
+                },
+                {
+                    "type": "pair",
+                    "image": "images/ljusets-aterkomst/10-ola-och-jenny.jpg",
+                    "alt": "Jenny Övrebö och Ola Gustafsson i konsthallen.",
+                    "caption": "Jenny Övrebö och Ola Gustafsson på vernissagen.",
+                    "image2": "images/ljusets-aterkomst/11-blommor.jpg",
+                    "alt2": "Blombuketter på golvet i ett solstrålsljus.",
+                    "caption2": "Blommor från vernissagen."
+                },
+                {
+                    "type": "text",
+                    "heading": "Måla inför publik",
+                    "body": "Dagen efter vernissagen målade Jenny och jag live i konsthallen. Publiken var entusiastisk och stannade hela dagen, både under Jennys och min demo. Nyhetsbyrån Järva var där och skrev reportaget [Imponerande med akvarellmålning live](https://www.nyhetsbyranjarva.se/imponerande-med-akvarellmalning-live/)."
+                },
+                {
+                    "type": "image",
+                    "image": "images/ljusets-aterkomst/12-ola-demo.jpg",
+                    "alt": "Ola Gustafsson målar vid ett bord med publik omkring sig.",
+                    "caption": "Demomåleri dagen efter vernissagen."
+                },
+                {
+                    "type": "pair",
+                    "image": "images/ljusets-aterkomst/16-demomalning-sol.jpg",
+                    "alt": "Akvarell av en solnedgång med mörka moln och silhuetter av träd.",
+                    "caption": "Solnedgång, en av mina två demomålningar.",
+                    "image2": "images/ljusets-aterkomst/17-demomalning-moln.jpg",
+                    "alt2": "Akvarell av mörka moln över silhuetter mot en ljus horisont.",
+                    "caption2": "Moln, den andra demomålningen."
+                },
+                {
+                    "type": "pair",
+                    "image": "images/ljusets-aterkomst/13-jenny-demo.jpg",
+                    "alt": "Jenny Övrebö visar en målning för publiken.",
+                    "caption": "Jenny Övrebö visar sitt arbete.",
+                    "image2": "images/ljusets-aterkomst/14-pensel.jpg",
+                    "alt2": "En hand med pensel målar ett grönt träd på ett akvarellark.",
+                    "caption2": "Demomåleri."
+                },
+                {
+                    "type": "text",
+                    "heading": "Efteråt",
+                    "body": "Förberedelserna var mycket mer omfattande än jag trodde. Sedan kom hängningen, vernissagen, tre veckor med utställningen och till sist nedplockningen. Det har varit en väldigt rolig och nyttig upplevelse."
+                }
+            ],
+            "startDate": "2026-10-03",
+            "endDate": "2026-10-25",
+            "venue": "Husby konsthall",
+            "city": "Stockholm",
+            "artists": "Jenny Övrebö",
+            "heroImage": "images/ljusets-aterkomst/00-utstallningen.jpg",
+            "ogImage": "images/ljusets-aterkomst/og.jpg",
+            "ctaEnabled": true,
+            "ctaImage": "images/ljusets-aterkomst/15-solvaggen.jpg",
+            "ctaHref": "100-dagar-av-sol",
+            "ctaPoster": true
+        }
+    ]
 };
