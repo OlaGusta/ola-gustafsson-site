@@ -115,7 +115,7 @@ window.PORTFOLIO_OVERRIDES = {
         "inspirationBody": "Jag inspireras bland annat av [Ylva Carlgren](https://www.ylvacarlgren.com/), [Marc Folly](https://marc-folly.com/), [Richard Thorn](https://www.richardthornart.co.uk/), [Lars A Persson](https://larsapersson.com/), [Lena Amstrand](https://lenaamstrand.se/), [Nicolas Lopez](https://www.instagram.com/nicolas.lopez.art/?hl=en), [Andy Evansen](https://www.evansenartstudio.com/), [Axel Thorenfeldt](https://www.axelthorenfeldt.com/), [Patric Lee](https://patrickleefineart.com/), [Herman Pekel](https://www.hermanpekel.net/), [David Lidbetter](https://dlidbetter.com/) och [Mitchell Albala](https://mitchalbala.com/). Gemensamt är målare som rör sig mellan kontroll och upplösning, struktur och flöde, den balans jag själv jagar.",
         "ambitionsHeading": "Just <i>nu</i>",
         "ambitions": [
-            "Min och Jenny Övrebös utställning pågår för fullt i  Husby konsthall fram till 25:e Oktober.",
+            "Ljusets återkomst i Husby konsthall har stängt. [Se bilder och text från utställningen](https://olagustafsson.com/ljusets-aterkomst).",
             "Utställning 17 Oktober - 1 November med Le Venezie Watercolour 2026 i Treviso, Italien.",
             "Utställning  med ECWS i Gdansk, Polen.",
             "Fler motiv i serie: samma plats, olika ljus, olika utfall."
@@ -127,7 +127,7 @@ window.PORTFOLIO_OVERRIDES = {
             "[Konstnärspresentation publicerad av NAS / Nordiska Akvarellsällskapet, 2026](https://nasmembers.org/index.php/2026/05/09/ola-gustafsson/)",
             "[NAS Internetutställning 2026](https://akvarellen.org/internetudstilling-2026/) – två juryantagna akvareller: State of mind och Utsikt från bryggareberget",
             "[Le Venezie Watercolour Festival 2026](https://www.venicewatercolor.com/) - en juryantagen akvarell: Reflected sun",
-            "[Ljusets återkomst](https://husbygard.nu/) - Separatutställning med Jenny Övrebö i Husby konsthall 3 - 25 Oktober 2026"
+            "[Ljusets återkomst](https://olagustafsson.com/ljusets-aterkomst) - Duoutställning med Jenny Övrebö i Husby konsthall 3–25 oktober 2026"
         ],
         "faqHeading": "Vanliga frågor",
         "faqItems": [
@@ -182,7 +182,19 @@ window.PORTFOLIO_OVERRIDES = {
             "alt": "",
             "title": "",
             "description": ""
-        }
+        },
+        "cards": [
+            {
+                "enabled": true,
+                "image": "images/ljusets-aterkomst/00-utstallningen.jpg",
+                "href": "ljusets-aterkomst",
+                "title": "Ljusets återkomst",
+                "meta": "Utställning · Husby konsthall · 3–25 oktober 2026",
+                "text": "I utställningen Ljusets återkomst på Husby konsthall möttes två delar av mitt arbete: hundra små solbilder och tio stora akvareller där solen är närvarande genom vatten.",
+                "imageAlt": "Besökare bland fristående skärmar med akvareller i Husby konsthall, med solljus över golvet.",
+                "linkLabel": "Läs om utställningen"
+            }
+        ]
     },
     "contact": {
         "eyebrow": "Kontakt",
@@ -3530,17 +3542,19 @@ window.PORTFOLIO_OVERRIDES = {
                 "sideNote": "",
                 "ambitionsHeading": "Right now",
                 "ambitions": [
-                    "Clearer value structure, less overworking.",
-                    "More subjects in a series: the same place, different light, different outcomes.",
-                    "More negative painting and more “letting the water show” when it makes the image better.",
-                    "Continue opening up toward more abstract areas—without losing the anchor in value and edge."
+                    "The Return of Light at Husby konsthall has closed. [See images and text from the exhibition](https://olagustafsson.com/ljusets-aterkomst?lang=en).",
+                    "Exhibition 17 October – 1 November with Le Venezie Watercolour 2026 in Treviso, Italy.",
+                    "Exhibition with ECWS in Gdańsk, Poland.",
+                    "More subjects in a series: the same place, different light, different outcomes."
                 ],
                 "recognitionHeading": "Jury-assessed exhibitions & <i>selection</i>",
                 "recognitionItems": [
                     "[Fabriano in Aquarello] (https://www.internationalwatercolormuseum.com/fabrianoinacquarello) 2025 - juried international exhibition",
                     "[Nordic Watercolour Society’s Triennial 2025] (https://akvarellen.org/akvarellen/) - jury-assessed exhibition in Frederikshavn, Denmark",
                     "[Artist presentation published by NAS / Nordic Watercolour Society, 2026](https://nasmembers.org/index.php/2026/05/09/ola-gustafsson/)",
-                    "[NAS Online Exhibition 2026](https://akvarellen.org/internetudstilling-2026/) – two jury-selected watercolours: State of mind and View from Bryggareberget"
+                    "[NAS Online Exhibition 2026](https://akvarellen.org/internetudstilling-2026/) – two jury-selected watercolours: State of mind and View from Bryggareberget",
+                    "[Le Venezie Watercolour Festival 2026](https://www.venicewatercolor.com/) – one jury-selected watercolour: Reflected sun",
+                    "[The Return of Light (Ljusets återkomst)](https://olagustafsson.com/ljusets-aterkomst?lang=en) – two-person exhibition with Jenny Övrebö at Husby konsthall, 3–25 October 2026"
                 ],
                 "portraitImage": "images/ola-portrait.jpg",
                 "portraitAlt": "Portrait of Ola Gustafsson",
@@ -3610,6 +3624,15 @@ window.PORTFOLIO_OVERRIDES = {
                     {
                         "src": "images/sol1.jpg",
                         "alt": "Sun study in blue-gray and gold."
+                    }
+                ],
+                "cards": [
+                    {
+                        "title": "The Return of Light",
+                        "meta": "Exhibition · Husby konsthall · 3–25 October 2026",
+                        "text": "In the exhibition The Return of Light at Husby konsthall, two parts of my work met: a hundred small sun paintings and ten large watercolors in which the sun is present through water.",
+                        "imageAlt": "Visitors among free-standing panels with watercolors at Husby konsthall, with sunlight across the floor.",
+                        "linkLabel": "Read about the exhibition"
                     }
                 ]
             },
