@@ -822,8 +822,16 @@ const buildLinkedTextFragment = (value) => {
     if (safeHref && label.trim() !== '') {
       const link = document.createElement('a');
       link.href = safeHref;
-      link.target = '_blank';
-      link.rel = nofollowFlag ? 'noopener noreferrer nofollow' : 'noopener noreferrer';
+      // Länkar till den egna sajten öppnas i samma flik, externa i en ny.
+      const internal = /(^|\.)olagustafsson\.com$/i.test(new URL(safeHref).hostname);
+      if (internal) {
+        if (nofollowFlag) {
+          link.rel = 'nofollow';
+        }
+      } else {
+        link.target = '_blank';
+        link.rel = nofollowFlag ? 'noopener noreferrer nofollow' : 'noopener noreferrer';
+      }
       link.textContent = label.trim();
       fragment.appendChild(link);
     } else {
@@ -3000,7 +3008,7 @@ const renderAmbitions = () => {
   list.innerHTML = '';
   ambitions.forEach((text) => {
     const li = document.createElement('li');
-    li.textContent = text;
+    li.appendChild(buildLinkedTextFragment(text));
     list.appendChild(li);
   });
 };
@@ -3195,6 +3203,124 @@ const renderSunProject = () => {
     }) - 1;
     setLightboxTrigger(figure, sampleIndex);
   });
+};
+
+// Projektkort före solprojektet (project.cards). Bild, länk och "visa" ligger i
+// grundinnehållet; texten per språk i språkpaketets project.cards på samma plats.
+const renderProjectCards = () => {
+  const container = document.getElementById('project-cards');
+  if (!container) {
+    return;
+  }
+  const baseProject = baseContent.project && typeof baseContent.project === 'object' ? baseContent.project : {};
+  const baseCards = Array.isArray(baseProject.cards) ? baseProject.cards : [];
+  const packProject = activeLanguagePack && activeLanguagePack.project && typeof activeLanguagePack.project === 'object'
+    ? activeLanguagePack.project
+    : {};
+  const localizedCards = activeLanguage !== 'sv' && Array.isArray(packProject.cards) ? packProject.cards : [];
+  const textOf = (card, localized, key) => {
+    const localizedValue = localized && typeof localized[key] === 'string' ? localized[key].trim() : '';
+    if (localizedValue) {
+      return localizedValue;
+    }
+    return card && typeof card[key] === 'string' ? card[key].trim() : '';
+  };
+
+  container.innerHTML = '';
+  let rendered = 0;
+  baseCards.forEach((card, index) => {
+    if (!card || typeof card !== 'object' || !card.enabled) {
+      return;
+    }
+    const localized = localizedCards[index] && typeof localizedCards[index] === 'object' ? localizedCards[index] : null;
+    const title = textOf(card, localized, 'title');
+    if (!title) {
+      return;
+    }
+    const meta = textOf(card, localized, 'meta');
+    const text = textOf(card, localized, 'text');
+    const imageAlt = textOf(card, localized, 'imageAlt');
+    const linkLabel = textOf(card, localized, 'linkLabel');
+    const rawHref = typeof card.href === 'string' ? card.href.trim() : '';
+    const href = rawHref ? safeHeroHref(rawHref, '') : '';
+    const external = /^https?:\/\//i.test(href) && !/^https?:\/\/([^/]+\.)?olagustafsson\.com(\/|$)/i.test(href);
+    const applyLink = (link) => {
+      link.setAttribute('href', href);
+      if (external) {
+        link.target = '_blank';
+        link.rel = 'noopener';
+      } else {
+        link.setAttribute('data-lang-link', '');
+      }
+    };
+
+    const article = document.createElement('article');
+    article.className = 'project-card surface-soft';
+
+    const image = typeof card.image === 'string' ? card.image.trim() : '';
+    if (image) {
+      const media = document.createElement(href ? 'a' : 'div');
+      media.className = 'project-card-media';
+      if (href) {
+        applyLink(media);
+        media.tabIndex = -1;
+        media.setAttribute('aria-hidden', 'true');
+      }
+      const img = document.createElement('img');
+      img.className = 'artwork-photo';
+      const sources = getImageFallbackSources(image, { preferThumb: false });
+      if (sources.length > 1) {
+        img.dataset.fallbackSrcs = sources.join('\n');
+        img.dataset.fallbackIndex = '0';
+      }
+      img.src = addRevToSrc(sources[0] || image);
+      img.alt = imageAlt;
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      addImageFallback(img);
+      media.appendChild(img);
+      article.appendChild(media);
+    }
+
+    const body = document.createElement('div');
+    body.className = 'project-card-body';
+    if (meta) {
+      const eyebrow = document.createElement('p');
+      eyebrow.className = 'eyebrow';
+      eyebrow.textContent = meta;
+      body.appendChild(eyebrow);
+    }
+    const heading = document.createElement('h2');
+    heading.textContent = title;
+    body.appendChild(heading);
+    if (text) {
+      const paragraph = document.createElement('p');
+      text.split('\n').forEach((line, lineIndex) => {
+        if (lineIndex > 0) {
+          paragraph.appendChild(document.createElement('br'));
+        }
+        paragraph.appendChild(document.createTextNode(line));
+      });
+      body.appendChild(paragraph);
+    }
+    if (href && linkLabel) {
+      const link = document.createElement('a');
+      link.className = 'btn btn-ghost';
+      link.textContent = linkLabel;
+      applyLink(link);
+      body.appendChild(link);
+    }
+    article.appendChild(body);
+    container.appendChild(article);
+    rendered += 1;
+  });
+
+  container.hidden = rendered === 0;
+  const section = document.getElementById('projekt');
+  if (section && rendered > 0) {
+    section.hidden = false;
+  }
+  bindLanguageAwareLinks();
 };
 
 const getBaseItemsForPage = () => {
@@ -5228,6 +5354,7 @@ const bootstrap = async () => {
   renderRecognition();
   renderFaq();
   renderSunProject();
+  renderProjectCards();
   renderContact();
   initArtworkPreviewPage();
   initContactForm();

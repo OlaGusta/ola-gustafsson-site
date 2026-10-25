@@ -124,10 +124,10 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
       <link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20261013-11" />
+    <link rel="stylesheet" href="styles.css?v=20261025-04" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
-    <script src="script.js?v=20261007-03" defer></script>
+    <script src="script.js?v=20261025-02" defer></script>
     <script src="shop.js?v=20261013-06" defer></script>
     <script src="sol.js?v=20261013-01" defer></script>
   </head>
@@ -168,6 +168,9 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
               <p class="eyebrow"><?= $h($lang === 'en' ? 'Project · Summer 2025' : 'Projekt · Sommaren 2025') ?></p>
               <h1><?= $h($heading) ?></h1>
               <p class="section-lead"><?= seo_render_multiline_html($projectDescription) ?></p>
+              <p class="sun-exhibition-note"><?= $lang === 'en'
+                ? 'The whole series was shown in the exhibition <a href="' . $h(seo_canonical_url('exhibition-husby', $lang)) . '">Ljusets återkomst</a> at Husby konsthall, October 2026.'
+                : 'Hela serien visades i utställningen <a href="' . $h(seo_canonical_url('exhibition-husby', $lang)) . '">Ljusets återkomst</a> i Husby konsthall, oktober 2026.' ?></p>
             </div>
             <aside class="sun-print-card surface-soft" aria-labelledby="sun-print-heading">
               <p class="artwork-market-label" id="sun-print-heading">Fine Art Print</p>

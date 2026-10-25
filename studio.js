@@ -620,7 +620,10 @@ const DEFAULT_SECTION_IMAGE_CANDIDATES = [
   'images/sol1.jpg',
   'images/sol2.jpg',
   'images/sol3.jpg',
-  'images/sol4.jpg'
+  'images/sol4.jpg',
+  // Utställningssidan /ljusets-aterkomst (undermappen listas inte av api/images.php).
+  'images/ljusets-aterkomst/00-utstallningen.jpg',
+  'images/ljusets-aterkomst/01-timmarna-och-solvaggen.jpg'
 ];
 let serverImageCandidates = [];
 // src -> filens mtime (sekunder) från api/images.php; reserv för "Senast tillagda".
@@ -891,6 +894,8 @@ const collectSectionImageCandidates = () => {
   push(project.collageImage);
   const samples = Array.isArray(project.samples) ? project.samples : [];
   samples.forEach((entry) => push(entry && entry.src));
+  const cards = Array.isArray(project.cards) ? project.cards : [];
+  cards.forEach((card) => push(card && card.image));
   const serverList = Array.isArray(serverImageCandidates) ? serverImageCandidates : [];
   serverList.forEach((src) => push(src));
 
@@ -951,11 +956,15 @@ const renderImagePickerSelect = (selectNode, inputNode, labelPrefix) => {
 
 // Förslagslista för länkfälten (hero-knapparna): sidor, avsnitt och alla verk.
 // Visas som <datalist> när man klickar i fältet; man kan fortfarande skriva fritt.
+// Textfälten i ett projektkort (sparas per språk). Bild, länk och "visa" är gemensamma.
+const PROJECT_CARD_TEXT_KEYS = ['title', 'meta', 'text', 'imageAlt', 'linkLabel'];
+
 const STUDIO_STATIC_LINK_OPTIONS = [
   ['#hem', 'Startsidan: toppen'],
   ['#galleri', 'Startsidan: utvalda verk'],
   ['#om', 'Startsidan: artist statement'],
-  ['#projekt', 'Startsidan: 100 dagar av sol-avsnittet'],
+  ['#projekt', 'Startsidan: projektavsnittet'],
+  ['ljusets-aterkomst', 'Utställningssidan: Ljusets återkomst'],
   ['#faq', 'Startsidan: vanliga frågor'],
   ['#kontakt', 'Startsidan: kontakt'],
   ['gallery.html', 'Galleriet'],
@@ -993,6 +1002,9 @@ const renderSectionImagePickers = () => {
   renderImagePickerSelect(el.projectSample2Pick, el.projectSample2Src, 'Välj exempelbild 2');
   renderImagePickerSelect(el.projectSample3Pick, el.projectSample3Src, 'Välj exempelbild 3');
   renderImagePickerSelect(el.projectSample4Pick, el.projectSample4Src, 'Välj exempelbild 4');
+  (el.projectCards || []).forEach((slot, index) => {
+    renderImagePickerSelect(slot.imagePick, slot.image, `Välj bild till kort ${index + 1}`);
+  });
   renderSectionImagePreviews();
 };
 
@@ -1022,6 +1034,9 @@ const renderSectionImagePreviews = () => {
   renderSectionImagePreview(el.projectSample2Preview, el.projectSample2Src, 'Ingen exempelbild 2 vald ännu.');
   renderSectionImagePreview(el.projectSample3Preview, el.projectSample3Src, 'Ingen exempelbild 3 vald ännu.');
   renderSectionImagePreview(el.projectSample4Preview, el.projectSample4Src, 'Ingen exempelbild 4 vald ännu.');
+  (el.projectCards || []).forEach((slot, index) => {
+    renderSectionImagePreview(slot.imagePreview, slot.image, `Ingen bild till kort ${index + 1} vald ännu.`);
+  });
 };
 
 const renderSeoHomeImageControls = () => {
@@ -2634,6 +2649,18 @@ const el = {
   projectSampleHeading: document.getElementById('project-sample-heading'),
   projectPrintSizes: document.getElementById('project-print-sizes'),
   projectPosterEnabled: document.getElementById('project-poster-enabled'),
+  projectCards: [1, 2, 3].map((n) => ({
+    enabled: document.getElementById(`project-card-${n}-enabled`),
+    meta: document.getElementById(`project-card-${n}-meta`),
+    title: document.getElementById(`project-card-${n}-title`),
+    text: document.getElementById(`project-card-${n}-text`),
+    href: document.getElementById(`project-card-${n}-href`),
+    linkLabel: document.getElementById(`project-card-${n}-link-label`),
+    image: document.getElementById(`project-card-${n}-image`),
+    imagePick: document.getElementById(`project-card-${n}-image-pick`),
+    imagePreview: document.getElementById(`project-card-${n}-image-preview`),
+    imageAlt: document.getElementById(`project-card-${n}-image-alt`)
+  })),
   projectPosterPrice: document.getElementById('project-poster-price'),
   projectPosterStock: document.getElementById('project-poster-stock'),
   projectPosterTitle: document.getElementById('project-poster-title'),
@@ -5423,6 +5450,35 @@ const syncFormFromState = () => {
   if (el.projectPosterDescription) el.projectPosterDescription.value = localizedPoster.description || '';
   if (el.projectPosterSrc) el.projectPosterSrc.value = poster.src || '';
   if (el.projectPosterAlt) el.projectPosterAlt.value = poster.alt || '';
+  if (Array.isArray(el.projectCards)) {
+    // Projektkort: bild, länk och "visa" ur grundinnehållet; texten ur det språk som
+    // redigeras. På engelska visas den svenska texten som platshållare.
+    const editingLanguage = getEditingLanguage();
+    const baseCards = Array.isArray(project.cards) ? project.cards : [];
+    const packCards = editingLanguage === 'sv' ? null : getPath(getLanguageOverridePack(editingLanguage), 'project.cards');
+    el.projectCards.forEach((slot, index) => {
+      const card = baseCards[index] && typeof baseCards[index] === 'object' ? baseCards[index] : {};
+      const localizedCard = Array.isArray(packCards) && packCards[index] && typeof packCards[index] === 'object' ? packCards[index] : {};
+      const textSource = editingLanguage === 'sv' ? card : localizedCard;
+      if (slot.enabled) slot.enabled.checked = Boolean(card.enabled);
+      if (slot.image) slot.image.value = typeof card.image === 'string' ? card.image : '';
+      if (slot.href) slot.href.value = typeof card.href === 'string' ? card.href : '';
+      PROJECT_CARD_TEXT_KEYS.forEach((key) => {
+        const node = slot[key];
+        if (!node) {
+          return;
+        }
+        if (node.dataset.placeholderSv === undefined) {
+          node.dataset.placeholderSv = node.getAttribute('placeholder') || '';
+        }
+        node.value = typeof textSource[key] === 'string' ? textSource[key] : '';
+        node.setAttribute(
+          'placeholder',
+          editingLanguage === 'sv' ? node.dataset.placeholderSv : (typeof card[key] === 'string' ? card[key] : '')
+        );
+      });
+    });
+  }
   if (el.projectPrintSizes) {
     el.projectPrintSizes.value = (Array.isArray(project.printSizes) ? project.printSizes : [])
       .map((row) => [row && row.format, row && row.price].filter(Boolean).join(' | '))
@@ -7130,6 +7186,28 @@ const pullFormToState = () => {
     };
     setPath(localizedTarget, 'project.poster.title', el.projectPosterTitle.value.trim());
     setPath(localizedTarget, 'project.poster.description', el.projectPosterDescription.value.trim());
+  }
+  if (Array.isArray(el.projectCards) && el.projectCards.length > 0) {
+    // Projektkort: bild, länk och "visa" är gemensamma; texten sparas per språk
+    // (svenska i grundinnehållet, övriga i språkpaketets project.cards på samma plats).
+    const currentCards = Array.isArray(state.content.project.cards) ? state.content.project.cards : [];
+    const readCardText = (slot) =>
+      PROJECT_CARD_TEXT_KEYS.reduce((out, key) => {
+        out[key] = slot[key] ? slot[key].value.trim() : '';
+        return out;
+      }, {});
+    state.content.project.cards = el.projectCards.map((slot, index) => {
+      const current = currentCards[index] && typeof currentCards[index] === 'object' ? currentCards[index] : {};
+      const shared = {
+        enabled: Boolean(slot.enabled && slot.enabled.checked),
+        image: slot.image ? slot.image.value.trim() : '',
+        href: slot.href ? slot.href.value.trim() : ''
+      };
+      return language === 'sv' ? { ...current, ...shared, ...readCardText(slot) } : { ...current, ...shared };
+    });
+    if (language !== 'sv') {
+      setPath(localizedTarget, 'project.cards', el.projectCards.map(readCardText));
+    }
   }
   if (el.projectPrintSizes) {
     // "30 × 40 cm | 1 800 kr" per rad -> [{ format, price }]
@@ -9142,7 +9220,8 @@ const bindEvents = () => {
     { select: el.projectSample1Pick, input: el.projectSample1Src },
     { select: el.projectSample2Pick, input: el.projectSample2Src },
     { select: el.projectSample3Pick, input: el.projectSample3Src },
-    { select: el.projectSample4Pick, input: el.projectSample4Src }
+    { select: el.projectSample4Pick, input: el.projectSample4Src },
+    ...(el.projectCards || []).map((slot) => ({ select: slot.imagePick, input: slot.image }))
   ];
 
   sectionImagePickerPairs.forEach(({ select, input }) => {

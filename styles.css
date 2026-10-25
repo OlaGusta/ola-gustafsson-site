@@ -3764,6 +3764,7 @@ body[data-page='studio'] main {
 
 .about-inspiration-card a,
 .about-dayjob a,
+.ambitions-list a,
 .recognition-list a {
   color: var(--color-primary);
   font-weight: 600;
@@ -3785,6 +3786,8 @@ body[data-page='studio'] main {
 .about-inspiration-card a:focus-visible,
 .about-dayjob a:hover,
 .about-dayjob a:focus-visible,
+.ambitions-list a:hover,
+.ambitions-list a:focus-visible,
 .recognition-list a:hover,
 .recognition-list a:focus-visible {
   color: color-mix(in srgb, var(--color-primary) 82%, black 18%);
@@ -4931,10 +4934,61 @@ button:focus-visible {
   font-weight: var(--font-body-weight);
 }
 
+/* ---------- Startsidans projektkort (project.cards), före solprojektet ---------- */
+.project-cards {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.project-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: center;
+  padding: var(--space-6);
+}
+
+.project-card-media {
+  display: block;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.project-card-media .artwork-photo {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.project-card-body {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+}
+
+.project-card-body .eyebrow {
+  margin-bottom: 0;
+}
+
+.project-card-body p:not(.eyebrow) {
+  color: var(--color-soft-ink);
+  max-width: 60ch;
+}
+
+@media (max-width: 900px) {
+  .project-card {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ---------- Startsidans projekt: länk till solsidan ---------- */
 .sun-project-cta {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   justify-content: flex-start;
+  gap: var(--space-3) var(--space-5);
 }
 
 /* ---------- Solsidan /100-dagar-av-sol ---------- */
@@ -6492,6 +6546,7 @@ body:not([data-page='studio']) .contact-social-links {
 /* Markeringsranden under länkarna i Om-avsnitten sänker kontrasten till ~6,3:1; understrykningen räcker. */
 :root[data-color-mode="contrast"] .about-inspiration-card a,
 :root[data-color-mode="contrast"] .about-dayjob a,
+:root[data-color-mode="contrast"] .ambitions-list a,
 :root[data-color-mode="contrast"] .recognition-list a {
   background-image: none;
 }
@@ -7281,4 +7336,200 @@ body:not([data-page='studio']) .contact-social-links {
   margin: 0 0 0.6rem;
   font-weight: 600;
   color: var(--color-primary);
+}
+
+/* =====================================================================
+   Utställningssidan /ljusets-aterkomst
+   ===================================================================== */
+.exhibition-head {
+  max-width: 44rem;
+  margin-bottom: var(--space-6);
+}
+
+.exhibition-head h1 {
+  margin-bottom: var(--space-3);
+}
+
+.exhibition-meta {
+  color: var(--color-soft-ink);
+  font-size: clamp(1rem, 0.95rem + 0.25vw, 1.15rem);
+}
+
+.exhibition-figure {
+  margin: 0;
+}
+
+.exhibition-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.exhibition-figure figcaption {
+  margin-top: var(--space-2);
+  font-size: 0.85rem;
+  color: var(--color-soft-ink);
+}
+
+.exhibition-wide {
+  margin-bottom: var(--space-7);
+}
+
+.exhibition-prose {
+  max-width: 44rem;
+  margin-inline: auto;
+}
+
+.exhibition-prose p {
+  margin: 0 0 var(--space-4);
+  font-size: clamp(1.02rem, 0.98rem + 0.2vw, 1.12rem);
+  line-height: 1.7;
+}
+
+.exhibition-prose h2 {
+  margin-bottom: var(--space-4);
+}
+
+.exhibition-prose .exhibition-figure {
+  margin: var(--space-6) 0 var(--space-6);
+}
+
+.exhibition-prose .exhibition-figure--portrait {
+  max-width: 32rem;
+  margin-inline: auto;
+}
+
+.exhibition-section {
+  margin-top: var(--space-8);
+}
+
+.exhibition-figures {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 44rem;
+  margin: var(--space-5) auto 0;
+}
+
+.exhibition-figures--pair {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  max-width: none;
+}
+
+.exhibition-works-note {
+  color: var(--color-soft-ink);
+}
+
+.exhibition-prose .exhibition-works-note {
+  font-size: 0.95rem;
+}
+
+.exhibition-works {
+  list-style: none;
+  margin: 0 0 var(--space-5);
+  padding: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.exhibition-works li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.exhibition-works span {
+  color: var(--color-soft-ink);
+  text-align: right;
+}
+
+.exhibition-cta {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: var(--space-6);
+  align-items: center;
+  margin-top: var(--space-8);
+  padding: var(--space-6);
+}
+
+.exhibition-cta h2 {
+  margin-bottom: var(--space-4);
+}
+
+.exhibition-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+/* Länkar i löptext: brödtextens färg, understruken i primärfärg (primary som textfärg
+   klarar inte 4,5:1 mot bakgrunden). */
+.exhibition-prose a,
+.sun-exhibition-note a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--color-primary);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.exhibition-prose a:hover,
+.sun-exhibition-note a:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* Solsidan: rad om utställningen under ingressen. */
+.sun-exhibition-note {
+  margin-top: var(--space-4);
+  color: var(--color-soft-ink);
+}
+
+@media (max-width: 760px) {
+  .exhibition-figures--pair,
+  .exhibition-cta {
+    grid-template-columns: 1fr;
+  }
+
+  .exhibition-cta {
+    padding: var(--space-5);
+  }
+
+  .exhibition-cta .exhibition-figure {
+    max-width: 22rem;
+  }
+
+  .exhibition-works li {
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .exhibition-works span {
+    text-align: left;
+  }
+}
+
+/* Studio: projektkort (project.cards) */
+.studio-project-cards {
+  border: 1px solid var(--color-border);
+  padding: 0.8rem 1rem 1rem;
+  margin: 0 0 var(--space-5);
+  display: grid;
+  gap: var(--space-4);
+}
+.studio-project-cards legend {
+  font-weight: 600;
+  padding: 0 0.3rem;
+}
+.studio-project-cards .studio-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.studio-project-cards .studio-check input {
+  width: auto;
+}
+.studio-project-subhead {
+  margin: 0 0 var(--space-3);
 }

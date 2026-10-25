@@ -18,11 +18,11 @@
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..800&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Lora:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=20261013-11" />
+    <link rel="stylesheet" href="styles.css?v=20261025-04" />
     <script src="overrides.js?v=20260323-04"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <script src="vendor/qrcode.min.js?v=20260216-01" defer></script>
-    <script src="studio.js?v=20261013-15" defer></script>
+    <script src="studio.js?v=20261025-02" defer></script>
   </head>
   <body id="page-top" data-page="studio">
     <header class="site-header" id="top">
@@ -468,6 +468,108 @@
           <section class="studio-card surface-soft" data-studio-view="projects" hidden>
             <h2>Projekt</h2>
             <div class="studio-project-editor">
+              <fieldset class="studio-project-cards">
+                <legend>Projektkort</legend>
+                <p class="field-hint">Visas på startsidan före 100 dagar av sol, i den här ordningen. Bild, länk och "Visa" gäller båda språken; texten skriver du per språk med språkknapparna. Lämnas engelskan tom visas den svenska texten.</p>
+                <article class="studio-project-media-card studio-project-card-slot">
+                  <div class="studio-project-media-fields">
+                    <h3>Kort 1</h3>
+                    <label class="studio-check"><input type="checkbox" id="project-card-1-enabled" /> Visa kortet på startsidan</label>
+                    <label>Rad ovanför rubriken
+                      <input type="text" id="project-card-1-meta" placeholder="Utställning · Husby konsthall · oktober 2026" />
+                    </label>
+                    <label>Rubrik
+                      <input type="text" id="project-card-1-title" placeholder="Ljusets återkomst" />
+                    </label>
+                    <label>Text
+                      <textarea id="project-card-1-text" rows="4"></textarea>
+                    </label>
+                    <label>Länk
+                      <input type="text" id="project-card-1-href" placeholder="ljusets-aterkomst" list="studio-link-options" autocomplete="off" />
+                    </label>
+                    <label>Länktext
+                      <input type="text" id="project-card-1-link-label" placeholder="Läs om utställningen" />
+                    </label>
+                    <input type="hidden" id="project-card-1-image" />
+                    <label>Välj bild
+                      <select id="project-card-1-image-pick"></select>
+                    </label>
+                    <label>Bild alt-text
+                      <input type="text" id="project-card-1-image-alt" />
+                    </label>
+                    <button type="button" class="btn btn-ghost" data-upload-target="project-card-1-image" data-upload-label="bild till kort 1">
+                      Ladda upp bild
+                    </button>
+                  </div>
+                  <div id="project-card-1-image-preview" class="section-image-preview" aria-live="polite"></div>
+                </article>
+                <article class="studio-project-media-card studio-project-card-slot">
+                  <div class="studio-project-media-fields">
+                    <h3>Kort 2</h3>
+                    <label class="studio-check"><input type="checkbox" id="project-card-2-enabled" /> Visa kortet på startsidan</label>
+                    <label>Rad ovanför rubriken
+                      <input type="text" id="project-card-2-meta" />
+                    </label>
+                    <label>Rubrik
+                      <input type="text" id="project-card-2-title" />
+                    </label>
+                    <label>Text
+                      <textarea id="project-card-2-text" rows="4"></textarea>
+                    </label>
+                    <label>Länk
+                      <input type="text" id="project-card-2-href" list="studio-link-options" autocomplete="off" />
+                    </label>
+                    <label>Länktext
+                      <input type="text" id="project-card-2-link-label" />
+                    </label>
+                    <input type="hidden" id="project-card-2-image" />
+                    <label>Välj bild
+                      <select id="project-card-2-image-pick"></select>
+                    </label>
+                    <label>Bild alt-text
+                      <input type="text" id="project-card-2-image-alt" />
+                    </label>
+                    <button type="button" class="btn btn-ghost" data-upload-target="project-card-2-image" data-upload-label="bild till kort 2">
+                      Ladda upp bild
+                    </button>
+                  </div>
+                  <div id="project-card-2-image-preview" class="section-image-preview" aria-live="polite"></div>
+                </article>
+                <article class="studio-project-media-card studio-project-card-slot">
+                  <div class="studio-project-media-fields">
+                    <h3>Kort 3</h3>
+                    <label class="studio-check"><input type="checkbox" id="project-card-3-enabled" /> Visa kortet på startsidan</label>
+                    <label>Rad ovanför rubriken
+                      <input type="text" id="project-card-3-meta" />
+                    </label>
+                    <label>Rubrik
+                      <input type="text" id="project-card-3-title" />
+                    </label>
+                    <label>Text
+                      <textarea id="project-card-3-text" rows="4"></textarea>
+                    </label>
+                    <label>Länk
+                      <input type="text" id="project-card-3-href" list="studio-link-options" autocomplete="off" />
+                    </label>
+                    <label>Länktext
+                      <input type="text" id="project-card-3-link-label" />
+                    </label>
+                    <input type="hidden" id="project-card-3-image" />
+                    <label>Välj bild
+                      <select id="project-card-3-image-pick"></select>
+                    </label>
+                    <label>Bild alt-text
+                      <input type="text" id="project-card-3-image-alt" />
+                    </label>
+                    <button type="button" class="btn btn-ghost" data-upload-target="project-card-3-image" data-upload-label="bild till kort 3">
+                      Ladda upp bild
+                    </button>
+                  </div>
+                  <div id="project-card-3-image-preview" class="section-image-preview" aria-live="polite"></div>
+                </article>
+              </fieldset>
+
+              <h3 class="studio-project-subhead">100 dagar av sol</h3>
               <div class="studio-grid studio-project-copy">
                 <label>Eyebrow
                   <input type="text" id="project-eyebrow" placeholder="Projekt" />

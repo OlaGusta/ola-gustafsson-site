@@ -1,0 +1,20 @@
+{
+  "00-utstallningen": [1600, 1067],
+  "01-timmarna-och-solvaggen": [1600, 1067],
+  "02-ola-vid-solvaggen": [1066, 1600],
+  "03-svarta-rummet": [1600, 1067],
+  "04-det-langa-nuet": [1600, 1104],
+  "05-tid-i-vila": [1600, 1173],
+  "06-timmarna-daremellan": [1600, 1067],
+  "07-jenny-skarmar": [1600, 1309],
+  "08-jenny-vagg": [1600, 1340],
+  "09-oppningstal": [1600, 1067],
+  "10-ola-och-jenny": [1600, 900],
+  "11-blommor": [1600, 971],
+  "12-ola-demo": [620, 496],
+  "13-jenny-demo": [1067, 1600],
+  "14-pensel": [1067, 1600],
+  "15-solvaggen": [1064, 1600],
+  "16-demomalning-sol": [1023, 1600],
+  "17-demomalning-moln": [1031, 1600]
+}

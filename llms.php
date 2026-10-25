@@ -116,6 +116,7 @@ $out[] = '';
 $out[] = '- [Startsida](' . seo_canonical_url('home', 'sv') . '): presentation, artist statement, utställningar och kontakt.';
 $out[] = '- [Galleri](' . seo_canonical_url('gallery', 'sv') . '): alla målningar, filtrerbara på motiv och år.';
 $out[] = '- [100 dagar av sol](' . seo_canonical_url('sun', 'sv') . '): projekt med hundra solakvareller från sommaren 2025. Varje sol kan beställas som Fine Art Print.';
+$out[] = '- [Ljusets återkomst](' . seo_canonical_url('exhibition-husby', 'sv') . '): utställning med Jenny Övrebö i Husby konsthall 3–25 oktober 2026, med 100 dagar av sol och tio stora akvareller av solen i vatten.';
 if ($faqItems !== []) {
   $out[] = '- [Vanliga frågor](' . seo_canonical_url('home', 'sv') . '#faq): köp, priser, print, passepartout och frakt.';
 }
@@ -141,6 +142,7 @@ $out[] = '';
 $out[] = '- [Home](' . seo_canonical_url('home', 'en') . '): Ola Gustafsson is a Swedish watercolour artist based in Stockholm, painting landscapes, nature and city views.';
 $out[] = '- [Gallery](' . seo_canonical_url('gallery', 'en') . '): all paintings with size, year, availability and price in SEK.';
 $out[] = '- [100 days of sun](' . seo_canonical_url('sun', 'en') . '): one hundred sun watercolours, each available as a signed fine art print in an edition of ' . SEO_PRINT_EDITION_SIZE . '.';
+$out[] = '- [Ljusets återkomst](' . seo_canonical_url('exhibition-husby', 'en') . '): exhibition with Jenny Övrebö at Husby konsthall, 3–25 October 2026, with 100 Days of Sun and ten large watercolours of the sun in water.';
 
 $out[] = '';
 $out[] = '## Upphovsrätt';

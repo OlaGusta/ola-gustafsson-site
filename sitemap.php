@@ -15,7 +15,8 @@ $lastModIso = gmdate('c', $lastMod > 0 ? $lastMod : time());
 $pages = [
   ['type' => 'home', 'priority' => '1.0', 'changefreq' => 'weekly'],
   ['type' => 'gallery', 'priority' => '0.9', 'changefreq' => 'weekly'],
-  ['type' => 'sun', 'priority' => '0.8', 'changefreq' => 'monthly']
+  ['type' => 'sun', 'priority' => '0.8', 'changefreq' => 'monthly'],
+  ['type' => 'exhibition-husby', 'priority' => '0.7', 'changefreq' => 'yearly']
 ];
 
 $payload = portfolio_load_overrides();

@@ -169,7 +169,47 @@ $projectCollageImageSrc = $projectCollageImageValue !== '' ? seo_image_variant_s
 $projectCollageAlt = seo_localized_payload_string($payload, $lang, ['project', 'collageAlt']);
 $projectSampleHeading = seo_localized_payload_string($payload, $lang, ['project', 'sampleHeading']);
 $projectSamples = seo_localized_image_entries($payload, $lang, ['project', 'samples']);
-$hasProjectContent = trim($projectHeading) !== '' || trim($projectDescription) !== '' || trim($projectCollageImageValue) !== '' || $projectSamples !== [];
+// Projektkort som visas före solprojektet (project.cards), redigeras i Studio. Bild,
+// länk och "visa" är gemensamma; texten per språk ligger i
+// translations.<lang>.project.cards på samma plats i listan.
+$projectCards = [];
+$projectCardsBase = seo_array_get_path($payload, ['project', 'cards']);
+$projectCardsLocalized = $lang !== 'sv' ? seo_array_get_path($payload, ['translations', $lang, 'project', 'cards']) : null;
+if (is_array($projectCardsBase)) {
+  foreach (array_values($projectCardsBase) as $cardIndex => $card) {
+    if (!is_array($card) || empty($card['enabled'])) {
+      continue;
+    }
+    $cardLocalized = is_array($projectCardsLocalized) && isset($projectCardsLocalized[$cardIndex]) && is_array($projectCardsLocalized[$cardIndex])
+      ? $projectCardsLocalized[$cardIndex]
+      : [];
+    $cardText = static function (string $key) use ($card, $cardLocalized): string {
+      $localized = isset($cardLocalized[$key]) && is_string($cardLocalized[$key]) ? trim($cardLocalized[$key]) : '';
+      return $localized !== '' ? $localized : (isset($card[$key]) && is_string($card[$key]) ? trim($card[$key]) : '');
+    };
+    $cardTitle = $cardText('title');
+    if ($cardTitle === '') {
+      continue;
+    }
+    $cardImage = isset($card['image']) && is_string($card['image']) ? trim($card['image']) : '';
+    $cardImageSrc = $cardImage !== '' ? seo_image_variant_src($cardImage, false) : '';
+    // Webbversionen finns bara för bilder som laddats upp via Studio; annars originalet.
+    if ($cardImageSrc !== '' && $cardImageSrc !== $cardImage && !is_file(__DIR__ . '/' . ltrim((string) strtok($cardImageSrc, '?'), '/'))) {
+      $cardImageSrc = $cardImage;
+    }
+    $cardHrefRaw = isset($card['href']) && is_string($card['href']) ? trim($card['href']) : '';
+    $projectCards[] = [
+      'title' => $cardTitle,
+      'meta' => $cardText('meta'),
+      'text' => $cardText('text'),
+      'imageSrc' => $cardImageSrc,
+      'imageAlt' => $cardText('imageAlt'),
+      'href' => $cardHrefRaw !== '' ? $heroCtaSafeHref($cardHrefRaw, '') : '',
+      'linkLabel' => $cardText('linkLabel'),
+    ];
+  }
+}
+$hasProjectContent = $projectCards !== [] || trim($projectHeading) !== '' || trim($projectDescription) !== '' || trim($projectCollageImageValue) !== '' || $projectSamples !== [];
 $contactEyebrow = seo_localized_payload_string($payload, $lang, ['contact', 'eyebrow']);
 if ($contactEyebrow === '') {
   $contactEyebrow = $lang === 'en' ? 'Contact' : 'Kontakt';
@@ -357,9 +397,9 @@ if (!is_string($structuredJson)) {
       fetchpriority="high"
     />
     	    <script src="overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>" defer></script>
-	    <link rel="stylesheet" href="styles.css?v=20261013-11" />
+	    <link rel="stylesheet" href="styles.css?v=20261025-04" />
 	    <script src="content.js?v=20260928-01" defer></script>
-		    <script src="script.js?v=20261007-03" defer></script>
+		    <script src="script.js?v=20261025-02" defer></script>
     <script src="shop.js?v=20261013-06" defer></script>
 	  </head>
   <body id="page-top" data-page="home">
@@ -514,6 +554,29 @@ if (!is_string($structuredJson)) {
 	              />
 	            </figure>
 
+	            <div id="project-cards" class="project-cards"<?= $projectCards === [] ? ' hidden' : '' ?>>
+              <?php foreach ($projectCards as $card):
+                $cardExternal = $card['href'] !== '' && $heroCtaIsExternal($card['href']) && preg_match('#^https?://([^/]+\.)?olagustafsson\.com(/|$)#i', $card['href']) !== 1;
+                $cardLinkAttrs = $card['href'] === '' ? '' : ' href="' . seo_escape_html($card['href']) . '"' . ($cardExternal ? ' target="_blank" rel="noopener"' : ' data-lang-link');
+              ?>
+                <article class="project-card surface-soft">
+                  <?php if ($card['imageSrc'] !== ''): ?>
+                    <?php if ($card['href'] !== ''): ?><a class="project-card-media"<?= $cardLinkAttrs ?> tabindex="-1" aria-hidden="true"><?php else: ?><div class="project-card-media"><?php endif; ?>
+                      <img class="artwork-photo" src="<?= seo_escape_html($card['imageSrc']) ?>" alt="<?= seo_escape_html($card['imageAlt']) ?>" loading="lazy" decoding="async" />
+                    <?= $card['href'] !== '' ? '</a>' : '</div>' ?>
+                  <?php endif; ?>
+                  <div class="project-card-body">
+                    <?php if ($card['meta'] !== ''): ?><p class="eyebrow"><?= seo_escape_html($card['meta']) ?></p><?php endif; ?>
+                    <h2><?= seo_escape_html($card['title']) ?></h2>
+                    <?php if ($card['text'] !== ''): ?><p><?= seo_render_multiline_html($card['text']) ?></p><?php endif; ?>
+                    <?php if ($card['href'] !== '' && $card['linkLabel'] !== ''): ?>
+                      <a class="btn btn-ghost"<?= $cardLinkAttrs ?>><?= seo_escape_html($card['linkLabel']) ?></a>
+                    <?php endif; ?>
+                  </div>
+                </article>
+              <?php endforeach; ?>
+            </div>
+
 	            <article class="sun-project surface-soft">
 	              <p class="eyebrow" data-bind="project.eyebrow"><?= seo_escape_html($projectEyebrow) ?></p>
 	              <div class="sun-project-layout">
@@ -590,7 +653,7 @@ if (!is_string($structuredJson)) {
 	            <h3 data-bind="about.ambitionsHeading"><?= seo_escape_html($ambitionsHeading) ?></h3>
 	            <ul id="about-ambitions" class="ambitions-list">
                 <?php foreach ($ambitions as $ambition): ?>
-                  <li><?= seo_escape_html($ambition) ?></li>
+                  <li><?= seo_render_linkified_html($ambition) ?></li>
                 <?php endforeach; ?>
               </ul>
 	            <p class="about-side-note" data-bind="about.sideNote"><?= seo_escape_html($aboutSideNote) ?></p>

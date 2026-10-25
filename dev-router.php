@@ -58,6 +58,11 @@ if (preg_match('#^/100-dagar-av-sol/?$#', $requestPath) === 1) {
   return true;
 }
 
+if (preg_match('#^/ljusets-aterkomst/?$#', $requestPath) === 1) {
+  require __DIR__ . '/ljusets-aterkomst.php';
+  return true;
+}
+
 if (preg_match('#^/(?:sol|solar|100-days-of-sun)/?$#', $requestPath) === 1) {
   header('Location: /100-dagar-av-sol', true, 301);
   return true;

@@ -1,0 +1,116 @@
+DirectoryIndex index.php
+
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} !=on
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Serve WebP sidecars transparently for browsers that support them.
+  RewriteCond %{HTTP_ACCEPT} image/webp [NC]
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteCond %{REQUEST_FILENAME}.webp -f
+  RewriteRule ^(.+\.(?:jpe?g|png))$ $1.webp [T=image/webp,E=serve_webp:1,L]
+
+  # Redirect legacy index.html to the canonical root URL.
+  RewriteRule ^index\.html$ / [L,R=301]
+  RewriteRule ^about/?$ / [L,R=301,QSA]
+
+  # Keep legacy/nice gallery routes working while canonicalizing to the public gallery URL.
+  RewriteRule ^(?:galleri|gallery)/?$ /gallery.html [L,R=301,QSA]
+
+  # Serve SEO-aware templates while keeping the public .html URLs.
+  RewriteRule ^gallery\.html$ gallery.php [L]
+  RewriteRule ^verk/([^/]+)/?$ artwork.php?slug=$1 [L,QSA]
+  RewriteRule ^100-dagar-av-sol/?$ sol.php [L,QSA]
+  RewriteRule ^kassa/?$ kassa.php [L,QSA]
+  RewriteRule ^order/([a-f0-9]{40})/kvitto/?$ kvitto.php?token=$1 [L,QSA]
+  RewriteRule ^order/([a-f0-9]{40})/?$ order.php?token=$1 [L,QSA]
+  RewriteRule ^(?:sol|solar|100-days-of-sun)/?$ /100-dagar-av-sol [L,R=301,QSA]
+  RewriteRule ^sitemap_index\.xml$ /sitemap.xml [L,R=301]
+  RewriteRule ^robots\.txt$ robots.php [L]
+  RewriteRule ^llms\.txt$ llms.php [L]
+  RewriteRule ^sitemap\.xml$ sitemap.php [L]
+
+  # Harden live host if legacy WordPress files still exist on disk.
+  RewriteRule ^wp-admin(?:/|$) - [F,L]
+  RewriteRule ^wp-login\.php$ - [F,L]
+  RewriteRule ^wp-cron\.php$ - [F,L]
+  RewriteRule ^wp-json(?:/|$) - [F,L]
+  RewriteRule ^xmlrpc\.php$ - [F,L]
+  RewriteRule ^(?:archive|wc-logs)(?:/|$) - [F,L]
+  RewriteRule ^(?:error_log|adm\.php|readme\.html|license\.txt|licens-sv_SE\.txt|wordfence-waf\.php|wp-activate\.php|wp-blog-header\.php|wp-comments-post\.php|wp-config(?:-sample)?\.php|wp-links-opml\.php|wp-load\.php|wp-mail\.php|wp-settings\.php|wp-signup\.php|wp-trackback\.php|wp-xmlrpc\.php)$ - [F,L]
+  RewriteRule \.(?:bak|old|orig|save|sql|sqlite|zip|tar|tgz|gz|bz2)$ - [F,L,NC]
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always unset X-Powered-By
+  Header always set Strict-Transport-Security "max-age=15552000"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  Header always set Cross-Origin-Resource-Policy "same-origin"
+  Header always merge Vary "Accept" env=serve_webp
+  Header always merge Vary "Accept" env=REDIRECT_serve_webp
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://www.googletagmanager.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://region1.analytics.google.com https://stats.g.doubleclick.net https://challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/plain text/html text/css application/javascript application/json image/svg+xml
+</IfModule>
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType text/css "access plus 30 days"
+  ExpiresByType application/javascript "access plus 30 days"
+  ExpiresByType application/json "access plus 30 days"
+  ExpiresByType image/jpeg "access plus 365 days"
+  ExpiresByType image/png "access plus 365 days"
+  ExpiresByType image/webp "access plus 365 days"
+  ExpiresByType image/gif "access plus 365 days"
+  ExpiresByType image/svg+xml "access plus 365 days"
+  ExpiresByType font/woff "access plus 365 days"
+  ExpiresByType font/woff2 "access plus 365 days"
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+  </FilesMatch>
+
+  <FilesMatch "\.php$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+  </FilesMatch>
+
+  <FilesMatch "\.(?:css|js)$">
+    Header set Cache-Control "public, max-age=2592000, immutable"
+  </FilesMatch>
+
+  <Files "overrides.js">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+  </Files>
+
+  <FilesMatch "^(content|publish)\.php$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+  </FilesMatch>
+
+  <FilesMatch "\.(?:jpg|jpeg|png|webp|gif|svg|woff|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  <FilesMatch "\.(?:jpg|jpeg|png|webp|gif|svg)$">
+    Header set Cross-Origin-Resource-Policy "cross-origin"
+    Header set Access-Control-Allow-Origin "*"
+  </FilesMatch>
+</IfModule>
+
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
+
+<FilesMatch "\.sql$">
+  Require all denied
+</FilesMatch>

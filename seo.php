@@ -418,8 +418,13 @@ function seo_render_linkified_html(string $value): string
       }
 
       if ($label !== '' && $safeHref !== '') {
-        $rel = 'noopener noreferrer' . ($nofollow ? ' nofollow' : '');
-        $output .= '<a href="' . seo_escape_html($safeHref) . '" target="_blank" rel="' . seo_escape_html($rel) . '">'
+        // Länkar till den egna sajten öppnas i samma flik, externa i en ny.
+        $host = strtolower((string) parse_url($safeHref, PHP_URL_HOST));
+        $internal = preg_match('/(^|\.)olagustafsson\.com$/', $host) === 1;
+        $rel = $internal ? ($nofollow ? 'nofollow' : '') : 'noopener noreferrer' . ($nofollow ? ' nofollow' : '');
+        $output .= '<a href="' . seo_escape_html($safeHref) . '"'
+          . ($internal ? '' : ' target="_blank"')
+          . ($rel !== '' ? ' rel="' . seo_escape_html($rel) . '"' : '') . '>'
           . seo_escape_html($label)
           . '</a>';
       } else {
@@ -1044,6 +1049,8 @@ function seo_canonical_url(string $pageType, string $lang): string
     $path = '/100-dagar-av-sol';
   } elseif (strtolower(trim($pageType)) === 'checkout') {
     $path = '/kassa';
+  } elseif (strtolower(trim($pageType)) === 'exhibition-husby') {
+    $path = '/ljusets-aterkomst';
   }
 
   // Keep Swedish/default canonical URLs clean (no lang query) for better social share consistency.

@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Studio | Ola Gustafsson Akvarell</title>
+    <meta name="description" content="Studio för att redigera galleriinnehåll, metadata och bilder." />
+    <meta name="robots" content="noindex,nofollow" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-light-32x32.png?v=20260317-14" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-light-32x32.png?v=20260317-14" media="(prefers-color-scheme: light)" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-dark-32x32.png?v=20260317-14" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon-light.ico?v=20260317-14" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=20260317-14" />
+    <link rel="manifest" href="/site.webmanifest?v=20260317-14" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..800&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Lora:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css?v=20261013-11" />
+    <script src="overrides.js?v=20260323-04"></script>
+    <script src="content.js?v=20260928-01" defer></script>
+    <script src="vendor/qrcode.min.js?v=20260216-01" defer></script>
+    <script src="studio.js?v=20261013-15" defer></script>
+  </head>
+  <body id="page-top" data-page="studio">
+    <header class="site-header" id="top">
+      <div class="container header-inner">
+        <a class="brand" href="index.html#top">
+          <span class="brand-logo" aria-hidden="true"></span>
+          <span class="brand-text">
+            <span>Ola Gustafsson</span>
+            <span>Studio</span>
+          </span>
+        </a>
+        <nav class="main-nav" aria-label="Huvudmeny">
+          <a href="index.html#hem">Hem</a>
+          <a href="gallery.html#galleri">Galleri</a>
+          <a href="studio.html" aria-current="page">Studio</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section id="studio-auth" class="section studio-auth">
+        <div class="container">
+          <article class="studio-card surface-soft studio-auth-card">
+            <p class="eyebrow">Säker Studio</p>
+            <h1>Logga in med 2FA</h1>
+            <p class="studio-note">Inloggning kräver lösenord och autentiseringskod (TOTP) eller recovery-kod.</p>
+            <div id="studio-auth-status" class="studio-status" data-kind="info" aria-live="polite">
+              Laddar säkerhetsstatus...
+            </div>
+
+            <section id="studio-auth-view-login" class="studio-auth-view" hidden>
+              <form id="studio-login-form" class="studio-grid" autocomplete="on">
+                <label>E-post
+                  <input type="email" id="studio-login-email" autocomplete="username" required />
+                </label>
+                <label>Lösenord
+                  <input type="password" id="studio-login-password" autocomplete="current-password" required />
+                </label>
+                <label>2FA-kod (6 siffror)
+                  <input type="text" id="studio-login-totp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="123456" />
+                </label>
+                <label>Recovery-kod (om 2FA saknas)
+                  <input type="text" id="studio-login-recovery" autocomplete="one-time-code" placeholder="ABCD-EFGH" />
+                </label>
+                <div class="studio-actions">
+                  <button type="submit" class="btn btn-primary">Logga in</button>
+                  <button type="button" class="btn btn-ghost" id="studio-show-reset">Glömt lösenord</button>
+                </div>
+              </form>
+            </section>
+
+            <section id="studio-auth-view-bootstrap" class="studio-auth-view" hidden>
+              <form id="studio-bootstrap-start-form" class="studio-grid" autocomplete="off">
+                <label>Admin e-post
+                  <input type="email" id="studio-bootstrap-email" autocomplete="username" required />
+                </label>
+                <label>Nytt lösenord
+                  <input type="password" id="studio-bootstrap-password" autocomplete="new-password" required />
+                </label>
+                <label id="studio-bootstrap-key-wrap" hidden>Bootstrap-nyckel (från serverkonfiguration)
+                  <input type="password" id="studio-bootstrap-key" autocomplete="one-time-code" />
+                </label>
+                <button type="submit" class="btn btn-primary">Starta säker setup</button>
+              </form>
+
+              <form id="studio-bootstrap-finish-form" class="studio-grid" hidden autocomplete="off">
+                <label>TOTP secret (lägg in i authenticator-app)
+                  <input type="text" id="studio-bootstrap-secret" readonly />
+                </label>
+                <div id="studio-bootstrap-qr-wrap" class="studio-qr-wrap" hidden>
+                  <p class="studio-note">Skanna QR-koden i din authenticator-app.</p>
+                  <div id="studio-bootstrap-qr" class="studio-qr" aria-label="QR-kod för TOTP setup"></div>
+                </div>
+                <label>Verifieringskod från app
+                  <input type="text" id="studio-bootstrap-totp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required />
+                </label>
+                <button type="submit" class="btn btn-primary">Verifiera och aktivera konto</button>
+                <p id="studio-bootstrap-recovery" class="studio-note"></p>
+              </form>
+            </section>
+
+            <section id="studio-auth-view-reset" class="studio-auth-view" hidden>
+              <form id="studio-reset-request-form" class="studio-grid" autocomplete="on">
+                <label>E-post för återställning
+                  <input type="email" id="studio-reset-email" autocomplete="email" required />
+                </label>
+                <div class="studio-actions">
+                  <button type="submit" class="btn btn-primary">Skicka återställningslänk</button>
+                  <button type="button" class="btn btn-ghost" id="studio-back-login">Tillbaka till login</button>
+                </div>
+              </form>
+
+              <form id="studio-reset-password-form" class="studio-grid" hidden autocomplete="off">
+                <label>Nytt lösenord
+                  <input type="password" id="studio-reset-password" autocomplete="new-password" required />
+                </label>
+                <div class="studio-actions">
+                  <button type="submit" class="btn btn-primary">Sätt nytt lösenord</button>
+                  <button type="button" class="btn btn-ghost" id="studio-back-login-2">Tillbaka till login</button>
+                </div>
+              </form>
+            </section>
+          </article>
+        </div>
+      </section>
+
+      <section id="studio-app" class="section studio-page" hidden>
+        <div class="studio-app-frame">
+          <aside class="studio-sidebar" aria-label="Studio">
+            <a class="studio-brand" href="index.html#top">
+              <span class="studio-brand-mark" aria-hidden="true"></span>
+              <span>
+                <strong>Ola Studio</strong>
+                <small>olagustafsson.com</small>
+              </span>
+            </a>
+
+            <nav class="studio-nav" aria-label="Studio-vyer">
+              <button type="button" class="studio-nav-item is-active" data-studio-tab="overview" data-icon="◇" aria-pressed="true">
+                Översikt
+              </button>
+              <button type="button" class="studio-nav-item" data-studio-tab="works" data-icon="▦" aria-pressed="false">
+                Verk
+              </button>
+              <button type="button" class="studio-nav-item" data-studio-tab="text" data-icon="✎" aria-pressed="false">
+                Textredigering
+              </button>
+              <button type="button" class="studio-nav-item" data-studio-tab="projects" data-icon="☼" aria-pressed="false">
+                Projekt
+              </button>
+              <button type="button" class="studio-nav-item" data-studio-tab="contact" data-icon="@" aria-pressed="false">
+                Kontakt
+              </button>
+              <button type="button" class="studio-nav-item" data-studio-tab="orders" data-icon="◎" aria-pressed="false">
+                Ordrar
+              </button>
+              <button type="button" class="studio-nav-item" data-studio-tab="inquiries" data-icon="✉" aria-pressed="false">
+                Förfrågningar
+              </button>
+              <button type="button" class="studio-nav-item" data-studio-tab="seo" data-icon="⌘" aria-pressed="false">
+                SEO &amp; sida
+              </button>
+              <button type="button" class="studio-nav-item" data-studio-tab="settings" data-icon="⚙" aria-pressed="false">
+                Inställningar
+              </button>
+            </nav>
+
+            <div class="studio-sidebar-foot">
+              <strong>Live-site</strong>
+              <span>publicerad · GitHub synkad</span>
+            </div>
+          </aside>
+
+          <div class="studio-main studio-layout">
+            <header class="studio-head">
+              <div class="studio-head-copy">
+                <p class="eyebrow">Studio</p>
+                <h1 id="studio-page-title">Översikt</h1>
+                <p class="section-lead" id="studio-page-subtitle">
+                  Senaste läget för sajten, verken och publiceringen.
+                </p>
+              </div>
+              <div class="studio-head-actions">
+                <a class="btn btn-ghost" href="index.html" target="_blank" rel="noopener">Förhandsvisa sida</a>
+                <button type="button" class="btn btn-primary" id="studio-top-save">Publicera</button>
+              </div>
+              <div class="studio-lang-panel">
+                <div class="studio-lang-switch" role="group" aria-label="Välj språk för textredigering">
+                  <button type="button" class="studio-lang-btn is-active" data-studio-lang="sv" aria-pressed="true">
+                    Svenska texter
+                  </button>
+                  <button type="button" class="studio-lang-btn" data-studio-lang="en" aria-pressed="false">
+                    English texts
+                  </button>
+                </div>
+                <div class="studio-lang-tools" id="studio-lang-tools" hidden>
+                  <button type="button" class="btn btn-ghost" id="translate-missing-en-titles">
+                    Autoöversätt saknade EN-titlar
+                  </button>
+                  <button type="button" class="btn btn-ghost" id="translate-en-from-sv">
+                    Synka EN från SV
+                  </button>
+                  <button type="button" class="btn btn-ghost" id="translate-en-from-sv-force">
+                    Synka om alla EN från SV
+                  </button>
+                </div>
+                <p class="studio-note studio-lang-note" id="studio-lang-note">
+                  Du redigerar svenska grundtexter.
+                </p>
+              </div>
+            </header>
+
+            <div id="studio-status" class="studio-status" aria-live="polite"></div>
+
+          <section class="studio-card surface-soft" data-studio-view="text" hidden>
+            <h2>Hero</h2>
+            <div class="studio-grid">
+              <label>Hero-läge
+                <select id="hero-mode">
+                  <option value="still">Stillbild</option>
+                  <option value="slideshow">Slideshow</option>
+                </select>
+              </label>
+              <label>Standard slide-längd (ms)
+                <input type="number" id="hero-slide-duration" min="1000" step="500" />
+              </label>
+              <label class="checkbox-row">
+                <input type="checkbox" id="hero-auto-slides-enabled" />
+                <span>Använd auto-slider från galleriet (4 bilder, veckovis byte)</span>
+              </label>
+              <div class="studio-row" style="align-items:center;gap:0.6rem;">
+                <button type="button" class="btn btn-ghost" id="hero-auto-slides-force-refresh">Force update auto-slider nu</button>
+                <small id="hero-auto-slides-force-meta" class="studio-note" style="margin:0;">Ingen force update gjord ännu</small>
+              </div>
+              <label>Överrad <input type="text" id="hero-eyebrow" placeholder="Stockholm · Akvarell sedan 2022" /></label>
+              <label>Titel <input type="text" id="hero-title" /></label>
+              <label>Underrubrik <input type="text" id="hero-subtitle" placeholder="Ljus, <i>stämning</i> och närvaro" /></label>
+              <label>Intro <textarea id="hero-intro" rows="3"></textarea></label>
+              <label>Budskapsrad (under intro)
+                <textarea id="hero-line" rows="2" placeholder="Jag vill att betraktaren ska känna närvaro i ett landskap som glider mellan konkret form och diffust flöde."></textarea>
+              </label>
+              <div class="studio-grid studio-grid-2">
+                <label>Knapp 1 – text <input type="text" id="hero-cta-primary-label" placeholder="Se målningar" /></label>
+                <label>Knapp 1 – länk <input type="text" id="hero-cta-primary-href" placeholder="gallery.html" list="studio-link-options" autocomplete="off" /></label>
+                <label>Knapp 2 – text <input type="text" id="hero-cta-secondary-label" placeholder="100 dagar av sol" /></label>
+                <label>Knapp 2 – länk <input type="text" id="hero-cta-secondary-href" placeholder="100-dagar-av-sol" list="studio-link-options" autocomplete="off" /></label>
+              </div>
+              <p class="studio-note">Knapptexten skrivs per språk (Svenska/English texts). Länken gäller båda språken: en sida på sajten (<code>gallery.html</code>, <code>100-dagar-av-sol</code>, <code>verk/saltos-sjal</code>), ett avsnitt på startsidan (<code>#om</code>, <code>#kontakt</code>) eller en full adress (<code>https://…</code>, öppnas i ny flik). Klicka i länkfältet för att se alla länkar som finns.</p>
+              <datalist id="studio-link-options"></datalist>
+              <label class="checkbox-row">
+                <input type="checkbox" id="hero-overlay-enabled" />
+                <span>Visa overlay över hero-bilden</span>
+              </label>
+              <label>Overlay-opacitet (0-100)
+                <input type="range" id="hero-overlay-opacity" min="0" max="100" step="1" />
+              </label>
+              <label>Textplatta mörkhet (0-100)
+                <input type="range" id="hero-copy-panel-opacity" min="0" max="100" step="1" />
+              </label>
+              <label>Hero bild (src, används i stillbildsläge) <input type="text" id="hero-image" placeholder="images/ola-01.jpg eller data:image/..." /></label>
+              <label>Hero alt-text <input type="text" id="hero-image-alt" /></label>
+              <label>Ladda upp hero-bild <input type="file" id="hero-image-upload" accept="image/*" /></label>
+            </div>
+            <div class="studio-slides-wrap">
+              <div class="studio-row">
+                <h3>Slides</h3>
+                <button type="button" class="btn btn-ghost" id="add-hero-slide">Lägg till slide</button>
+              </div>
+              <div class="studio-grid studio-grid-2">
+                <label>Välj från verk
+                  <select id="hero-slide-from-artwork"></select>
+                </label>
+                <label>&nbsp;
+                  <button type="button" class="btn btn-ghost" id="add-hero-slide-from-artwork">Lägg till vald bild</button>
+                </label>
+              </div>
+              <div id="hero-slides-editor" class="hero-slides-editor"></div>
+            </div>
+          </section>
+
+          <section class="studio-card surface-soft" data-studio-view="works" hidden>
+            <div class="studio-row">
+              <h2>Verk i galleriet</h2>
+            </div>
+            <div class="studio-grid studio-grid-2">
+              <label>
+                Ladda upp en eller flera bilder
+                <input type="file" id="gallery-upload" accept="image/*" multiple />
+              </label>
+              <label>
+                Standardkategori för uppladdade
+                <select id="upload-category"></select>
+              </label>
+            </div>
+            <p class="studio-note">Nya bilder hamnar överst i listan och märks "Ny" i två veckor. Klicka på en miniatyr för att redigera verket.</p>
+            <div class="artwork-list-toolbar" role="search">
+              <label class="artwork-list-search">
+                <span class="visually-hidden">Sök verk</span>
+                <input type="search" id="artwork-list-query" placeholder="Sök titel, plats, år …" autocomplete="off" />
+              </label>
+              <label>
+                <span class="visually-hidden">Sortera</span>
+                <select id="artwork-list-sort">
+                  <option value="order">Galleriordning</option>
+                  <option value="added">Senast tillagda</option>
+                  <option value="year">År, nyast först</option>
+                  <option value="title">Titel A–Ö</option>
+                </select>
+              </label>
+              <label>
+                <span class="visually-hidden">Filtrera</span>
+                <select id="artwork-list-filter">
+                  <option value="">Alla verk</option>
+                  <option value="available">Tillgängliga</option>
+                  <option value="reserved">Reserverade</option>
+                  <option value="sold">Sålda / ej till salu</option>
+                  <option value="print">Fine Art Print</option>
+                  <option value="featured">Utvalda</option>
+                  <option value="missing-price">Saknar pris</option>
+                  <option value="missing-format">Saknar mått</option>
+                </select>
+              </label>
+              <label>
+                <span class="visually-hidden">Uppladdningsmånad</span>
+                <select id="artwork-list-month">
+                  <option value="">Alla månader</option>
+                </select>
+              </label>
+              <button type="button" class="btn btn-ghost artwork-list-density" id="artwork-list-density" aria-pressed="false">Rutnät</button>
+              <span class="artwork-list-count" id="artwork-list-count" aria-live="polite"></span>
+            </div>
+            <div id="artworks-editor" class="artworks-editor"></div>
+          </section>
+
+          <section class="studio-card surface-soft" data-studio-view="text" hidden>
+            <h2>Artist Statement</h2>
+            <div class="studio-grid">
+              <label>Rubrik <input type="text" id="about-heading" /></label>
+              <label>Brödtext (separera stycken med tom rad)
+                <textarea id="about-paragraphs" rows="8"></textarea>
+              </label>
+              <label>Kort rad om jobbet (Om-sidan)
+                <textarea id="about-dayjob-line" rows="3"></textarea>
+              </label>
+              <label>Sidonotis <textarea id="about-side-note" rows="3"></textarea></label>
+            </div>
+            <div class="studio-grid studio-subsection">
+              <h3>Porträttbild</h3>
+              <input type="hidden" id="about-portrait-image" />
+              <label>Välj porträttbild
+                <select id="about-portrait-image-pick"></select>
+              </label>
+              <div id="about-portrait-image-preview" class="section-image-preview" aria-live="polite"></div>
+              <label>&nbsp;
+                <button type="button" class="btn btn-ghost" data-upload-target="about-portrait-image" data-upload-label="porträttbild">
+                  Ladda upp porträttbild
+                </button>
+              </label>
+              <label>Porträtt alt-text
+                <input type="text" id="about-portrait-alt" />
+              </label>
+            </div>
+            <div class="studio-grid studio-subsection">
+              <h3>Material</h3>
+              <label>Rubrik
+                <input type="text" id="materials-heading" placeholder="Material" />
+              </label>
+              <label>Text
+                <textarea id="materials-body" rows="5"></textarea>
+              </label>
+              <input type="hidden" id="materials-image" />
+              <label>Välj materialbild
+                <select id="materials-image-pick"></select>
+              </label>
+              <div id="materials-image-preview" class="section-image-preview" aria-live="polite"></div>
+              <label>&nbsp;
+                <button type="button" class="btn btn-ghost" data-upload-target="materials-image" data-upload-label="materialbild">
+                  Ladda upp materialbild
+                </button>
+              </label>
+              <label>Materialbild alt-text
+                <input type="text" id="materials-image-alt" />
+              </label>
+            </div>
+            <div class="studio-grid studio-subsection">
+              <h3>Inspiration</h3>
+              <label>Rubrik
+                <input type="text" id="inspiration-heading" placeholder="Inspiration" />
+              </label>
+              <label>Text
+                <textarea id="inspiration-body" rows="5"></textarea>
+              </label>
+              <div class="studio-note studio-link-helper" data-link-target="inspiration-body">
+                <span>Lägg in klickbara länkar utan att skriva markdown själv.</span>
+                <label>
+                  Länktext
+                  <input type="text" data-link-label placeholder="t.ex. Ylva Carlgren" />
+                </label>
+                <label>
+                  URL
+                  <input type="url" data-link-url placeholder="https://..." />
+                </label>
+                <label class="checkbox-row studio-link-nofollow-option">
+                  <input type="checkbox" data-link-nofollow />
+                  <span>Nofollow</span>
+                </label>
+                <button type="button" class="btn btn-ghost" data-link-insert>Infoga</button>
+              </div>
+            </div>
+            <div class="studio-grid studio-subsection">
+              <h3>Helbildssektion (Sandemar)</h3>
+              <input type="hidden" id="about-feature-image" />
+              <label>Välj helbild
+                <select id="about-feature-image-pick"></select>
+              </label>
+              <div id="about-feature-image-preview" class="section-image-preview" aria-live="polite"></div>
+              <label>&nbsp;
+                <button type="button" class="btn btn-ghost" data-upload-target="about-feature-image" data-upload-label="helbild">
+                  Ladda upp helbild
+                </button>
+              </label>
+              <label>Helbild alt-text
+                <input type="text" id="about-feature-alt" />
+              </label>
+            </div>
+            <div class="studio-grid studio-subsection">
+              <h3>Utmärkelser &amp; utställningar</h3>
+              <label>Rubrik
+                <input type="text" id="recognition-heading" placeholder="Utmärkelser & utställningar" />
+              </label>
+              <label>Punkter (en punkt per rad)
+                <textarea id="recognition-lines" rows="6"></textarea>
+              </label>
+              <div class="studio-note studio-link-helper" data-link-target="recognition-lines">
+                <span>Lägg in klickbara länkar utan att skriva markdown själv.</span>
+                <label>
+                  Länktext
+                  <input type="text" data-link-label placeholder="t.ex. Fabriano in Aquarello" />
+                </label>
+                <label>
+                  URL
+                  <input type="url" data-link-url placeholder="https://..." />
+                </label>
+                <label class="checkbox-row studio-link-nofollow-option">
+                  <input type="checkbox" data-link-nofollow />
+                  <span>Nofollow</span>
+                </label>
+                <button type="button" class="btn btn-ghost" data-link-insert>Infoga</button>
+              </div>
+            </div>
+            <div class="studio-grid studio-subsection">
+              <h3>Vanliga frågor</h3>
+              <label>Rubrik
+                <input type="text" id="faq-heading" placeholder="Vanliga frågor" />
+              </label>
+              <label>Frågor och svar (en fråga per rad)
+                <textarea id="faq-lines" rows="14"></textarea>
+              </label>
+              <p class="studio-note">Skriv frågan först och svaret direkt efter på samma rad: <code>Hur köper jag en målning? Du skickar en intresseanmälan …</code> Frågan slutar vid första frågetecknet. Sektionen visas på startsidan före Kontakt (ankare <code>#faq</code>) och döljs om listan är tom. Länkar skrivs <code>[text](https://adress)</code>.</p>
+            </div>
+          </section>
+
+          <section class="studio-card surface-soft" data-studio-view="projects" hidden>
+            <h2>Projekt</h2>
+            <div class="studio-project-editor">
+              <div class="studio-grid studio-project-copy">
+                <label>Eyebrow
+                  <input type="text" id="project-eyebrow" placeholder="Projekt" />
+                </label>
+                <label>Rubrik
+                  <input type="text" id="project-heading" />
+                </label>
+                <label>Brödtext
+                  <textarea id="project-description" rows="5"></textarea>
+                </label>
+              </div>
+
+              <article class="studio-project-media-card studio-project-collage-card">
+                <div class="studio-project-media-fields">
+                  <h3>Kollagebild</h3>
+                  <input type="hidden" id="project-collage-image" />
+                  <label>Välj kollagebild
+                    <select id="project-collage-image-pick"></select>
+                  </label>
+                  <label>Kollage alt-text
+                    <input type="text" id="project-collage-alt" />
+                  </label>
+                  <button type="button" class="btn btn-ghost" data-upload-target="project-collage-image" data-upload-label="kollagebild">
+                    Ladda upp kollagebild
+                  </button>
+                </div>
+                <div id="project-collage-image-preview" class="section-image-preview" aria-live="polite"></div>
+              </article>
+
+              <label class="studio-project-sample-heading">Underrubrik för exempel
+                <input type="text" id="project-sample-heading" placeholder="Exempel från serien" />
+              </label>
+
+              <fieldset class="studio-project-poster">
+                <legend>Poster "100 dagar av sol" (tryckt upplaga, säljs från lager på solsidan)</legend>
+                <label class="studio-check"><input type="checkbox" id="project-poster-enabled" /> Visa och sälj postern på solsidan</label>
+                <div class="studio-grid">
+                  <label>Pris, kr inkl. moms
+                    <input type="number" id="project-poster-price" min="0" step="1" placeholder="350" />
+                  </label>
+                  <label>Antal i lager (totalt att sälja via sajten)
+                    <input type="number" id="project-poster-stock" min="0" step="1" placeholder="58" />
+                  </label>
+                </div>
+                <label>Rubrik
+                  <input type="text" id="project-poster-title" placeholder="Poster – 100 dagar av sol" />
+                </label>
+                <label>Beskrivning (format, papper, leverans)
+                  <textarea id="project-poster-description" rows="3" placeholder="Alla hundra solar på en poster, 50 × 70 cm, tryckt på obestruket papper. Skickas rullad i tub."></textarea>
+                </label>
+                <div class="studio-grid">
+                  <label>Bild (sökväg, t.ex. images/poster-100-dagar.webp)
+                    <input type="text" id="project-poster-src" />
+                  </label>
+                  <label>Bildens alt-text
+                    <input type="text" id="project-poster-alt" />
+                  </label>
+                </div>
+                <button type="button" class="btn btn-ghost" data-upload-target="project-poster-src" data-upload-label="posterbild">Ladda upp posterbild</button>
+                <small class="field-hint">Antal kvar räknas automatiskt: lager minus sålda i ordrar som inte avbrutits. Visar "Slutsåld" vid noll.</small>
+              </fieldset>
+
+              <label class="studio-project-sample-heading">Printprislista (gäller alla Fine Art Prints: solsidan och galleriverk)
+                <textarea id="project-print-sizes" rows="5" placeholder="30 × 40 cm | 1 800 kr&#10;40 × 60 cm | 2 900 kr&#10;50 × 70 cm | 3 800 kr"></textarea>
+                <small class="field-hint">En rad per format: format | pris. Formatet är ramens yttermått (skivan som printen monteras på). Minsta formatet först. Tomt = standardlistan. Mått och regler: <a href="https://claude.ai/artifact/FAyb2LN6UataTatkQ6n2nt" target="_blank" rel="noopener">passepartout-lathunden</a>.</small>
+              </label>
+
+              <div class="studio-project-samples">
+                <article class="studio-project-media-card">
+                  <h3>Exempelbild 1</h3>
+                  <input type="hidden" id="project-sample-1-src" />
+                  <div id="project-sample-1-preview" class="section-image-preview" aria-live="polite"></div>
+                  <label>Välj exempelbild 1
+                    <select id="project-sample-1-pick"></select>
+                  </label>
+                  <label>Exempelbild 1 alt-text
+                    <input type="text" id="project-sample-1-alt" />
+                  </label>
+                  <button type="button" class="btn btn-ghost" data-upload-target="project-sample-1-src" data-upload-label="exempelbild 1">
+                    Ladda upp exempelbild 1
+                  </button>
+                </article>
+
+                <article class="studio-project-media-card">
+                  <h3>Exempelbild 2</h3>
+                  <input type="hidden" id="project-sample-2-src" />
+                  <div id="project-sample-2-preview" class="section-image-preview" aria-live="polite"></div>
+                  <label>Välj exempelbild 2
+                    <select id="project-sample-2-pick"></select>
+                  </label>
+                  <label>Exempelbild 2 alt-text
+                    <input type="text" id="project-sample-2-alt" />
+                  </label>
+                  <button type="button" class="btn btn-ghost" data-upload-target="project-sample-2-src" data-upload-label="exempelbild 2">
+                    Ladda upp exempelbild 2
+                  </button>
+                </article>
+
+                <article class="studio-project-media-card">
+                  <h3>Exempelbild 3</h3>
+                  <input type="hidden" id="project-sample-3-src" />
+                  <div id="project-sample-3-preview" class="section-image-preview" aria-live="polite"></div>
+                  <label>Välj exempelbild 3
+                    <select id="project-sample-3-pick"></select>
+                  </label>
+                  <label>Exempelbild 3 alt-text
+                    <input type="text" id="project-sample-3-alt" />
+                  </label>
+                  <button type="button" class="btn btn-ghost" data-upload-target="project-sample-3-src" data-upload-label="exempelbild 3">
+                    Ladda upp exempelbild 3
+                  </button>
+                </article>
+
+                <article class="studio-project-media-card">
+                  <h3>Exempelbild 4</h3>
+                  <input type="hidden" id="project-sample-4-src" />
+                  <div id="project-sample-4-preview" class="section-image-preview" aria-live="polite"></div>
+                  <label>Välj exempelbild 4
+                    <select id="project-sample-4-pick"></select>
+                  </label>
+                  <label>Exempelbild 4 alt-text
+                    <input type="text" id="project-sample-4-alt" />
+                  </label>
+                  <button type="button" class="btn btn-ghost" data-upload-target="project-sample-4-src" data-upload-label="exempelbild 4">
+                    Ladda upp exempelbild 4
+                  </button>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <section class="studio-card surface-soft" data-studio-view="text" hidden>
+            <h2>Ambitioner Framåt</h2>
+            <div class="studio-grid">
+              <label>Rubrik <input type="text" id="ambitions-heading" /></label>
+              <label>Punkter (en punkt per rad)
+                <textarea id="ambitions-lines" rows="6"></textarea>
+              </label>
+            </div>
+          </section>
+
+          <section class="studio-card surface-soft" data-studio-view="contact" hidden>
+            <h2>Kontakt</h2>
+            <div class="studio-grid">
+              <label>Eyebrow <input type="text" id="contact-eyebrow" /></label>
+              <label>Rubrik <input type="text" id="contact-heading" /></label>
+              <label>Text <textarea id="contact-body" rows="3"></textarea></label>
+            </div>
+            <div class="studio-grid studio-grid-2">
+              <label>E-post <input type="email" id="contact-email" /></label>
+              <label>Knapptext e-post <input type="text" id="contact-email-label" placeholder="Skicka e-post" /></label>
+            </div>
+            <div class="studio-grid studio-grid-2">
+              <label>Swish-nummer <input type="text" id="contact-swish" placeholder="070-123 45 67" /></label>
+              <label>Bankkonto <input type="text" id="contact-bank" placeholder="Swedbank 8327-9, 123 456 789-0" /></label>
+            </div>
+            <p class="studio-note">Visas som betalningsuppgifter på solsidans beställning, på verkssidorna och i llms.txt. Tomt fält = ingen text.</p>
+            <div class="studio-grid">
+              <label class="checkbox-row">
+                <input type="checkbox" id="contact-email-public" />
+                <span>Visa e-postknappen publikt</span>
+              </label>
+            </div>
+            <div class="studio-row">
+              <h3>Sociala kanaler</h3>
+              <button type="button" class="btn btn-ghost" id="add-contact-social">Lägg till kanal</button>
+            </div>
+            <div id="contact-social-editor" class="contact-social-editor"></div>
+          </section>
+
+          <section class="studio-card surface-soft" data-studio-view="settings" hidden>
+            <h2>Tema</h2>
+            <div class="studio-theme-preview" aria-label="Förhandsvisning av sajtens form">
+              <div class="studio-theme-preview-frame">
+                <div class="studio-theme-preview-header">
+                  <span>olagustafsson.com</span>
+                  <span>Galleri</span>
+                </div>
+                <div class="studio-theme-preview-body">
+                  <p class="eyebrow" id="studio-theme-preview-eyebrow">Akvarell</p>
+                  <h3 id="studio-theme-preview-title">Originalmålningar i <i>akvarell</i></h3>
+                  <p id="studio-theme-preview-body">
+                    Ljus, stämning och närvaro i landskap, natur och stadsvyer.
+                  </p>
+                  <div class="studio-theme-preview-actions">
+                    <span class="studio-theme-preview-button">Skicka förfrågan</span>
+                    <span class="studio-theme-preview-link">Visa galleri</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="studio-grid studio-grid-3">
+              <label>Bakgrund <input type="color" id="theme-background" /></label>
+              <label>Yta <input type="color" id="theme-surface" /></label>
+              <label>Text <input type="color" id="theme-ink" /></label>
+              <label>Mjuk text <input type="color" id="theme-soft-ink" /></label>
+              <label>Primär <input type="color" id="theme-primary" /></label>
+              <label>Accent <input type="color" id="theme-accent" /></label>
+              <label>Header & footer <input type="color" id="theme-header-background" /></label>
+              <label>Header-opacitet
+                <input type="range" id="theme-header-opacity" min="0" max="100" step="1" />
+              </label>
+              <label>Knappgradient start <input type="color" id="theme-button-gradient-start" /></label>
+              <label>Knappgradient slut <input type="color" id="theme-button-gradient-end" /></label>
+            </div>
+            <div class="studio-grid studio-grid-2 studio-subsection">
+              <label>Rubriktypsnitt
+                <select id="theme-font-display">
+                  <option value="fraunces">Fraunces (nuvarande)</option>
+                  <option value="playfair">Playfair Display</option>
+                  <option value="cormorant">Cormorant Garamond</option>
+                  <option value="georgia">Georgia</option>
+                  <option value="baskerville">Baskerville</option>
+                  <option value="times">Times New Roman</option>
+                </select>
+              </label>
+              <label>Brödtext-typsnitt
+                <select id="theme-font-body">
+                  <option value="jakarta">Plus Jakarta Sans (nuvarande)</option>
+                  <option value="plexmono">IBM Plex Mono</option>
+                  <option value="sourcesans">Source Sans 3</option>
+                  <option value="lora">Lora</option>
+                  <option value="avenir">Avenir Next</option>
+                  <option value="system">System UI</option>
+                  <option value="helvetica">Helvetica Neue</option>
+                </select>
+              </label>
+              <label>Rubrik-vikt
+                <select id="theme-font-display-weight">
+                  <option value="300">Light (300)</option>
+                  <option value="400">Regular (400)</option>
+                  <option value="500">Medium (500)</option>
+                  <option value="600">Semibold (600)</option>
+                  <option value="700" selected>Bold (700)</option>
+                  <option value="800">Extrabold (800)</option>
+                </select>
+              </label>
+              <label>Rubrik-stil
+                <select id="theme-font-display-style">
+                  <option value="normal" selected>Normal</option>
+                  <option value="italic">Kursiv</option>
+                </select>
+              </label>
+              <label>Brödtext-vikt
+                <select id="theme-font-body-weight">
+                  <option value="300">Light (300)</option>
+                  <option value="400" selected>Regular (400)</option>
+                  <option value="500">Medium (500)</option>
+                  <option value="600">Semibold (600)</option>
+                  <option value="700">Bold (700)</option>
+                  <option value="800">Extrabold (800)</option>
+                </select>
+              </label>
+              <label>Brödtext-stil
+                <select id="theme-font-body-style">
+                  <option value="normal" selected>Normal</option>
+                  <option value="italic">Kursiv</option>
+                </select>
+              </label>
+            </div>
+            <p class="studio-note">
+              Header och footer delar samma temafärg. Använd <code>&lt;i&gt;text&lt;/i&gt;</code> för kursiv i samma typsnitt och <code>&lt;n&gt;text&lt;/n&gt;</code> för normal stil på enstaka ord.
+            </p>
+          </section>
+
+          <section class="studio-card surface-soft studio-card-compact" data-studio-view="works" hidden>
+            <h2>Galleriinställningar</h2>
+            <div class="studio-grid studio-grid-2">
+              <label>Rubrik på startsidan
+                <input type="text" id="gallery-heading" placeholder="Akvarellmålningar" />
+              </label>
+              <label>Rubrik på gallerisidan
+                <input type="text" id="gallery-page-heading" placeholder="Hela galleriet" />
+              </label>
+              <label>Ingress på gallerisidan
+                <textarea id="gallery-subheading" rows="3" placeholder="Här visas originalmålningar i akvarell med motiv från landskap, natur och stad."></textarea>
+              </label>
+              <label class="checkbox-row">
+                <input type="checkbox" id="auto-discover-enabled" />
+                <span>Auto-upptäck bilder (ola-01.jpg, ola-02.jpg...)</span>
+              </label>
+              <label>Auto kategori
+                <select id="auto-default-category"></select>
+              </label>
+            </div>
+            <p class="studio-note">
+              Här styr du både startsidans gallerirubrik och rubriken/ingressen på själva gallerisidan.
+            </p>
+            <details class="studio-collapsible">
+              <summary>Kategori-redigering</summary>
+              <div class="studio-grid studio-compact-content">
+                <p class="studio-note" id="category-editor-hint">
+                  Lägg till/ta bort kategorier i Svenska-läget. Engelska etiketter kan redigeras i English-läget.
+                </p>
+                <label>
+                  Filteretikett för "Alla"
+                  <input type="text" id="category-all-label" placeholder="Alla" />
+                </label>
+                <div id="category-editor" class="contact-social-editor category-editor"></div>
+                <div class="studio-grid studio-grid-3 category-add-grid">
+                  <label>Kategori-nyckel (valfritt, t.ex. abstract)
+                    <input type="text" id="add-category-key" placeholder="auto från namn" />
+                  </label>
+                  <label>Kategorinamn
+                    <input type="text" id="add-category-label" placeholder="Ny kategori" />
+                  </label>
+                  <label>&nbsp;
+                    <button type="button" class="btn btn-ghost" id="add-category-button">Lägg till kategori</button>
+                  </label>
+                </div>
+              </div>
+            </details>
+          </section>
+
+          <section class="studio-card surface-soft" data-studio-view="seo" hidden>
+            <h2>SEO &amp; delning (startsida)</h2>
+            <div class="studio-grid">
+              <label>SEO-titel
+                <input type="text" id="seo-home-title" placeholder="Ola Gustafsson | Akvarellkonstnär" />
+              </label>
+              <label>SEO-beskrivning
+                <textarea id="seo-home-description" rows="3" placeholder="Kort text som visas när hemsidan delas."></textarea>
+              </label>
+              <label>Välj delningsbild från galleriet
+                <select id="seo-home-image-select"></select>
+              </label>
+              <label>Delningsbild (thumbnail)
+                <input type="text" id="seo-home-image" placeholder="images/ola-02.jpg eller https://..." />
+              </label>
+              <label>&nbsp;
+                <button type="button" class="btn btn-ghost" data-upload-target="seo-home-image" data-upload-label="delningsbild">
+                  Ladda upp delningsbild
+                </button>
+              </label>
+              <div id="seo-home-image-preview" class="seo-share-image-preview" aria-live="polite"></div>
+              <label>Bildens alt-text
+                <input type="text" id="seo-home-image-alt" placeholder="Akvarellmålning av Ola Gustafsson" />
+              </label>
+            </div>
+            <p class="studio-note">Används för länkar till hemsidan (og:title, og:description, og:image, twitter:*).</p>
+          </section>
+
+          <section class="studio-card surface-soft" data-studio-view="seo" hidden>
+            <h2>Analys</h2>
+            <div class="studio-grid studio-grid-2">
+              <label>Google Analytics ID (GA4)
+                <input type="text" id="analytics-ga-id" placeholder="G-XXXXXXXXXX" />
+              </label>
+              <label class="checkbox-row">
+                <input type="checkbox" id="analytics-anonymize-ip" />
+                <span>Maskera IP-adress (anonymize_ip)</span>
+              </label>
+            </div>
+            <p class="studio-note">Lämna tomt för att stänga av Analytics.</p>
+          </section>
+
+          <section class="studio-card surface-soft analytics-panel-card" data-studio-view="overview">
+            <div class="studio-row">
+              <h2>Analyspanel (Google Analytics)</h2>
+              <div class="analytics-toolbar">
+                <label>Period
+                  <select id="analytics-panel-days">
+                    <option value="7">Senaste 7 dagarna</option>
+                    <option value="28" selected>Senaste 28 dagarna</option>
+                    <option value="90">Senaste 90 dagarna</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-ghost" id="analytics-panel-refresh">Uppdatera</button>
+              </div>
+            </div>
+            <p class="studio-note">
+              Kräver GA4 Data API-konfiguration på servern (Property ID + service account).
+            </p>
+            <div id="analytics-panel-status" class="analytics-panel-status" data-kind="info" aria-live="polite">
+              Väntar på uppdatering...
+            </div>
+
+            <div class="analytics-top-grid">
+              <article class="analytics-block">
+                <p class="analytics-label">Alla besökare</p>
+                <p id="analytics-visitors-value" class="analytics-big-number">-</p>
+                <p id="analytics-visitors-delta" class="analytics-delta">-</p>
+                <svg id="analytics-trend-chart" class="analytics-trend-chart" viewBox="0 0 640 240" aria-label="Besökartrend">
+                  <path class="analytics-trend-grid" d="M20 20 H620 M20 80 H620 M20 140 H620 M20 200 H620"></path>
+                  <path id="analytics-trend-path" class="analytics-trend-path" d=""></path>
+                  <g id="analytics-trend-axis" class="analytics-trend-axis" aria-hidden="true"></g>
+                </svg>
+              </article>
+
+              <article class="analytics-block">
+                <div class="analytics-breakdown-tabs" role="tablist" aria-label="Fördelning">
+                  <button type="button" class="analytics-tab is-active" data-analytics-tab="channels" aria-selected="true">Kanaler</button>
+                  <button type="button" class="analytics-tab" data-analytics-tab="locations" aria-selected="false">Länder</button>
+                  <button type="button" class="analytics-tab" data-analytics-tab="devices" aria-selected="false">Enheter</button>
+                </div>
+                <div class="analytics-donut-wrap">
+                  <div id="analytics-donut" class="analytics-donut">
+                    <div class="analytics-donut-center">
+                      <strong id="analytics-donut-total">-</strong>
+                      <span id="analytics-donut-label">Sessions</span>
+                    </div>
+                  </div>
+                </div>
+                <ul id="analytics-breakdown-legend" class="analytics-legend"></ul>
+              </article>
+            </div>
+
+            <div class="analytics-kpi-grid">
+              <article class="analytics-kpi">
+                <p class="analytics-kpi-label">Sessions</p>
+                <p id="analytics-kpi-sessions" class="analytics-kpi-value">-</p>
+                <p id="analytics-kpi-sessions-delta" class="analytics-kpi-delta">-</p>
+              </article>
+              <article class="analytics-kpi">
+                <p class="analytics-kpi-label">Aktiva användare</p>
+                <p id="analytics-kpi-active-users" class="analytics-kpi-value">-</p>
+                <p id="analytics-kpi-active-users-delta" class="analytics-kpi-delta">-</p>
+              </article>
+              <article class="analytics-kpi">
+                <p class="analytics-kpi-label">Engagerade sessioner</p>
+                <p id="analytics-kpi-engaged" class="analytics-kpi-value">-</p>
+                <p id="analytics-kpi-engaged-delta" class="analytics-kpi-delta">-</p>
+              </article>
+              <article class="analytics-kpi">
+                <p class="analytics-kpi-label">Händelser</p>
+                <p id="analytics-kpi-events" class="analytics-kpi-value">-</p>
+                <p id="analytics-kpi-events-delta" class="analytics-kpi-delta">-</p>
+              </article>
+            </div>
+          </section>
+
+          <section class="studio-card surface-soft" data-studio-view="orders" hidden>
+            <div class="studio-row">
+              <h2>Ordrar</h2>
+              <div class="analytics-toolbar">
+                <label>Visa
+                  <select id="orders-panel-filter">
+                    <option value="open">Öppna (väntar + betalda)</option>
+                    <option value="pending">Väntar på betalning</option>
+                    <option value="paid">Betalda</option>
+                    <option value="shipped">Skickade</option>
+                    <option value="completed">Klara</option>
+                    <option value="cancelled">Avbrutna</option>
+                    <option value="all">Alla</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-ghost" id="orders-panel-refresh">Uppdatera</button>
+              </div>
+            </div>
+            <p class="studio-note">Beställningar från kassan. När pengarna kommit in: Markera betald. Originalet blir då sålt och kunden får mejl. Vid Markera skickad får kunden spårningsnumret.</p>
+            <div id="orders-panel-status" class="analytics-panel-status" data-kind="info" aria-live="polite">Väntar på uppdatering...</div>
+            <div id="orders-panel-list" class="inquiries-panel-list orders-panel-list"></div>
+          </section>
+
+          <section class="studio-card surface-soft" data-studio-view="inquiries" hidden>
+            <div class="studio-row">
+              <h2>Intresseanmälningar</h2>
+              <div class="analytics-toolbar">
+                <label>Status
+                  <select id="inquiries-panel-filter">
+                    <option value="all">Alla</option>
+                    <option value="new">Nya</option>
+                    <option value="replied">Besvarade</option>
+                    <option value="closed">Stängda</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-ghost" id="inquiries-panel-refresh">Uppdatera</button>
+              </div>
+            </div>
+            <p class="studio-note">Visar inkomna kontaktmeddelanden med extra fokus på verksförfrågningar.</p>
+            <div id="inquiries-panel-status" class="analytics-panel-status" data-kind="info" aria-live="polite">
+              Väntar på uppdatering...
+            </div>
+            <div id="inquiries-panel-list" class="inquiries-panel-list"></div>
+          </section>
+
+          <section class="studio-card surface-soft studio-publish-card" data-studio-view="settings" hidden>
+            <div class="studio-publish-row">
+              <button type="button" class="btn btn-primary" id="save-studio">Spara ändringar</button>
+              <details class="studio-advanced-tools">
+                <summary>Fler verktyg</summary>
+                <div class="studio-actions studio-actions-advanced">
+                  <button type="button" class="btn btn-ghost" id="restore-from-server">Hämta från server</button>
+                  <button type="button" class="btn btn-ghost" id="restore-sv-from-en">Återskapa svenska titlar</button>
+                  <button type="button" class="btn btn-ghost" id="export-overrides-js">Exportera overrides.js</button>
+                  <button type="button" class="btn btn-ghost" id="export-json">Exportera JSON</button>
+                  <button type="button" class="btn btn-ghost" id="import-json-trigger">Importera JSON</button>
+                  <button type="button" class="btn btn-ghost" id="reset-studio">Återställ till content.js</button>
+                </div>
+              </details>
+              <input type="file" id="import-json" accept="application/json" hidden />
+            </div>
+          </section>
+          <input type="file" id="section-image-upload" accept="image/*" hidden />
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p>Studio</p>
+        <div class="footer-tools">
+          <button id="studio-logout-btn" class="footer-auth-btn" type="button">Logga ut Studio</button>
+          <a href="#page-top" data-scroll-top>Till toppen</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
