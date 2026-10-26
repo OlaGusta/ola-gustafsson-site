@@ -53,33 +53,43 @@ window.PORTFOLIO_OVERRIDES = {
         "mode": "slideshow",
         "slideDurationMs": 8000,
         "autoSlides": {
-            "enabled": true,
+            "enabled": false,
             "count": 4,
             "periodDays": 7,
             "landscapeOnly": true,
             "excludeSrcs": [],
-            "seedNonce": "2026-08-01T12:02:30.763Z",
-            "lastForcedAt": "2026-08-01T12:02:30.763Z"
+            "seedNonce": "2026-10-26T10:23:32.532Z",
+            "lastForcedAt": "2026-10-26T10:23:32.532Z"
         },
         "slides": [
             {
-                "src": "images/ola-22.jpg",
-                "alt": "Glittret",
+                "src": "images/f-r-flera-solar-sedan-2.webp",
+                "alt": "För flera solar sedan II",
                 "durationMs": 8000
             },
             {
-                "src": "images/ola-02.jpg",
-                "alt": "Slussen, varm eftermiddag i September",
+                "src": "images/tid-i-vila-3.webp",
+                "alt": "Tid i vila III",
                 "durationMs": 8000
             },
             {
-                "src": "images/ola-01.jpg",
-                "alt": "Eftermiddag på Borrby Strand, Augusti",
+                "src": "images/storm-ver-mariaberget.webp",
+                "alt": "Storm över Mariaberget",
                 "durationMs": 8000
             },
             {
-                "src": "images/ola-03.jpg",
-                "alt": "Vägen hem",
+                "src": "images/tid-i-vila-2.webp",
+                "alt": "Tid i vila II",
+                "durationMs": 8000
+            },
+            {
+                "src": "images/det-l-nga-nuet.webp",
+                "alt": "Det långa nuet",
+                "durationMs": 8000
+            },
+            {
+                "src": "images/himmel-fine-art-print-50x-70.webp",
+                "alt": "Himmel, fine art print 50 × 70",
                 "durationMs": 8000
             }
         ],
@@ -90,7 +100,7 @@ window.PORTFOLIO_OVERRIDES = {
         "imageAlt": "Akvarell i blå toner med stadsvy och långa skuggor.",
         "ctaPrimaryLabel": "Se målningar",
         "ctaSecondaryLabel": "100 dagar av sol",
-        "modeUpdatedAt": 1792923166998,
+        "modeUpdatedAt": 1793010377715,
         "ctaPrimaryHref": "gallery.html",
         "ctaSecondaryHref": "100-dagar-av-sol"
     },
@@ -137,7 +147,7 @@ window.PORTFOLIO_OVERRIDES = {
             "Vad är en Fine Art Print? Ett tryck av en målning på konstpapperet Hahnemühle Photo Rag. Varje tryck är signerat och numrerat av mig, och upplagan är högst 20 exemplar per bild. Trycket levereras monterat på en syrafri skiva. Verk som finns som print är märkta med Fine Art Print på verkets sida.",
             "Vilka format och priser har printarna? Formaten anges som ramens yttermått: 30 × 40 cm för 1 800 kr, 40 × 60 cm för 2 900 kr och 50 × 70 cm för 3 800 kr. Priserna inkluderar moms. Bilden är mindre än formatet: skivan den sitter på har ramens mått och ger en vit kant runt bilden. Vilka format som finns för ett visst verk står på verkets sida.",
             "Ingår ram och passepartout? Nej. Original säljs som lösa ark, och print levereras monterad på en syrafri skiva i ramens format, klar att rama in. Vill du ha verket inramat eller i passepartout kan jag ordna det. Då tillkommer materialkostnaden och en serviceavgift på 300 kr per verk. Ramar du en print själv, använd gärna distanslist så att bilden inte ligger mot glaset.",
-            "Vad kostar frakten? 150 kr per beställning inom Sverige, för både original och print, oavsett hur många verk du beställer. Utanför Sverige: pris på förfrågan.",
+            "Vad kostar frakten? 150 kr per beställning inom Sverige för original och print, oavsett hur många verk du beställer. Beställer du bara postrar är frakten 99 kr. Utanför Sverige: pris på förfrågan.",
             "Hur betalar jag? Med Swish till 123 704 88 20 eller till mitt företagskonto i Swedbank, 8327-9, 903 671 334-6. Skriv ordernumret som meddelande. Väljer du Swish får du en Swish-kod med belopp och ordernummer ifyllda på ordersidan. Beställningen bekräftas så snart betalningen kommit in.",
             "Hur lång är leveranstiden? Print görs på beställning och skickas normalt inom några dagar. Beställer du ram tar det cirka en vecka till. Original skickas när betalningen kommit in.",
             "Har jag ångerrätt? Ja. Som privatperson har du 14 dagars ångerrätt från att du tagit emot verket. Meddela mig inom den tiden och skicka tillbaka verket oskadat; returfrakten betalar du själv. Jag betalar tillbaka när verket kommit fram.",
@@ -216,6 +226,168 @@ window.PORTFOLIO_OVERRIDES = {
             }
         ]
     },
+    "exhibitions": [
+        {
+            "slug": "ljusets-aterkomst",
+            "enabled": true,
+            "title": "Ljusets återkomst",
+            "altTitle": "The Return of Light",
+            "eyebrow": "Utställning · Oktober 2026",
+            "meta": "Husby konsthall · 3–25 oktober 2026 · tillsammans med Jenny Övrebö",
+            "description": "Ljusets återkomst, en utställning med akvareller av Ola Gustafsson och Jenny Övrebö i Husby konsthall 3–25 oktober 2026: 100 dagar av sol och tio stora akvareller med solen i vatten.",
+            "heroAlt": "Besökare bland fristående skärmar med akvareller i Husby konsthall, med solljus över golvet.",
+            "heroCaption": "Tid i vila II och III till vänster, Jenny Övrebös akvareller till höger.",
+            "worksHeading": "Verken",
+            "worksNote": "Akvarell på papper, höjd × bredd.",
+            "worksText": "Det långa nuet | 76 × 56 cm\nTid i vila I–III | 56 × 76 cm\nFör flera solar sedan I–III | I och III 76 × 56 cm, II 56 × 76 cm\nTimmarna däremellan I–III | 56 × 76 cm\n[100 dagar av sol](https://olagustafsson.com/100-dagar-av-sol) | 100 akvareller, 26 × 18 cm per ark, säljs som samlat verk",
+            "ctaEyebrow": "Fine Art Print",
+            "ctaHeading": "Solarna finns kvar",
+            "ctaText": "Alla hundra solar från 100 dagar av sol finns som signerad Fine Art Print.",
+            "ctaLinkLabel": "Se alla 100 solar",
+            "ctaImageAlt": "Väggen med alla hundra solakvareller i tio rader.",
+            "blocks": [
+                {
+                    "type": "text",
+                    "heading": "",
+                    "body": "En sol, hundra ögonblick. Ibland synlig som en tydlig skiva, ibland upplöst i ljus eller dold bakom moln. Samma stjärna, men varje möte med den är annorlunda.\n\nMina akvareller kretsar kring det beständiga och det förgängliga — permanens och impermanens. Utgångspunkten är vår relation till solen: en stjärna på ett ofattbart avstånd, vars närvaro samtidigt är en del av vår mest vardagliga erfarenhet. Vi känner dess värme, följer ljusets förändringar och räknar våra dagar och år. Solen anger vår plats i universum och ger förutsättningarna för livet här. Den rymmer också en kraft som kan förtära.\n\nSolen finns där oavsett vilka moln som skymmer den. I förhållande till våra liv framstår den som bestående. Ändå är vår erfarenhet av den ständigt föränderlig. Ljuset skiftar med vädret, tiden på dagen och platsen där vi befinner oss. Det som återkommer möter oss aldrig riktigt på samma sätt.\n\nI utställningen <em>Ljusets återkomst</em> på Husby konsthall möttes två delar av mitt arbete: hundra små solbilder och tio stora akvareller där solen är närvarande genom vatten. Tillsammans undersöker de hur något så avlägset kan bli nära och konkret, och hur ett återkommande ljus kan rymma ögonblick som aldrig kommer tillbaka.\n\n<em>100 dagar av sol</em> består av hundra akvareller. Varje bild är ett kort nedslag, ett möte med solen under en begränsad stund. Upprepningen håller samman serien, samtidigt som skillnaderna mellan bilderna får ta plats. Solen framträder, försvinner och återkommer. En tydlig form kan i nästa bild vara nästan upplöst.\n\nTiteln rymmer också tiden som arbetet består av. Hundra dagar är en följd av enskilda stunder, var och en med sin egen närvaro. Sedda tillsammans blir bilderna ett sätt att betrakta både det som består och det som förändras. Samma sol finns i dem alla, men dagarna är olika."
+                },
+                {
+                    "type": "image",
+                    "image": "images/ljusets-aterkomst/02-ola-vid-solvaggen.jpg",
+                    "alt": "Ola Gustafsson står framför väggen med de hundra solakvarellerna.",
+                    "caption": "Ola Gustafsson vid 100 dagar av sol."
+                },
+                {
+                    "type": "text",
+                    "heading": "",
+                    "body": "I de stora akvarellerna möter jag solen genom vatten. Ljuset återspeglas i ytan, bryts på sin väg genom vattnet och förändras med vågornas rörelser. En enda sol kan delas i tusentals tillfälliga solar. Glittret är välbekant, men kan också föra tanken till en stjärnhimmel. Det konkreta och det kosmiska finns nära varandra.\n\nDe tre målningarna <em>För flera solar sedan I, II och III</em> kretsar kring dessa reflektioner. Titeln låter solen bli ett mått på förfluten tid. Vattenytan bär ljuset för ett ögonblick, innan rörelsen förändrar det. Nästa reflex uppstår nästan på samma plats, men är redan en annan."
+                },
+                {
+                    "type": "image",
+                    "image": "images/ljusets-aterkomst/03-svarta-rummet.jpg",
+                    "alt": "Ett rum med svarta väggar och tre akvareller av solreflexer i vatten samt två solar.",
+                    "caption": "För flera solar sedan I–III och två solar som Fine Art Print."
+                },
+                {
+                    "type": "text",
+                    "heading": "",
+                    "body": "I <em>Det långa nuet</em> omges en simmare av vatten, ringar och glitter. Här möts människans begränsade tid och känslan av något som sträcker sig långt bortom henne. Ett bad är en enkel, kroppslig erfarenhet. Samtidigt kan en sådan stund kännas märkligt vidsträckt, som om nuet har fått mer rum."
+                },
+                {
+                    "type": "image",
+                    "image": "images/ljusets-aterkomst/04-det-langa-nuet.jpg",
+                    "alt": "En stående akvarell mellan två fönster: en simmare omgiven av ringar och glitter i mörkt vatten.",
+                    "caption": "Det långa nuet."
+                },
+                {
+                    "type": "text",
+                    "heading": "",
+                    "body": "<em>Tid i vila I, II och III</em> för blicken under vattenytan. Kropparna befinner sig i ett tillstånd där rörelse, tyngd och ljus upplevs annorlunda. Titeln närmar sig känslan av att för en stund kliva ur den vanliga tidens gång. Tiden fortsätter, men upplevelsen av den förändras. Vilan är tillfällig; vi kommer att återvända till ytan."
+                },
+                {
+                    "type": "image",
+                    "image": "images/ljusets-aterkomst/05-tid-i-vila.jpg",
+                    "alt": "En besökare framför tre akvareller av kroppar under vattenytan.",
+                    "caption": "Tid i vila I–III."
+                },
+                {
+                    "type": "text",
+                    "heading": "",
+                    "body": "I <em>Timmarna däremellan I, II och III</em> finns fåglarna, båtarna och det öppna vattnet. Motiven hör till en igenkännbar värld, med stunder som kanske inte utmärker sig genom någon särskild händelse. Ändå kan just sådana timmar stanna kvar hos oss: ljuset över vattnet, en plats, känslan av att vara där."
+                },
+                {
+                    "type": "image",
+                    "image": "images/ljusets-aterkomst/06-timmarna-daremellan.jpg",
+                    "alt": "Akvarell av en segelbåt i motljus på glittrande vatten.",
+                    "caption": "Timmarna däremellan II."
+                },
+                {
+                    "type": "text",
+                    "heading": "",
+                    "body": "De stora formaten ger mig utrymme att dröja vid det flyktiga. Motiven kan upplevas som långsamma, trots att en reflex eller en kropps rörelse förändras på ett ögonblick. Där finns en förbindelse mellan de små solbilderna och de stora vattenbilderna. Båda handlar om tid, men ger den olika utrymme.\n\nVattnet finns också i själva måleriet. Det för pigmentet över papperet, låter former uppstå och gränser lösas upp. Jag arbetar med det och försöker lämna plats för sådant jag inte helt kan styra. Materialets föränderlighet är en del av arbetet med bilderna.\n\nNär jag tänker på vad vi har och vad vi förlorar handlar det om ögonblicken och det som ryms i dem. Ett möte, en känsla, någons närvaro. Något som är betydelsefullt medan det pågår, men som vi bara delvis kan bära med oss som minne.\n\nLjuset kan återkomma utan att stunden återvänder. Jag vill dröja i glädjen över att vara här, med vetskapen om att stunden förändras också medan vi upplever den.\n\n<em>Ljusets återkomst</em> visades på Husby konsthall den 3–25 oktober 2026, tillsammans med Jenny Övrebö."
+                },
+                {
+                    "type": "text",
+                    "heading": "Med Jenny Övrebö",
+                    "body": "Jenny Övrebö visade skog, fält och sjöar, jag solen och vattnet. Vi har akvarellen gemensamt men går in i temat från olika håll, och på väggarna hörde bilderna ihop."
+                },
+                {
+                    "type": "pair",
+                    "image": "images/ljusets-aterkomst/07-jenny-skarmar.jpg",
+                    "alt": "Besökare bland fristående skärmar med Jenny Övrebös landskapsakvareller i solljus.",
+                    "caption": "Jenny Övrebös akvareller.",
+                    "image2": "images/ljusets-aterkomst/08-jenny-vagg.jpg",
+                    "alt2": "Två besökare framför en vägg med tolv mindre akvareller av Jenny Övrebö.",
+                    "caption2": "Jenny Övrebös mindre akvareller."
+                },
+                {
+                    "type": "text",
+                    "heading": "Vernissagen",
+                    "body": "Vernissagen samlade många besökare, bland dem många av våra vänner. Sven Einarsson öppnade utställningen med ett tal om ljusets och konstens betydelse. Jag var spänd inför öppningen och lämnade konsthallen glad och tacksam för alla vänliga ord, blommor och presenter."
+                },
+                {
+                    "type": "image",
+                    "image": "images/ljusets-aterkomst/09-oppningstal.jpg",
+                    "alt": "Sven Einarsson läser sitt öppningstal i konsthallen medan besökare lyssnar.",
+                    "caption": "Sven Einarsson håller öppningstalet."
+                },
+                {
+                    "type": "pair",
+                    "image": "images/ljusets-aterkomst/10-ola-och-jenny.jpg",
+                    "alt": "Jenny Övrebö och Ola Gustafsson i konsthallen.",
+                    "caption": "Jenny Övrebö och Ola Gustafsson på vernissagen.",
+                    "image2": "images/ljusets-aterkomst/11-blommor.jpg",
+                    "alt2": "Blombuketter på golvet i ett solstrålsljus.",
+                    "caption2": "Blommor från vernissagen."
+                },
+                {
+                    "type": "text",
+                    "heading": "Måla inför publik",
+                    "body": "Dagen efter vernissagen målade Jenny och jag live i konsthallen. Publiken var entusiastisk och stannade hela dagen, både under Jennys och min demo. Nyhetsbyrån Järva var där och skrev reportaget [Imponerande med akvarellmålning live](https://www.nyhetsbyranjarva.se/imponerande-med-akvarellmalning-live/)."
+                },
+                {
+                    "type": "image",
+                    "image": "images/ljusets-aterkomst/12-ola-demo.jpg",
+                    "alt": "Ola Gustafsson målar vid ett bord med publik omkring sig.",
+                    "caption": "Demomåleri dagen efter vernissagen."
+                },
+                {
+                    "type": "pair",
+                    "image": "images/ljusets-aterkomst/16-demomalning-sol.jpg",
+                    "alt": "Akvarell av en solnedgång med mörka moln och silhuetter av träd.",
+                    "caption": "Solnedgång, en av mina två demomålningar.",
+                    "image2": "images/ljusets-aterkomst/17-demomalning-moln.jpg",
+                    "alt2": "Akvarell av mörka moln över silhuetter mot en ljus horisont.",
+                    "caption2": "Moln, den andra demomålningen."
+                },
+                {
+                    "type": "pair",
+                    "image": "images/ljusets-aterkomst/13-jenny-demo.jpg",
+                    "alt": "Jenny Övrebö visar en målning för publiken.",
+                    "caption": "Jenny Övrebö visar sitt arbete.",
+                    "image2": "images/ljusets-aterkomst/14-pensel.jpg",
+                    "alt2": "En hand med pensel målar ett grönt träd på ett akvarellark.",
+                    "caption2": "Demomåleri."
+                },
+                {
+                    "type": "text",
+                    "heading": "Efteråt",
+                    "body": "Förberedelserna var mycket mer omfattande än jag trodde. Sedan kom hängningen, vernissagen, tre veckor med utställningen och till sist nedplockningen. Det har varit en väldigt rolig och nyttig upplevelse."
+                }
+            ],
+            "startDate": "2026-10-03",
+            "endDate": "2026-10-25",
+            "venue": "Husby konsthall",
+            "city": "Stockholm",
+            "artists": "Jenny Övrebö",
+            "heroImage": "images/ljusets-aterkomst/00-utstallningen.jpg",
+            "ogImage": "images/ljusets-aterkomst/og.jpg",
+            "ctaEnabled": true,
+            "ctaImage": "images/ljusets-aterkomst/15-solvaggen.jpg",
+            "ctaHref": "100-dagar-av-sol",
+            "ctaPoster": true
+        }
+    ],
     "contact": {
         "eyebrow": "Kontakt",
         "heading": "Hör <i>av</i> dig!",
@@ -276,6 +448,377 @@ window.PORTFOLIO_OVERRIDES = {
         ],
         "artworks": [
             {
+                "src": "images/f-r-flera-solar-sedan-1.webp",
+                "title": "För flera solar sedan I",
+                "format": "56 x 76 cm",
+                "medium": "Akvarell på papper",
+                "alt": "för flera solar sedan 1",
+                "seoTitle": "",
+                "seoDescription": "",
+                "shareImage": "",
+                "category": "nature",
+                "categories": [
+                    "nature",
+                    "sea"
+                ],
+                "featured": true,
+                "heroExclude": false,
+                "year": 2026,
+                "order": 1,
+                "addedAt": 1793008808674,
+                "zoom": 1,
+                "objectPosition": "center center",
+                "priceLabel": "9 500 kr",
+                "slug": "for-flera-solar-sedan-i",
+                "availability": "available"
+            },
+            {
+                "src": "images/f-r-flera-solar-sedan-2.webp",
+                "title": "För flera solar sedan II",
+                "format": "76 x 56 cm",
+                "medium": "Akvarell på papper",
+                "alt": "för flera solar sedan 2",
+                "seoTitle": "",
+                "seoDescription": "",
+                "shareImage": "",
+                "category": "nature",
+                "categories": [
+                    "nature",
+                    "sea"
+                ],
+                "featured": true,
+                "heroExclude": false,
+                "year": 2026,
+                "order": 2,
+                "addedAt": 1793008809873,
+                "zoom": 1,
+                "objectPosition": "center center",
+                "slug": "for-flera-solar-sedan-ii",
+                "priceLabel": "9 500 kr",
+                "availability": "available"
+            },
+            {
+                "src": "images/f-r-flera-solar-sedan-3.webp",
+                "title": "För flera solar sedan III",
+                "format": "56 x 76 cm",
+                "medium": "Akvarell på papper",
+                "alt": "för flera solar sedan 3",
+                "seoTitle": "",
+                "seoDescription": "",
+                "shareImage": "",
+                "category": "nature",
+                "categories": [
+                    "nature",
+                    "sea"
+                ],
+                "featured": false,
+                "heroExclude": false,
+                "year": 2026,
+                "order": 3,
+                "addedAt": 1793008811159,
+                "zoom": 1,
+                "objectPosition": "center center",
+                "priceLabel": "9 500 kr",
+                "slug": "for-flera-solar-sedan-iii",
+                "availability": "available"
+            },
+            {
+                "src": "images/timmarna-d-rmellan-3.webp",
+                "title": "Timmarna däremellan III",
+                "format": "76 x 56 cm",
+                "medium": "Akvarell på papper",
+                "alt": "timmarna däremellan 3",
+                "seoTitle": "",
+                "seoDescription": "",
+                "shareImage": "",
+                "category": "nature",
+                "categories": [
+                    "nature",
+                    "sea"
+                ],
+                "featured": true,
+                "heroExclude": false,
+                "year": 2026,
+                "order": 4,
+                "addedAt": 1793008812359,
+                "zoom": 1,
+                "objectPosition": "center center",
+                "priceLabel": "9 500 kr",
+                "slug": "timmarna-daremellan-iii",
+                "availability": "available"
+            },
+            {
+                "src": "images/timmarna-d-rmellan-2.webp",
+                "title": "Timmarna däremellan II",
+                "format": "76 x 56 cm",
+                "medium": "Akvarell på papper",
+                "alt": "timmarna däremellan 2",
+                "seoTitle": "",
+                "seoDescription": "",
+                "shareImage": "",
+                "category": "nature",
+                "categories": [
+                    "nature",
+                    "sea"
+                ],
+                "featured": true,
+                "heroExclude": false,
+                "year": 2026,
+                "order": 5,
+                "addedAt": 1793008813376,
+                "zoom": 1,
+                "objectPosition": "center center",
+                "priceLabel": "9 500 kr",
+                "slug": "timmarna-daremellan-ii",
+                "availability": "available"
+            },
+            {
+                "src": "images/timmarna-d-rmellan-1.webp",
+                "title": "Timmarna däremellan I",
+                "format": "76 x 56 cm",
+                "medium": "Akvarell på papper",
+                "alt": "timmarna däremellan 1",
+                "seoTitle": "",
+                "seoDescription": "",
+                "shareImage": "",
+                "category": "nature",
+                "categories": [
+                    "nature"
+                ],
+                "featured": false,
+                "heroExclude": false,
+                "year": 2026,
+                "order": 6,
+                "addedAt": 1793008814414,
+                "zoom": 1,
+                "objectPosition": "center center",
+                "priceLabel": "9 500 kr",
+                "slug": "timmarna-daremellan-i",
+                "availability": "sold"
+            },
+            {
+                "src": "images/tid-i-vila-3.webp",
+                "title": "Tid i vila III",
+                "format": "76 x 56 cm",
+                "medium": "Akvarell på papper",
+                "alt": "tid i vila 3",
+                "seoTitle": "",
+                "seoDescription": "",
+                "shareImage": "",
+                "category": "nature",
+                "categories": [
+                    "nature",
+                    "sea"
+                ],
+                "featured": true,
+                "heroExclude": false,
+                "year": 2026,
+                "order": 7,
+                "addedAt": 1793008815634,
+                "zoom": 1,
+                "objectPosition": "center center",
+                "priceLabel": "9 500 kr",
+                "slug": "tid-i-vila-iii",
+                "availability": "available"
+            },
+            {
+                "src": "images/tid-i-vila-2.webp",
+                "title": "Tid i vila II",
+                "format": "76 x 56 cm",
+                "medium": "Akvarell på papper",
+                "alt": "tid i vila 2",
+                "seoTitle": "",
+                "seoDescription": "",
+                "shareImage": "",
+                "category": "nature",
+                "categories": [
+                    "nature",
+                    "sea"
+                ],
+                "featured": true,
+                "heroExclude": false,
+                "year": 2026,
+                "order": 8,
+                "addedAt": 1793008816965,
+                "zoom": 1,
+                "objectPosition": "center center",
+                "priceLabel": "9 500 kr",
+                "slug": "tid-i-vila-ii",
+                "availability": "available"
+            },
+            {
+                "src": "images/tid-i-vila-1.webp",
+                "title": "Tid i vila I",
+                "format": "76 x 56 cm",
+                "medium": "Akvarell på papper",
+                "alt": "tid i vila 1",
+                "seoTitle": "",
+                "seoDescription": "",
+                "shareImage": "",
+                "category": "nature",
+                "categories": [
+                    "nature",
+                    "sea"
+                ],
+                "featured": true,
+                "heroExclude": false,
+                "year": 2026,
+                "order": 9,
+                "addedAt": 1793008818299,
+                "zoom": 1,
+                "objectPosition": "center center",
+                "priceLabel": "9 500 kr",
+                "slug": "tid-i-vila-i",
+                "availability": "available"
+            },
+            {
+                "src": "images/det-l-nga-nuet.webp",
+                "title": "Det långa nuet",
+                "format": "56 x 76 cm",
+                "medium": "Akvarell på papper",
+                "alt": "det långa nuet",
+                "seoTitle": "",
+                "seoDescription": "",
+                "shareImage": "",
+                "category": "nature",
+                "categories": [
+                    "nature",
+                    "sea"
+                ],
+                "featured": true,
+                "heroExclude": false,
+                "year": 2026,
+                "order": 10,
+                "addedAt": 1793008819974,
+                "zoom": 1,
+                "objectPosition": "center center",
+                "priceLabel": "9 500 kr",
+                "slug": "det-langa-nuet",
+                "availability": "available"
+            },
+            {
+                "src": "images/storm-ver-mariaberget.webp",
+                "title": "Storm över Mariaberget",
+                "format": "56 x 38 cm",
+                "medium": "Akvarell på papper",
+                "alt": "storm över mariaberget",
+                "seoTitle": "",
+                "seoDescription": "",
+                "shareImage": "",
+                "category": "city",
+                "categories": [
+                    "city",
+                    "himlar"
+                ],
+                "featured": false,
+                "heroExclude": false,
+                "year": 2026,
+                "order": 11,
+                "addedAt": 1793008821167,
+                "zoom": 1,
+                "objectPosition": "center center",
+                "priceLabel": "4 500 kr",
+                "slug": "storm-over-mariaberget"
+            },
+            {
+                "src": "images/solnedg-ng-augusti.webp",
+                "title": "Solnedgång, augusti",
+                "format": "56 x 38 cm",
+                "medium": "Akvarell på papper",
+                "alt": "solnedgång, augusti",
+                "seoTitle": "",
+                "seoDescription": "",
+                "shareImage": "",
+                "category": "nature",
+                "categories": [
+                    "nature",
+                    "himlar"
+                ],
+                "featured": false,
+                "heroExclude": true,
+                "year": 2026,
+                "order": 12,
+                "addedAt": 1793008822396,
+                "zoom": 1,
+                "objectPosition": "center center",
+                "priceLabel": "4 500 kr",
+                "slug": "solnedgang-augusti"
+            },
+            {
+                "src": "images/soluppg-ng-fine-art-print-50x70.webp",
+                "title": "Soluppgång fine art print 50x70",
+                "format": "70 x 50 cm",
+                "medium": "Akvarell på papper",
+                "alt": "soluppgång fine art print 50x70",
+                "seoTitle": "",
+                "seoDescription": "",
+                "shareImage": "",
+                "category": "nature",
+                "categories": [
+                    "nature",
+                    "himlar"
+                ],
+                "featured": false,
+                "heroExclude": false,
+                "year": 2026,
+                "order": 13,
+                "addedAt": 1793008823520,
+                "zoom": 1,
+                "objectPosition": "center center",
+                "priceLabel": "3 800 kr",
+                "fineArtPrint": true,
+                "slug": "soluppgang-fine-art-print-50x70"
+            },
+            {
+                "src": "images/solnedg-ng-finer-art-print-50-x-70.webp",
+                "title": "Solnedgång fine art print 50 x 70",
+                "format": "70 x 50 cm",
+                "medium": "Akvarell på papper",
+                "alt": "solnedgång fine art print 50 x 70",
+                "seoTitle": "",
+                "seoDescription": "",
+                "shareImage": "",
+                "category": "nature",
+                "categories": [
+                    "nature"
+                ],
+                "featured": false,
+                "heroExclude": false,
+                "year": 2026,
+                "order": 14,
+                "addedAt": 1793008824487,
+                "zoom": 1,
+                "objectPosition": "center center",
+                "fineArtPrint": true,
+                "priceLabel": "3 800 kr",
+                "slug": "solnedgang-fine-art-print-50-x-70"
+            },
+            {
+                "src": "images/himmel-fine-art-print-50x-70.webp",
+                "title": "Himmel fine art print 50x 70",
+                "format": "70 x 50 cm",
+                "medium": "Akvarell på papper",
+                "alt": "himmel fine art print 50x 70",
+                "seoTitle": "",
+                "seoDescription": "",
+                "shareImage": "",
+                "category": "nature",
+                "categories": [
+                    "nature",
+                    "himlar"
+                ],
+                "featured": false,
+                "heroExclude": false,
+                "year": 2026,
+                "order": 15,
+                "addedAt": 1793008825462,
+                "zoom": 1,
+                "objectPosition": "center center",
+                "fineArtPrint": true,
+                "priceLabel": "3 800 kr",
+                "slug": "himmel-fine-art-print-50x-70"
+            },
+            {
                 "src": "images/img-2729.webp",
                 "title": "Saltös själ",
                 "format": "38 x 56 cm",
@@ -292,7 +835,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": true,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 1,
+                "order": 16,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "collectorNote": "Minnesbild från en varm, lång dag i Karlskrona för ett par år sedan. Jag har fokuserat en enkel kontrasterande färgställning i ett försök att framhäva detta orörliga stenblocks väsen. ",
@@ -315,10 +858,10 @@ window.PORTFOLIO_OVERRIDES = {
                 "categories": [
                     "sea"
                 ],
-                "featured": true,
+                "featured": false,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 2,
+                "order": 17,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "collectorNote": "Förstudie till ett helark 56 x 76 cm",
@@ -343,7 +886,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": false,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 3,
+                "order": 18,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "under-ytan-forstudie",
@@ -364,10 +907,10 @@ window.PORTFOLIO_OVERRIDES = {
                 "categories": [
                     "nature"
                 ],
-                "featured": true,
+                "featured": false,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 4,
+                "order": 19,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "majdag-i-gammelstrom",
@@ -393,7 +936,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": true,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 5,
+                "order": 20,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "var-i-nyfors",
@@ -418,7 +961,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": false,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 6,
+                "order": 21,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "innan-dagen-2",
@@ -441,10 +984,10 @@ window.PORTFOLIO_OVERRIDES = {
                     "sea",
                     "hus"
                 ],
-                "featured": true,
+                "featured": false,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 7,
+                "order": 22,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "innan-dagen-1",
@@ -470,7 +1013,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": false,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 8,
+                "order": 23,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "stenen-i-sollenkroka",
@@ -496,7 +1039,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": false,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 9,
+                "order": 24,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "tidig-februarimorgon-i-heestrand",
@@ -521,7 +1064,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": false,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 10,
+                "order": 25,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "bortom-klippan",
@@ -545,7 +1088,7 @@ window.PORTFOLIO_OVERRIDES = {
                 ],
                 "featured": false,
                 "year": 2023,
-                "order": 11,
+                "order": 26,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "februarisol",
@@ -567,7 +1110,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2023,
-                "order": 12,
+                "order": 27,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "marinmuseet-i-juli-karlskrona",
@@ -593,7 +1136,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2024,
-                "order": 13,
+                "order": 28,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "johanna-i-skymningen",
@@ -619,7 +1162,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "himlar",
                 "featured": false,
                 "year": 2025,
-                "order": 14,
+                "order": 29,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "vinterskymning-2",
@@ -644,7 +1187,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2022,
-                "order": 15,
+                "order": 30,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "sommarskymning-i-skogstjarnen",
@@ -669,7 +1212,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2023,
-                "order": 16,
+                "order": 31,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "strandfaglar",
@@ -695,7 +1238,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "city",
                 "featured": false,
                 "year": 2024,
-                "order": 17,
+                "order": 32,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "pa-promenad-med-sotis",
@@ -721,7 +1264,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "djur",
                 "featured": false,
                 "year": 2023,
-                "order": 18,
+                "order": 33,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "humla",
@@ -746,7 +1289,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "djur",
                 "featured": false,
                 "year": 2022,
-                "order": 19,
+                "order": 34,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "sashastudie",
@@ -771,7 +1314,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "djur",
                 "featured": false,
                 "year": 2022,
-                "order": 20,
+                "order": 35,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "sashastudie2",
@@ -796,7 +1339,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2024,
-                "order": 21,
+                "order": 36,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "januarihimmel",
@@ -822,7 +1365,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "hus",
                 "featured": false,
                 "year": 2023,
-                "order": 22,
+                "order": 37,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "varvinterhus",
@@ -848,7 +1391,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2023,
-                "order": 23,
+                "order": 38,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "bergsvag",
@@ -873,7 +1416,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2023,
-                "order": 24,
+                "order": 39,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "vid-stranden",
@@ -898,7 +1441,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2024,
-                "order": 25,
+                "order": 40,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "under-berget",
@@ -923,7 +1466,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2026,
-                "order": 26,
+                "order": 41,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "den-sista-skymningen",
@@ -948,7 +1491,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "himlar",
                 "featured": false,
                 "year": 2025,
-                "order": 27,
+                "order": 42,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "moln",
@@ -978,7 +1521,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": false,
                 "heroExclude": false,
                 "year": 2025,
-                "order": 28,
+                "order": 43,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "collectorNote": "Flygvy på väg hem en försommardag för något år sedan. ",
@@ -999,7 +1542,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2023,
-                "order": 29,
+                "order": 44,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "getostbonden",
@@ -1025,7 +1568,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "himlar",
                 "featured": false,
                 "year": 2025,
-                "order": 30,
+                "order": 45,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "vinterskymning",
@@ -1050,7 +1593,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2025,
-                "order": 31,
+                "order": 46,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "danviken-stockholm",
@@ -1077,7 +1620,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "hus",
                 "featured": false,
                 "year": 2023,
-                "order": 32,
+                "order": 47,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "prastgarden-i-blomskog",
@@ -1103,7 +1646,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2024,
-                "order": 33,
+                "order": 48,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "hostskymning-i-humlan-2",
@@ -1128,7 +1671,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2024,
-                "order": 34,
+                "order": 49,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "hostskymning-i-humlan",
@@ -1153,7 +1696,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2022,
-                "order": 35,
+                "order": 50,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "pa-vag-till-karlskrona",
@@ -1178,7 +1721,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "djur",
                 "featured": false,
                 "year": 2022,
-                "order": 36,
+                "order": 51,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "lilla-katten-drommer-2",
@@ -1203,7 +1746,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "djur",
                 "featured": false,
                 "year": 2022,
-                "order": 37,
+                "order": 52,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "lilla-katten-drommer",
@@ -1228,7 +1771,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "hus",
                 "featured": false,
                 "year": 2023,
-                "order": 38,
+                "order": 53,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "skymningslador",
@@ -1254,7 +1797,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "himlar",
                 "featured": false,
                 "year": 2025,
-                "order": 39,
+                "order": 54,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "vintermoln",
@@ -1279,7 +1822,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "himlar",
                 "featured": false,
                 "year": 2025,
-                "order": 40,
+                "order": 55,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "skymningsmoln",
@@ -1304,7 +1847,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2024,
-                "order": 41,
+                "order": 56,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "dimma-over-stadsgarden",
@@ -1330,7 +1873,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2024,
-                "order": 42,
+                "order": 57,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "johanna-pa-ven",
@@ -1356,7 +1899,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "djur",
                 "featured": false,
                 "year": 2022,
-                "order": 43,
+                "order": 58,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "ugglan",
@@ -1381,7 +1924,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 44,
+                "order": 59,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "state-of-mind",
@@ -1406,7 +1949,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 45,
+                "order": 60,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "state-of-mind-2",
@@ -1431,7 +1974,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2024,
-                "order": 46,
+                "order": 61,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "var-i-humlan",
@@ -1456,7 +1999,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "hus",
                 "featured": false,
                 "year": 2026,
-                "order": 47,
+                "order": 62,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "previewSrc": "",
@@ -1482,7 +2025,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 48,
+                "order": 63,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "previewSrc": "",
@@ -1508,7 +2051,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 49,
+                "order": 64,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "previewSrc": "",
@@ -1534,7 +2077,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "hus",
                 "featured": false,
                 "year": 2026,
-                "order": 50,
+                "order": 65,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "decemberskymning-pa-tjurko",
@@ -1559,7 +2102,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "city",
                 "featured": false,
                 "year": 2026,
-                "order": 51,
+                "order": 66,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "stadshotellet-i-karlskrona",
@@ -1584,7 +2127,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2025,
-                "order": 52,
+                "order": 67,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "himmel-over-skagen",
@@ -1610,7 +2153,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "city",
                 "featured": false,
                 "year": 2026,
-                "order": 53,
+                "order": 68,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "skymning-i-gamla-stan",
@@ -1635,7 +2178,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2026,
-                "order": 54,
+                "order": 69,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "kustvy-i-heestrand",
@@ -1660,7 +2203,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2026,
-                "order": 55,
+                "order": 70,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "vinterstudie-av-heestrand",
@@ -1686,7 +2229,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "hus",
                 "featured": false,
                 "year": 2026,
-                "order": 56,
+                "order": 71,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "vykort-till-budapest",
@@ -1710,7 +2253,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": true,
                 "year": 2026,
-                "order": 57,
+                "order": 72,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "johanna-och-berget",
@@ -1731,7 +2274,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2026,
-                "order": 58,
+                "order": 73,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "utsikt-fran-bryggareberget",
@@ -1755,7 +2298,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2024,
-                "order": 59,
+                "order": 74,
                 "format": "38 x 56 cm",
                 "slug": "skymningstallar",
                 "seoTitle": "Skymningstallar | Tallar i kvällsljus i akvarell",
@@ -1777,7 +2320,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 60,
+                "order": 75,
                 "slug": "hammarbybacken-februari",
                 "seoTitle": "Hammarbybacken, februari | Snölandskap i akvarell",
                 "seoDescription": "Akvarell med vinterstig, kala träd och långa blå skuggor vid Hammarbybacken i februari. 2025. Originalmålning av Ola Gustafsson.",
@@ -1799,7 +2342,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 61,
+                "order": 76,
                 "format": "56 x 38 cm",
                 "slug": "vinter-i-humlan",
                 "seoTitle": "Vinter i Humlan | Vinterpark i akvarell",
@@ -1821,7 +2364,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2024,
-                "order": 62,
+                "order": 77,
                 "format": "38 x 56 cm",
                 "slug": "pappa-i-sandemar",
                 "seoTitle": "Pappa i Sandemar | Figur i landskap i akvarell",
@@ -1843,7 +2386,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2024,
-                "order": 63,
+                "order": 78,
                 "format": "56 x 38 cm",
                 "slug": "sommarkvall-pa-salto",
                 "seoTitle": "Sommarkväll på Saltö | Kustmotiv i akvarell",
@@ -1865,7 +2408,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2024,
-                "order": 64,
+                "order": 79,
                 "format": "56 x 38 cm",
                 "slug": "glittret",
                 "seoTitle": "Glittret | Solglitter över hav i akvarell",
@@ -1886,7 +2429,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2025,
-                "order": 65,
+                "order": 80,
                 "format": "38 x 56 cm",
                 "slug": "glittret-2",
                 "seoTitle": "Glittret 2 | Båt på glittrande vatten i akvarell",
@@ -1907,7 +2450,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2024,
-                "order": 66,
+                "order": 81,
                 "format": "56 x 38",
                 "slug": "utklippan-karlskrona",
                 "seoTitle": "Utklippan, Karlskrona | Hav och klippor i akvarell",
@@ -1929,7 +2472,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2024,
-                "order": 67,
+                "order": 82,
                 "format": "38 x 56 cm",
                 "slug": "mot-skymningen",
                 "seoTitle": "Mot skymningen | Skymningslandskap i akvarell",
@@ -1952,7 +2495,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2024,
-                "order": 68,
+                "order": 83,
                 "format": "38 x 56 cm",
                 "slug": "molnet",
                 "seoTitle": "Molnet | Molnstudie i akvarell",
@@ -1975,7 +2518,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "city",
                 "featured": false,
                 "year": 2024,
-                "order": 69,
+                "order": 84,
                 "format": "56 x 38 cm",
                 "slug": "vinter-i-stockholm",
                 "seoTitle": "Vinter i Stockholm | Stadshuset i akvarell",
@@ -1997,7 +2540,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 70,
+                "order": 85,
                 "format": "56 x 38 cm",
                 "slug": "kall-februaridag-i-nacka",
                 "seoTitle": "Kall februaridag i Nacka | Vintermotiv i akvarell",
@@ -2020,7 +2563,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "city",
                 "featured": false,
                 "year": 2025,
-                "order": 71,
+                "order": 86,
                 "format": "56 x 38 cm",
                 "slug": "sommarnatt-i-stockholm",
                 "seoTitle": "Sommarnatt i Stockholm | Stadsmotiv i akvarell",
@@ -2042,7 +2585,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2025,
-                "order": 72,
+                "order": 87,
                 "format": "56 x 38 cm",
                 "slug": "tva-karlskronaekor",
                 "seoTitle": "Två Karlskronaekor | Båtmotiv i akvarell",
@@ -2064,7 +2607,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2025,
-                "order": 73,
+                "order": 88,
                 "format": "38 x 56 cm",
                 "slug": "tva-klippor",
                 "seoTitle": "Två klippor | Havsklippor i akvarell",
@@ -2086,7 +2629,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2025,
-                "order": 74,
+                "order": 89,
                 "format": "38 x 56 cm",
                 "slug": "une-barque-sur-l-ocean",
                 "seoTitle": "Une barque sur l'océan | Havsmotiv i akvarell",
@@ -2108,7 +2651,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 75,
+                "order": 90,
                 "format": "56 x 38 cm",
                 "slug": "var-utanfor-mitt-fonster",
                 "seoTitle": "Vår utanför mitt fönster | Vårgrönska i akvarell",
@@ -2130,7 +2673,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 76,
+                "order": 91,
                 "format": "56 x 38 cm",
                 "slug": "lusthuset-vid-sickla",
                 "seoTitle": "Lusthuset vid Sickla | Trädgårdsmotiv i akvarell",
@@ -2152,7 +2695,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 77,
+                "order": 92,
                 "format": "56 x 38 cm",
                 "slug": "giardino-di-boboli",
                 "seoTitle": "Giardino di Boboli | Trädgårdsmotiv i akvarell",
@@ -2174,7 +2717,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2025,
-                "order": 78,
+                "order": 93,
                 "format": "56 x 38 cm",
                 "slug": "pa-stranden-i-pietrasanta",
                 "seoTitle": "På stranden i Pietrasanta | Strandmotiv i akvarell",
@@ -2196,7 +2739,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 79,
+                "order": 94,
                 "format": "38 x 24,5 cm",
                 "slug": "eftermiddag-pa-notholmen",
                 "seoTitle": "Eftermiddag på Notholmen | Skärgårdsmotiv i akvarell",
@@ -2219,7 +2762,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 80,
+                "order": 95,
                 "format": "38 x 24,5 cm",
                 "slug": "morgon-over-viken",
                 "seoTitle": "Morgon över viken | Kustlandskap i akvarell",
@@ -2242,7 +2785,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "portrait",
                 "featured": false,
                 "year": 2025,
-                "order": 81,
+                "order": 96,
                 "format": "15 x 15 cm",
                 "slug": "johanna-i-koket",
                 "seoTitle": "Johanna i köket | Interiörporträtt i akvarell",
@@ -2264,7 +2807,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 82,
+                "order": 97,
                 "format": "56 x 38 cm",
                 "slug": "dolt-i-skuggan",
                 "seoTitle": "Dolt i skuggan | Landskap i motljus i akvarell",
@@ -2285,7 +2828,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 83,
+                "order": 98,
                 "objectPosition": "center 100%",
                 "zoom": 1.45,
                 "format": "56 x 38 cm",
@@ -2310,7 +2853,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "city",
                 "featured": false,
                 "year": 2025,
-                "order": 84,
+                "order": 99,
                 "format": "56 x 38 cm",
                 "slug": "slussen-eftermiddag-i-september",
                 "seoTitle": "Slussen, eftermiddag i September | Stockholmsmotiv i akvarell",
@@ -2332,7 +2875,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2025,
-                "order": 85,
+                "order": 100,
                 "format": "56 x 38 cm",
                 "seoTitle": "Varm sommarkväll på Borrby Strand | Svensk kustakvarell",
                 "seoDescription": "Originalmålning i akvarell från Borrby Strand med sommarkvällsljus, hav och stilla kuststämning. 56 x 38 cm, 2025, av Ola Gustafsson.",
@@ -2402,18 +2945,33 @@ window.PORTFOLIO_OVERRIDES = {
             "hero": {
                 "slides": [
                     {
-                        "src": "images/ola-02.jpg",
-                        "alt": "Slussen, September afternoon",
+                        "src": "images/f-r-flera-solar-sedan-2.webp",
+                        "alt": "Several Suns Ago II",
                         "durationMs": 8000
                     },
                     {
-                        "src": "images/ola-01.jpg",
-                        "alt": "Warm summer evening at Borrby Beach",
+                        "src": "images/tid-i-vila-3.webp",
+                        "alt": "Time, Suspended III",
                         "durationMs": 8000
                     },
                     {
-                        "src": "images/ola-03.jpg",
-                        "alt": "On the way home",
+                        "src": "images/storm-ver-mariaberget.webp",
+                        "alt": "Storm over Mariaberget",
+                        "durationMs": 8000
+                    },
+                    {
+                        "src": "images/tid-i-vila-2.webp",
+                        "alt": "Time, Suspended II",
+                        "durationMs": 8000
+                    },
+                    {
+                        "src": "images/det-l-nga-nuet.webp",
+                        "alt": "The Long Now",
+                        "durationMs": 8000
+                    },
+                    {
+                        "src": "images/himmel-fine-art-print-50x-70.webp",
+                        "alt": "Sky, fine art print 50 × 70",
                         "durationMs": 8000
                     }
                 ],
@@ -3534,6 +4092,112 @@ window.PORTFOLIO_OVERRIDES = {
                         "alt": "rock formations in warm, sunlit colors and contrasting cool shadows from Saltö, Karlskrona",
                         "collectorNote": "A memory from a warm, long day in Karlskrona a couple of years ago. I focused on a simple, contrasting palette in an attempt to bring out the essence of this unmoving block of stone.",
                         "priceLabel": "5 400 SEK"
+                    },
+                    "images/f-r-flera-solar-sedan-1.webp": {
+                        "title": "Several Suns Ago I",
+                        "format": "56 x 76 cm",
+                        "priceLabel": "9 500 SEK",
+                        "_manual": {
+                            "title": true
+                        }
+                    },
+                    "images/f-r-flera-solar-sedan-2.webp": {
+                        "title": "Several Suns Ago II",
+                        "format": "76 x 56 cm",
+                        "priceLabel": "9 500 SEK",
+                        "_manual": {
+                            "title": true
+                        }
+                    },
+                    "images/f-r-flera-solar-sedan-3.webp": {
+                        "title": "Several Suns Ago III",
+                        "format": "56 x 76 cm",
+                        "priceLabel": "9 500 SEK",
+                        "_manual": {
+                            "title": true
+                        }
+                    },
+                    "images/timmarna-d-rmellan-3.webp": {
+                        "title": "The Hours Between III",
+                        "format": "76 x 56 cm",
+                        "priceLabel": "9 500 SEK",
+                        "_manual": {
+                            "title": true
+                        }
+                    },
+                    "images/timmarna-d-rmellan-2.webp": {
+                        "title": "The Hours Between II",
+                        "format": "76 x 56 cm",
+                        "priceLabel": "9 500 SEK",
+                        "_manual": {
+                            "title": true
+                        }
+                    },
+                    "images/timmarna-d-rmellan-1.webp": {
+                        "title": "The Hours Between I",
+                        "format": "76 x 56 cm",
+                        "priceLabel": "9 500 SEK",
+                        "_manual": {
+                            "title": true
+                        }
+                    },
+                    "images/tid-i-vila-3.webp": {
+                        "title": "Time, Suspended III",
+                        "format": "76 x 56 cm",
+                        "priceLabel": "9 500 SEK",
+                        "_manual": {
+                            "title": true
+                        }
+                    },
+                    "images/tid-i-vila-2.webp": {
+                        "title": "Time, Suspended II",
+                        "format": "76 x 56 cm",
+                        "priceLabel": "9 500 SEK",
+                        "_manual": {
+                            "title": true
+                        }
+                    },
+                    "images/tid-i-vila-1.webp": {
+                        "title": "Time, Suspended I",
+                        "format": "76 x 56 cm",
+                        "priceLabel": "9 500 SEK",
+                        "_manual": {
+                            "title": true
+                        }
+                    },
+                    "images/det-l-nga-nuet.webp": {
+                        "title": "The Long Now",
+                        "format": "56 x 76 cm",
+                        "priceLabel": "9 500 SEK",
+                        "_manual": {
+                            "title": true
+                        }
+                    },
+                    "images/storm-ver-mariaberget.webp": {
+                        "title": "Storm över Mariaberget",
+                        "format": "56 x 38 cm",
+                        "priceLabel": "4 500 SEK"
+                    },
+                    "images/solnedg-ng-augusti.webp": {
+                        "title": "Solnedgång, August",
+                        "format": "56 x 38 cm",
+                        "priceLabel": "4 500 SEK"
+                    },
+                    "images/soluppg-ng-fine-art-print-50x70.webp": {
+                        "title": "Soluppgång fine art print 50x70",
+                        "format": "70 x 50 cm",
+                        "priceLabel": "3 800 SEK"
+                    },
+                    "images/solnedg-ng-finer-art-print-50-x-70.webp": {
+                        "title": "Solnedgång fine art print 50 x 70",
+                        "format": "70 x 50 cm",
+                        "priceLabel": "3 800 SEK",
+                        "alt": "solnedgång fine art print 50 x 70"
+                    },
+                    "images/himmel-fine-art-print-50x-70.webp": {
+                        "title": "Himmel fine art print 50x 70",
+                        "format": "70 x 50 cm",
+                        "priceLabel": "3 800 SEK"
                     }
                 },
                 "pageHeading": "Watercolor Paintings",
@@ -3595,7 +4259,7 @@ window.PORTFOLIO_OVERRIDES = {
                     "What is a fine art print? A print of a painting on Hahnemühle Photo Rag fine art paper. Each print is signed and numbered by me, in an edition of at most 20 per image. The print comes mounted on an acid-free board. Works available as prints are marked Fine Art Print on their page.",
                     "Which sizes and prices do the prints come in? Sizes are given as the outer frame size: 30 × 40 cm for 1,800 SEK, 40 × 60 cm for 2,900 SEK and 50 × 70 cm for 3,800 SEK. Prices include VAT. The image is smaller than the stated size: the board it is mounted on has the frame size and gives a white border around the image. The sizes available for a given work are listed on its page.",
                     "Are frame and mat included? No. Originals are sold as loose sheets, and prints come mounted on an acid-free board in the frame size, ready to frame. If you would like the work framed or matted, I can arrange it. The cost of materials and a service fee of 300 SEK per work are then added. If you frame a print yourself, use a spacer so that the image does not rest against the glass.",
-                    "What does shipping cost? 150 SEK per order within Sweden, for originals as well as prints, however many works you order. Outside Sweden: price on request.",
+                    "What does shipping cost? 150 SEK per order within Sweden for originals and prints, however many works you order. If you order only posters, shipping is 99 SEK. Outside Sweden: price on request.",
                     "How do I pay? By Swish to 123 704 88 20 or to my business account at Swedbank, 8327-9, 903 671 334-6. Write the order number as the message. If you choose Swish, the order page shows a Swish code with the amount and order number filled in. The order is confirmed as soon as the payment has arrived.",
                     "How long is the delivery time? Prints are made to order and usually ship within a few days. If you order a frame, add about a week. Originals ship once payment has arrived.",
                     "Do I have a right of withdrawal? Yes. As a private customer you have 14 days from the day you receive the work. Let me know within that time and return the work undamaged; you pay the return shipping. I refund when the work has arrived.",
@@ -4377,9 +5041,9 @@ window.PORTFOLIO_OVERRIDES = {
                         "updatedAt": "2026-10-04T07:40:14.514Z"
                     },
                     "array:about.faqItems[6]": {
-                        "sourceHash": "9366131e",
-                        "translatedValue": "What does shipping cost? 150 SEK per order within Sweden, for originals as well as prints, however many works you order. Outside Sweden: price on request.",
-                        "updatedAt": "2026-10-13T13:39:41.000Z"
+                        "sourceHash": "f67cc153",
+                        "translatedValue": "What does shipping cost? 150 SEK per order within Sweden for originals and prints, however many works you order. If you order only posters, shipping is 99 SEK. Outside Sweden: price on request.",
+                        "updatedAt": "2026-10-26T06:55:47.622Z"
                     },
                     "array:about.faqItems[7]": {
                         "sourceHash": "dfe6c2c8",
@@ -4419,7 +5083,7 @@ window.PORTFOLIO_OVERRIDES = {
                     "heroCaption": "Time, Suspended II and III on the left, watercolors by Jenny Övrebö on the right.",
                     "worksHeading": "The works",
                     "worksNote": "Watercolor on paper, height × width.",
-                    "worksText": "The Long Now | 76 × 56 cm\nTime, Suspended I–III | 56 × 76 cm\nSeveral Suns Ago I–III | I and III 76 × 56 cm, II 56 × 76 cm\nThe Hours Between I–III | 56 × 76 cm\n100 Days of Sun | 100 watercolors, 26 × 18 cm each, sold as one collected work",
+                    "worksText": "The Long Now | 76 × 56 cm\nTime, Suspended I–III | 56 × 76 cm\nSeveral Suns Ago I–III | I and III 76 × 56 cm, II 56 × 76 cm\nThe Hours Between I–III | 56 × 76 cm\n[100 Days of Sun](https://olagustafsson.com/100-dagar-av-sol?lang=en) | 100 watercolors, 26 × 18 cm each, sold as one collected work",
                     "ctaEyebrow": "Fine Art Print",
                     "ctaHeading": "The suns are still here",
                     "ctaText": "All hundred suns from 100 Days of Sun are available as signed Fine Art Prints.",
@@ -4522,167 +5186,5 @@ window.PORTFOLIO_OVERRIDES = {
                 }
             ]
         }
-    },
-    "exhibitions": [
-        {
-            "slug": "ljusets-aterkomst",
-            "enabled": true,
-            "title": "Ljusets återkomst",
-            "altTitle": "The Return of Light",
-            "eyebrow": "Utställning · Oktober 2026",
-            "meta": "Husby konsthall · 3–25 oktober 2026 · tillsammans med Jenny Övrebö",
-            "description": "Ljusets återkomst, en utställning med akvareller av Ola Gustafsson och Jenny Övrebö i Husby konsthall 3–25 oktober 2026: 100 dagar av sol och tio stora akvareller med solen i vatten.",
-            "heroAlt": "Besökare bland fristående skärmar med akvareller i Husby konsthall, med solljus över golvet.",
-            "heroCaption": "Tid i vila II och III till vänster, Jenny Övrebös akvareller till höger.",
-            "worksHeading": "Verken",
-            "worksNote": "Akvarell på papper, höjd × bredd.",
-            "worksText": "Det långa nuet | 76 × 56 cm\nTid i vila I–III | 56 × 76 cm\nFör flera solar sedan I–III | I och III 76 × 56 cm, II 56 × 76 cm\nTimmarna däremellan I–III | 56 × 76 cm\n100 dagar av sol | 100 akvareller, 26 × 18 cm per ark, säljs som samlat verk",
-            "ctaEyebrow": "Fine Art Print",
-            "ctaHeading": "Solarna finns kvar",
-            "ctaText": "Alla hundra solar från 100 dagar av sol finns som signerad Fine Art Print.",
-            "ctaLinkLabel": "Se alla 100 solar",
-            "ctaImageAlt": "Väggen med alla hundra solakvareller i tio rader.",
-            "blocks": [
-                {
-                    "type": "text",
-                    "heading": "",
-                    "body": "En sol, hundra ögonblick. Ibland synlig som en tydlig skiva, ibland upplöst i ljus eller dold bakom moln. Samma stjärna, men varje möte med den är annorlunda.\n\nMina akvareller kretsar kring det beständiga och det förgängliga — permanens och impermanens. Utgångspunkten är vår relation till solen: en stjärna på ett ofattbart avstånd, vars närvaro samtidigt är en del av vår mest vardagliga erfarenhet. Vi känner dess värme, följer ljusets förändringar och räknar våra dagar och år. Solen anger vår plats i universum och ger förutsättningarna för livet här. Den rymmer också en kraft som kan förtära.\n\nSolen finns där oavsett vilka moln som skymmer den. I förhållande till våra liv framstår den som bestående. Ändå är vår erfarenhet av den ständigt föränderlig. Ljuset skiftar med vädret, tiden på dagen och platsen där vi befinner oss. Det som återkommer möter oss aldrig riktigt på samma sätt.\n\nI utställningen <em>Ljusets återkomst</em> på Husby konsthall möttes två delar av mitt arbete: hundra små solbilder och tio stora akvareller där solen är närvarande genom vatten. Tillsammans undersöker de hur något så avlägset kan bli nära och konkret, och hur ett återkommande ljus kan rymma ögonblick som aldrig kommer tillbaka.\n\n<em>100 dagar av sol</em> består av hundra akvareller. Varje bild är ett kort nedslag, ett möte med solen under en begränsad stund. Upprepningen håller samman serien, samtidigt som skillnaderna mellan bilderna får ta plats. Solen framträder, försvinner och återkommer. En tydlig form kan i nästa bild vara nästan upplöst.\n\nTiteln rymmer också tiden som arbetet består av. Hundra dagar är en följd av enskilda stunder, var och en med sin egen närvaro. Sedda tillsammans blir bilderna ett sätt att betrakta både det som består och det som förändras. Samma sol finns i dem alla, men dagarna är olika."
-                },
-                {
-                    "type": "image",
-                    "image": "images/ljusets-aterkomst/02-ola-vid-solvaggen.jpg",
-                    "alt": "Ola Gustafsson står framför väggen med de hundra solakvarellerna.",
-                    "caption": "Ola Gustafsson vid 100 dagar av sol."
-                },
-                {
-                    "type": "text",
-                    "heading": "",
-                    "body": "I de stora akvarellerna möter jag solen genom vatten. Ljuset återspeglas i ytan, bryts på sin väg genom vattnet och förändras med vågornas rörelser. En enda sol kan delas i tusentals tillfälliga solar. Glittret är välbekant, men kan också föra tanken till en stjärnhimmel. Det konkreta och det kosmiska finns nära varandra.\n\nDe tre målningarna <em>För flera solar sedan I, II och III</em> kretsar kring dessa reflektioner. Titeln låter solen bli ett mått på förfluten tid. Vattenytan bär ljuset för ett ögonblick, innan rörelsen förändrar det. Nästa reflex uppstår nästan på samma plats, men är redan en annan."
-                },
-                {
-                    "type": "image",
-                    "image": "images/ljusets-aterkomst/03-svarta-rummet.jpg",
-                    "alt": "Ett rum med svarta väggar och tre akvareller av solreflexer i vatten samt två solar.",
-                    "caption": "För flera solar sedan I–III och två solar som Fine Art Print."
-                },
-                {
-                    "type": "text",
-                    "heading": "",
-                    "body": "I <em>Det långa nuet</em> omges en simmare av vatten, ringar och glitter. Här möts människans begränsade tid och känslan av något som sträcker sig långt bortom henne. Ett bad är en enkel, kroppslig erfarenhet. Samtidigt kan en sådan stund kännas märkligt vidsträckt, som om nuet har fått mer rum."
-                },
-                {
-                    "type": "image",
-                    "image": "images/ljusets-aterkomst/04-det-langa-nuet.jpg",
-                    "alt": "En stående akvarell mellan två fönster: en simmare omgiven av ringar och glitter i mörkt vatten.",
-                    "caption": "Det långa nuet."
-                },
-                {
-                    "type": "text",
-                    "heading": "",
-                    "body": "<em>Tid i vila I, II och III</em> för blicken under vattenytan. Kropparna befinner sig i ett tillstånd där rörelse, tyngd och ljus upplevs annorlunda. Titeln närmar sig känslan av att för en stund kliva ur den vanliga tidens gång. Tiden fortsätter, men upplevelsen av den förändras. Vilan är tillfällig; vi kommer att återvända till ytan."
-                },
-                {
-                    "type": "image",
-                    "image": "images/ljusets-aterkomst/05-tid-i-vila.jpg",
-                    "alt": "En besökare framför tre akvareller av kroppar under vattenytan.",
-                    "caption": "Tid i vila I–III."
-                },
-                {
-                    "type": "text",
-                    "heading": "",
-                    "body": "I <em>Timmarna däremellan I, II och III</em> finns fåglarna, båtarna och det öppna vattnet. Motiven hör till en igenkännbar värld, med stunder som kanske inte utmärker sig genom någon särskild händelse. Ändå kan just sådana timmar stanna kvar hos oss: ljuset över vattnet, en plats, känslan av att vara där."
-                },
-                {
-                    "type": "image",
-                    "image": "images/ljusets-aterkomst/06-timmarna-daremellan.jpg",
-                    "alt": "Akvarell av en segelbåt i motljus på glittrande vatten.",
-                    "caption": "Timmarna däremellan II."
-                },
-                {
-                    "type": "text",
-                    "heading": "",
-                    "body": "De stora formaten ger mig utrymme att dröja vid det flyktiga. Motiven kan upplevas som långsamma, trots att en reflex eller en kropps rörelse förändras på ett ögonblick. Där finns en förbindelse mellan de små solbilderna och de stora vattenbilderna. Båda handlar om tid, men ger den olika utrymme.\n\nVattnet finns också i själva måleriet. Det för pigmentet över papperet, låter former uppstå och gränser lösas upp. Jag arbetar med det och försöker lämna plats för sådant jag inte helt kan styra. Materialets föränderlighet är en del av arbetet med bilderna.\n\nNär jag tänker på vad vi har och vad vi förlorar handlar det om ögonblicken och det som ryms i dem. Ett möte, en känsla, någons närvaro. Något som är betydelsefullt medan det pågår, men som vi bara delvis kan bära med oss som minne.\n\nLjuset kan återkomma utan att stunden återvänder. Jag vill dröja i glädjen över att vara här, med vetskapen om att stunden förändras också medan vi upplever den.\n\n<em>Ljusets återkomst</em> visades på Husby konsthall den 3–25 oktober 2026, tillsammans med Jenny Övrebö."
-                },
-                {
-                    "type": "text",
-                    "heading": "Med Jenny Övrebö",
-                    "body": "Jenny Övrebö visade skog, fält och sjöar, jag solen och vattnet. Vi har akvarellen gemensamt men går in i temat från olika håll, och på väggarna hörde bilderna ihop."
-                },
-                {
-                    "type": "pair",
-                    "image": "images/ljusets-aterkomst/07-jenny-skarmar.jpg",
-                    "alt": "Besökare bland fristående skärmar med Jenny Övrebös landskapsakvareller i solljus.",
-                    "caption": "Jenny Övrebös akvareller.",
-                    "image2": "images/ljusets-aterkomst/08-jenny-vagg.jpg",
-                    "alt2": "Två besökare framför en vägg med tolv mindre akvareller av Jenny Övrebö.",
-                    "caption2": "Jenny Övrebös mindre akvareller."
-                },
-                {
-                    "type": "text",
-                    "heading": "Vernissagen",
-                    "body": "Vernissagen samlade många besökare, bland dem många av våra vänner. Sven Einarsson öppnade utställningen med ett tal om ljusets och konstens betydelse. Jag var spänd inför öppningen och lämnade konsthallen glad och tacksam för alla vänliga ord, blommor och presenter."
-                },
-                {
-                    "type": "image",
-                    "image": "images/ljusets-aterkomst/09-oppningstal.jpg",
-                    "alt": "Sven Einarsson läser sitt öppningstal i konsthallen medan besökare lyssnar.",
-                    "caption": "Sven Einarsson håller öppningstalet."
-                },
-                {
-                    "type": "pair",
-                    "image": "images/ljusets-aterkomst/10-ola-och-jenny.jpg",
-                    "alt": "Jenny Övrebö och Ola Gustafsson i konsthallen.",
-                    "caption": "Jenny Övrebö och Ola Gustafsson på vernissagen.",
-                    "image2": "images/ljusets-aterkomst/11-blommor.jpg",
-                    "alt2": "Blombuketter på golvet i ett solstrålsljus.",
-                    "caption2": "Blommor från vernissagen."
-                },
-                {
-                    "type": "text",
-                    "heading": "Måla inför publik",
-                    "body": "Dagen efter vernissagen målade Jenny och jag live i konsthallen. Publiken var entusiastisk och stannade hela dagen, både under Jennys och min demo. Nyhetsbyrån Järva var där och skrev reportaget [Imponerande med akvarellmålning live](https://www.nyhetsbyranjarva.se/imponerande-med-akvarellmalning-live/)."
-                },
-                {
-                    "type": "image",
-                    "image": "images/ljusets-aterkomst/12-ola-demo.jpg",
-                    "alt": "Ola Gustafsson målar vid ett bord med publik omkring sig.",
-                    "caption": "Demomåleri dagen efter vernissagen."
-                },
-                {
-                    "type": "pair",
-                    "image": "images/ljusets-aterkomst/16-demomalning-sol.jpg",
-                    "alt": "Akvarell av en solnedgång med mörka moln och silhuetter av träd.",
-                    "caption": "Solnedgång, en av mina två demomålningar.",
-                    "image2": "images/ljusets-aterkomst/17-demomalning-moln.jpg",
-                    "alt2": "Akvarell av mörka moln över silhuetter mot en ljus horisont.",
-                    "caption2": "Moln, den andra demomålningen."
-                },
-                {
-                    "type": "pair",
-                    "image": "images/ljusets-aterkomst/13-jenny-demo.jpg",
-                    "alt": "Jenny Övrebö visar en målning för publiken.",
-                    "caption": "Jenny Övrebö visar sitt arbete.",
-                    "image2": "images/ljusets-aterkomst/14-pensel.jpg",
-                    "alt2": "En hand med pensel målar ett grönt träd på ett akvarellark.",
-                    "caption2": "Demomåleri."
-                },
-                {
-                    "type": "text",
-                    "heading": "Efteråt",
-                    "body": "Förberedelserna var mycket mer omfattande än jag trodde. Sedan kom hängningen, vernissagen, tre veckor med utställningen och till sist nedplockningen. Det har varit en väldigt rolig och nyttig upplevelse."
-                }
-            ],
-            "startDate": "2026-10-03",
-            "endDate": "2026-10-25",
-            "venue": "Husby konsthall",
-            "city": "Stockholm",
-            "artists": "Jenny Övrebö",
-            "heroImage": "images/ljusets-aterkomst/00-utstallningen.jpg",
-            "ogImage": "images/ljusets-aterkomst/og.jpg",
-            "ctaEnabled": true,
-            "ctaImage": "images/ljusets-aterkomst/15-solvaggen.jpg",
-            "ctaHref": "100-dagar-av-sol",
-            "ctaPoster": true
-        }
-    ]
+    }
 };
