@@ -100,9 +100,31 @@ window.PORTFOLIO_OVERRIDES = {
         "imageAlt": "Akvarell i blå toner med stadsvy och långa skuggor.",
         "ctaPrimaryLabel": "Se målningar",
         "ctaSecondaryLabel": "100 dagar av sol",
-        "modeUpdatedAt": 1793010377715,
+        "modeUpdatedAt": 1793022172029,
         "ctaPrimaryHref": "gallery.html",
-        "ctaSecondaryHref": "100-dagar-av-sol"
+        "ctaSecondaryHref": "100-dagar-av-sol",
+        "slideFocus": {
+            "images/tid-i-vila-3.webp": {
+                "x": 22,
+                "y": 38
+            },
+            "images/storm-ver-mariaberget.webp": {
+                "x": 37,
+                "y": 21
+            },
+            "images/tid-i-vila-2.webp": {
+                "x": 72,
+                "y": 37
+            },
+            "images/det-l-nga-nuet.webp": {
+                "x": 36,
+                "y": 16
+            },
+            "images/himmel-fine-art-print-50x-70.webp": {
+                "x": 61,
+                "y": 12
+            }
+        }
     },
     "about": {
         "heading": "Om mitt <i>måleri</i>",
@@ -746,10 +768,10 @@ window.PORTFOLIO_OVERRIDES = {
             },
             {
                 "src": "images/soluppg-ng-fine-art-print-50x70.webp",
-                "title": "Soluppgång fine art print 50x70",
-                "format": "70 x 50 cm",
+                "title": "Soluppgång",
+                "format": "",
                 "medium": "Akvarell på papper",
-                "alt": "soluppgång fine art print 50x70",
+                "alt": "Vit sol bakom mörka moln mot en röd och orange himmel.",
                 "seoTitle": "",
                 "seoDescription": "",
                 "shareImage": "",
@@ -765,16 +787,16 @@ window.PORTFOLIO_OVERRIDES = {
                 "addedAt": 1793008823520,
                 "zoom": 1,
                 "objectPosition": "center center",
-                "priceLabel": "3 800 kr",
                 "fineArtPrint": true,
-                "slug": "soluppgang-fine-art-print-50x70"
+                "slug": "soluppgang",
+                "printOnly": true
             },
             {
                 "src": "images/solnedg-ng-finer-art-print-50-x-70.webp",
-                "title": "Solnedgång fine art print 50 x 70",
-                "format": "70 x 50 cm",
+                "title": "Solnedgång",
+                "format": "",
                 "medium": "Akvarell på papper",
-                "alt": "solnedgång fine art print 50 x 70",
+                "alt": "Vit sol vid en mörk horisont under en himmel som går från orange till blekt grå.",
                 "seoTitle": "",
                 "seoDescription": "",
                 "shareImage": "",
@@ -790,15 +812,15 @@ window.PORTFOLIO_OVERRIDES = {
                 "zoom": 1,
                 "objectPosition": "center center",
                 "fineArtPrint": true,
-                "priceLabel": "3 800 kr",
-                "slug": "solnedgang-fine-art-print-50-x-70"
+                "slug": "solnedgang",
+                "printOnly": true
             },
             {
                 "src": "images/himmel-fine-art-print-50x-70.webp",
-                "title": "Himmel fine art print 50x 70",
-                "format": "70 x 50 cm",
+                "title": "Himmel",
+                "format": "",
                 "medium": "Akvarell på papper",
-                "alt": "himmel fine art print 50x 70",
+                "alt": "Moln i grått och blått där solljus bryter igenom i gult och vitt.",
                 "seoTitle": "",
                 "seoDescription": "",
                 "shareImage": "",
@@ -815,8 +837,8 @@ window.PORTFOLIO_OVERRIDES = {
                 "zoom": 1,
                 "objectPosition": "center center",
                 "fineArtPrint": true,
-                "priceLabel": "3 800 kr",
-                "slug": "himmel-fine-art-print-50x-70"
+                "slug": "himmel",
+                "printOnly": true
             },
             {
                 "src": "images/img-2729.webp",
@@ -4184,20 +4206,28 @@ window.PORTFOLIO_OVERRIDES = {
                         "priceLabel": "4 500 SEK"
                     },
                     "images/soluppg-ng-fine-art-print-50x70.webp": {
-                        "title": "Soluppgång fine art print 50x70",
-                        "format": "70 x 50 cm",
-                        "priceLabel": "3 800 SEK"
+                        "title": "Sunrise",
+                        "alt": "A white sun behind dark clouds against a red and orange sky.",
+                        "_manual": {
+                            "title": true,
+                            "alt": true
+                        }
                     },
                     "images/solnedg-ng-finer-art-print-50-x-70.webp": {
-                        "title": "Solnedgång fine art print 50 x 70",
-                        "format": "70 x 50 cm",
-                        "priceLabel": "3 800 SEK",
-                        "alt": "solnedgång fine art print 50 x 70"
+                        "title": "Sunset",
+                        "alt": "A white sun at a dark horizon under a sky fading from orange to pale grey.",
+                        "_manual": {
+                            "title": true,
+                            "alt": true
+                        }
                     },
                     "images/himmel-fine-art-print-50x-70.webp": {
-                        "title": "Himmel fine art print 50x 70",
-                        "format": "70 x 50 cm",
-                        "priceLabel": "3 800 SEK"
+                        "title": "Sky",
+                        "alt": "Grey and blue clouds with sunlight breaking through in yellow and white.",
+                        "_manual": {
+                            "title": true,
+                            "alt": true
+                        }
                     }
                 },
                 "pageHeading": "Watercolor Paintings",
