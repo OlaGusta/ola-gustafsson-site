@@ -56,7 +56,14 @@ foreach ($artworks as $index => $artwork) {
   if ($status !== []) {
     $text .= ' ' . implode(', ', $status) . '.';
   }
-  if (!empty($artwork['fineArtPrint']) && seo_artwork_print_sizes($payload, $artwork, 'sv') !== []) {
+  $artworkPrintSizes = !empty($artwork['fineArtPrint']) ? seo_artwork_print_sizes($payload, $artwork, 'sv') : [];
+  if (seo_artwork_is_print_only($artwork) && $artworkPrintSizes !== []) {
+    // Bara print: inget original till salu.
+    $artworkLines[] = '- [' . $linkText($title) . '](' . seo_artwork_url((string) $slugByIndex[$index], 'sv') . '): Fine Art Print, '
+      . seo_print_frame_range_label($artworkPrintSizes, 'sv') . ', ' . seo_print_from_label($artworkPrintSizes, 'sv') . ' ' . seo_print_vat_label('sv') . '.';
+    continue;
+  }
+  if ($artworkPrintSizes !== []) {
     $text .= ' Finns som Fine Art Print.';
   }
   if (!in_array($availability, ['sold', 'nfs'], true)) {

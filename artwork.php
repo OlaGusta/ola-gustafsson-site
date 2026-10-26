@@ -195,7 +195,7 @@ if (!$artwork) {
 
       <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
       <script src="/content.js?v=20260928-01" defer></script>
-      <script src="/script.js?v=20261026-01" defer></script>
+      <script src="/script.js?v=20261026-02" defer></script>
     <script src="/shop.js?v=20261026-02" defer></script>
     </body>
   </html>
@@ -369,6 +369,19 @@ $collectorNote = isset($translation['collectorNote']) && is_string($translation[
   : $collectorNoteSv;
 $printSizes = seo_artwork_print_sizes($payload, $artwork, $lang);
 $fineArtPrint = !empty($artwork['fineArtPrint']) && $printSizes !== [];
+// Bara print: sidan visar printen som varan (inget original, ingen originalstatus).
+$printOnly = $fineArtPrint && seo_artwork_is_print_only($artwork);
+if ($printOnly) {
+  $medium = seo_print_only_medium_label($lang);
+  $format = seo_print_frame_range_label($printSizes, $lang);
+  $availability = '';
+  $availabilityLabel = '';
+  $inquiryMode = 'artwork';
+  $inquiryHeading = $lang === 'en' ? 'Ask about this print' : 'Fråga om printen';
+  $inquiryBody = $lang === 'en'
+    ? 'Feel free to get in touch if you have questions about the print before ordering.'
+    : 'Skriv gärna om du har frågor om printen innan du beställer.';
+}
 // Prisnot (oinramat, passepartout, ram) visas bara när ett faktiskt belopp anges
 // och verket går att köpa. "Pris på förfrågan", sålda och ej-till-salu får ingen not.
 $priceNoteVisible = $priceLabel !== ''
@@ -378,6 +391,13 @@ $priceNote = $lang === 'en'
   ? sprintf('Signed by the artist. Unframed. Frame or mat on request: cost of materials plus a service fee of %d SEK. Shipping is added.', SEO_FRAMING_SERVICE_FEE_SEK)
   : sprintf('Signerad av konstnären. Oinramat. Ram eller passepartout ordnar jag mot materialkostnad och en serviceavgift på %d kr. Frakt tillkommer.', SEO_FRAMING_SERVICE_FEE_SEK);
 $printFromLabel = seo_print_from_label($printSizes, $lang);
+if ($printOnly) {
+  $priceLabel = $printFromLabel;
+  $priceNoteVisible = true;
+  $priceNote = $lang === 'en'
+    ? sprintf('Incl. VAT. %s. Frame on request: cost of materials plus a service fee of %d SEK.', seo_print_mount_label($lang), SEO_FRAMING_SERVICE_FEE_SEK)
+    : sprintf('Inkl. moms. %s. Ram ordnar jag på förfrågan mot materialkostnad och en serviceavgift på %d kr.', seo_print_mount_label($lang), SEO_FRAMING_SERVICE_FEE_SEK);
+}
 $printFacts = [
   seo_print_frame_range_label($printSizes, $lang) . ', ' . $printFromLabel . ' ' . seo_print_vat_label($lang),
   seo_print_paper_label($lang),
@@ -385,7 +405,7 @@ $printFacts = [
   seo_print_edition_label($lang)
 ];
 // Original tillgängligt eller inte: styr förvalt alternativ i formuläret.
-$originalAvailable = !in_array($availability, ['sold', 'nfs'], true);
+$originalAvailable = !$printOnly && !in_array($availability, ['sold', 'nfs'], true);
 $artworkInquiryFormEnabled = !empty($publicContactConfig['formEnabled']);
 $publicContactEmail = isset($publicContactConfig['email']) && is_string($publicContactConfig['email'])
   ? trim($publicContactConfig['email'])
@@ -437,6 +457,11 @@ if ($categoryLabel !== '') {
 
 $descriptionLead = $title !== '' ? $title : ($lang === 'en' ? 'Watercolor painting' : 'Akvarellmålning');
 $descriptionTail = $lang === 'en' ? 'Original watercolor painting by Ola Gustafsson.' : 'Originalmålning i akvarell av Ola Gustafsson.';
+if ($printOnly) {
+  $descriptionTail = $lang === 'en'
+    ? sprintf('Print of a watercolour by Ola Gustafsson, signed and numbered in an edition of %d.', SEO_PRINT_EDITION_SIZE)
+    : sprintf('Tryck av en akvarell av Ola Gustafsson, signerat och numrerat i en upplaga om %d ex.', SEO_PRINT_EDITION_SIZE);
+}
 $generatedDescription = $descriptionLead;
 if (count($pieces) > 0) {
   $generatedDescription .= '. ' . implode(' · ', $pieces) . '.';
@@ -452,7 +477,9 @@ if ($seoTitle !== '') {
   $pageTitle = $seoTitle;
 } else {
   $pageTitleSource = $title !== '' ? $title : '';
-  $fallbackTitleSuffix = $lang === 'en' ? 'Watercolor by Ola Gustafsson' : 'Akvarell av Ola Gustafsson';
+  $fallbackTitleSuffix = $printOnly
+    ? ($lang === 'en' ? 'Fine art print by Ola Gustafsson' : 'Fine Art Print av Ola Gustafsson')
+    : ($lang === 'en' ? 'Watercolor by Ola Gustafsson' : 'Akvarell av Ola Gustafsson');
   $pageTitle = $pageTitleSource !== '' ? "{$pageTitleSource} | {$fallbackTitleSuffix}" : $text['site_name'];
 }
 $ogLocale = seo_lang_og_locale($lang);
@@ -559,6 +586,22 @@ if ($availability !== '' && isset($offerAvailabilityMap[$availability])) {
 
   $visualArtwork['offers'] = $offer;
 }
+if ($printOnly) {
+  $visualArtwork['artform'] = 'Fine Art Print';
+  $printAmounts = array_values(array_filter(array_map(static fn (array $size): int => seo_price_amount($size['price']), $printSizes)));
+  if ($printAmounts !== []) {
+    $visualArtwork['offers'] = [
+      '@type' => 'AggregateOffer',
+      'url' => $canonical,
+      'availability' => 'https://schema.org/InStock',
+      'priceCurrency' => 'SEK',
+      'lowPrice' => number_format((float) min($printAmounts), 2, '.', ''),
+      'highPrice' => number_format((float) max($printAmounts), 2, '.', ''),
+      'offerCount' => count($printAmounts),
+      'seller' => ['@id' => $personId],
+    ];
+  }
+}
 $structuredData[] = $visualArtwork;
 
 $structuredData[] = [
@@ -662,7 +705,7 @@ if (!is_string($structuredJson)) {
     <link rel="stylesheet" href="/styles.css?v=20261026-01" />
     <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="/content.js?v=20260928-01" defer></script>
-    <script src="/script.js?v=20261026-01" defer></script>
+    <script src="/script.js?v=20261026-02" defer></script>
     <script src="/shop.js?v=20261026-02" defer></script>
   </head>
   <body id="page-top" data-page="artwork">
@@ -726,7 +769,7 @@ if (!is_string($structuredJson)) {
             </figure>
 
             <aside class="artwork-details surface-soft">
-              <p class="eyebrow"><?= htmlspecialchars($lang === 'en' ? 'Artwork' : 'Verk', ENT_QUOTES) ?></p>
+              <p class="eyebrow"><?= htmlspecialchars($printOnly ? 'Fine Art Print' : ($lang === 'en' ? 'Artwork' : 'Verk'), ENT_QUOTES) ?></p>
               <h1><?= htmlspecialchars($title, ENT_QUOTES) ?></h1>
               <p class="artwork-lead"><?= htmlspecialchars($visibleDescription, ENT_QUOTES) ?></p>
 
@@ -779,7 +822,7 @@ if (!is_string($structuredJson)) {
                 <?php endif; ?>
               </dl>
 
-              <?php if ($fineArtPrint): ?>
+              <?php if ($fineArtPrint && !$printOnly): ?>
                 <div class="artwork-print-offer">
                   <a class="artwork-fineart-print" href="<?= htmlspecialchars($inquiryPrimaryHref, ENT_QUOTES) ?>" data-choose-print><?= htmlspecialchars($lang === 'en' ? 'Also available as fine art print' : 'Finns även som Fine Art Print', ENT_QUOTES) ?></a>
                   <p><?= htmlspecialchars(implode(' · ', $printFacts), ENT_QUOTES) ?></p>
@@ -862,7 +905,7 @@ if (!is_string($structuredJson)) {
               <p class="eyebrow"><?= htmlspecialchars($lang === 'en' ? 'Inquiry' : 'Intresseanmälan', ENT_QUOTES) ?></p>
               <h2><?= htmlspecialchars($inquiryHeading, ENT_QUOTES) ?></h2>
               <p><?= htmlspecialchars($artworkInquiryFormEnabled ? $inquiryBody : $inquiryFallbackBody, ENT_QUOTES) ?></p>
-              <p class="artwork-inquiry-extras"><?= htmlspecialchars(seo_order_extras_note($lang) . ' ' . seo_framing_service_note($lang), ENT_QUOTES) ?></p>
+              <p class="artwork-inquiry-extras"><?= htmlspecialchars($printOnly ? seo_framing_service_note($lang) : seo_order_extras_note($lang) . ' ' . seo_framing_service_note($lang), ENT_QUOTES) ?></p>
               <?php $artworkPaymentNote = seo_payment_note($payload, $lang); ?>
               <?php if ($artworkPaymentNote !== ''): ?>
                 <p class="artwork-inquiry-extras"><?= htmlspecialchars(($lang === 'en' ? 'Payment after my confirmation: ' : 'Betalning efter min bekräftelse: ') . lcfirst($artworkPaymentNote), ENT_QUOTES) ?></p>
@@ -898,6 +941,11 @@ if (!is_string($structuredJson)) {
                 <input type="hidden" name="turnstileToken" value="" />
 
                 <?php if ($fineArtPrint): ?>
+                  <?php if ($printOnly): ?>
+                  <input type="radio" name="inquiryKind" value="print" hidden checked
+                    data-title="<?= htmlspecialchars('Fine Art Print – ' . $title, ENT_QUOTES) ?>"
+                    data-price="Print" />
+                  <?php else: ?>
                   <fieldset class="artwork-inquiry-kind">
                     <legend><?= htmlspecialchars($lang === 'en' ? 'I am interested in' : 'Jag är intresserad av', ENT_QUOTES) ?></legend>
                     <label>
@@ -917,6 +965,7 @@ if (!is_string($structuredJson)) {
                       <span>Fine Art Print (<?= htmlspecialchars($printFromLabel, ENT_QUOTES) ?>)</span>
                     </label>
                   </fieldset>
+                  <?php endif; ?>
                   <label class="artwork-inquiry-print-size" data-print-size-wrap <?= $originalAvailable ? 'hidden' : '' ?>><?= htmlspecialchars($lang === 'en' ? 'Print size' : 'Printformat', ENT_QUOTES) ?>
                     <select name="printSize" data-print-size>
                       <?php foreach ($printSizes as $i => $size): ?>

@@ -433,6 +433,9 @@ function portfolio_artwork_slug_redirects(): array
     'timmarna-darmellan-i' => 'timmarna-daremellan-i',
     'timmarna-darmellan-ii' => 'timmarna-daremellan-ii',
     'timmarna-darmellan-iii' => 'timmarna-daremellan-iii',
+    'himmel-fine-art-print-50x-70' => 'himmel',
+    'soluppgang-fine-art-print-50x70' => 'soluppgang',
+    'solnedgang-fine-art-print-50-x-70' => 'solnedgang',
   ];
 }
 

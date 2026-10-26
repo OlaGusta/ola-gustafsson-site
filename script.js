@@ -2017,6 +2017,32 @@ const getArtworkCategoryKeys = (item, fallback = 'nature') => {
   return categories;
 };
 
+// Printprislistan (Studio → Projekt → Printprislista), annars standardlistan. Samma som
+// seo_print_sizes() i seo.php.
+const DEFAULT_PRINT_SIZES = [
+  { format: '30 × 40 cm', price: '1 800 kr' },
+  { format: '40 × 60 cm', price: '2 900 kr' },
+  { format: '50 × 70 cm', price: '3 800 kr' }
+];
+const printFormatKey = (format) => String(format || '').replace(/[^0-9]+/g, 'x').replace(/^x|x$/g, '');
+
+// "från 1 800 kr" för ett verk med Bara print (artwork.printOnly), med verkets printformat
+// om de är begränsade (artwork.printFormats).
+const getPrintOnlyFromLabel = (item) => {
+  const configured = Array.isArray(content.project?.printSizes)
+    ? content.project.printSizes.filter((size) => size && typeof size.format === 'string' && size.format.trim() !== '')
+    : [];
+  const chosen = new Set((Array.isArray(item.printFormats) ? item.printFormats : []).map(printFormatKey));
+  const sizes = (configured.length > 0 ? configured : DEFAULT_PRINT_SIZES).filter(
+    (size) => chosen.size === 0 || chosen.has(printFormatKey(size.format))
+  );
+  const price = sizes[0] && typeof sizes[0].price === 'string' ? sizes[0].price.trim() : '';
+  if (!price) {
+    return '';
+  }
+  return activeLanguage === 'en' ? `from ${price.replace(/\s*kr\s*$/u, ' SEK')}` : `från ${price}`;
+};
+
 const normalizeArtwork = (item, index) => {
   const textOverride = getArtworkTextOverride(item.src);
   const defaultTitle = `${getUiText('artworkDefaultPrefix', 'Verk')} ${index + 1}`;
@@ -2059,6 +2085,14 @@ const normalizeArtwork = (item, index) => {
     collectorNote: (textOverride && textOverride.collectorNote) || item.collectorNote || '',
     featured: Boolean(item.featured),
     fineArtPrint: item.fineArtPrint === true,
+    ...(item.printOnly === true && item.fineArtPrint === true
+      ? {
+          // Bara print: kortet visar printen, som galleriets PHP-kort (seo.php).
+          format: 'Fine Art Print',
+          medium: `${activeLanguage === 'en' ? 'Fine art print on' : 'Fine Art Print på'} Hahnemühle Photo Rag`,
+          priceLabel: getPrintOnlyFromLabel(item)
+        }
+      : {}),
     category: categories[0] || 'nature',
     categories,
     year: Number(item.year || 0),

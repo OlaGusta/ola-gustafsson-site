@@ -7139,7 +7139,7 @@ const getArtworkThumbInfo = (item, baseItem, index) => {
   const heroExcludeTag = item.heroExclude ? 'Ej hero-auto' : '';
   const availability = typeof baseItem.availability === 'string' ? baseItem.availability : '';
   const statusTag = ARTWORK_LIST_STATUS_LABELS[availability] || '';
-  const printTag = baseItem.fineArtPrint === true ? 'Print' : '';
+  const printTag = baseItem.fineArtPrint === true ? (baseItem.printOnly === true ? 'Bara print' : 'Print') : '';
   const meta = [item.year || '', statusTag, categoryLabel, featureTag, printTag, heroExcludeTag].filter(Boolean).join(' · ');
   const searchText = [title, item.alt, item.format, item.year, baseItem.slug, categoryLabel, statusTag]
     .filter(Boolean)
@@ -7285,6 +7285,8 @@ const renderArtworksEditor = ({ keepPosition = false } = {}) => {
 	            <label>Bildkälla (src) <input type="text" data-field="src" value="${escapeHtml(selectedItem.src || '')}" /></label>
 	            <label>Format (t.ex. 56 × 76 cm) <input type="text" data-field="format" value="${escapeHtml(selectedItem.format || '')}" /></label>
 	            <label class="checkbox-row"><input type="checkbox" data-field="fineArtPrint" ${selectedItem.fineArtPrint === true ? 'checked' : ''} /> <span>Finns även som Fine Art Print</span></label>
+	            <label class="checkbox-row"><input type="checkbox" data-field="printOnly" ${selectedItem.printOnly === true ? 'checked' : ''} /> <span>Bara print – originalet säljs inte här</span></label>
+	            <small class="field-hint">Bara print: sidan och galleriet visar printen som varan, med priserna i printprislistan. Fältet Pris används inte.</small>
 	            ${buildPrintFormatMarkup(state.content.gallery.artworks[selectedIndex] || selectedItem)}
 	            <label>Tillgänglighet
 	              <select data-field="availability">
@@ -7493,6 +7495,19 @@ const renderArtworksEditor = ({ keepPosition = false } = {}) => {
 	        item.featured = fieldNode.checked;
 	      } else if (field === 'fineArtPrint') {
 	        item.fineArtPrint = fieldNode.checked;
+	        // Bara print kräver print; utan print finns inget att sälja.
+	        const printOnlyBox = detailNode.querySelector('[data-field="printOnly"]');
+	        if (!fieldNode.checked && printOnlyBox && printOnlyBox.checked) {
+	          printOnlyBox.checked = false;
+	          item.printOnly = false;
+	        }
+	      } else if (field === 'printOnly') {
+	        item.printOnly = fieldNode.checked;
+	        const printBox = detailNode.querySelector('[data-field="fineArtPrint"]');
+	        if (fieldNode.checked && printBox && !printBox.checked) {
+	          printBox.checked = true;
+	          printBox.dispatchEvent(new Event('change'));
+	        }
 	      } else if (field === 'heroExclude') {
 	        item.heroExclude = fieldNode.checked;
 	      } else if (field === 'year' || field === 'order') {

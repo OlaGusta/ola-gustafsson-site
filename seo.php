@@ -726,6 +726,12 @@ function seo_gallery_items(array $payload, string $lang): array
     $priceLabel = isset($textOverride['priceLabel']) && is_string($textOverride['priceLabel']) && trim($textOverride['priceLabel']) !== ''
       ? trim($textOverride['priceLabel'])
       : (isset($item['priceLabel']) && is_string($item['priceLabel']) ? trim($item['priceLabel']) : '');
+    if (seo_artwork_is_print_only($item)) {
+      // Samma kort som i script.js (normalizeArtwork): "Fine Art Print" och printens från-pris.
+      $format = 'Fine Art Print';
+      $printSizes = seo_artwork_print_sizes($payload, $item, $lang);
+      $priceLabel = $printSizes !== [] ? seo_print_from_label($printSizes, $lang) : '';
+    }
     $categoryKey = seo_normalize_artwork_category(isset($item['category']) && is_string($item['category']) ? $item['category'] : '');
     $categoryLabel = portfolio_category_label($payload, $lang, $categoryKey);
     $availabilityKey = seo_normalize_artwork_availability(isset($item['availability']) && is_string($item['availability']) ? $item['availability'] : '');
@@ -1238,6 +1244,19 @@ function seo_print_paper_label(string $lang): string
   return 'Hahnemühle Photo Rag';
 }
 
+// "Bara print" (Studio → verket: artwork.printOnly): motivet säljs bara som Fine Art Print.
+// Verkssidan, galleriets kort och kassan visar printen (25 % moms, upplaga) i stället för
+// ett original. Förr låg printposter som original: 0 % moms och "Såld" efter första köpet.
+function seo_artwork_is_print_only(array $artwork): bool
+{
+  return !empty($artwork['printOnly']) && !empty($artwork['fineArtPrint']);
+}
+
+function seo_print_only_medium_label(string $lang): string
+{
+  return ($lang === 'en' ? 'Fine art print on ' : 'Fine Art Print på ') . seo_print_paper_label($lang);
+}
+
 // Tilläggskostnader som ska synas vid varje beställning/intresseanmälan (original och print).
 // ---------------------------------------------------------------------------
 // Kassan (beslut 2026-10-13): fasta priser så att en beställning inte kräver
@@ -1373,8 +1392,9 @@ function seo_shop_catalog(array $payload): array
     $title = isset($artwork['title']) && is_string($artwork['title']) ? trim($artwork['title']) : $slug;
     $format = isset($artwork['format']) && is_string($artwork['format']) ? trim($artwork['format']) : '';
     $availability = isset($artwork['availability']) && is_string($artwork['availability']) ? $artwork['availability'] : '';
-    $price = isset($artwork['priceLabel']) && is_string($artwork['priceLabel']) ? seo_price_amount($artwork['priceLabel']) : 0;
-    $matClass = seo_mat_frame_class(seo_format_dims($format));
+    $printOnly = seo_artwork_is_print_only($artwork);
+    $price = !$printOnly && isset($artwork['priceLabel']) && is_string($artwork['priceLabel']) ? seo_price_amount($artwork['priceLabel']) : 0;
+    $matClass = $printOnly ? '' : seo_mat_frame_class(seo_format_dims($format));
     $printSizes = !empty($artwork['fineArtPrint']) ? seo_artwork_print_sizes($payload, $artwork, 'sv') : [];
     $items[(string) $slug] = [
       'title' => $title,
