@@ -6033,6 +6033,45 @@ const renderHeroSlideArtworkOptions = () => {
   el.heroSlideFromArtwork.innerHTML = options || '<option value="">Inga verk ännu</option>';
 };
 
+// Fokuspunkt per hero-bild: hero.slideFocus[src] = {x, y} i procent (0–100). Lagras per bild,
+// inte per språk, så att den gäller både svenska och engelska slides. Läses av index.php
+// (seo_hero_focus_style) och script.js (getHeroImageFocus). Ingen post = centrerad.
+const getHeroSlideFocus = (src) => {
+  const key = typeof src === 'string' ? src.trim() : '';
+  const focusMap = state.content.hero && state.content.hero.slideFocus;
+  const focus = key && focusMap && typeof focusMap === 'object' ? focusMap[key] : null;
+  const x = Number(focus && focus.x);
+  const y = Number(focus && focus.y);
+  if (!focus || !Number.isFinite(x) || !Number.isFinite(y)) {
+    return null;
+  }
+  return { x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) };
+};
+
+const setHeroSlideFocus = (src, focus) => {
+  const key = typeof src === 'string' ? src.trim() : '';
+  if (!key) {
+    return;
+  }
+  const hero = state.content.hero;
+  if (!hero.slideFocus || typeof hero.slideFocus !== 'object' || Array.isArray(hero.slideFocus)) {
+    hero.slideFocus = {};
+  }
+  if (focus) {
+    hero.slideFocus[key] = {
+      x: Math.round(Math.max(0, Math.min(100, focus.x))),
+      y: Math.round(Math.max(0, Math.min(100, focus.y)))
+    };
+  } else {
+    delete hero.slideFocus[key];
+  }
+  if (Object.keys(hero.slideFocus).length === 0) {
+    delete hero.slideFocus;
+  }
+};
+
+const heroFocusObjectPosition = (focus) => (focus ? `${focus.x}% ${focus.y}%` : '50% 50%');
+
 const renderHeroSlidesEditor = () => {
   if (!el.heroSlidesEditor) {
     return;
@@ -6055,6 +6094,9 @@ const renderHeroSlidesEditor = () => {
   const selectedIndex = uiState.selectedHeroSlideIndex;
   const selectedSlide = slides[selectedIndex];
   const selectedDuration = Number(selectedSlide.durationMs || state.content.hero.slideDurationMs || 8000);
+  const selectedSrc = typeof selectedSlide.src === 'string' ? selectedSlide.src.trim() : '';
+  const selectedFocus = getHeroSlideFocus(selectedSrc);
+  const selectedImageUrl = selectedSrc ? escapeHtml(addRevToSrc(selectedSrc)) : '';
   const disableUp = selectedIndex === 0 ? 'disabled' : '';
   const disableDown = selectedIndex === slides.length - 1 ? 'disabled' : '';
 
@@ -6063,7 +6105,7 @@ const renderHeroSlidesEditor = () => {
       const src = typeof slide.src === 'string' ? slide.src.trim() : '';
       const alt = (slide.alt || '').trim();
       const preview = src
-        ? `<img src="${escapeHtml(addRevToSrc(src))}" alt="Miniatyr slide ${index + 1}" loading="lazy" decoding="async" />`
+        ? `<img src="${escapeHtml(addRevToSrc(src))}" alt="Miniatyr slide ${index + 1}" loading="lazy" decoding="async" style="object-position: ${heroFocusObjectPosition(getHeroSlideFocus(src))}" />`
         : '<span class="artwork-editor-placeholder">Ingen bild</span>';
       const duration = Number(slide.durationMs || state.content.hero.slideDurationMs || 8000);
       return `
@@ -6091,8 +6133,12 @@ const renderHeroSlidesEditor = () => {
         <div class="hero-slide-detail-layout">
           <figure class="hero-slide-detail-preview">
             ${
-              selectedSlide.src
-                ? `<img src="${escapeHtml(addRevToSrc(selectedSlide.src))}" alt="Förhandsvisning slide ${selectedIndex + 1}" />`
+              selectedSrc
+                ? `<div class="hero-focus-picker" data-focus-picker title="Klicka eller dra där fokus ska ligga">
+                    <img src="${selectedImageUrl}" alt="Förhandsvisning slide ${selectedIndex + 1}" draggable="false" />
+                    <span class="hero-focus-marker" data-focus-marker aria-hidden="true"></span>
+                  </div>
+                  <figcaption>Klicka i bilden där fokus ska ligga.</figcaption>`
                 : '<div class="artwork-editor-placeholder">Ingen bild</div>'
             }
           </figure>
@@ -6106,6 +6152,32 @@ const renderHeroSlidesEditor = () => {
             <label>Visningstid (ms)
               <input type="number" data-field="durationMs" min="1000" step="500" value="${selectedDuration}" />
             </label>
+            ${
+              selectedSrc
+                ? `<div class="hero-slide-focus">
+                    <div class="hero-slide-focus-fields">
+                      <label>Fokus vågrätt (%)
+                        <input type="number" data-focus-axis="x" min="0" max="100" step="1" placeholder="50" value="${selectedFocus ? selectedFocus.x : ''}" />
+                      </label>
+                      <label>Fokus lodrätt (%)
+                        <input type="number" data-focus-axis="y" min="0" max="100" step="1" placeholder="50" value="${selectedFocus ? selectedFocus.y : ''}" />
+                      </label>
+                      <button type="button" class="btn btn-ghost" data-action="reset-focus"${selectedFocus ? '' : ' disabled'}>Centrera</button>
+                    </div>
+                    <p class="studio-note">0 = vänster/överkant, 100 = höger/nederkant. Tomt = mitten. Gäller bilden på både svenska och engelska.</p>
+                    <div class="hero-focus-crops">
+                      <figure>
+                        <div class="hero-focus-crop is-desktop"><img src="${selectedImageUrl}" alt="" data-focus-crop /></div>
+                        <figcaption>Dator</figcaption>
+                      </figure>
+                      <figure>
+                        <div class="hero-focus-crop is-mobile"><img src="${selectedImageUrl}" alt="" data-focus-crop /></div>
+                        <figcaption>Mobil</figcaption>
+                      </figure>
+                    </div>
+                  </div>`
+                : ''
+            }
           </div>
         </div>
         <div class="hero-slide-item-actions">
@@ -6132,6 +6204,93 @@ const renderHeroSlidesEditor = () => {
   if (!detailNode) {
     return;
   }
+
+  // Fokuspunkten uppdateras på plats (markör, beskärningar, fält, miniatyr) utan omritning.
+  const focusPicker = detailNode.querySelector('[data-focus-picker]');
+  const syncFocusUi = () => {
+    const focus = getHeroSlideFocus(selectedSrc);
+    const position = heroFocusObjectPosition(focus);
+    const marker = detailNode.querySelector('[data-focus-marker]');
+    if (marker) {
+      marker.style.left = focus ? `${focus.x}%` : '50%';
+      marker.style.top = focus ? `${focus.y}%` : '50%';
+      marker.classList.toggle('is-centered', !focus);
+    }
+    detailNode.querySelectorAll('[data-focus-crop]').forEach((image) => {
+      image.style.objectPosition = position;
+    });
+    detailNode.querySelectorAll('input[data-focus-axis]').forEach((input) => {
+      if (document.activeElement !== input) {
+        input.value = focus ? String(focus[input.getAttribute('data-focus-axis')]) : '';
+      }
+    });
+    const resetButton = detailNode.querySelector('[data-action="reset-focus"]');
+    if (resetButton) {
+      resetButton.disabled = !focus;
+    }
+    const thumbImage = el.heroSlidesEditor.querySelector(`.hero-slide-thumb[data-index="${selectedIndex}"] img`);
+    if (thumbImage) {
+      thumbImage.style.objectPosition = position;
+    }
+  };
+
+  if (focusPicker) {
+    const pickerImage = focusPicker.querySelector('img');
+    const setFocusFromPointer = (event) => {
+      const rect = pickerImage.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) {
+        return;
+      }
+      setHeroSlideFocus(selectedSrc, {
+        x: ((event.clientX - rect.left) / rect.width) * 100,
+        y: ((event.clientY - rect.top) / rect.height) * 100
+      });
+      syncFocusUi();
+    };
+    focusPicker.addEventListener('pointerdown', (event) => {
+      if (event.button !== 0) {
+        return;
+      }
+      event.preventDefault();
+      focusPicker.setPointerCapture(event.pointerId);
+      setFocusFromPointer(event);
+    });
+    focusPicker.addEventListener('pointermove', (event) => {
+      if (focusPicker.hasPointerCapture(event.pointerId)) {
+        setFocusFromPointer(event);
+      }
+    });
+  }
+
+  detailNode.querySelectorAll('input[data-focus-axis]').forEach((input) => {
+    input.addEventListener('input', () => {
+      const values = {};
+      detailNode.querySelectorAll('input[data-focus-axis]').forEach((node) => {
+        values[node.getAttribute('data-focus-axis')] = node.value.trim();
+      });
+      if (values.x === '' && values.y === '') {
+        setHeroSlideFocus(selectedSrc, null);
+      } else {
+        const x = Number(values.x === '' ? 50 : values.x);
+        const y = Number(values.y === '' ? 50 : values.y);
+        if (!Number.isFinite(x) || !Number.isFinite(y)) {
+          return;
+        }
+        setHeroSlideFocus(selectedSrc, { x, y });
+      }
+      syncFocusUi();
+    });
+    input.addEventListener('change', syncFocusUi);
+  });
+
+  const resetFocusButton = detailNode.querySelector('[data-action="reset-focus"]');
+  if (resetFocusButton) {
+    resetFocusButton.addEventListener('click', () => {
+      setHeroSlideFocus(selectedSrc, null);
+      syncFocusUi();
+    });
+  }
+  syncFocusUi();
 
   detailNode.querySelectorAll('input[data-field]').forEach((input) => {
     const applyChange = () => {
@@ -6953,7 +7112,73 @@ const bindPrintFormatControls = (detailNode, selectedIndex) => {
   probe.src = addRevToSrc(src);
 };
 
-const renderArtworksEditor = () => {
+// Rubrik, metarad och data-attribut (för sök/sortering/filter) för ett verks rad i verklistan.
+const getArtworkThumbInfo = (item, baseItem, index) => {
+  const title = (item.title || '').trim() || `Verk ${index + 1}`;
+  const categoryLabel = getArtworkCategoryLabelText(item);
+  const featureTag = item.featured ? 'Utvald' : '';
+  const heroExcludeTag = item.heroExclude ? 'Ej hero-auto' : '';
+  const availability = typeof baseItem.availability === 'string' ? baseItem.availability : '';
+  const statusTag = ARTWORK_LIST_STATUS_LABELS[availability] || '';
+  const printTag = baseItem.fineArtPrint === true ? 'Print' : '';
+  const meta = [item.year || '', statusTag, categoryLabel, featureTag, printTag, heroExcludeTag].filter(Boolean).join(' · ');
+  const searchText = [title, item.alt, item.format, item.year, baseItem.slug, categoryLabel, statusTag]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+  return {
+    title,
+    meta,
+    listData: {
+      search: searchText,
+      title: title.toLowerCase(),
+      year: String(Number(item.year) || 0),
+      added: String(getArtworkAddedAt(baseItem)),
+      availability,
+      hasPrice: /[0-9]/.test(String(baseItem.priceLabel || '')) ? '1' : '0',
+      hasFormat: String(baseItem.format || '').trim() ? '1' : '0',
+      print: baseItem.fineArtPrint === true ? '1' : '0',
+      featured: baseItem.featured ? '1' : '0'
+    }
+  };
+};
+
+// Uppdaterar ett verks rad i listan och rubriken i formuläret på plats. Att rita om hela
+// editorn vid varje ändring nollställde formulärets scroll och tog bort fokus (Ola, okt 2026).
+const refreshArtworkListEntry = (index) => {
+  const button = el.artworksEditor
+    ? el.artworksEditor.querySelector(`.artwork-thumb[data-action="select"][data-index="${index}"]`)
+    : null;
+  const item = getLocalizedArtworksForEditor()[index];
+  if (!button || !item) {
+    return;
+  }
+
+  const { title, meta, listData } = getArtworkThumbInfo(item, state.content.gallery.artworks[index] || item, index);
+  Object.assign(button.dataset, listData);
+  const titleNode = button.querySelector('.artwork-thumb-meta strong');
+  const metaNode = button.querySelector('.artwork-thumb-meta small');
+  const thumbImage = button.querySelector('.artwork-thumb-image img');
+  if (titleNode) {
+    titleNode.textContent = title;
+  }
+  if (metaNode) {
+    metaNode.textContent = meta;
+  }
+  if (thumbImage) {
+    thumbImage.alt = `Miniatyr ${title}`;
+  }
+
+  const heading = el.artworksEditor.querySelector(`.artwork-detail[data-index="${index}"] .artwork-detail-head h3`);
+  if (heading) {
+    heading.textContent = `Redigerar: ${(item.title || '').trim() || `Verk ${index + 1}`}`;
+  }
+  applyArtworkListView();
+};
+
+// keepPosition: samma verk ritas om (ny bild, ny ordning). Formulärets scroll och fokus
+// läggs tillbaka i stället för att hoppa till toppen.
+const renderArtworksEditor = ({ keepPosition = false } = {}) => {
   const baseItems = Array.isArray(state.content.gallery?.artworks) ? state.content.gallery.artworks : [];
   const language = getEditingLanguage();
   const items = getLocalizedArtworksForEditor(language);
@@ -6966,6 +7191,19 @@ const renderArtworksEditor = () => {
   if (existingThumbList) {
     uiState.artworkListScrollTop = existingThumbList.scrollTop;
   }
+  const studioMain = document.querySelector('.studio-main');
+  const previousDetail = el.artworksEditor.querySelector('.artwork-detail');
+  const activeNode = document.activeElement;
+  const restore = {
+    mainScrollTop: studioMain ? studioMain.scrollTop : 0,
+    windowScrollY: window.scrollY,
+    detailScrollTop: keepPosition && previousDetail ? previousDetail.scrollTop : 0,
+    focusField:
+      keepPosition && previousDetail && activeNode && previousDetail.contains(activeNode)
+        ? activeNode.getAttribute('data-field') || ''
+        : '',
+    focusValue: activeNode && typeof activeNode.value === 'string' ? activeNode.value : ''
+  };
 
   if (!Array.isArray(baseItems) || baseItems.length === 0) {
     uiState.selectedArtworkIndex = -1;
@@ -6984,36 +7222,16 @@ const renderArtworksEditor = () => {
 
   const thumbMarkup = items
     .map((item, index) => {
-      const title = (item.title || '').trim() || `Verk ${index + 1}`;
       const isActive = index === selectedIndex;
-      const categoryLabel = getArtworkCategoryLabelText(item);
-      const featureTag = item.featured ? 'Utvald' : '';
-      const heroExcludeTag = item.heroExclude ? 'Ej hero-auto' : '';
-      const baseItem = baseItems[index] || item;
-      const availability = typeof baseItem.availability === 'string' ? baseItem.availability : '';
-      const statusTag = ARTWORK_LIST_STATUS_LABELS[availability] || '';
-      const printTag = baseItem.fineArtPrint === true ? 'Print' : '';
-      const meta = [item.year || '', statusTag, categoryLabel, featureTag, printTag, heroExcludeTag].filter(Boolean).join(' · ');
+      const { title, meta, listData } = getArtworkThumbInfo(item, baseItems[index] || item, index);
       const thumbSrc = getArtworkPreviewSrc(item);
       const fullSrc = typeof item.src === 'string' ? item.src : '';
-      const searchText = [title, item.alt, item.format, item.year, baseItem.slug, categoryLabel, statusTag]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase();
-      const listData = [
-        `data-search="${escapeHtml(searchText)}"`,
-        `data-title="${escapeHtml(title.toLowerCase())}"`,
-        `data-year="${Number(item.year) || 0}"`,
-        `data-added="${getArtworkAddedAt(baseItem)}"`,
-        `data-availability="${escapeHtml(availability)}"`,
-        `data-has-price="${/[0-9]/.test(String(baseItem.priceLabel || '')) ? '1' : '0'}"`,
-        `data-has-format="${String(baseItem.format || '').trim() ? '1' : '0'}"`,
-        `data-print="${baseItem.fineArtPrint === true ? '1' : '0'}"`,
-        `data-featured="${baseItem.featured ? '1' : '0'}"`
-      ].join(' ');
+      const listDataAttributes = Object.entries(listData)
+        .map(([key, value]) => `data-${key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}="${escapeHtml(value)}"`)
+        .join(' ');
 
       return `
-        <button type="button" class="artwork-thumb${isActive ? ' is-active' : ''}" data-action="select" data-index="${index}" data-src="${escapeHtml(fullSrc)}" ${listData} aria-pressed="${isActive ? 'true' : 'false'}">
+        <button type="button" class="artwork-thumb${isActive ? ' is-active' : ''}" data-action="select" data-index="${index}" data-src="${escapeHtml(fullSrc)}" ${listDataAttributes} aria-pressed="${isActive ? 'true' : 'false'}">
           <span class="artwork-thumb-image">
             ${thumbSrc ? `<img src="${escapeHtml(addRevToSrc(thumbSrc))}" data-full-src="${escapeHtml(addRevToSrc(fullSrc))}" alt="Miniatyr ${escapeHtml(title)}" />` : '<span class="artwork-editor-placeholder">Ingen bild</span>'}
           </span>
@@ -7144,6 +7362,37 @@ const renderArtworksEditor = () => {
   }
   applyArtworkListView();
 
+  // Bilderna i den nya markupen har ingen höjd förrän de laddats, så sidan kan bli kortare
+  // en stund och scrollen klämmas uppåt. Lägg tillbaka läget direkt, nästa bildruta och
+  // (för samma verk) när förhandsbilden laddats.
+  const restorePosition = () => {
+    if (studioMain && studioMain.scrollTop !== restore.mainScrollTop) {
+      studioMain.scrollTop = restore.mainScrollTop;
+    }
+    if (window.scrollY !== restore.windowScrollY) {
+      window.scrollTo(window.scrollX, restore.windowScrollY);
+    }
+    const detail = el.artworksEditor.querySelector('.artwork-detail');
+    if (detail && restore.detailScrollTop > 0) {
+      detail.scrollTop = restore.detailScrollTop;
+    }
+  };
+  restorePosition();
+  window.requestAnimationFrame(restorePosition);
+  if (keepPosition) {
+    const previewImage = el.artworksEditor.querySelector('.artwork-detail-preview img');
+    if (previewImage && !previewImage.complete) {
+      previewImage.addEventListener('load', restorePosition, { once: true });
+    }
+  }
+  if (restore.focusField) {
+    const candidates = Array.from(el.artworksEditor.querySelectorAll(`.artwork-detail [data-field="${restore.focusField}"]`));
+    const focusTarget = candidates.find((node) => node.value === restore.focusValue) || candidates[0];
+    if (focusTarget) {
+      focusTarget.focus({ preventScroll: true });
+    }
+  }
+
   el.artworksEditor.querySelectorAll('.artwork-thumb-image img[data-full-src]').forEach((img) => {
     img.addEventListener('load', () => {
       if (img.dataset.fallbackDone === '1') {
@@ -7253,20 +7502,17 @@ const renderArtworksEditor = () => {
         const editedItem = state.content.gallery.artworks[selectedIndex];
         sortGalleryArtworksByOrder();
         uiState.selectedArtworkIndex = Math.max(0, state.content.gallery.artworks.indexOf(editedItem));
-        renderArtworksEditor();
+        renderArtworksEditor({ keepPosition: true });
         return;
       }
-      if (
-        field === 'title' ||
-        field === 'categories' ||
-        field === 'featured' ||
-        field === 'heroExclude' ||
-        field === 'src' ||
-        field === 'availability'
-      ) {
-        renderArtworksEditor();
-      } else {
-        renderHeroSlideArtworkOptions();
+      if (field === 'src') {
+        renderArtworksEditor({ keepPosition: true });
+        return;
+      }
+      refreshArtworkListEntry(selectedIndex);
+      renderHeroSlideArtworkOptions();
+      if (field === 'title') {
+        renderSeoHomeImageControls();
       }
     });
   });
@@ -7321,7 +7567,7 @@ const renderArtworksEditor = () => {
 	        }
 	        syncArtworkTextToEnglish(item.src, 'title', '', item.title);
 	        syncArtworkTextToEnglish(item.src, 'alt', '', item.alt);
-	        renderArtworksEditor();
+	        renderArtworksEditor({ keepPosition: true });
           const duplicateSuffix = removedDuplicates > 0 ? ` ${removedDuplicates} dubblett togs bort.` : '';
 	        setStatus(`Bilden för valt verk uppdaterades.${duplicateSuffix} Klicka "Spara ändringar".`, 'success');
 	      } catch (error) {

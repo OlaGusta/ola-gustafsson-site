@@ -489,6 +489,12 @@ code {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* Fokuspunkt per bild (Studio → Hero → Slides). Zoomen drar åt samma håll men utgår
+     från högst 25 % från mitten: närmare kanten blottar Ken Burns-förflyttningen en kant. */
+  object-position: var(--hero-focus-x, 50%) var(--hero-focus-y, 50%);
+  transform-origin:
+    calc(50% + (var(--hero-focus-x, 50%) - 50%) / 2)
+    calc(50% + (var(--hero-focus-y, 50%) - 50%) / 2);
   opacity: 0;
   transition: opacity 1300ms var(--ease-standard);
   transform: scale(1.04);
@@ -560,6 +566,7 @@ code {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: var(--hero-focus-x, 50%) var(--hero-focus-y, 50%);
 }
 
 .hero-overlay {
@@ -3575,6 +3582,106 @@ body[data-page='studio'] main {
   min-height: 9rem;
   object-fit: cover;
   display: block;
+}
+
+/* Fokuspunkt per slide: hela bilden visas så att klicket motsvarar bildens koordinater. */
+.hero-focus-picker {
+  position: relative;
+  cursor: crosshair;
+  touch-action: none;
+  user-select: none;
+}
+
+.hero-slide-detail-preview .hero-focus-picker img {
+  height: auto;
+  min-height: 0;
+  object-fit: contain;
+}
+
+.hero-focus-marker {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: -0.75rem 0 0 -0.75rem;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(0, 0, 0, 0.55);
+  background: color-mix(in srgb, var(--color-primary) 55%, transparent);
+  pointer-events: none;
+}
+
+.hero-focus-marker.is-centered {
+  background: transparent;
+  border-style: dashed;
+}
+
+.hero-slide-detail-preview figcaption,
+.hero-focus-crops figcaption {
+  padding: 0.35rem 0.5rem;
+  font-size: 0.8rem;
+  color: var(--color-soft-ink);
+}
+
+.hero-slide-focus {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.hero-slide-focus .studio-note {
+  margin: 0;
+}
+
+.hero-slide-focus-fields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--space-3);
+}
+
+.hero-slide-focus-fields label {
+  width: 9rem;
+}
+
+.hero-slide-focus-fields .btn {
+  width: auto;
+}
+
+/* Ungefärliga hero-format: dator (helbredd, ca 16:9) och mobil (4:5, se @media max-width 760px). */
+.hero-focus-crops {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  gap: var(--space-3);
+}
+
+.hero-focus-crops figure {
+  margin: 0;
+}
+
+.hero-focus-crop {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-surface) 85%, #fff 15%);
+}
+
+.hero-focus-crop.is-desktop {
+  width: 16rem;
+  aspect-ratio: 16 / 9;
+}
+
+.hero-focus-crop.is-mobile {
+  width: 7.2rem;
+  aspect-ratio: 4 / 5;
+}
+
+.hero-focus-crop img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
 
 .hero-slide-detail-fields {

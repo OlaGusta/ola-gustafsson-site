@@ -276,6 +276,82 @@ function seo_named_image_variant_src(string $src, string $variant): string
   return 'images/' . trim($variantName, '/') . '/' . $fileName;
 }
 
+function seo_hero_src_key(string $src): string
+{
+  return ltrim(trim($src), '/');
+}
+
+// Fokuspunkt för en bild i startsidans hero (Studio → Hero → Slides), lagrad som
+// hero.slideFocus[src] = {x, y} i procent. Gäller bilden oavsett språk och om den
+// är slide eller stillbild. Ger CSS-variablerna som styles.css läser, tomt = centrerat.
+function seo_hero_focus_style(array $payload, string $src): string
+{
+  $focusMap = seo_array_get_path($payload, ['hero', 'slideFocus']);
+  $key = seo_hero_src_key($src);
+  if (!is_array($focusMap) || $key === '') {
+    return '';
+  }
+
+  foreach ($focusMap as $focusSrc => $focus) {
+    if (!is_string($focusSrc) || seo_hero_src_key($focusSrc) !== $key || !is_array($focus)) {
+      continue;
+    }
+    $x = $focus['x'] ?? null;
+    $y = $focus['y'] ?? null;
+    if (!is_numeric($x) || !is_numeric($y)) {
+      return '';
+    }
+    $percent = static fn ($value): string => rtrim(rtrim(number_format(max(0.0, min(100.0, (float) $value)), 1, '.', ''), '0'), '.') . '%';
+    return '--hero-focus-x: ' . $percent($x) . '; --hero-focus-y: ' . $percent($y);
+  }
+
+  return '';
+}
+
+// Första bilden i bildspelet, så att sidan ritas med samma bild som script.js
+// sedan visar (i stället för stillbilden). Samma urval som renderHeroImage i script.js:
+// manuella slides, utan verk som är undantagna från hero. Tom array = använd stillbilden.
+function seo_hero_first_slide(array $payload, string $lang): array
+{
+  $hero = seo_array_get_path($payload, ['hero']);
+  if (!is_array($hero) || ($hero['mode'] ?? '') !== 'slideshow') {
+    return [];
+  }
+  if (is_array($hero['autoSlides'] ?? null) && ($hero['autoSlides']['enabled'] ?? false) === true) {
+    return [];
+  }
+
+  $excluded = [];
+  foreach ((array) ($hero['autoSlides']['excludeSrcs'] ?? []) as $src) {
+    if (is_string($src) && trim($src) !== '') {
+      $excluded[seo_hero_src_key($src)] = true;
+    }
+  }
+  $isTruthy = static fn ($value): bool => $value === true || $value === 1
+    || (is_string($value) && in_array(strtolower(trim($value)), ['true', '1', 'yes'], true));
+  foreach ((array) (seo_array_get_path($payload, ['gallery', 'artworks']) ?? []) as $artwork) {
+    if (!is_array($artwork) || !is_string($artwork['src'] ?? null)) {
+      continue;
+    }
+    if ($isTruthy($artwork['heroExclude'] ?? null) || $isTruthy($artwork['excludeFromHero'] ?? null) || $isTruthy($artwork['excludeFromHeroAuto'] ?? null)) {
+      $excluded[seo_hero_src_key($artwork['src'])] = true;
+    }
+  }
+
+  foreach (seo_localized_payload_array($payload, $lang, ['hero', 'slides']) as $slide) {
+    $src = is_array($slide) && is_string($slide['src'] ?? null) ? trim($slide['src']) : '';
+    if ($src === '' || isset($excluded[seo_hero_src_key($src)])) {
+      continue;
+    }
+    return [
+      'src' => $src,
+      'alt' => is_string($slide['alt'] ?? null) ? trim($slide['alt']) : '',
+    ];
+  }
+
+  return [];
+}
+
 function seo_preferred_hero_image_src(string $src): string
 {
   $hero = seo_named_image_variant_src($src, 'hero');

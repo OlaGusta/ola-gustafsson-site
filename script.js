@@ -2301,6 +2301,38 @@ const clearHeroSlideshow = () => {
   }
 };
 
+// Fokuspunkt per hero-bild (Studio → Hero → Slides): hero.slideFocus[src] = {x, y} i procent.
+// Samma läsning som seo_hero_focus_style() i seo.php; utan värde är bilden centrerad.
+const getHeroImageFocus = (src) => {
+  const focusMap = content.hero && typeof content.hero.slideFocus === 'object' ? content.hero.slideFocus : null;
+  const key = normalizeComparableSrcKey(src);
+  if (!focusMap || !key) {
+    return null;
+  }
+  const entry = Object.keys(focusMap).find((focusSrc) => normalizeComparableSrcKey(focusSrc) === key);
+  const focus = entry ? focusMap[entry] : null;
+  const x = Number(focus && focus.x);
+  const y = Number(focus && focus.y);
+  if (!focus || focus.x === '' || focus.y === '' || !Number.isFinite(x) || !Number.isFinite(y)) {
+    return null;
+  }
+  return { x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) };
+};
+
+const applyHeroImageFocus = (image, src) => {
+  if (!image) {
+    return;
+  }
+  const focus = getHeroImageFocus(src);
+  if (!focus) {
+    image.style.removeProperty('--hero-focus-x');
+    image.style.removeProperty('--hero-focus-y');
+    return;
+  }
+  image.style.setProperty('--hero-focus-x', `${focus.x}%`);
+  image.style.setProperty('--hero-focus-y', `${focus.y}%`);
+};
+
 const clearHeroPreloadArtifacts = () => {
   document.querySelectorAll('[data-hero-preload="1"]').forEach((node) => node.remove());
 };
@@ -2687,6 +2719,7 @@ const runHeroSlideshow = (slides, defaultDurationMs, options = {}) => {
     image.fetchPriority = index === 0 ? 'high' : 'auto';
     image.decoding = 'async';
     image.style.setProperty('--slide-duration', `${Number(slide.durationMs || defaultDurationMs)}ms`);
+    applyHeroImageFocus(image, slide.src);
     if (index === 0) {
       image.classList.add('is-active');
       image.addEventListener('load', markReady, { once: true });
@@ -2830,6 +2863,7 @@ const renderHeroImage = () => {
     heroImage.style.display = '';
     heroImage.style.opacity = '1';
     applyHeroImageSource(heroImage, firstSlide.src);
+    applyHeroImageFocus(heroImage, firstSlide.src);
     heroImage.alt = firstSlide.alt || getUiText('heroImageFallbackAlt', 'Hero-bild');
     addImageFallback(heroImage);
     // Stillbild bara vid datasparläge/mycket långsam lina. Smal skärm får bildspelet,
@@ -2850,6 +2884,7 @@ const renderHeroImage = () => {
   heroImage.style.display = '';
   if (content.hero.image) {
     applyHeroImageSource(heroImage, content.hero.image);
+    applyHeroImageFocus(heroImage, content.hero.image);
   }
   heroImage.alt = content.hero.imageAlt || getUiText('heroImageFallbackAlt', 'Hero-bild');
   heroImage.addEventListener('load', clearHeroPreloadArtifacts, { once: true });

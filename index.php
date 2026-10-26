@@ -35,6 +35,11 @@ $payload = seo_overrides_payload();
 $fontStylesheetHref = seo_google_fonts_href($payload);
 
 $heroImageValue = seo_localized_payload_string($payload, $lang, ['hero', 'image']);
+$heroFirstSlide = seo_hero_first_slide($payload, $lang);
+if ($heroFirstSlide !== []) {
+  $heroImageValue = $heroFirstSlide['src'];
+}
+$heroImageFocusStyle = seo_hero_focus_style($payload, $heroImageValue !== '' ? $heroImageValue : 'images/ola-01.jpg');
 $heroImageSrc = $heroImageValue !== '' ? seo_preferred_hero_image_src($heroImageValue) : seo_preferred_hero_image_src('images/ola-01.jpg');
 $heroResponsiveSources = $heroImageValue !== '' ? seo_responsive_image_sources($heroImageValue) : seo_responsive_image_sources('images/ola-01.jpg');
 $heroImageSrcSet = '';
@@ -53,7 +58,7 @@ if ($heroResponsiveSources !== []) {
 $heroImageDimensions = seo_image_dimensions($heroImageSrc);
 $heroImageWidth = isset($heroImageDimensions['width']) ? (int) $heroImageDimensions['width'] : 0;
 $heroImageHeight = isset($heroImageDimensions['height']) ? (int) $heroImageDimensions['height'] : 0;
-$heroImageAlt = seo_localized_payload_string($payload, $lang, ['hero', 'imageAlt']);
+$heroImageAlt = ($heroFirstSlide['alt'] ?? '') !== '' ? $heroFirstSlide['alt'] : seo_localized_payload_string($payload, $lang, ['hero', 'imageAlt']);
 if ($heroImageAlt === '') {
   $heroImageAlt = $lang === 'en' ? 'Watercolor hero image' : 'Akvarell i blå vintertoner';
 }
@@ -398,9 +403,9 @@ if (!is_string($structuredJson)) {
       fetchpriority="high"
     />
     	    <script src="overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>" defer></script>
-	    <link rel="stylesheet" href="styles.css?v=20261025-06" />
+	    <link rel="stylesheet" href="styles.css?v=20261026-01" />
 	    <script src="content.js?v=20260928-01" defer></script>
-		    <script src="script.js?v=20261025-03" defer></script>
+		    <script src="script.js?v=20261026-01" defer></script>
     <script src="shop.js?v=20261013-06" defer></script>
 	  </head>
   <body id="page-top" data-page="home">
@@ -455,6 +460,7 @@ if (!is_string($structuredJson)) {
             decoding="async"
             <?php if ($heroImageWidth > 0): ?>width="<?= $heroImageWidth ?>"<?php endif; ?>
             <?php if ($heroImageHeight > 0): ?>height="<?= $heroImageHeight ?>"<?php endif; ?>
+            <?php if ($heroImageFocusStyle !== ''): ?>style="<?= seo_escape_html($heroImageFocusStyle) ?>"<?php endif; ?>
           />
           <div class="hero-overlay" aria-hidden="true"></div>
         </figure>

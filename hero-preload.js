@@ -21,6 +21,14 @@
   };
 
   let preferredSrc = DEFAULT_SRC;
+  let focusPosition = 'center center';
+  const readFocus = (hero, src) => {
+    const focusMap = hero && hero.slideFocus && typeof hero.slideFocus === 'object' ? hero.slideFocus : null;
+    const focus = focusMap && typeof src === 'string' ? focusMap[src.trim()] : null;
+    const x = Number(focus && focus.x);
+    const y = Number(focus && focus.y);
+    return focus && Number.isFinite(x) && Number.isFinite(y) ? `${Math.max(0, Math.min(100, x))}% ${Math.max(0, Math.min(100, y))}%` : '';
+  };
   try {
     const liveHero =
       window.PORTFOLIO_OVERRIDES &&
@@ -38,9 +46,11 @@
         const firstSlide = hero.slides.find((item) => item && typeof item.src === 'string' && item.src.trim() !== '');
         if (firstSlide) {
           preferredSrc = toThumbCandidate(firstSlide.src) || DEFAULT_SRC;
+          focusPosition = readFocus(hero, firstSlide.src) || focusPosition;
         }
       } else if (typeof hero.image === 'string' && hero.image.trim() !== '') {
         preferredSrc = toThumbCandidate(hero.image) || DEFAULT_SRC;
+        focusPosition = readFocus(hero, hero.image) || focusPosition;
       }
     }
   } catch (error) {
@@ -70,7 +80,7 @@
     `.hero-media{` +
     `background-image:url("${safeSrc}") !important;` +
     `background-size:cover !important;` +
-    `background-position:center center !important;` +
+    `background-position:${focusPosition} !important;` +
     `background-repeat:no-repeat !important;` +
     `}`;
   head.appendChild(style);
