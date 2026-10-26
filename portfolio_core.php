@@ -387,6 +387,10 @@ function portfolio_set_artwork_availability(string $slug, string $availability, 
 {
   $payload = portfolio_load_overrides();
   $map = portfolio_build_artwork_slug_map($payload);
+  if (!isset($map[$slug])) {
+    // Order från före ett slugbyte.
+    $slug = portfolio_artwork_slug_redirects()[$slug] ?? $slug;
+  }
   if (!isset($map[$slug]) || !isset($payload['gallery']['artworks'][$map[$slug]])) {
     return false;
   }
@@ -426,6 +430,9 @@ function portfolio_artwork_slug_redirects(): array
     'img-0874' => 'himmel-over-skagen',
     'lost-children-of-a-distant-sun-forstudie' => 'reflected-sun',
     'vinter-hemma' => 'vinter-i-humlan',
+    'timmarna-darmellan-i' => 'timmarna-daremellan-i',
+    'timmarna-darmellan-ii' => 'timmarna-daremellan-ii',
+    'timmarna-darmellan-iii' => 'timmarna-daremellan-iii',
   ];
 }
 

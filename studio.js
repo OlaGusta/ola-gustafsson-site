@@ -2436,14 +2436,21 @@ const getHeroSlidesForEditor = (language = getEditingLanguage()) => {
     return Array.isArray(state.content.hero?.slides) ? state.content.hero.slides : [];
   }
 
+  // Bilder, ordning och tider styrs av de svenska slidesen (så renderar index.php och
+  // script.js). Språkpaketets lista speglar dem och bär bara alt-texten per bild.
   const pack = ensureLanguageOverridePack(language);
   if (!pack.hero || typeof pack.hero !== 'object') {
     pack.hero = {};
   }
-  if (!Array.isArray(pack.hero.slides)) {
-    const localizedSlides = getPath(getLocalizedContentForEditor(language), 'hero.slides');
-    pack.hero.slides = cloneSlides(localizedSlides);
-  }
+  const altBySrc = new Map(
+    (Array.isArray(pack.hero.slides) ? pack.hero.slides : [])
+      .filter((slide) => slide && typeof slide.src === 'string')
+      .map((slide) => [slide.src.trim(), typeof slide.alt === 'string' ? slide.alt : ''])
+  );
+  pack.hero.slides = cloneSlides(state.content.hero?.slides).map((slide) => ({
+    ...slide,
+    alt: altBySrc.get(String(slide.src || '').trim()) || ''
+  }));
   return pack.hero.slides;
 };
 
@@ -6077,6 +6084,11 @@ const renderHeroSlidesEditor = () => {
     return;
   }
 
+  [el.addHeroSlide, el.addHeroSlideFromArtwork, el.heroSlideFromArtwork].forEach((control) => {
+    if (control) {
+      control.disabled = !isEditingDefaultLanguage();
+    }
+  });
   const slides = getHeroSlidesForEditor();
   if (slides.length === 0) {
     uiState.selectedHeroSlideIndex = -1;
@@ -6094,6 +6106,9 @@ const renderHeroSlidesEditor = () => {
   const selectedIndex = uiState.selectedHeroSlideIndex;
   const selectedSlide = slides[selectedIndex];
   const selectedDuration = Number(selectedSlide.durationMs || state.content.hero.slideDurationMs || 8000);
+  // På andra språk än svenska går bara alt-texten att ändra (se getHeroSlidesForEditor).
+  const structureLocked = !isEditingDefaultLanguage();
+  const lockedAttr = structureLocked ? ' disabled' : '';
   const selectedSrc = typeof selectedSlide.src === 'string' ? selectedSlide.src.trim() : '';
   const selectedFocus = getHeroSlideFocus(selectedSrc);
   const selectedImageUrl = selectedSrc ? escapeHtml(addRevToSrc(selectedSrc)) : '';
@@ -6144,13 +6159,13 @@ const renderHeroSlidesEditor = () => {
           </figure>
           <div class="hero-slide-detail-fields">
             <label>Bildkälla (src)
-              <input type="text" data-field="src" value="${escapeHtml(selectedSlide.src || '')}" />
+              <input type="text" data-field="src" value="${escapeHtml(selectedSlide.src || '')}"${lockedAttr} />
             </label>
             <label>Alt-text
-              <input type="text" data-field="alt" value="${escapeHtml(selectedSlide.alt || '')}" />
+              <input type="text" data-field="alt" value="${escapeHtml(selectedSlide.alt || '')}"${structureLocked ? ' placeholder="Tomt = verkets engelska titel"' : ''} />
             </label>
             <label>Visningstid (ms)
-              <input type="number" data-field="durationMs" min="1000" step="500" value="${selectedDuration}" />
+              <input type="number" data-field="durationMs" min="1000" step="500" value="${selectedDuration}"${lockedAttr} />
             </label>
             ${
               selectedSrc
@@ -6180,11 +6195,15 @@ const renderHeroSlidesEditor = () => {
             }
           </div>
         </div>
-        <div class="hero-slide-item-actions">
+        ${
+          structureLocked
+            ? '<p class="studio-note">Bilder och ordning ändras under Svenska texter och gäller båda språken. Här skriver du alt-texten på engelska.</p>'
+            : `<div class="hero-slide-item-actions">
           <button type="button" class="btn btn-ghost" data-action="move-up" ${disableUp}>Flytta upp</button>
           <button type="button" class="btn btn-ghost" data-action="move-down" ${disableDown}>Flytta ner</button>
           <button type="button" class="btn btn-ghost" data-action="remove">Ta bort slide</button>
-        </div>
+        </div>`
+        }
       </article>
     </div>
   `;

@@ -693,6 +693,28 @@ const activeLanguagePack =
     : null;
 const content = deepMerge(baseContent, activeLanguagePack || {});
 
+// Hero-slides: bilder, ordning och tider kommer alltid från de svenska slidesen. Språkpaketet
+// ger bara alt-texten per bild (samma src), annars verkets översatta titel. Förr ersatte
+// språkpaketets egen lista den svenska, och engelska startsidan visade gamla bilder.
+if (activeLanguage !== 'sv' && activeLanguagePack && content.hero) {
+  const packSlides = activeLanguagePack.hero && Array.isArray(activeLanguagePack.hero.slides) ? activeLanguagePack.hero.slides : [];
+  const packAltBySrc = new Map(
+    packSlides
+      .filter((slide) => slide && typeof slide.src === 'string' && typeof slide.alt === 'string' && slide.alt.trim() !== '')
+      .map((slide) => [slide.src.trim(), slide.alt.trim()])
+  );
+  const artworkTextBySrc =
+    activeLanguagePack.gallery && typeof activeLanguagePack.gallery.artworkTextBySrc === 'object'
+      ? activeLanguagePack.gallery.artworkTextBySrc
+      : {};
+  const baseSlides = baseContent.hero && Array.isArray(baseContent.hero.slides) ? baseContent.hero.slides : [];
+  content.hero.slides = baseSlides.map((slide) => {
+    const src = slide && typeof slide.src === 'string' ? slide.src.trim() : '';
+    const artworkTitle = src && artworkTextBySrc[src] && typeof artworkTextBySrc[src].title === 'string' ? artworkTextBySrc[src].title.trim() : '';
+    return { ...slide, alt: packAltBySrc.get(src) || artworkTitle || (slide && slide.alt) || '' };
+  });
+}
+
 document.documentElement.lang = activeLanguage;
 
 const isLocalStaticPreviewHost = () => isLocalPreviewHost;

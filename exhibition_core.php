@@ -229,6 +229,113 @@ function seo_exhibition_pair_ratio(string $a, string $b): ?float
   return count($ratios) === 2 ? min($ratios) : null;
 }
 
+function seo_exhibition_title_key(string $title): string
+{
+  $title = preg_replace('/\s+/u', ' ', trim($title)) ?? '';
+  return function_exists('mb_strtolower') ? mb_strtolower($title, 'UTF-8') : strtolower($title);
+}
+
+// Galleriverkens titlar (svenska och, på andra språk, översatta) -> verkets slug.
+function seo_exhibition_artwork_slugs_by_title(array $payload, string $lang): array
+{
+  static $cache = [];
+  if (isset($cache[$lang])) {
+    return $cache[$lang];
+  }
+
+  $artworks = seo_array_get_path($payload, ['gallery', 'artworks']);
+  $artworks = is_array($artworks) ? $artworks : [];
+  $map = [];
+  foreach (portfolio_build_artwork_slug_map($payload) as $slug => $index) {
+    $artwork = $artworks[$index] ?? null;
+    if (!is_array($artwork)) {
+      continue;
+    }
+    $titles = [is_string($artwork['title'] ?? null) ? $artwork['title'] : ''];
+    if ($lang !== 'sv') {
+      $translated = portfolio_artwork_translation($payload, $lang, is_string($artwork['src'] ?? null) ? trim($artwork['src']) : '');
+      $titles[] = is_string($translated['title'] ?? null) ? $translated['title'] : '';
+    }
+    foreach ($titles as $title) {
+      $key = seo_exhibition_title_key($title);
+      if ($key !== '' && !isset($map[$key])) {
+        $map[$key] = (string) $slug;
+      }
+    }
+  }
+
+  return $cache[$lang] = $map;
+}
+
+function seo_exhibition_roman(int $number): string
+{
+  $out = '';
+  foreach (['X' => 10, 'IX' => 9, 'V' => 5, 'IV' => 4, 'I' => 1] as $numeral => $value) {
+    while ($number >= $value) {
+      $out .= $numeral;
+      $number -= $value;
+    }
+  }
+  return $out;
+}
+
+function seo_exhibition_roman_value(string $numeral): int
+{
+  for ($number = 1; $number <= 20; $number++) {
+    if (seo_exhibition_roman($number) === $numeral) {
+      return $number;
+    }
+  }
+  return 0;
+}
+
+// Titel i verklistan som HTML. Titlar som motsvarar ett galleriverk länkas till verkets sida;
+// en serie som "Tid i vila I–III" blir länkar till Tid i vila I, II och III. En egen länk
+// i titeln, [text](https://…), används som den står.
+function seo_exhibition_work_title_html(array $payload, string $title, string $lang): string
+{
+  if (preg_match('/\[[^\]]+\]\s*\(https?:\/\//i', $title) === 1) {
+    return seo_exhibition_inline_html($title);
+  }
+
+  $slugs = seo_exhibition_artwork_slugs_by_title($payload, $lang);
+  $link = static fn (string $label, string $slug): string => '<a href="verk/' . rawurlencode($slug) . '" data-lang-link>'
+    . seo_escape_html($label) . '</a>';
+
+  $single = $slugs[seo_exhibition_title_key($title)] ?? null;
+  if ($single !== null) {
+    return $link($title, $single);
+  }
+
+  if (preg_match('/^(.*\S)\s+([IVX]+)\s*[–—-]\s*([IVX]+)$/u', trim($title), $range) === 1) {
+    $from = seo_exhibition_roman_value($range[2]);
+    $to = seo_exhibition_roman_value($range[3]);
+    if ($from > 0 && $to > $from) {
+      $parts = [];
+      $linked = false;
+      for ($number = $from; $number <= $to; $number++) {
+        $numeral = seo_exhibition_roman($number);
+        $label = $number === $from ? $range[1] . ' ' . $numeral : $numeral;
+        $slug = $slugs[seo_exhibition_title_key($range[1] . ' ' . $numeral)] ?? null;
+        $linked = $linked || $slug !== null;
+        $parts[] = $slug !== null ? $link($label, $slug) : seo_escape_html($label);
+      }
+      if ($linked) {
+        return implode(', ', $parts);
+      }
+    }
+  }
+
+  return seo_escape_html($title);
+}
+
+// Titeln utan länkmarkering, för strukturerad data.
+function seo_exhibition_plain_text(string $value): string
+{
+  $value = preg_replace('/\[([^\]]+)\]\s*\(https?:\/\/[^\s)]+\)/i', '$1', $value) ?? $value;
+  return trim(preg_replace('/<\/?(i|em)>/i', '', $value) ?? $value);
+}
+
 // Verklistan: en rad per verk, "Titel | mått".
 function seo_exhibition_works(string $worksText): array
 {

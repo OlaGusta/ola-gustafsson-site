@@ -338,15 +338,32 @@ function seo_hero_first_slide(array $payload, string $lang): array
     }
   }
 
-  foreach (seo_localized_payload_array($payload, $lang, ['hero', 'slides']) as $slide) {
+  // Bilder och ordning från de svenska slidesen; på andra språk bara alt-texten
+  // (språkpaketets slide med samma src, annars verkets översatta titel), som i script.js.
+  $slides = seo_array_get_path($payload, ['hero', 'slides']);
+  foreach (is_array($slides) ? $slides : [] as $slide) {
     $src = is_array($slide) && is_string($slide['src'] ?? null) ? trim($slide['src']) : '';
     if ($src === '' || isset($excluded[seo_hero_src_key($src)])) {
       continue;
     }
-    return [
-      'src' => $src,
-      'alt' => is_string($slide['alt'] ?? null) ? trim($slide['alt']) : '',
-    ];
+    $alt = '';
+    if ($lang !== 'sv') {
+      foreach ((array) (seo_array_get_path($payload, ['translations', $lang, 'hero', 'slides']) ?? []) as $packSlide) {
+        if (is_array($packSlide) && is_string($packSlide['src'] ?? null) && trim($packSlide['src']) === $src
+          && is_string($packSlide['alt'] ?? null) && trim($packSlide['alt']) !== '') {
+          $alt = trim($packSlide['alt']);
+          break;
+        }
+      }
+      if ($alt === '') {
+        $artworkTitle = seo_array_get_path($payload, ['translations', $lang, 'gallery', 'artworkTextBySrc', $src, 'title']);
+        $alt = is_string($artworkTitle) ? trim($artworkTitle) : '';
+      }
+    }
+    if ($alt === '') {
+      $alt = is_string($slide['alt'] ?? null) ? trim($slide['alt']) : '';
+    }
+    return ['src' => $src, 'alt' => $alt];
   }
 
   return [];

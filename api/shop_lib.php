@@ -202,6 +202,10 @@ function shop_resolve_items(PDO $pdo, array $cartItems, string $lang, bool $allo
     }
     $kind = isset($raw['kind']) && is_string($raw['kind']) ? $raw['kind'] : '';
     $ref = isset($raw['ref']) && is_string($raw['ref']) ? trim($raw['ref']) : (isset($raw['ref']) && is_int($raw['ref']) ? (string) $raw['ref'] : '');
+    // Kundvagn från före ett slugbyte: följ omdirigeringen (samma lista som verksidan).
+    if ($ref !== '' && !isset($catalog['artworks'][$ref])) {
+      $ref = portfolio_artwork_slug_redirects()[$ref] ?? $ref;
+    }
     $size = isset($raw['size']) && is_string($raw['size']) ? trim($raw['size']) : '';
     $qty = isset($raw['qty']) && is_numeric($raw['qty']) ? max(1, min(20, (int) $raw['qty'])) : 1;
 

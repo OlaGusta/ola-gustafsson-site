@@ -86,7 +86,7 @@ if ($str('venue') !== '') {
 }
 if ($works !== []) {
   $event['workFeatured'] = array_map(
-    static fn (array $work): array => ['@type' => 'VisualArtwork', 'name' => $work[0], 'artform' => 'Watercolor', 'creator' => ['@id' => $personId]],
+    static fn (array $work): array => ['@type' => 'VisualArtwork', 'name' => seo_exhibition_plain_text($work[0]), 'artform' => 'Watercolor', 'creator' => ['@id' => $personId]],
     $works
   );
 }
@@ -266,7 +266,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                 <?php if ($str('worksNote') !== ''): ?><p class="exhibition-works-note"><?= $h($str('worksNote')) ?></p><?php endif; ?>
                 <ul class="exhibition-works">
                   <?php foreach ($works as [$workTitle, $workSize]): ?>
-                    <li><em><?= $h($workTitle) ?></em><span><?= $h($workSize) ?></span></li>
+                    <li><em><?= seo_exhibition_work_title_html($payload, $workTitle, $lang) ?></em><span><?= $h($workSize) ?></span></li>
                   <?php endforeach; ?>
                 </ul>
                 <p><?= $en
