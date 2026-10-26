@@ -195,7 +195,7 @@ if (!$artwork) {
 
       <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
       <script src="/content.js?v=20260928-01" defer></script>
-      <script src="/script.js?v=20261026-02" defer></script>
+      <script src="/script.js?v=20261026-03" defer></script>
     <script src="/shop.js?v=20261026-03" defer></script>
     </body>
   </html>
@@ -437,7 +437,7 @@ if (
   seo_request_has_explicit_sv_lang() ||
   (isset($_GET['slug']) && is_string($_GET['slug']) && trim($_GET['slug']) !== '' && trim($_GET['slug']) !== $canonicalSlug)
 ) {
-  header('Location: ' . $canonical, true, 301);
+  header('Location: ' . seo_url_with_request_params($canonical), true, 301);
   exit;
 }
 
@@ -705,7 +705,7 @@ if (!is_string($structuredJson)) {
     <link rel="stylesheet" href="/styles.css?v=20261026-01" />
     <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="/content.js?v=20260928-01" defer></script>
-    <script src="/script.js?v=20261026-02" defer></script>
+    <script src="/script.js?v=20261026-03" defer></script>
     <script src="/shop.js?v=20261026-03" defer></script>
   </head>
   <body id="page-top" data-page="artwork">

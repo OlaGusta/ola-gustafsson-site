@@ -174,7 +174,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
     <link rel="stylesheet" href="styles.css?v=20261026-01" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
-    <script src="script.js?v=20261026-02" defer></script>
+    <script src="script.js?v=20261026-03" defer></script>
     <script src="shop.js?v=20261026-03" defer></script>
   </head>
   <body id="page-top" data-page="exhibition">

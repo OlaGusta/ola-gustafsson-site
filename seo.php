@@ -1178,8 +1178,18 @@ function seo_redirect_explicit_sv_lang_to(string $canonicalUrl): void
     return;
   }
 
-  header('Location: ' . $canonicalUrl, true, 301);
+  header('Location: ' . seo_url_with_request_params($canonicalUrl), true, 301);
   exit;
+}
+
+// Adressen med besökarens övriga parametrar (t.ex. ?filter=, ?for=); lang och slug tas bort.
+// REQUEST_URI är adressen före omskrivningen i .htaccess.
+function seo_url_with_request_params(string $url): string
+{
+  parse_str((string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? ''), PHP_URL_QUERY), $params);
+  unset($params['lang'], $params['slug']);
+  $query = http_build_query($params, '', '&', PHP_QUERY_RFC3986);
+  return $url . ($query !== '' ? (str_contains($url, '?') ? '&' : '?') . $query : '');
 }
 
 function seo_artwork_url(string $slug, string $lang): string

@@ -356,6 +356,16 @@ const storeLanguage = (language) => {
   }
 };
 
+// Svenska har adressen utan ?lang (PHP skickar ?lang=sv vidare dit och tappar då
+// övriga parametrar, t.ex. ?filter=); engelska får ?lang=en.
+const setUrlLanguage = (url, language) => {
+  if (language === 'sv') {
+    url.searchParams.delete('lang');
+  } else {
+    url.searchParams.set('lang', language);
+  }
+};
+
 const readLanguageFromQuery = () => {
   try {
     const params = new URLSearchParams(window.location.search);
@@ -642,11 +652,20 @@ const migrateStoredContent = (stored, currentFileContent) => {
   return next;
 };
 
+// Adressen bestämmer språket: ?lang=en, annars det språk PHP ritade sidan på (<html lang>).
+// Förr vann det sparade valet, så den som en gång valt engelska fick engelsk meny,
+// länkar och kassa på svenska sidor (Ola, okt 2026). Det sparade valet gäller bara
+// sidor utan eget språk.
 const resolveActiveLanguage = () => {
   const queryLanguage = readLanguageFromQuery();
   if (queryLanguage) {
     storeLanguage(queryLanguage);
     return queryLanguage;
+  }
+
+  const pageLanguage = normalizeLanguageCode(document.documentElement.getAttribute('lang'));
+  if (pageLanguage) {
+    return pageLanguage;
   }
 
   const storedLanguage = readStoredLanguage();
@@ -1008,7 +1027,7 @@ const bindLanguageAwareLinks = () => {
       return;
     }
 
-    url.searchParams.set('lang', activeLanguage);
+    setUrlLanguage(url, activeLanguage);
     link.setAttribute('href', `${url.pathname}${url.search}${url.hash}`);
   });
 };
@@ -1042,7 +1061,7 @@ const initLanguageSwitcher = () => {
 
       storeLanguage(nextLanguage);
       const nextUrl = new URL(window.location.href);
-      nextUrl.searchParams.set('lang', nextLanguage);
+      setUrlLanguage(nextUrl, nextLanguage);
       window.location.href = nextUrl.toString();
     });
   });
@@ -2134,7 +2153,7 @@ const buildArtworkPageUrl = (item, hash = '') => {
   if (usePreviewRoute) {
     url.searchParams.set('slug', slug);
   }
-  url.searchParams.set('lang', activeLanguage);
+  setUrlLanguage(url, activeLanguage);
   if (typeof hash === 'string' && hash.trim() !== '') {
     url.hash = hash.trim().replace(/^#/, '');
   }
