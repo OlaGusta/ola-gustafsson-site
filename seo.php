@@ -1376,6 +1376,18 @@ function seo_original_shipping(array $payload, string $format): int
   return $long > $cfg['largeSideCm'] ? $cfg['shippingOriginalLarge'] : $cfg['shippingOriginalSmall'];
 }
 
+// Bildmåttet utan "ca"/"approx." ("15 × 23 cm"), så att katalogen är språkneutral.
+function seo_print_image_dims(string $image): string
+{
+  return (string) preg_replace('/^(ca|approx\.)\s+/u', '', trim($image));
+}
+
+// " (bild ca 15 × 23 cm)" / " (image approx. 15 × 23 cm)" efter ett printformat.
+function seo_print_image_note(string $dims, string $lang): string
+{
+  return $dims !== '' ? ' (' . ($lang === 'en' ? 'image approx. ' : 'bild ca ') . $dims . ')' : '';
+}
+
 // Katalogen kassan räknar mot: samma data för JS (kundvagn) och för api/shop.php
 // (kontroll av priser på servern). Priser i hela kronor inkl. moms.
 function seo_shop_catalog(array $payload): array
@@ -1409,7 +1421,7 @@ function seo_shop_catalog(array $payload): array
       'prints' => array_values(array_map(static fn (array $size): array => [
         'format' => $size['format'],
         'price' => seo_price_amount($size['price']),
-        'image' => $size['image'] ?? ''
+        'image' => seo_print_image_dims($size['image'] ?? '')
       ], $printSizes)),
     ];
   }
@@ -1418,7 +1430,7 @@ function seo_shop_catalog(array $payload): array
     'sunPrints' => array_values(array_map(static fn (array $size): array => [
       'format' => $size['format'],
       'price' => seo_price_amount($size['price']),
-      'image' => seo_print_image_size($size['format'], 'sv')
+      'image' => seo_print_image_dims(seo_print_image_size($size['format'], 'sv'))
     ], seo_print_sizes($payload, 'sv'))),
     'shippingPrint' => $cfg['shippingPrint'],
     'editionSize' => $cfg['editionSize'],

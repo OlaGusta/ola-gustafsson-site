@@ -129,7 +129,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <script src="script.js?v=20261026-02" defer></script>
-    <script src="shop.js?v=20261026-02" defer></script>
+    <script src="shop.js?v=20261026-03" defer></script>
     <script src="sol.js?v=20261026-01" defer></script>
   </head>
   <body id="page-top" data-page="sun" data-day-label="<?= $h($dayLabel) ?>" data-remove-label="<?= $h($lang === 'en' ? 'Remove day' : 'Ta bort dag') ?>">

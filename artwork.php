@@ -196,7 +196,7 @@ if (!$artwork) {
       <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
       <script src="/content.js?v=20260928-01" defer></script>
       <script src="/script.js?v=20261026-02" defer></script>
-    <script src="/shop.js?v=20261026-02" defer></script>
+    <script src="/shop.js?v=20261026-03" defer></script>
     </body>
   </html>
   <?php
@@ -706,7 +706,7 @@ if (!is_string($structuredJson)) {
     <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="/content.js?v=20260928-01" defer></script>
     <script src="/script.js?v=20261026-02" defer></script>
-    <script src="/shop.js?v=20261026-02" defer></script>
+    <script src="/shop.js?v=20261026-03" defer></script>
   </head>
   <body id="page-top" data-page="artwork">
     <header class="site-header" id="top">
@@ -883,7 +883,7 @@ if (!is_string($structuredJson)) {
                     <div class="artwork-buy-row">
                       <select id="artwork-buy-print-size" aria-label="<?= htmlspecialchars($lang === 'en' ? 'Print size' : 'Printformat', ENT_QUOTES) ?>">
                         <?php foreach ($buyPrints as $i => $size): ?>
-                          <option value="<?= htmlspecialchars($size['format'], ENT_QUOTES) ?>" <?= $i === 0 ? 'selected' : '' ?>><?= htmlspecialchars(seo_print_frame_label($size['format'], $lang) . ($size['image'] !== '' ? ' (' . ($lang === 'en' ? 'image ' : 'bild ') . $size['image'] . ')' : '') . ' – ' . shop_money_label((int) $size['price'], $lang), ENT_QUOTES) ?></option>
+                          <option value="<?= htmlspecialchars($size['format'], ENT_QUOTES) ?>" <?= $i === 0 ? 'selected' : '' ?>><?= htmlspecialchars(seo_print_frame_label($size['format'], $lang) . seo_print_image_note($size['image'], $lang) . ' – ' . shop_money_label((int) $size['price'], $lang), ENT_QUOTES) ?></option>
                         <?php endforeach; ?>
                       </select>
                       <button type="button" class="btn <?= $buyOriginal ? 'btn-ghost' : 'btn-primary' ?>" data-shop-add="print" data-ref="<?= htmlspecialchars($canonicalSlug, ENT_QUOTES) ?>" data-size-select="artwork-buy-print-size"><?= htmlspecialchars($lang === 'en' ? 'Order fine art print' : 'Beställ Fine Art Print', ENT_QUOTES) ?></button>

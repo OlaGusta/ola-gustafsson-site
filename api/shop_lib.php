@@ -296,7 +296,7 @@ function shop_resolve_items(PDO $pdo, array $cartItems, string $lang, bool $allo
       }
       $lines[] = [
         'kind' => 'print', 'ref' => $ref, 'title' => 'Fine Art Print – ' . $art['title'],
-        'detail' => seo_print_frame_label($match['format'], $lang) . ($match['image'] !== '' ? ' (' . ($lang === 'en' ? 'image ' : 'bild ') . $match['image'] . ')' : ''),
+        'detail' => seo_print_frame_label($match['format'], $lang) . seo_print_image_note($match['image'], $lang),
         'qty' => $qty, 'unit' => (int) $match['price'], 'vat' => SHOP_VAT_RATE_PRINT, 'edition' => null, 'sort' => $sort++
       ];
       continue;
@@ -319,7 +319,7 @@ function shop_resolve_items(PDO $pdo, array $cartItems, string $lang, bool $allo
       }
       $lines[] = [
         'kind' => 'sun', 'ref' => (string) $day, 'title' => sprintf($lang === 'en' ? '100 days of sun – day %d' : '100 dagar av sol – dag %d', $day),
-        'detail' => 'Fine Art Print, ' . seo_print_frame_label($match['format'], $lang) . ($match['image'] !== '' ? ' (' . ($lang === 'en' ? 'image ' : 'bild ') . $match['image'] . ')' : ''),
+        'detail' => 'Fine Art Print, ' . seo_print_frame_label($match['format'], $lang) . seo_print_image_note($match['image'], $lang),
         'qty' => $qty, 'unit' => (int) $match['price'], 'vat' => SHOP_VAT_RATE_PRINT, 'edition' => null, 'sort' => $sort++
       ];
       continue;

@@ -186,7 +186,7 @@
             problems.push({ index, text: T('Printformatet finns inte.', 'The print size is not available.') });
             return;
           }
-          lines.push({ index, kind: 'print', title: `Fine Art Print – ${art.title}`, detail: `${frameLabel(size.format)}${size.image ? ` (${T('bild', 'image')} ${size.image})` : ''}`, qty: Number(item.qty) || 1, unit: size.price, vat: 25, src: art.src });
+          lines.push({ index, kind: 'print', title: `Fine Art Print – ${art.title}`, detail: `${frameLabel(size.format)}${size.image ? ` (${T('bild ca', 'image approx.')} ${size.image})` : ''}`, qty: Number(item.qty) || 1, unit: size.price, vat: 25, src: art.src });
           return;
         }
         if (item.kind === 'sun') {
@@ -196,7 +196,7 @@
             problems.push({ index, text: T('Solen finns inte.', 'The sun is not available.') });
             return;
           }
-          lines.push({ index, kind: 'sun', title: `${T('100 dagar av sol – dag', '100 days of sun – day')} ${day}`, detail: `Fine Art Print, ${frameLabel(size.format)}${size.image ? ` (${T('bild', 'image')} ${size.image})` : ''}`, qty: Number(item.qty) || 1, unit: size.price, vat: 25, src: `images/sol/thumb/dag-${String(day).padStart(3, '0')}.jpg` });
+          lines.push({ index, kind: 'sun', title: `${T('100 dagar av sol – dag', '100 days of sun – day')} ${day}`, detail: `Fine Art Print, ${frameLabel(size.format)}${size.image ? ` (${T('bild ca', 'image approx.')} ${size.image})` : ''}`, qty: Number(item.qty) || 1, unit: size.price, vat: 25, src: `images/sol/thumb/dag-${String(day).padStart(3, '0')}.jpg` });
         }
       });
       return { lines, problems };
