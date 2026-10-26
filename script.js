@@ -4238,6 +4238,8 @@ const initArtworkInquiryForm = () => {
     const priceInput = form.querySelector('input[name="inquiryPriceLabel"]');
     const sizeSelect = form.querySelector('[data-print-size]');
     const sizeWrap = form.querySelector('[data-print-size-wrap]');
+    const frameSelect = form.querySelector('[data-print-frame]');
+    const frameWrap = form.querySelector('[data-print-frame-wrap]');
     const applyKind = () => {
       const chosen = kindInputs.find((input) => input.checked);
       if (!chosen) {
@@ -4248,13 +4250,25 @@ const initArtworkInquiryForm = () => {
       if (sizeWrap) {
         sizeWrap.hidden = !isPrint;
       }
+      if (frameWrap) {
+        frameWrap.hidden = !isPrint;
+      }
+      // Vald ram följer med i förfrågans titel och prisetikett: "Fine Art Print, 40 × 60 cm, svart ram".
+      const frameOption = option && frameSelect && frameSelect.value ? frameSelect.selectedOptions[0] : null;
+      const framePrice = option ? Number(option.dataset.framePrice || 0) : 0;
+      const frameName = frameOption ? frameOption.dataset.label || frameOption.textContent : '';
       if (titleInput) {
         const baseTitle = chosen.dataset.title || titleInput.value;
-        titleInput.value = option ? baseTitle.replace(/^Fine Art Print/, `Fine Art Print, ${option.value}`) : baseTitle;
+        titleInput.value = option
+          ? baseTitle.replace(/^Fine Art Print/, `Fine Art Print, ${option.value}${frameOption ? `, ${frameName.toLowerCase()}` : ''}`)
+          : baseTitle;
       }
       if (priceInput) {
+        const frameText = frameOption && framePrice > 0
+          ? ` + ${frameName} ${framePrice.toLocaleString('sv-SE')} ${activeLanguage === 'en' ? 'SEK' : 'kr'}`
+          : '';
         priceInput.value = option
-          ? [option.value, option.dataset.price || ''].filter(Boolean).join(' ')
+          ? `${[option.value, option.dataset.price || ''].filter(Boolean).join(' ')}${frameText}`
           : chosen.dataset.price || '';
       }
     };
@@ -4271,6 +4285,9 @@ const initArtworkInquiryForm = () => {
     });
     if (sizeSelect) {
       sizeSelect.addEventListener('change', applyKind);
+    }
+    if (frameSelect) {
+      frameSelect.addEventListener('change', applyKind);
     }
     form.addEventListener('reset', () => window.setTimeout(applyKind, 0));
     applyKind();

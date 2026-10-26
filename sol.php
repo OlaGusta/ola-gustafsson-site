@@ -128,8 +128,8 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
     <link rel="stylesheet" href="styles.css?v=20261026-02" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
-    <script src="script.js?v=20261026-03" defer></script>
-    <script src="shop.js?v=20261026-04" defer></script>
+    <script src="script.js?v=20261026-04" defer></script>
+    <script src="shop.js?v=20261026-05" defer></script>
     <script src="sol.js?v=20261026-02" defer></script>
   </head>
   <body id="page-top" data-page="sun" data-day-label="<?= $h($dayLabel) ?>" data-remove-label="<?= $h($lang === 'en' ? 'Remove day' : 'Ta bort dag') ?>">
@@ -288,7 +288,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                 <label><?= $h($lang === 'en' ? 'Size (same for all)' : 'Format (samma för alla)') ?>
                   <select id="sun-order-size" name="printSize">
                     <?php foreach ($printSizes as $i => $size): ?>
-                      <option value="<?= $h($size['format']) ?>" data-price="<?= $h($size['price']) ?>" data-frame-price="<?= (int) (seo_shop_config($payload)['framePrices'][seo_print_format_key($size['format'])] ?? 0) ?>" <?= $i === 0 ? 'selected' : '' ?>><?php $optionImage = seo_print_image_size($size['format'], $lang); ?><?= $h(seo_print_frame_label($size['format'], $lang) . ($optionImage !== '' ? ' (' . ($lang === 'en' ? 'image ' : 'bild ') . $optionImage . ')' : '') . ($size['price'] !== '' ? ' – ' . $size['price'] : '')) ?></option>
+                      <option value="<?= $h($size['format']) ?>" data-price="<?= $h($size['price']) ?>" data-frame-price="<?= (int) (seo_shop_config($payload)['framePrices'][seo_print_format_key($size['format'])] ?? 0) ?>" <?= $i === 0 ? 'selected' : '' ?>><?php $optionImage = seo_print_image_size($size['format'], $lang); ?><?= $h($size['format'] . ($optionImage !== '' ? ' (' . ($lang === 'en' ? 'image ' : 'bild ') . $optionImage . ')' : '') . ($size['price'] !== '' ? ' – ' . $size['price'] : '')) ?></option>
                     <?php endforeach; ?>
                   </select>
                 </label>

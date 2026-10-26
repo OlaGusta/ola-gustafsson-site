@@ -94,6 +94,20 @@
   };
 
   const bindAddButtons = () => {
+    // Köprutans val följer med till formuläret längre ned (samma format och ram).
+    document.querySelectorAll('select[data-sync-to]').forEach((source) => {
+      const target = document.getElementById(source.dataset.syncTo);
+      if (!target) {
+        return;
+      }
+      source.addEventListener('change', () => {
+        if (Array.from(target.options).some((option) => option.value === source.value && !option.disabled)) {
+          target.value = source.value;
+          target.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+    });
+
     document.querySelectorAll('select[data-frame-for]').forEach((frameSelect) => {
       const sizeSelect = document.getElementById(frameSelect.dataset.frameFor);
       syncFrameOptions(sizeSelect, frameSelect);

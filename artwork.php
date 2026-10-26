@@ -195,8 +195,8 @@ if (!$artwork) {
 
       <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
       <script src="/content.js?v=20260928-01" defer></script>
-      <script src="/script.js?v=20261026-03" defer></script>
-    <script src="/shop.js?v=20261026-04" defer></script>
+      <script src="/script.js?v=20261026-04" defer></script>
+    <script src="/shop.js?v=20261026-05" defer></script>
     </body>
   </html>
   <?php
@@ -705,8 +705,8 @@ if (!is_string($structuredJson)) {
     <link rel="stylesheet" href="/styles.css?v=20261026-02" />
     <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="/content.js?v=20260928-01" defer></script>
-    <script src="/script.js?v=20261026-03" defer></script>
-    <script src="/shop.js?v=20261026-04" defer></script>
+    <script src="/script.js?v=20261026-04" defer></script>
+    <script src="/shop.js?v=20261026-05" defer></script>
   </head>
   <body id="page-top" data-page="artwork">
     <header class="site-header" id="top">
@@ -882,13 +882,13 @@ if (!is_string($structuredJson)) {
                   <?php endif; ?>
                   <?php if ($buyPrints !== []): ?>
                     <div class="artwork-buy-row">
-                      <select id="artwork-buy-print-size" aria-label="<?= htmlspecialchars($lang === 'en' ? 'Print size' : 'Printformat', ENT_QUOTES) ?>">
+                      <select id="artwork-buy-print-size" data-sync-to="artwork-inquiry-print-size" aria-label="<?= htmlspecialchars($lang === 'en' ? 'Print size' : 'Printformat', ENT_QUOTES) ?>">
                         <?php foreach ($buyPrints as $i => $size): ?>
-                          <option value="<?= htmlspecialchars($size['format'], ENT_QUOTES) ?>" data-frame-price="<?= (int) $size['framePrice'] ?>" <?= $i === 0 ? 'selected' : '' ?>><?= htmlspecialchars(seo_print_frame_label($size['format'], $lang) . seo_print_image_note($size['image'], $lang) . ' – ' . shop_money_label((int) $size['price'], $lang), ENT_QUOTES) ?></option>
+                          <option value="<?= htmlspecialchars($size['format'], ENT_QUOTES) ?>" data-frame-price="<?= (int) $size['framePrice'] ?>" <?= $i === 0 ? 'selected' : '' ?>><?= htmlspecialchars($size['format'] . seo_print_image_note($size['image'], $lang) . ' – ' . shop_money_label((int) $size['price'], $lang), ENT_QUOTES) ?></option>
                         <?php endforeach; ?>
                       </select>
                       <?php if ($buyFrames): ?>
-                        <select id="artwork-buy-print-frame" data-frame-for="artwork-buy-print-size" aria-label="<?= htmlspecialchars($lang === 'en' ? 'Frame' : 'Ram', ENT_QUOTES) ?>">
+                        <select id="artwork-buy-print-frame" data-frame-for="artwork-buy-print-size" data-sync-to="artwork-inquiry-print-frame" aria-label="<?= htmlspecialchars($lang === 'en' ? 'Frame' : 'Ram', ENT_QUOTES) ?>">
                           <option value=""><?= htmlspecialchars($lang === 'en' ? 'No frame' : 'Utan ram', ENT_QUOTES) ?></option>
                           <?php foreach (array_keys(SEO_FRAME_COLORS) as $frameColor): ?>
                             <option value="<?= htmlspecialchars($frameColor, ENT_QUOTES) ?>" data-label="<?= htmlspecialchars(seo_frame_option_label($frameColor, $lang), ENT_QUOTES) ?>"><?= htmlspecialchars(seo_frame_option_label($frameColor, $lang), ENT_QUOTES) ?></option>
@@ -983,12 +983,23 @@ if (!is_string($structuredJson)) {
                   </fieldset>
                   <?php endif; ?>
                   <label class="artwork-inquiry-print-size" data-print-size-wrap <?= $originalAvailable ? 'hidden' : '' ?>><?= htmlspecialchars($lang === 'en' ? 'Print size' : 'Printformat', ENT_QUOTES) ?>
-                    <select name="printSize" data-print-size>
+                    <?php $inquiryShopCfg = seo_shop_config($payload); ?>
+                    <select name="printSize" id="artwork-inquiry-print-size" data-print-size>
                       <?php foreach ($printSizes as $i => $size): ?>
-                        <option value="<?= htmlspecialchars($size['format'], ENT_QUOTES) ?>" data-price="<?= htmlspecialchars($size['price'], ENT_QUOTES) ?>" <?= $i === 0 ? 'selected' : '' ?>><?= htmlspecialchars(seo_print_frame_label($size['format'], $lang) . ($size['image'] !== '' ? ' (' . ($lang === 'en' ? 'image ' : 'bild ') . $size['image'] . ')' : '') . ($size['price'] !== '' ? ' – ' . $size['price'] : ''), ENT_QUOTES) ?></option>
+                        <option value="<?= htmlspecialchars($size['format'], ENT_QUOTES) ?>" data-price="<?= htmlspecialchars($size['price'], ENT_QUOTES) ?>" data-frame-price="<?= (int) ($inquiryShopCfg['framePrices'][seo_print_format_key($size['format'])] ?? 0) ?>" <?= $i === 0 ? 'selected' : '' ?>><?= htmlspecialchars($size['format'] . ($size['image'] !== '' ? ' (' . ($lang === 'en' ? 'image ' : 'bild ') . $size['image'] . ')' : '') . ($size['price'] !== '' ? ' – ' . $size['price'] : ''), ENT_QUOTES) ?></option>
                       <?php endforeach; ?>
                     </select>
                   </label>
+                  <?php if (seo_frame_price_list($inquiryShopCfg, $printSizes, $lang) !== ''): ?>
+                    <label class="artwork-inquiry-print-size" data-print-frame-wrap <?= $originalAvailable ? 'hidden' : '' ?>><?= htmlspecialchars($lang === 'en' ? 'Frame' : 'Ram', ENT_QUOTES) ?>
+                      <select name="printFrame" id="artwork-inquiry-print-frame" data-print-frame data-frame-for="artwork-inquiry-print-size">
+                        <option value=""><?= htmlspecialchars($lang === 'en' ? 'No frame' : 'Utan ram', ENT_QUOTES) ?></option>
+                        <?php foreach (array_keys(SEO_FRAME_COLORS) as $frameColor): ?>
+                          <option value="<?= htmlspecialchars($frameColor, ENT_QUOTES) ?>" data-label="<?= htmlspecialchars(seo_frame_option_label($frameColor, $lang), ENT_QUOTES) ?>"><?= htmlspecialchars(seo_frame_option_label($frameColor, $lang), ENT_QUOTES) ?></option>
+                        <?php endforeach; ?>
+                      </select>
+                    </label>
+                  <?php endif; ?>
                 <?php endif; ?>
 
                 <label><?= htmlspecialchars($lang === 'en' ? 'Name' : 'Namn', ENT_QUOTES) ?>
