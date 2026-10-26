@@ -145,7 +145,7 @@
       const b = Number(match[2].replace(',', '.'));
       return `${Math.min(a, b)}x${Math.max(a, b)}`;
     };
-    const frameLabel = (format) => `${T('Ram', 'Frame')} ${format}`;
+    const frameLabel = (format) => `${format}, ${T('utan ram', 'unframed')}`;
 
     // Samma prisregler som shop_lib.php, för visning innan ordern skickas.
     const resolveLines = () => {

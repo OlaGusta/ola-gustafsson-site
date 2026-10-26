@@ -1478,14 +1478,14 @@ function seo_print_sizes(array $payload, string $lang): array
 // på begäran mot serviceavgift (seo_framing_service_note).
 function seo_print_mount_label(string $lang): string
 {
-  return $lang === 'en' ? 'Mounted on acid-free board' : 'Monterad på syrafri skiva';
+  return $lang === 'en' ? 'Mounted on acid-free board, unframed' : 'Monterad på syrafri skiva, utan ram';
 }
 
 function seo_print_mount_note(string $lang): string
 {
   return $lang === 'en'
-    ? 'The size is the frame size. The print comes mounted on an acid-free board of that size, without frame or glass, ready to frame.'
-    : 'Formatet är ramens mått. Printen levereras monterad på en syrafri skiva i det formatet, utan ram och glas, klar att rama in.';
+    ? 'The print comes mounted on an acid-free board, without frame or glass. The board is the size you choose and fits a frame of the same size.'
+    : 'Printen levereras monterad på en syrafri skiva, utan ram och glas. Skivan har det format du väljer och passar i en ram i samma storlek.';
 }
 
 // Fast frakt för print (beslut 2026-10-04): ett belopp per beställning inom Sverige,
@@ -1504,8 +1504,8 @@ function seo_print_extras_note(string $lang): string
 function seo_print_delivery_note(string $lang): string
 {
   return $lang === 'en'
-    ? 'Prints are made to order and usually ship within a few days. If you order a frame, add about a week, and the frame is charged separately.'
-    : 'Printen görs på beställning och skickas normalt inom några dagar. Beställer du ram tar det cirka en vecka till, och ramen kostar extra.';
+    ? 'Prints are made to order and usually ship within a few days. Framed, it takes about a week longer.'
+    : 'Printen görs på beställning och skickas normalt inom några dagar. Med ram tar det cirka en vecka till.';
 }
 
 // Betalningsuppgifter från Studio (Kontakt → Swish-nummer / Bankkonto). Tomma = ingen text.
@@ -1580,13 +1580,15 @@ function seo_local_image_aspect(string $src): float
   return $cache[$path] = $aspect;
 }
 
-// "Ram 30 × 40 cm" – formaten i prislistan är ramens/passepartoutens yttermått.
+// "30 × 40 cm, utan ram" – formatet är skivans mått (= ramens yttermått). Printen säljs
+// alltid på skiva utan ram; förr stod "Ram 30 × 40 cm", vilket lästes som att man
+// beställde en ram (Ola, okt 2026). Samma text i shop.js och sol.js.
 function seo_print_frame_label(string $format, string $lang): string
 {
-  return ($lang === 'en' ? 'Frame ' : 'Ram ') . $format;
+  return $format . ($lang === 'en' ? ', unframed' : ', utan ram');
 }
 
-// "Ram 30 × 40 – 50 × 70 cm" för hela listan (verkssidan).
+// "30 × 40 – 50 × 70 cm" för hela listan (verkssidan).
 function seo_print_frame_range_label(array $sizes, string $lang): string
 {
   if ($sizes === []) {
@@ -1595,7 +1597,7 @@ function seo_print_frame_range_label(array $sizes, string $lang): string
   $first = (string) preg_replace('/\s*cm$/u', '', $sizes[0]['format']);
   $last = (string) $sizes[count($sizes) - 1]['format'];
   $range = count($sizes) > 1 ? $first . ' – ' . $last : $last;
-  return ($lang === 'en' ? 'Frame ' : 'Ram ') . $range;
+  return $range;
 }
 
 // Ungefärligt bildmått för en print i en given ram, t.ex. "ca 15 × 23 cm".

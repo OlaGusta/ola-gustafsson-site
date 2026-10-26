@@ -129,8 +129,8 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <script src="script.js?v=20261026-01" defer></script>
-    <script src="shop.js?v=20261013-06" defer></script>
-    <script src="sol.js?v=20261013-01" defer></script>
+    <script src="shop.js?v=20261026-02" defer></script>
+    <script src="sol.js?v=20261026-01" defer></script>
   </head>
   <body id="page-top" data-page="sun" data-day-label="<?= $h($dayLabel) ?>" data-remove-label="<?= $h($lang === 'en' ? 'Remove day' : 'Ta bort dag') ?>">
     <header class="site-header" id="top">
@@ -183,7 +183,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                   <?php foreach ($printSizes as $size): ?>
                     <?php $imageSize = seo_print_image_size($size['format'], $lang); ?>
                     <tr>
-                      <th scope="row"><?= $h(seo_print_frame_label($size['format'], $lang)) ?><?php if ($imageSize !== ''): ?><small><?= $h(($lang === 'en' ? 'image ' : 'bild ') . $imageSize) ?></small><?php endif; ?></th>
+                      <th scope="row"><?= $h($size['format']) ?><?php if ($imageSize !== ''): ?><small><?= $h(($lang === 'en' ? 'image ' : 'bild ') . $imageSize) ?></small><?php endif; ?></th>
                       <td><?= $h($size['price'] !== '' ? $size['price'] : ($lang === 'en' ? 'on request' : 'på förfrågan')) ?></td>
                     </tr>
                   <?php endforeach; ?>

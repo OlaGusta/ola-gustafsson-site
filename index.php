@@ -406,7 +406,7 @@ if (!is_string($structuredJson)) {
 	    <link rel="stylesheet" href="styles.css?v=20261026-01" />
 	    <script src="content.js?v=20260928-01" defer></script>
 		    <script src="script.js?v=20261026-01" defer></script>
-    <script src="shop.js?v=20261013-06" defer></script>
+    <script src="shop.js?v=20261026-02" defer></script>
 	  </head>
   <body id="page-top" data-page="home">
     <header class="site-header" id="top">

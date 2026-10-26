@@ -194,16 +194,16 @@
             ? `${list.length} ${list.length === 1 ? 'sun' : 'suns'} selected`
             : `${list.length} ${list.length === 1 ? 'sol vald' : 'solar valda'}`;
     }
-    // Totalsumma: en rad per format ("2 × Ram 30 × 40 cm à 1 800 kr   3 600 kr") och summan.
+    // Totalsumma: en rad per format ("2 × Print 30 × 40 cm, utan ram à 1 800 kr   3 600 kr") och summan.
     if (totalBox && totalLines && totalSum) {
       totalBox.hidden = list.length === 0;
-      const frame = isEnglish ? 'Frame' : 'Ram';
+      const unframed = isEnglish ? 'unframed' : 'utan ram';
       const onRequest = isEnglish ? 'price on request' : 'pris på förfrågan';
       totalLines.innerHTML = groups
         .map((group) => {
           const unit = priceNumber(group.price);
           const amount = unit ? formatAmount(unit * group.days.length) : onRequest;
-          return `<li><span>${group.days.length} × ${frame} ${group.value}${unit ? ` à ${group.price}` : ''}</span><span>${amount}</span></li>`;
+          return `<li><span>${group.days.length} × Print ${group.value}, ${unframed}${unit ? ` à ${group.price}` : ''}</span><span>${amount}</span></li>`;
         })
         .join('');
       totalSum.textContent = total > 0 ? formatAmount(total) : onRequest;
