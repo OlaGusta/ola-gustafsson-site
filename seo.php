@@ -1321,11 +1321,26 @@ function seo_shop_config(array $payload): array
     'largeSideCm' => 60,
     'reservationDays' => 7,
     'deliveryNoteOriginal' => ['sv' => 'Original skickas inom en vecka efter betalning.', 'en' => 'Originals ship within a week of payment.'],
+    // Ram till print (beslut 2026-10-26): BGA Classic i svart, vit eller ek, akrylglas.
+    // Pris inkl. moms = BGA:s pris + 300 kr serviceavgift, avrundat uppåt (BGA ordinarie
+    // okt 2026: 30×40 180–200, 40×60 300, 50×70 350–380 kr). Annan ram: kunden skriver
+    // i meddelandet i kassan.
+    'framePrices' => ['30x40' => 500, '40x60' => 600, '50x70' => 700],
+    'frameModel' => 'BGA Classic',
+    // Frakt när ordern innehåller en ram (större och tyngre paket).
+    'shippingFramed' => 250,
   ];
   $shop = isset($payload['shop']) && is_array($payload['shop']) ? $payload['shop'] : [];
-  foreach (['shippingOriginalSmall', 'shippingOriginalLarge', 'shippingPrint', 'editionSize', 'largeSideCm', 'reservationDays'] as $key) {
+  foreach (['shippingOriginalSmall', 'shippingOriginalLarge', 'shippingPrint', 'shippingFramed', 'editionSize', 'largeSideCm', 'reservationDays'] as $key) {
     if (isset($shop[$key]) && is_numeric($shop[$key]) && (int) $shop[$key] >= 0) {
       $defaults[$key] = (int) $shop[$key];
+    }
+  }
+  if (isset($shop['framePrices']) && is_array($shop['framePrices'])) {
+    foreach ($shop['framePrices'] as $format => $price) {
+      if (is_string($format) && is_numeric($price) && (int) $price >= 0) {
+        $defaults['framePrices'][seo_print_format_key($format) ?: $format] = (int) $price;
+      }
     }
   }
   if (isset($shop['matPrices']) && is_array($shop['matPrices'])) {
@@ -1336,6 +1351,60 @@ function seo_shop_config(array $payload): array
     }
   }
   return $defaults;
+}
+
+// Ramfärgerna som går att välja till print (nyckel => [svenska, engelska]).
+const SEO_FRAME_COLORS = [
+  'svart' => ['svart', 'black'],
+  'vit' => ['vit', 'white'],
+  'ek' => ['ek', 'oak'],
+];
+
+function seo_frame_color_key($value): string
+{
+  $key = is_string($value) ? strtolower(trim($value)) : '';
+  return isset(SEO_FRAME_COLORS[$key]) ? $key : '';
+}
+
+// Valet i listan: "Svart ram", "Ekram" / "Black frame", "Oak frame".
+function seo_frame_option_label(string $color, string $lang): string
+{
+  if ($lang === 'en') {
+    return ucfirst(SEO_FRAME_COLORS[$color][1] ?? $color) . ' frame';
+  }
+  return $color === 'ek' ? 'Ekram' : ucfirst(SEO_FRAME_COLORS[$color][0] ?? $color) . ' ram';
+}
+
+// Orderraden: "Ram BGA Classic, ek" / "Frame BGA Classic, oak".
+function seo_frame_line_title(array $cfg, string $color, string $lang): string
+{
+  return ($lang === 'en' ? 'Frame ' : 'Ram ') . $cfg['frameModel'] . ', ' . (SEO_FRAME_COLORS[$color][$lang === 'en' ? 1 : 0] ?? $color);
+}
+
+// "+500 kr (30 × 40), +600 kr (40 × 60) …" för de format som har rampris.
+function seo_frame_price_list(array $cfg, array $sizes, string $lang): string
+{
+  $parts = [];
+  foreach ($sizes as $size) {
+    $price = (int) ($cfg['framePrices'][seo_print_format_key((string) $size['format'])] ?? 0);
+    if ($price > 0) {
+      $parts[] = shop_money_label($price, $lang) . ' (' . preg_replace('/\s*cm$/u', '', (string) $size['format']) . ')';
+    }
+  }
+  return implode(', ', $parts);
+}
+
+// Hela texten om ram till print, för verkssidan, solsidan och llms.txt.
+function seo_print_frame_offer_note(array $payload, array $sizes, string $lang): string
+{
+  $cfg = seo_shop_config($payload);
+  $prices = seo_frame_price_list($cfg, $sizes, $lang);
+  if ($prices === '') {
+    return '';
+  }
+  return $lang === 'en'
+    ? sprintf('Frame as an option: %s in black, white or oak with acrylic glazing, %s. Want a different frame? Write it in the message at checkout.', $cfg['frameModel'], $prices)
+    : sprintf('Ram som tillval: %s i svart, vit eller ek med akrylglas, %s. Vill du ha en annan ram, skriv det i meddelandet i kassan.', $cfg['frameModel'], $prices);
 }
 
 // "38 × 56 cm" -> [38.0, 56.0] (bredd, höjd). Tom array om måttet inte går att läsa.
@@ -1431,7 +1500,8 @@ function seo_shop_catalog(array $payload): array
       'prints' => array_values(array_map(static fn (array $size): array => [
         'format' => $size['format'],
         'price' => seo_price_amount($size['price']),
-        'image' => seo_print_image_dims($size['image'] ?? '')
+        'image' => seo_print_image_dims($size['image'] ?? ''),
+        'framePrice' => (int) ($cfg['framePrices'][seo_print_format_key($size['format'])] ?? 0)
       ], $printSizes)),
     ];
   }
@@ -1440,8 +1510,11 @@ function seo_shop_catalog(array $payload): array
     'sunPrints' => array_values(array_map(static fn (array $size): array => [
       'format' => $size['format'],
       'price' => seo_price_amount($size['price']),
-      'image' => seo_print_image_dims(seo_print_image_size($size['format'], 'sv'))
+      'image' => seo_print_image_dims(seo_print_image_size($size['format'], 'sv')),
+      'framePrice' => (int) ($cfg['framePrices'][seo_print_format_key($size['format'])] ?? 0)
     ], seo_print_sizes($payload, 'sv'))),
+    'frames' => array_map(static fn (string $key): array => ['key' => $key, 'sv' => seo_frame_option_label($key, 'sv'), 'en' => seo_frame_option_label($key, 'en'), 'titleSv' => seo_frame_line_title($cfg, $key, 'sv'), 'titleEn' => seo_frame_line_title($cfg, $key, 'en')], array_keys(SEO_FRAME_COLORS)),
+    'shippingFramed' => $cfg['shippingFramed'],
     'shippingPrint' => $cfg['shippingPrint'],
     'editionSize' => $cfg['editionSize'],
     'poster' => seo_poster_config($payload, 'sv'),
@@ -1537,8 +1610,8 @@ const SEO_PRINT_SHIPPING_SEK = 150;
 function seo_print_extras_note(string $lang): string
 {
   return $lang === 'en'
-    ? sprintf('Shipping within Sweden is %d SEK per order. Outside Sweden: price on request.', SEO_PRINT_SHIPPING_SEK)
-    : sprintf('Frakt inom Sverige %d kr per beställning. Utanför Sverige: pris på förfrågan.', SEO_PRINT_SHIPPING_SEK);
+    ? sprintf('Shipping within Sweden is %d SEK per order, %d SEK with a frame. Outside Sweden: price on request.', SEO_PRINT_SHIPPING_SEK, seo_shop_config([])['shippingFramed'])
+    : sprintf('Frakt inom Sverige %d kr per beställning, %d kr med ram. Utanför Sverige: pris på förfrågan.', SEO_PRINT_SHIPPING_SEK, seo_shop_config([])['shippingFramed']);
 }
 
 // Leveranstid för print: görs på beställning, klar inom några timmar; ram beställs

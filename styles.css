@@ -6854,6 +6854,22 @@ body:not([data-page='studio']) .contact-social-links {
 .checkout-mat input {
   margin: 0.2rem 0 0;
 }
+/* Ramval per print/sol i kundvagnen. */
+.checkout-frame {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--color-soft-ink);
+}
+.checkout-frame select {
+  font: inherit;
+  padding: 0.25rem 0.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.4rem;
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
 .checkout-remove {
   border: 0;
   background: none;

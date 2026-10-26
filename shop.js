@@ -32,12 +32,13 @@
   const cart = {
     items: () => memoryCart.slice(),
     count: () => memoryCart.reduce((sum, item) => sum + (Number(item.qty) || 1), 0),
-    // Ett original kan bara ligga en gång; prints och solar slås ihop per format.
+    // Ett original kan bara ligga en gång; prints och solar slås ihop per format och ram.
     add: (newItems) => {
       const items = memoryCart.slice();
+      const itemKey = (item) => `${item.kind}:${item.ref}:${item.size || ''}:${item.frame || ''}`;
       newItems.forEach((entry) => {
-        const key = `${entry.kind}:${entry.ref}:${entry.size || ''}`;
-        const existing = items.find((item) => `${item.kind}:${item.ref}:${item.size || ''}` === key);
+        const key = itemKey(entry);
+        const existing = items.find((item) => itemKey(item) === key);
         if (existing) {
           if (entry.kind === 'original') {
             existing.mat = Boolean(entry.mat);
@@ -76,12 +77,37 @@
   };
 
   // ---- Lägg i kundvagn (verkssidan) ----------------------------------------
+  // Ramvalet visar priset för det valda formatet: "Ekram (+600 kr)". Formatet utan rampris
+  // går inte att rama.
+  const syncFrameOptions = (sizeSelect, frameSelect) => {
+    const price = Number((sizeSelect && sizeSelect.selectedOptions[0] && sizeSelect.selectedOptions[0].dataset.framePrice) || 0);
+    Array.from(frameSelect.options).forEach((option) => {
+      if (!option.value) {
+        return;
+      }
+      option.textContent = price > 0 ? `${option.dataset.label} (+${money(price)})` : option.dataset.label;
+      option.disabled = price <= 0;
+    });
+    if (price <= 0) {
+      frameSelect.value = '';
+    }
+  };
+
   const bindAddButtons = () => {
+    document.querySelectorAll('select[data-frame-for]').forEach((frameSelect) => {
+      const sizeSelect = document.getElementById(frameSelect.dataset.frameFor);
+      syncFrameOptions(sizeSelect, frameSelect);
+      if (sizeSelect) {
+        sizeSelect.addEventListener('change', () => syncFrameOptions(sizeSelect, frameSelect));
+      }
+    });
+
     document.querySelectorAll('[data-shop-add]').forEach((button) => {
       button.addEventListener('click', () => {
         const kind = button.dataset.shopAdd;
         const ref = button.dataset.ref || '';
         const sizeSelect = button.dataset.sizeSelect ? document.getElementById(button.dataset.sizeSelect) : null;
+        const frameSelect = button.dataset.frameSelect ? document.getElementById(button.dataset.frameSelect) : null;
         const matBox = button.dataset.matCheckbox ? document.getElementById(button.dataset.matCheckbox) : null;
         const qtySelect = button.dataset.qtySelect ? document.getElementById(button.dataset.qtySelect) : null;
         const entry = { kind, ref, qty: qtySelect ? Math.max(1, Number(qtySelect.value) || 1) : 1 };
@@ -90,6 +116,9 @@
         }
         if (matBox) {
           entry.mat = matBox.checked;
+        }
+        if (frameSelect && frameSelect.value) {
+          entry.frame = frameSelect.value;
         }
         if (button.dataset.token) {
           entry.token = button.dataset.token;
@@ -112,7 +141,9 @@
           }
           return;
         }
-        cart.add(picks.map((pick) => ({ kind: 'sun', ref: String(pick.day), size: pick.size, qty: 1 })));
+        const sunFrame = document.getElementById('sun-order-frame');
+        const frame = sunFrame ? sunFrame.value : '';
+        cart.add(picks.map((pick) => ({ kind: 'sun', ref: String(pick.day), size: pick.size, qty: 1, ...(frame ? { frame } : {}) })));
         window.location.href = withLang('/kassa');
       });
     }
@@ -125,7 +156,7 @@
     if (!app || !catalogNode) {
       return;
     }
-    let catalog = { artworks: {}, sunPrints: [], shippingPrint: 150, editionSize: 20, poster: { enabled: false, available: 0 } };
+    let catalog = { artworks: {}, sunPrints: [], frames: [], shippingPrint: 150, shippingFramed: 250, editionSize: 20, poster: { enabled: false, available: 0 } };
     try {
       catalog = { ...catalog, ...JSON.parse(catalogNode.textContent || '{}') };
     } catch (error) {
@@ -146,6 +177,21 @@
       return `${Math.min(a, b)}x${Math.max(a, b)}`;
     };
     const frameLabel = (format) => `${format}, ${T('utan ram', 'unframed')}`;
+    const frameInfo = (key) => (catalog.frames || []).find((frame) => frame.key === key) || null;
+    // "50 × 70 cm, utan ram", eller bara formatet när en ram följer på nästa rad.
+    const printFormatDetail = (item, size) => (item.frame && frameInfo(item.frame) && Number(size.framePrice) > 0 ? size.format : frameLabel(size.format));
+    // Ramrad under en print/sol (samma regler som shop_frame_line i shop_lib.php).
+    const pushFrameLine = (lines, problems, index, item, size, forTitle) => {
+      if (!item.frame) {
+        return;
+      }
+      const frame = frameInfo(item.frame);
+      if (!frame || !(Number(size.framePrice) > 0)) {
+        problems.push({ index, text: T('Ram finns inte för det printformatet.', 'A frame is not available for that print size.') });
+        return;
+      }
+      lines.push({ index, kind: 'frame', title: T(frame.titleSv, frame.titleEn), detail: `${T('till', 'for')} ${forTitle}, ${size.format}`, qty: Number(item.qty) || 1, unit: Number(size.framePrice), vat: 25, attached: true });
+    };
 
     // Samma prisregler som shop_lib.php, för visning innan ordern skickas.
     const resolveLines = () => {
@@ -186,7 +232,8 @@
             problems.push({ index, text: T('Printformatet finns inte.', 'The print size is not available.') });
             return;
           }
-          lines.push({ index, kind: 'print', title: `Fine Art Print – ${art.title}`, detail: `${frameLabel(size.format)}${size.image ? ` (${T('bild ca', 'image approx.')} ${size.image})` : ''}`, qty: Number(item.qty) || 1, unit: size.price, vat: 25, src: art.src });
+          lines.push({ index, kind: 'print', title: `Fine Art Print – ${art.title}`, detail: `${printFormatDetail(item, size)}${size.image ? ` (${T('bild ca', 'image approx.')} ${size.image})` : ''}`, qty: Number(item.qty) || 1, unit: size.price, vat: 25, src: art.src, framePrice: Number(size.framePrice) || 0, frame: item.frame || '' });
+          pushFrameLine(lines, problems, index, item, size, `Fine Art Print – ${art.title}`);
           return;
         }
         if (item.kind === 'sun') {
@@ -196,7 +243,8 @@
             problems.push({ index, text: T('Solen finns inte.', 'The sun is not available.') });
             return;
           }
-          lines.push({ index, kind: 'sun', title: `${T('100 dagar av sol – dag', '100 days of sun – day')} ${day}`, detail: `Fine Art Print, ${frameLabel(size.format)}${size.image ? ` (${T('bild ca', 'image approx.')} ${size.image})` : ''}`, qty: Number(item.qty) || 1, unit: size.price, vat: 25, src: `images/sol/thumb/dag-${String(day).padStart(3, '0')}.jpg` });
+          lines.push({ index, kind: 'sun', title: `${T('100 dagar av sol – dag', '100 days of sun – day')} ${day}`, detail: `Fine Art Print, ${printFormatDetail(item, size)}${size.image ? ` (${T('bild ca', 'image approx.')} ${size.image})` : ''}`, qty: Number(item.qty) || 1, unit: size.price, vat: 25, src: `images/sol/thumb/dag-${String(day).padStart(3, '0')}.jpg`, framePrice: Number(size.framePrice) || 0, frame: item.frame || '' });
+          pushFrameLine(lines, problems, index, item, size, `${T('100 dagar av sol – dag', '100 days of sun – day')} ${day}`);
         }
       });
       return { lines, problems };
@@ -214,7 +262,10 @@
           vat += Math.round(amount - amount / 1.25);
         }
       });
-      const shipping = lines.length ? catalog.shippingPrint : 0;
+      let shipping = lines.length ? catalog.shippingPrint : 0;
+      if (lines.some((line) => line.kind === 'frame')) {
+        shipping = Math.max(shipping, Number(catalog.shippingFramed) || 0);
+      }
       if (taxable) {
         vat += Math.round(shipping - shipping / 1.25);
       }
@@ -237,8 +288,11 @@
           const mat = line.kind === 'original' && line.matOption
             ? `<label class="checkout-mat"><input type="checkbox" data-mat-index="${line.index}" ${line.mat ? 'checked' : ''} /> ${esc(T('Passepartout med bakstycke', 'Mat with backing board'))} (${esc(T('ramformat', 'frame size'))} ${esc(line.matOption.class.replace('x', ' × '))} cm, +${esc(money(line.matOption.price))})</label>`
             : '';
+          const frame = (line.kind === 'print' || line.kind === 'sun') && line.framePrice > 0 && (catalog.frames || []).length > 0
+            ? `<label class="checkout-frame">${esc(T('Ram', 'Frame'))} <select data-frame-index="${line.index}"><option value="">${esc(T('Utan ram', 'No frame'))}</option>${catalog.frames.map((option) => `<option value="${esc(option.key)}" ${line.frame === option.key ? 'selected' : ''}>${esc(T(option.sv, option.en))} (+${esc(money(line.framePrice))})</option>`).join('')}</select></label>`
+            : '';
           const remove = line.attached ? '' : `<button type="button" class="checkout-remove" data-remove-index="${line.index}">${esc(T('Ta bort', 'Remove'))}</button>`;
-          return `<li class="checkout-line${line.attached ? ' is-attached' : ''}">${thumb}<div class="checkout-line-body"><strong>${esc(line.qty > 1 ? `${line.qty} × ${line.title}` : line.title)}</strong><span class="checkout-detail">${esc(line.detail)}</span>${mat}<div class="checkout-line-tools">${qty}${remove}</div></div><span class="checkout-amount">${esc(money(line.unit * line.qty))}</span></li>`;
+          return `<li class="checkout-line${line.attached ? ' is-attached' : ''}">${thumb}<div class="checkout-line-body"><strong>${esc(line.qty > 1 ? `${line.qty} × ${line.title}` : line.title)}</strong><span class="checkout-detail">${esc(line.detail)}</span>${mat}${frame}<div class="checkout-line-tools">${qty}${remove}</div></div><span class="checkout-amount">${esc(money(line.unit * line.qty))}</span></li>`;
         })
         .join('');
       const problemRows = problems
@@ -256,7 +310,7 @@
               <div class="checkout-sum-total"><dt>${esc(T('Att betala', 'To pay'))}</dt><dd>${esc(money(sums.total))}</dd></div>
               <div class="checkout-sum-vat"><dt>${esc(T('Varav moms', 'Of which VAT'))}</dt><dd>${esc(money(sums.vat))}</dd></div>
             </dl>
-            <p class="field-hint">${esc(T('Original är momsfria konstverk. Print, passepartout och frakt har 25 % moms. Ram (passepartout ingår), hämtning och leverans utanför Sverige ordnas på förfrågan: mejla ola@olagustafsson.com.', 'Originals are VAT-exempt works of art. Prints, mats and shipping carry 25% VAT. Frames (mat included), pickup and delivery outside Sweden are arranged on request: email ola@olagustafsson.com.'))}</p>
+            <p class="field-hint">${esc(T(`Original är momsfria konstverk. Print, ram, passepartout och frakt har 25 % moms. Frakten är ${money(catalog.shippingFramed)} när en ram ingår. Vill du ha en annan ram, skriv det i meddelandet. Ram till original, hämtning och leverans utanför Sverige ordnas på förfrågan: mejla ola@olagustafsson.com.`, `Originals are VAT-exempt works of art. Prints, frames, mats and shipping carry 25% VAT. Shipping is ${money(catalog.shippingFramed)} when a frame is included. Want a different frame? Write it in the message. Frames for originals, pickup and delivery outside Sweden are arranged on request: email ola@olagustafsson.com.`))}</p>
           </section>
           <form class="checkout-form contact-form surface-soft" id="checkout-form" novalidate ${canOrder ? '' : 'hidden'}>
             <h2>${esc(T('Dina uppgifter', 'Your details'))}</h2>
@@ -286,6 +340,7 @@
       app.querySelectorAll('[data-remove-index]').forEach((button) => button.addEventListener('click', () => { cart.remove(Number(button.dataset.removeIndex)); render(); }));
       app.querySelectorAll('[data-qty-index]').forEach((input) => input.addEventListener('change', () => { cart.update(Number(input.dataset.qtyIndex), { qty: Math.max(1, Math.min(20, Number(input.value) || 1)) }); render(); }));
       app.querySelectorAll('[data-mat-index]').forEach((box) => box.addEventListener('change', () => { cart.update(Number(box.dataset.matIndex), { mat: box.checked }); render(); }));
+      app.querySelectorAll('[data-frame-index]').forEach((select) => select.addEventListener('change', () => { cart.update(Number(select.dataset.frameIndex), { frame: select.value || undefined }); render(); }));
 
       const form = document.getElementById('checkout-form');
       if (form && canOrder) {

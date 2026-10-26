@@ -126,7 +126,7 @@ if (!$artwork) {
         <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
         <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
       <?php endif; ?>
-      <link rel="stylesheet" href="/styles.css?v=20261026-01" />
+      <link rel="stylesheet" href="/styles.css?v=20261026-02" />
     </head>
     <body id="page-top" data-page="artwork">
       <header class="site-header" id="top">
@@ -196,7 +196,7 @@ if (!$artwork) {
       <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
       <script src="/content.js?v=20260928-01" defer></script>
       <script src="/script.js?v=20261026-03" defer></script>
-    <script src="/shop.js?v=20261026-03" defer></script>
+    <script src="/shop.js?v=20261026-04" defer></script>
     </body>
   </html>
   <?php
@@ -395,8 +395,8 @@ if ($printOnly) {
   $priceLabel = $printFromLabel;
   $priceNoteVisible = true;
   $priceNote = $lang === 'en'
-    ? sprintf('Incl. VAT. %s. Frame on request: cost of materials plus a service fee of %d SEK.', seo_print_mount_label($lang), SEO_FRAMING_SERVICE_FEE_SEK)
-    : sprintf('Inkl. moms. %s. Ram ordnar jag på förfrågan mot materialkostnad och en serviceavgift på %d kr.', seo_print_mount_label($lang), SEO_FRAMING_SERVICE_FEE_SEK);
+    ? sprintf('Incl. VAT. %s. Frame as an option: %s.', seo_print_mount_label($lang), seo_frame_price_list(seo_shop_config($payload), $printSizes, $lang))
+    : sprintf('Inkl. moms. %s. Ram som tillval: %s.', seo_print_mount_label($lang), seo_frame_price_list(seo_shop_config($payload), $printSizes, $lang));
 }
 $printFacts = [
   seo_print_frame_range_label($printSizes, $lang) . ', ' . $printFromLabel . ' ' . seo_print_vat_label($lang),
@@ -702,11 +702,11 @@ if (!is_string($structuredJson)) {
       <link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= htmlspecialchars($fontStylesheetHref, ENT_QUOTES) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="/styles.css?v=20261026-01" />
+    <link rel="stylesheet" href="/styles.css?v=20261026-02" />
     <script src="/overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>"></script>
     <script src="/content.js?v=20260928-01" defer></script>
     <script src="/script.js?v=20261026-03" defer></script>
-    <script src="/shop.js?v=20261026-03" defer></script>
+    <script src="/shop.js?v=20261026-04" defer></script>
   </head>
   <body id="page-top" data-page="artwork">
     <header class="site-header" id="top">
@@ -840,6 +840,7 @@ if (!is_string($structuredJson)) {
                 $shopCatalogItem = seo_shop_catalog($payload)['artworks'][$canonicalSlug] ?? null;
                 $buyOriginal = $shopCatalogItem && $shopCatalogItem['originalForSale'];
                 $buyPrints = $shopCatalogItem ? $shopCatalogItem['prints'] : [];
+                $buyFrames = array_filter($buyPrints, static fn (array $size): bool => $size['framePrice'] > 0) !== [];
                 // Personlig köplänk (?for=token) från en förfrågan: reserverat verk får köpas av just den kunden.
                 $buyToken = isset($_GET['for']) && is_string($_GET['for']) ? strtolower(trim($_GET['for'])) : '';
                 $buyLink = null;
@@ -883,13 +884,26 @@ if (!is_string($structuredJson)) {
                     <div class="artwork-buy-row">
                       <select id="artwork-buy-print-size" aria-label="<?= htmlspecialchars($lang === 'en' ? 'Print size' : 'Printformat', ENT_QUOTES) ?>">
                         <?php foreach ($buyPrints as $i => $size): ?>
-                          <option value="<?= htmlspecialchars($size['format'], ENT_QUOTES) ?>" <?= $i === 0 ? 'selected' : '' ?>><?= htmlspecialchars(seo_print_frame_label($size['format'], $lang) . seo_print_image_note($size['image'], $lang) . ' – ' . shop_money_label((int) $size['price'], $lang), ENT_QUOTES) ?></option>
+                          <option value="<?= htmlspecialchars($size['format'], ENT_QUOTES) ?>" data-frame-price="<?= (int) $size['framePrice'] ?>" <?= $i === 0 ? 'selected' : '' ?>><?= htmlspecialchars(seo_print_frame_label($size['format'], $lang) . seo_print_image_note($size['image'], $lang) . ' – ' . shop_money_label((int) $size['price'], $lang), ENT_QUOTES) ?></option>
                         <?php endforeach; ?>
                       </select>
-                      <button type="button" class="btn <?= $buyOriginal ? 'btn-ghost' : 'btn-primary' ?>" data-shop-add="print" data-ref="<?= htmlspecialchars($canonicalSlug, ENT_QUOTES) ?>" data-size-select="artwork-buy-print-size"><?= htmlspecialchars($lang === 'en' ? 'Order fine art print' : 'Beställ Fine Art Print', ENT_QUOTES) ?></button>
+                      <?php if ($buyFrames): ?>
+                        <select id="artwork-buy-print-frame" data-frame-for="artwork-buy-print-size" aria-label="<?= htmlspecialchars($lang === 'en' ? 'Frame' : 'Ram', ENT_QUOTES) ?>">
+                          <option value=""><?= htmlspecialchars($lang === 'en' ? 'No frame' : 'Utan ram', ENT_QUOTES) ?></option>
+                          <?php foreach (array_keys(SEO_FRAME_COLORS) as $frameColor): ?>
+                            <option value="<?= htmlspecialchars($frameColor, ENT_QUOTES) ?>" data-label="<?= htmlspecialchars(seo_frame_option_label($frameColor, $lang), ENT_QUOTES) ?>"><?= htmlspecialchars(seo_frame_option_label($frameColor, $lang), ENT_QUOTES) ?></option>
+                          <?php endforeach; ?>
+                        </select>
+                      <?php endif; ?>
+                      <button type="button" class="btn <?= $buyOriginal ? 'btn-ghost' : 'btn-primary' ?>" data-shop-add="print" data-ref="<?= htmlspecialchars($canonicalSlug, ENT_QUOTES) ?>" data-size-select="artwork-buy-print-size"<?= $buyFrames ? ' data-frame-select="artwork-buy-print-frame"' : '' ?>><?= htmlspecialchars($lang === 'en' ? 'Order fine art print' : 'Beställ Fine Art Print', ENT_QUOTES) ?></button>
                     </div>
                   <?php endif; ?>
-                  <p class="field-hint"><?= htmlspecialchars($lang === 'en' ? 'Shipping 150 SEK within Sweden. Pay by Swish or bank transfer after ordering. Frames are arranged on request; a frame includes a mat.' : 'Frakt 150 kr inom Sverige. Betala med Swish eller bankgiro efter beställningen. Ram ordnas på förfrågan, och då ingår passepartout.', ENT_QUOTES) ?></p>
+                  <?php $buyShippingFramed = seo_shop_config($payload)['shippingFramed']; ?>
+                  <p class="field-hint"><?= htmlspecialchars($buyFrames
+                    ? ($lang === 'en'
+                        ? sprintf('Shipping 150 SEK within Sweden, %d SEK with a frame (%s, acrylic glazing). Want a different frame? Write it in the message at checkout. Pay by Swish or bank transfer after ordering.', $buyShippingFramed, seo_shop_config($payload)['frameModel'])
+                        : sprintf('Frakt 150 kr inom Sverige, %d kr med ram (%s, akrylglas). Vill du ha en annan ram, skriv det i meddelandet i kassan. Betala med Swish eller bankgiro efter beställningen.', $buyShippingFramed, seo_shop_config($payload)['frameModel']))
+                    : ($lang === 'en' ? 'Shipping 150 SEK within Sweden. Pay by Swish or bank transfer after ordering. Frames are arranged on request; a frame includes a mat.' : 'Frakt 150 kr inom Sverige. Betala med Swish eller bankgiro efter beställningen. Ram ordnas på förfrågan, och då ingår passepartout.'), ENT_QUOTES) ?></p>
                 </div>
               <?php endif; ?>
 
@@ -905,14 +919,16 @@ if (!is_string($structuredJson)) {
               <p class="eyebrow"><?= htmlspecialchars($lang === 'en' ? 'Inquiry' : 'Intresseanmälan', ENT_QUOTES) ?></p>
               <h2><?= htmlspecialchars($inquiryHeading, ENT_QUOTES) ?></h2>
               <p><?= htmlspecialchars($artworkInquiryFormEnabled ? $inquiryBody : $inquiryFallbackBody, ENT_QUOTES) ?></p>
-              <p class="artwork-inquiry-extras"><?= htmlspecialchars($printOnly ? seo_framing_service_note($lang) : seo_order_extras_note($lang) . ' ' . seo_framing_service_note($lang), ENT_QUOTES) ?></p>
+              <?php if (!$printOnly): ?>
+                <p class="artwork-inquiry-extras"><?= htmlspecialchars(seo_order_extras_note($lang) . ' ' . seo_framing_service_note($lang), ENT_QUOTES) ?></p>
+              <?php endif; ?>
               <?php $artworkPaymentNote = seo_payment_note($payload, $lang); ?>
               <?php if ($artworkPaymentNote !== ''): ?>
                 <p class="artwork-inquiry-extras"><?= htmlspecialchars(($lang === 'en' ? 'Payment after my confirmation: ' : 'Betalning efter min bekräftelse: ') . lcfirst($artworkPaymentNote), ENT_QUOTES) ?></p>
               <?php endif; ?>
               <p class="artwork-inquiry-fineprint"><?= htmlspecialchars(seo_withdrawal_note($lang), ENT_QUOTES) ?></p>
               <?php if ($fineArtPrint): ?>
-                <p class="artwork-inquiry-extras"><?= htmlspecialchars('Fine Art Print: ' . seo_print_mount_note($lang) . ' ' . seo_print_extras_note($lang) . ' ' . seo_print_delivery_note($lang), ENT_QUOTES) ?></p>
+                <p class="artwork-inquiry-extras"><?= htmlspecialchars('Fine Art Print: ' . seo_print_mount_note($lang) . ' ' . seo_print_frame_offer_note($payload, $printSizes, $lang) . ' ' . seo_print_extras_note($lang) . ' ' . seo_print_delivery_note($lang), ENT_QUOTES) ?></p>
               <?php endif; ?>
               <?php if (($faqLinkHtml = seo_faq_link_html($payload, $lang)) !== ''): ?>
                 <p class="artwork-inquiry-faq"><?= $faqLinkHtml ?></p>

@@ -38,12 +38,20 @@
   const extraBoxes = form ? Array.from(form.querySelectorAll('input[name="sunExtra"]')) : [];
   const chosenExtras = () => extraBoxes.filter((box) => box.checked).map((box) => box.value);
   const shipping = totalBox ? Number(totalBox.dataset.shipping || 0) : 0;
+  const shippingFramed = totalBox ? Number(totalBox.dataset.shippingFramed || shipping) : shipping;
+  const shippingValue = document.getElementById('sun-order-shipping');
+  // Ram (samma för alla solar), tillval med fast pris per format (shop.js lägger den i vagnen).
+  const frameSelect = document.getElementById('sun-order-frame');
+  const chosenFrame = () => {
+    const option = frameSelect && frameSelect.value ? frameSelect.selectedOptions[0] : null;
+    return option ? { key: option.value, label: option.dataset.label || option.textContent } : null;
+  };
   const orderSection = document.getElementById('bestall');
   let orderInView = false;
   // Vald dag -> format (värdet i formatväljaren). Varje sol kan ha eget format.
   const picks = new Map();
   const sizeOptions = sizeSelect
-    ? Array.from(sizeSelect.options).map((option) => ({ value: option.value, price: option.dataset.price || '' }))
+    ? Array.from(sizeSelect.options).map((option) => ({ value: option.value, price: option.dataset.price || '', framePrice: Number(option.dataset.framePrice || 0) }))
     : [];
   const defaultSize = () => (sizeSelect ? sizeSelect.value : '');
   const priceNumber = (label) => Number(String(label || '').replace(/[^0-9]/g, '')) || 0;
@@ -185,7 +193,10 @@
     const groups = sizeOptions
       .map((option) => ({ ...option, days: list.filter((day) => picks.get(day) === option.value) }))
       .filter((group) => group.days.length > 0);
-    const total = groups.reduce((sum, group) => sum + priceNumber(group.price) * group.days.length, 0);
+    const frame = chosenFrame();
+    const frameTotal = frame ? groups.reduce((sum, group) => sum + group.framePrice * group.days.length, 0) : 0;
+    const orderShipping = frameTotal > 0 ? shippingFramed : shipping;
+    const total = groups.reduce((sum, group) => sum + priceNumber(group.price) * group.days.length, 0) + frameTotal;
     if (summary) {
       summary.textContent =
         list.length === 0
@@ -203,12 +214,19 @@
         .map((group) => {
           const unit = priceNumber(group.price);
           const amount = unit ? formatAmount(unit * group.days.length) : onRequest;
-          return `<li><span>${group.days.length} × Print ${group.value}, ${unframed}${unit ? ` à ${group.price}` : ''}</span><span>${amount}</span></li>`;
+          const frameLine =
+            frame && group.framePrice > 0
+              ? `<li><span>${group.days.length} × ${frame.label} ${group.value} à ${formatAmount(group.framePrice)}</span><span>${formatAmount(group.framePrice * group.days.length)}</span></li>`
+              : '';
+          return `<li><span>${group.days.length} × Print ${group.value}${frameLine ? '' : `, ${unframed}`}${unit ? ` à ${group.price}` : ''}</span><span>${amount}</span></li>${frameLine}`;
         })
         .join('');
       totalSum.textContent = total > 0 ? formatAmount(total) : onRequest;
+      if (shippingValue) {
+        shippingValue.textContent = formatAmount(orderShipping);
+      }
       if (totalDue) {
-        totalDue.textContent = total > 0 ? formatAmount(total + shipping) : onRequest;
+        totalDue.textContent = total > 0 ? formatAmount(total + orderShipping) : onRequest;
       }
       // Tillval (ram/passepartout) prissätts per mejl; visas som rad under summan.
       if (extrasNote) {
@@ -235,11 +253,12 @@
       const parts = groups.map((group) => `${group.value} ×${group.days.length}${group.price ? ` à ${group.price}` : ''}`);
       const due =
         total > 0
-          ? ` = ${formatAmount(total)} + ${isEnglish ? 'shipping' : 'frakt'} ${formatAmount(shipping)} = ${formatAmount(total + shipping)}`
+          ? ` = ${formatAmount(total)} + ${isEnglish ? 'shipping' : 'frakt'} ${formatAmount(orderShipping)} = ${formatAmount(total + orderShipping)}`
           : '';
       const extras = chosenExtras();
       const extrasText = extras.length ? ` · ${isEnglish ? 'Extras' : 'Tillval'}: ${extras.join(', ')}` : '';
-      priceField.value = parts.length ? `${parts.join(', ')}${due}${extrasText}` : '';
+      const frameText = frame ? ` · ${frame.label}` : '';
+      priceField.value = parts.length ? `${parts.join(', ')}${frameText}${due}${extrasText}` : '';
     }
   };
 
@@ -368,6 +387,10 @@
       picks.clear();
       window.setTimeout(() => render(), 0);
     });
+  }
+
+  if (frameSelect) {
+    frameSelect.addEventListener('change', () => updateOrderFields(Array.from(picks.keys()).sort((a, b) => a - b)));
   }
 
   extraBoxes.forEach((box) =>

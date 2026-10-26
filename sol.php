@@ -125,12 +125,12 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
       <link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20261026-01" />
+    <link rel="stylesheet" href="styles.css?v=20261026-02" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <script src="script.js?v=20261026-03" defer></script>
-    <script src="shop.js?v=20261026-03" defer></script>
-    <script src="sol.js?v=20261026-01" defer></script>
+    <script src="shop.js?v=20261026-04" defer></script>
+    <script src="sol.js?v=20261026-02" defer></script>
   </head>
   <body id="page-top" data-page="sun" data-day-label="<?= $h($dayLabel) ?>" data-remove-label="<?= $h($lang === 'en' ? 'Remove day' : 'Ta bort dag') ?>">
     <header class="site-header" id="top">
@@ -190,7 +190,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                 </tbody>
               </table>
               <p class="sun-print-edition"><?= $h(seo_print_paper_label($lang)) ?>.<br /><?= $h(seo_print_edition_label($lang)) ?><?= $h($lang === 'en' ? ' per sun.' : ' per sol.') ?></p>
-              <p class="sun-print-extras"><?= $h($lang === 'en' ? 'Prices include VAT.' : 'Priserna inkluderar moms.') ?> <?= $h(seo_print_mount_label($lang)) ?>. <?= $h(seo_print_extras_note($lang)) ?></p>
+              <p class="sun-print-extras"><?= $h($lang === 'en' ? 'Prices include VAT.' : 'Priserna inkluderar moms.') ?> <?= $h(seo_print_mount_label($lang)) ?>. <?= $h(($lang === 'en' ? 'Frame as an option: ' : 'Ram som tillval: ') . seo_frame_price_list(seo_shop_config($payload), $printSizes, $lang)) ?>. <?= $h(seo_print_extras_note($lang)) ?></p>
               <a class="btn btn-primary" href="<?= $h($canonical) ?>#bestall"><?= $h($lang === 'en' ? 'Order prints' : 'Beställ print') ?></a>
               <?php if ($poster['enabled'] && $posterAvailable > 0): ?>
                 <a class="sun-print-poster" href="<?= $h($canonical) ?>#poster">
@@ -263,7 +263,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                 ? sprintf('Each sun is printed on %s. %s.', seo_print_paper_label($lang), seo_print_edition_label($lang))
                 : sprintf('Varje sol trycks på %s. %s.', seo_print_paper_label($lang), seo_print_edition_label($lang))) ?></p>
               <p><?= $h(seo_print_mount_note($lang)) ?></p>
-              <p><?= $h(seo_print_extras_note($lang) . ' ' . seo_framing_service_note($lang)) ?></p>
+              <p><?= $h(seo_print_frame_offer_note($payload, $printSizes, $lang) . ' ' . seo_print_extras_note($lang)) ?></p>
               <p><?= $h(seo_print_delivery_note($lang)) ?></p>
               <p class="artwork-inquiry-fineprint"><?= $h($lang === 'en'
                 ? 'In the checkout you enter the delivery address and get the payment details with a Swish code. The order is confirmed when the payment has arrived.'
@@ -288,9 +288,19 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                 <label><?= $h($lang === 'en' ? 'Size (same for all)' : 'Format (samma för alla)') ?>
                   <select id="sun-order-size" name="printSize">
                     <?php foreach ($printSizes as $i => $size): ?>
-                      <option value="<?= $h($size['format']) ?>" data-price="<?= $h($size['price']) ?>" <?= $i === 0 ? 'selected' : '' ?>><?php $optionImage = seo_print_image_size($size['format'], $lang); ?><?= $h(seo_print_frame_label($size['format'], $lang) . ($optionImage !== '' ? ' (' . ($lang === 'en' ? 'image ' : 'bild ') . $optionImage . ')' : '') . ($size['price'] !== '' ? ' – ' . $size['price'] : '')) ?></option>
+                      <option value="<?= $h($size['format']) ?>" data-price="<?= $h($size['price']) ?>" data-frame-price="<?= (int) (seo_shop_config($payload)['framePrices'][seo_print_format_key($size['format'])] ?? 0) ?>" <?= $i === 0 ? 'selected' : '' ?>><?php $optionImage = seo_print_image_size($size['format'], $lang); ?><?= $h(seo_print_frame_label($size['format'], $lang) . ($optionImage !== '' ? ' (' . ($lang === 'en' ? 'image ' : 'bild ') . $optionImage . ')' : '') . ($size['price'] !== '' ? ' – ' . $size['price'] : '')) ?></option>
                     <?php endforeach; ?>
                   </select>
+                </label>
+
+                <label><?= $h($lang === 'en' ? 'Frame (same for all)' : 'Ram (samma för alla)') ?>
+                  <select id="sun-order-frame" name="printFrame" data-frame-for="sun-order-size">
+                    <option value=""><?= $h($lang === 'en' ? 'No frame' : 'Utan ram') ?></option>
+                    <?php foreach (array_keys(SEO_FRAME_COLORS) as $frameColor): ?>
+                      <option value="<?= $h($frameColor) ?>" data-label="<?= $h(seo_frame_option_label($frameColor, $lang)) ?>"><?= $h(seo_frame_option_label($frameColor, $lang)) ?></option>
+                    <?php endforeach; ?>
+                  </select>
+                  <small class="field-hint"><?= $h(sprintf($lang === 'en' ? '%s with acrylic glazing. Want a different frame? Write it in the message at checkout.' : '%s med akrylglas. Vill du ha en annan ram, skriv det i meddelandet i kassan.', seo_shop_config($payload)['frameModel'])) ?></small>
                 </label>
 
                 <label><?= $h($lang === 'en' ? 'Which suns? (day numbers)' : 'Vilka solar? (dagnummer)') ?>
@@ -299,10 +309,10 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                 </label>
                 <ul class="sun-picked" id="sun-picked-form" aria-label="<?= $h($lang === 'en' ? 'Selected suns' : 'Valda solar') ?>" hidden></ul>
                 <p class="field-hint sun-picked-hint"><?= $h($lang === 'en' ? 'Different size for a single sun? Change it under that sun.' : 'Vill du ha ett annat format på en enskild sol? Ändra under den solen.') ?></p>
-                <div class="sun-order-total" id="sun-order-total" aria-live="polite" data-shipping="<?= SEO_PRINT_SHIPPING_SEK ?>" hidden>
+                <div class="sun-order-total" id="sun-order-total" aria-live="polite" data-shipping="<?= SEO_PRINT_SHIPPING_SEK ?>" data-shipping-framed="<?= (int) seo_shop_config($payload)['shippingFramed'] ?>" hidden>
                   <ul class="sun-order-lines" id="sun-order-lines"></ul>
-                  <p class="sun-order-sum sun-order-subtotal"><span><?= $h(($lang === 'en' ? 'Prints' : 'Prints') . ' (' . seo_print_vat_label($lang) . ')') ?></span><span id="sun-order-sum"></span></p>
-                  <p class="sun-order-sum sun-order-subtotal"><span><?= $h($lang === 'en' ? 'Shipping within Sweden' : 'Frakt inom Sverige') ?></span><span><?= $h(number_format(SEO_PRINT_SHIPPING_SEK, 0, ',', ' ') . ($lang === 'en' ? ' SEK' : ' kr')) ?></span></p>
+                  <p class="sun-order-sum sun-order-subtotal"><span><?= $h(($lang === 'en' ? 'Items' : 'Varor') . ' (' . seo_print_vat_label($lang) . ')') ?></span><span id="sun-order-sum"></span></p>
+                  <p class="sun-order-sum sun-order-subtotal"><span><?= $h($lang === 'en' ? 'Shipping within Sweden' : 'Frakt inom Sverige') ?></span><span id="sun-order-shipping"><?= $h(number_format(SEO_PRINT_SHIPPING_SEK, 0, ',', ' ') . ($lang === 'en' ? ' SEK' : ' kr')) ?></span></p>
                   <p class="sun-order-sum sun-order-due"><span><?= $h($lang === 'en' ? 'To pay' : 'Att betala') ?></span><strong id="sun-order-due"></strong></p>
                 </div>
 

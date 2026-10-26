@@ -185,6 +185,33 @@ function shop_next_edition_no(PDO $pdo, string $kind, string $ref): int
   return (int) $stmt->fetchColumn() + 1;
 }
 
+// Ram till en print- eller solrad (kundvagnens "frame": svart/vit/ek), samma antal som printen.
+// Null om ingen ram valts; fel om ramen saknas för formatet.
+function shop_frame_line(array $cfg, $frameValue, array $match, string $forTitle, string $ref, int $qty, string $lang, int $sort): ?array
+{
+  $color = seo_frame_color_key($frameValue);
+  if ($color === '') {
+    return null;
+  }
+  $price = (int) ($match['framePrice'] ?? 0);
+  if ($price <= 0) {
+    throw new InvalidArgumentException($lang === 'en' ? 'A frame is not available for that print size.' : 'Ram finns inte för det printformatet.');
+  }
+  return [
+    'kind' => 'frame', 'ref' => $ref, 'title' => seo_frame_line_title($cfg, $color, $lang),
+    'detail' => ($lang === 'en' ? 'for ' : 'till ') . $forTitle . ', ' . $match['format'],
+    'qty' => $qty, 'unit' => $price, 'vat' => SHOP_VAT_RATE_PRINT, 'edition' => null, 'sort' => $sort
+  ];
+}
+
+// "50 × 70 cm, utan ram", eller bara formatet när en ram följer på nästa rad.
+function shop_print_format_detail(array $match, $frameValue, string $lang): string
+{
+  return seo_frame_color_key($frameValue) !== '' && (int) ($match['framePrice'] ?? 0) > 0
+    ? (string) $match['format']
+    : seo_print_frame_label($match['format'], $lang);
+}
+
 // Gör om kundvagnens rader till kontrollerade orderrader med serverns priser.
 // Kastar InvalidArgumentException med ett meddelande kunden kan visa.
 function shop_resolve_items(PDO $pdo, array $cartItems, string $lang, bool $allowReserved = false): array
@@ -296,9 +323,14 @@ function shop_resolve_items(PDO $pdo, array $cartItems, string $lang, bool $allo
       }
       $lines[] = [
         'kind' => 'print', 'ref' => $ref, 'title' => 'Fine Art Print – ' . $art['title'],
-        'detail' => seo_print_frame_label($match['format'], $lang) . seo_print_image_note($match['image'], $lang),
+        'detail' => shop_print_format_detail($match, $raw['frame'] ?? '', $lang) . seo_print_image_note($match['image'], $lang),
         'qty' => $qty, 'unit' => (int) $match['price'], 'vat' => SHOP_VAT_RATE_PRINT, 'edition' => null, 'sort' => $sort++
       ];
+      $frameLine = shop_frame_line($cfg, $raw['frame'] ?? '', $match, 'Fine Art Print – ' . $art['title'], $ref, $qty, $lang, $sort);
+      if ($frameLine !== null) {
+        $lines[] = $frameLine;
+        $sort++;
+      }
       continue;
     }
 
@@ -319,9 +351,14 @@ function shop_resolve_items(PDO $pdo, array $cartItems, string $lang, bool $allo
       }
       $lines[] = [
         'kind' => 'sun', 'ref' => (string) $day, 'title' => sprintf($lang === 'en' ? '100 days of sun – day %d' : '100 dagar av sol – dag %d', $day),
-        'detail' => 'Fine Art Print, ' . seo_print_frame_label($match['format'], $lang) . seo_print_image_note($match['image'], $lang),
+        'detail' => 'Fine Art Print, ' . shop_print_format_detail($match, $raw['frame'] ?? '', $lang) . seo_print_image_note($match['image'], $lang),
         'qty' => $qty, 'unit' => (int) $match['price'], 'vat' => SHOP_VAT_RATE_PRINT, 'edition' => null, 'sort' => $sort++
       ];
+      $frameLine = shop_frame_line($cfg, $raw['frame'] ?? '', $match, sprintf($lang === 'en' ? '100 days of sun – day %d' : '100 dagar av sol – dag %d', $day), (string) $day, $qty, $lang, $sort);
+      if ($frameLine !== null) {
+        $lines[] = $frameLine;
+        $sort++;
+      }
       continue;
     }
   }
@@ -332,8 +369,8 @@ function shop_resolve_items(PDO $pdo, array $cartItems, string $lang, bool $allo
   return $lines;
 }
 
-// Summor: frakt 150 kr per beställning. Frakten följer momsen på varorna: 25 % om
-// något i ordern är momspliktigt, annars momsfri (bara original).
+// Summor: frakt 150 kr per beställning, 250 kr om en ram ingår. Frakten följer momsen på
+// varorna: 25 % om något i ordern är momspliktigt, annars momsfri (bara original).
 function shop_totals(array $lines, ?int $shippingOverride = null): array
 {
   $payload = shop_payload();
@@ -353,6 +390,9 @@ function shop_totals(array $lines, ?int $shippingOverride = null): array
   foreach ($lines as $line) {
     if ($line['kind'] === 'original') {
       $shipping = max($shipping, (int) $cfg['shippingOriginalSmall']);
+    }
+    if ($line['kind'] === 'frame') {
+      $shipping = max($shipping, (int) $cfg['shippingFramed']);
     }
   }
   if ($shippingOverride !== null) {
