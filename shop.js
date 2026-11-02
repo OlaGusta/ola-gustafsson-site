@@ -286,18 +286,16 @@
       return { subtotal, shipping, total: subtotal + shipping, vat };
     };
 
-    // Visar besökaren € eller $ (script.js) är beloppen ungefärliga; betalningen sker i kronor.
-    const currencyNote = () => {
+    // Kassan visar kronor (det som betalas). Har besökaren valt € eller $ (script.js) visas
+    // summan i den valutan på en egen rad.
+    const currencyNote = (total) => {
       const currency = window.olaCurrency || {};
-      const rates = currency.rates || {};
-      if (!currency.code || currency.code === 'SEK' || !(Number(rates[currency.code]) > 0)) {
+      if (!currency.code || currency.code === 'SEK' || typeof currency.format !== 'function' || !(total > 0)) {
         return '';
       }
-      const symbol = currency.code === 'EUR' ? '€' : '$';
-      const rate = Number(rates[currency.code]).toLocaleString(lang === 'en' ? 'en-GB' : 'sv-SE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       return `<p class="field-hint checkout-currency-note" data-currency-skip>${esc(T(
-        `Beloppen i ${symbol} är ungefärliga (1 ${symbol} = ${rate} kr, ECB ${rates.date || ''}). Du betalar i kronor.`,
-        `Amounts in ${symbol} are approximate (1 ${symbol} = ${rate} SEK, ECB ${rates.date || ''}). You pay in Swedish kronor.`
+        `Ca ${currency.format(total)}. Du betalar i kronor.`,
+        `About ${currency.format(total)}. You pay in Swedish kronor.`
       ))}</p>`;
     };
     document.addEventListener('ola:currency-change', () => render());
@@ -340,7 +338,7 @@
               <div class="checkout-sum-total"><dt>${esc(T('Att betala', 'To pay'))}</dt><dd>${esc(money(sums.total))}</dd></div>
               <div class="checkout-sum-vat"><dt>${esc(T('Varav moms', 'Of which VAT'))}</dt><dd>${esc(money(sums.vat))}</dd></div>
             </dl>
-            ${currencyNote()}
+            ${currencyNote(sums.total)}
             <p class="field-hint">${esc(T(`Original är momsfria konstverk. Print, ram, passepartout och frakt har 25 % moms. Frakten är ${money(catalog.shippingFramed)} när en ram ingår. Vill du ha en annan ram, skriv det i meddelandet. Ram till original, hämtning och leverans utanför Sverige ordnas på förfrågan: mejla ola@olagustafsson.com.`, `Originals are VAT-exempt works of art. Prints, frames, mats and shipping carry 25% VAT. Shipping is ${money(catalog.shippingFramed)} when a frame is included. Want a different frame? Write it in the message. Frames for originals, pickup and delivery outside Sweden are arranged on request: email ola@olagustafsson.com.`))}</p>
           </section>
           <form class="checkout-form contact-form surface-soft" id="checkout-form" novalidate ${canOrder ? '' : 'hidden'}>

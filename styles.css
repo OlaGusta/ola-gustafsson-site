@@ -6031,6 +6031,144 @@ body:not([data-page='studio']) .contact-social-links {
   background: none;
 }
 
+/* Valutan: en liten rullgardin efter språket ("SEK ▾"). Öppen visar den tre val med kurs.
+   I mobilmenyn (.nav-settings) ser knappen ut som språkväljarens pillerknappar. */
+.currency-switch {
+  position: relative;
+  display: inline-flex;
+}
+
+.currency-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.2rem;
+  border: 0;
+  border-radius: var(--control-radius);
+  background: none;
+  color: var(--color-ink);
+  font-size: 0.8rem;
+  font-weight: var(--font-body-strong-weight);
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.currency-chevron {
+  width: 0.34rem;
+  height: 0.34rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  opacity: 0.65;
+  transform: translateY(-0.12rem) rotate(45deg);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.currency-toggle[aria-expanded="true"] .currency-chevron {
+  transform: translateY(0.1rem) rotate(-135deg);
+}
+
+.currency-toggle:hover {
+  color: color-mix(in srgb, var(--color-primary) 78%, var(--color-ink) 22%);
+}
+
+.currency-toggle:focus-visible,
+.currency-option:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.currency-menu {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  z-index: 60;
+  display: grid;
+  gap: 0.1rem;
+  width: max-content;
+  min-width: 13rem;
+  padding: 0.35rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.currency-menu[hidden] {
+  display: none;
+}
+
+.currency-option {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 0;
+  background: none;
+  color: var(--color-ink);
+  font-size: 0.8rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.currency-option-code {
+  font-weight: var(--font-body-strong-weight);
+  letter-spacing: 0.08em;
+}
+
+.currency-option-note {
+  color: var(--color-soft-ink);
+  font-size: 0.76rem;
+  white-space: nowrap;
+}
+
+.currency-option:hover {
+  background: color-mix(in srgb, var(--color-primary) 8%, var(--color-surface) 92%);
+}
+
+.currency-option.is-active {
+  background: color-mix(in srgb, var(--color-primary) 14%, var(--color-surface) 86%);
+  color: color-mix(in srgb, var(--color-primary) 78%, var(--color-ink) 22%);
+}
+
+.currency-menu-note {
+  margin: 0.2rem 0 0;
+  padding: 0.45rem 0.6rem 0.2rem;
+  max-width: 15rem;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-soft-ink);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.currency-menu-date {
+  white-space: nowrap;
+}
+
+.nav-settings .currency-toggle {
+  min-height: 2.36rem;
+  padding: 0 0.8rem;
+  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.78);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+}
+
+:root[data-color-mode="dark"] .nav-settings .currency-toggle {
+  background: rgba(20, 29, 42, 0.85);
+}
+
+.nav-settings .currency-menu {
+  right: auto;
+  left: 0;
+}
+
+/* Mobilmenyn sorterar språk (2) och ljus/mörk (3) med order; valutan står efter språket. */
+.nav-settings .currency-switch {
+  order: 2;
+}
+
 @media (min-width: 1081px) {
   .work-image {
     aspect-ratio: auto;

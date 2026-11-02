@@ -1094,24 +1094,38 @@ let activeCurrency = (() => {
   }
   return SUPPORTED_CURRENCIES.includes(stored) ? stored : activeLanguage === 'en' ? 'EUR' : 'SEK';
 })();
-// shop.js läser valet för kassans upplysning om ungefärliga belopp.
+// shop.js läser valet och formaterar kassans summa i vald valuta (format sätts nedan).
 window.olaCurrency = { code: activeCurrency, rates: currencyRates };
 
-// "9 500 kr", "1 800 SEK", "+600 kr" (siffergrupper med mellanslag, hårt eller smalt). Inte
-// decimaldelen av ett tal ("10,98 kr" i en kursangivelse).
-const SEK_AMOUNT_PATTERN = /(?<![\d.,])(\d{1,3}(?:[ \u00a0\u202f]\d{3})+|\d+)[ \u00a0\u202f]?(?:kr|SEK)(?![\p{L}\d])/gu;
-const CURRENCY_SKIP_SELECTOR = 'script, style, textarea, code, [data-currency-skip], .currency-switch';
+// "9 500 kr", "1,800 SEK", "+600 kr", "1 200–9 500 kr", "mellan 1 200 och 9 500 kr" (tusental
+// med mellanslag, hårt eller smalt, eller komma). Inte decimaldelen av ett tal ("10,98 kr").
+const SEK_NUMBER = String.raw`\d{1,3}(?:[ \u00a0\u202f,]\d{3})+|\d+`;
+const SEK_AMOUNT_PATTERN = new RegExp(
+  String.raw`(?<![\d.,])(${SEK_NUMBER})(?:([ \u00a0\u202f]?[–-][ \u00a0\u202f]?| (?:och|till|and|to) )(${SEK_NUMBER}))?[ \u00a0\u202f]?(?:kr|SEK)(?![\p{L}\d])`,
+  'gu'
+);
+// Kassan och ordersidan visar alltid kronor: det är beloppet som ska betalas.
+const CURRENCY_SKIP_SELECTOR =
+  "script, style, textarea, code, [data-currency-skip], .currency-switch, body[data-page='checkout'] main, body[data-page='order'] main";
 const currencyTextNodes = new Map();
 
-const formatApproxCurrency = (sek) => {
-  const value = sek / Number(currencyRates[activeCurrency]);
-  const step = value < 100 ? 1 : value < 1000 ? 5 : 10;
-  const digits = Math.max(1, Math.round(value / step) * step).toLocaleString(activeLanguage === 'en' ? 'en-GB' : 'sv-SE');
-  if (activeCurrency === 'EUR') {
-    return activeLanguage === 'en' ? `€${digits}` : `${digits} €`;
+// Kronor → vald valuta, avrundat (till 1, 5 eller 10 beroende på storlek): "865 €", "€865",
+// "$965". Intervall: "110–865 €" / "€110–865", med ord "110 och 865 €" / "€110 and €865".
+const formatApproxCurrency = (sek, toSek = null, separator = '–') => {
+  const amount = (value) => {
+    const converted = value / Number(currencyRates[activeCurrency]);
+    const step = converted < 100 ? 1 : converted < 1000 ? 5 : 10;
+    return Math.max(1, Math.round(converted / step) * step).toLocaleString(activeLanguage === 'en' ? 'en-GB' : 'sv-SE');
+  };
+  const prefix = activeCurrency === 'USD' ? '$' : activeLanguage === 'en' ? '€' : '';
+  const suffix = activeCurrency === 'EUR' && activeLanguage !== 'en' ? ' €' : '';
+  if (toSek === null) {
+    return `${prefix}${amount(sek)}${suffix}`;
   }
-  return `$${digits}`;
+  const dash = /[–-]/.test(separator);
+  return `${prefix}${amount(sek)}${dash ? '–' : `${separator}${prefix}`}${amount(toSek)}${suffix}`;
 };
+window.olaCurrency.format = (sek) => formatApproxCurrency(sek);
 
 const convertCurrencyTextNode = (node) => {
   let entry = currencyTextNodes.get(node);
@@ -1132,7 +1146,10 @@ const convertCurrencyTextNode = (node) => {
   const output =
     activeCurrency === 'SEK'
       ? entry.original
-      : entry.original.replace(SEK_AMOUNT_PATTERN, (match, digits) => `${match} ≈ ${formatApproxCurrency(Number(digits.replace(/\D/g, '')))}`);
+      : entry.original.replace(SEK_AMOUNT_PATTERN, (match, from, separator, to) => {
+          const sek = (digits) => Number(digits.replace(/\D/g, ''));
+          return to ? formatApproxCurrency(sek(from), sek(to), separator) : formatApproxCurrency(sek(from));
+        });
   entry.output = output;
   if (node.nodeValue !== output) {
     node.nodeValue = output;
@@ -1186,40 +1203,113 @@ const setActiveCurrency = (code) => {
     button.classList.toggle('is-active', isActive);
     button.setAttribute('aria-pressed', String(isActive));
   });
+  document.querySelectorAll('[data-currency-current]').forEach((label) => {
+    label.textContent = code;
+  });
   document.dispatchEvent(new CustomEvent('ola:currency-change', { detail: { code } }));
 };
 
-// "kr · € · $" direkt efter språkväljaren; omräkningen följer med när sidan ritar om innehåll.
+// Valutan som en liten rullgardin direkt efter språkväljaren: stängd visar den bara koden
+// ("SEK ▾"), öppen alla tre med dagens kurs. Omräkningen följer med när sidan ritar om innehåll.
 const initCurrencySwitcher = () => {
   if (!currencyRates) {
     return;
   }
   const en = activeLanguage === 'en';
-  const rateDate = typeof currencyRates.date === 'string' ? currencyRates.date : '';
+  const rateDate = /^\d{4}-\d{2}-\d{2}$/.test(String(currencyRates.date || '')) ? currencyRates.date : '';
   const rateText = (value) => Number(value).toLocaleString(en ? 'en-GB' : 'sv-SE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const titles = {
-    SEK: en ? 'Swedish kronor' : 'Kronor',
-    EUR: `${en ? 'Approximate amounts in euro' : 'Ungefärliga belopp i euro'}: 1 € = ${rateText(currencyRates.EUR)} kr (ECB ${rateDate})`,
-    USD: `${en ? 'Approximate amounts in US dollars' : 'Ungefärliga belopp i dollar'}: 1 $ = ${rateText(currencyRates.USD)} kr (ECB ${rateDate})`
-  };
-  document.querySelectorAll('.lang-switch:not(.currency-switch)').forEach((langSwitch) => {
-    const group = document.createElement('div');
-    group.className = 'lang-switch currency-switch';
-    group.setAttribute('role', 'group');
-    group.setAttribute('aria-label', en ? 'Choose currency' : 'Välj valuta');
-    [['SEK', 'kr'], ['EUR', '€'], ['USD', '$']].forEach(([code, label]) => {
+  const options = [
+    ['SEK', en ? 'Swedish kronor' : 'Kronor'],
+    ['EUR', `1 € = ${rateText(currencyRates.EUR)} kr`],
+    ['USD', `1 $ = ${rateText(currencyRates.USD)} kr`]
+  ];
+  // Datumet hålls ihop på en rad (annars bryts det vid bindestrecken).
+  const dateHtml = `<span class="currency-menu-date">${rateDate}</span>`;
+  const noteHtml = en
+    ? `Approximate amounts, ECB rate ${dateHtml}. You pay in Swedish kronor.`
+    : `Ungefärliga belopp, ECB:s kurs ${dateHtml}. Du betalar i kronor.`;
+
+  document.querySelectorAll('.lang-switch:not(.currency-switch)').forEach((langSwitch, index) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'currency-switch';
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'currency-toggle';
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-controls', `currency-menu-${index}`);
+    toggle.innerHTML = `<span class="visually-hidden">${en ? 'Currency' : 'Valuta'}: </span><span data-currency-current>${activeCurrency}</span><span class="currency-chevron" aria-hidden="true"></span>`;
+    const menu = document.createElement('div');
+    menu.className = 'currency-menu';
+    menu.id = `currency-menu-${index}`;
+    menu.hidden = true;
+    menu.setAttribute('role', 'group');
+    menu.setAttribute('aria-label', en ? 'Choose currency' : 'Välj valuta');
+    options.forEach(([code, note]) => {
       const button = document.createElement('button');
       button.type = 'button';
-      button.className = `lang-switch-btn${code === activeCurrency ? ' is-active' : ''}`;
+      button.className = `currency-option${code === activeCurrency ? ' is-active' : ''}`;
       button.dataset.currencyOption = code;
-      button.textContent = label;
-      button.title = titles[code];
-      button.setAttribute('aria-label', titles[code]);
       button.setAttribute('aria-pressed', String(code === activeCurrency));
-      button.addEventListener('click', () => setActiveCurrency(code));
-      group.appendChild(button);
+      button.innerHTML = `<span class="currency-option-code">${code}</span><span class="currency-option-note">${note}</span>`;
+      menu.appendChild(button);
     });
-    langSwitch.insertAdjacentElement('afterend', group);
+    const note = document.createElement('p');
+    note.className = 'currency-menu-note';
+    note.innerHTML = noteHtml;
+    menu.appendChild(note);
+    wrap.append(toggle, menu);
+
+    const optionButtons = () => Array.from(menu.querySelectorAll('[data-currency-option]'));
+    const setOpen = (open, focusOption = false) => {
+      menu.hidden = !open;
+      toggle.setAttribute('aria-expanded', String(open));
+      if (open && focusOption) {
+        (menu.querySelector('.currency-option.is-active') || optionButtons()[0]).focus();
+      }
+    };
+    toggle.addEventListener('click', () => setOpen(menu.hidden));
+    toggle.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        setOpen(true, true);
+      }
+    });
+    menu.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-currency-option]');
+      if (button) {
+        setActiveCurrency(button.dataset.currencyOption);
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+    menu.addEventListener('keydown', (event) => {
+      if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') {
+        return;
+      }
+      event.preventDefault();
+      const buttons = optionButtons();
+      const step = event.key === 'ArrowDown' ? 1 : -1;
+      buttons[(buttons.indexOf(document.activeElement) + step + buttons.length) % buttons.length].focus();
+    });
+    wrap.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !menu.hidden) {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+    // Tabb ut ur listan stänger den. Klick utanför tas av dokumentlyssnaren nedan: Safari
+    // fokuserar inte knappar vid klick, så focusout utan relatedTarget får inte stänga.
+    wrap.addEventListener('focusout', (event) => {
+      if (event.relatedTarget && !wrap.contains(event.relatedTarget)) {
+        setOpen(false);
+      }
+    });
+    document.addEventListener('click', (event) => {
+      if (!wrap.contains(event.target)) {
+        setOpen(false);
+      }
+    });
+    langSwitch.insertAdjacentElement('afterend', wrap);
   });
 
   convertCurrencyWithin(document.body);
