@@ -55,8 +55,9 @@ $pageTitle = $lang === 'en' ? 'Checkout | Ola Gustafsson' : 'Kassa | Ola Gustafs
     <link rel="stylesheet" href="styles.css?v=20261026-02" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
-    <script src="script.js?v=20261026-04" defer></script>
-    <script src="shop.js?v=20261026-05" defer></script>
+    <?= seo_currency_rates_script() ?>
+    <script src="script.js?v=20261102-01" defer></script>
+    <script src="shop.js?v=20261102-01" defer></script>
   </head>
   <body id="page-top" data-page="checkout">
     <header class="site-header" id="top">
@@ -103,6 +104,8 @@ $pageTitle = $lang === 'en' ? 'Checkout | Ola Gustafsson' : 'Kassa | Ola Gustafs
             data-turnstile-site-key="<?= $h((string) ($publicContactConfig['turnstileSiteKey'] ?? '')) ?>"
             data-swish="<?= $h($paymentDetails['swish']) ?>"
             data-bank="<?= $h($paymentDetails['bank']) ?>"
+            data-iban="<?= $h($paymentDetails['iban']) ?>"
+            data-bic="<?= $h($paymentDetails['bic']) ?>"
             data-terms-url="<?= $h(seo_canonical_url('home', $lang) . '#faq') ?>"
           >
             <noscript><p><?= $h($lang === 'en' ? 'The checkout needs JavaScript. Email ola@olagustafsson.com to order.' : 'Kassan kräver JavaScript. Mejla ola@olagustafsson.com för att beställa.') ?></p></noscript>

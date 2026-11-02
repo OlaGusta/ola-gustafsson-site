@@ -1623,13 +1623,84 @@ function seo_print_delivery_note(string $lang): string
     : 'Printen görs på beställning och skickas normalt inom några dagar. Med ram tar det cirka en vecka till.';
 }
 
-// Betalningsuppgifter från Studio (Kontakt → Swish-nummer / Bankkonto). Tomma = ingen text.
+// Betalningsuppgifter från Studio (Kontakt → Swish-nummer / Bankkonto / IBAN / BIC). Tomma = ingen text.
+// IBAN och BIC gäller betalning från utlandet (beslut 2026-11-02); visas bara när båda finns.
 function seo_payment_details(array $payload): array
 {
   $contact = isset($payload['contact']) && is_array($payload['contact']) ? $payload['contact'] : [];
-  $swish = isset($contact['swishNumber']) && is_string($contact['swishNumber']) ? trim($contact['swishNumber']) : '';
-  $bank = isset($contact['bankAccount']) && is_string($contact['bankAccount']) ? trim($contact['bankAccount']) : '';
-  return ['swish' => $swish, 'bank' => $bank];
+  $value = static fn (string $key): string => isset($contact[$key]) && is_string($contact[$key]) ? trim($contact[$key]) : '';
+  $iban = $value('iban');
+  $bic = $value('bic');
+  return [
+    'swish' => $value('swishNumber'),
+    'bank' => $value('bankAccount'),
+    'iban' => $iban !== '' && $bic !== '' ? $iban : '',
+    'bic' => $iban !== '' && $bic !== '' ? $bic : '',
+  ];
+}
+
+// "Från utlandet: IBAN …, BIC …." / "From abroad: IBAN …, BIC …." Tomt utan IBAN.
+function seo_payment_abroad_note(array $payload, string $lang): string
+{
+  $details = seo_payment_details($payload);
+  if ($details['iban'] === '') {
+    return '';
+  }
+  return sprintf($lang === 'en' ? 'From abroad: IBAN %s, BIC %s.' : 'Från utlandet: IBAN %s, BIC %s.', $details['iban'], $details['bic']);
+}
+
+// Växelkurser för ca-belopp i € och $ (beslut 2026-11-02: bara visning, betalningen sker i
+// kronor). Dagens kurser från Europeiska centralbanken (bas euro), sparade i
+// cache/currency-rates.json och hämtade på nytt efter 12 timmar; misslyckas hämtningen används
+// senaste sparade kurs och nytt försök görs om en timme. Kronor per enhet:
+// ['EUR' => 11.12, 'USD' => 10.27, 'date' => '2026-10-31'], tom array om ingen kurs finns.
+function seo_currency_rates(): array
+{
+  static $rates = null;
+  if (is_array($rates)) {
+    return $rates;
+  }
+  $file = __DIR__ . '/cache/currency-rates.json';
+  $cached = is_file($file) ? json_decode((string) @file_get_contents($file), true) : null;
+  $cached = is_array($cached) && isset($cached['EUR'], $cached['USD'], $cached['retryAt']) ? $cached : null;
+  if ($cached !== null && time() < (int) $cached['retryAt']) {
+    return $rates = ['EUR' => (float) $cached['EUR'], 'USD' => (float) $cached['USD'], 'date' => (string) ($cached['date'] ?? '')];
+  }
+
+  $xml = '';
+  if (function_exists('curl_init')) {
+    $ch = curl_init('https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml');
+    curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_CONNECTTIMEOUT => 3, CURLOPT_TIMEOUT => 4, CURLOPT_FOLLOWLOCATION => true]);
+    $body = curl_exec($ch);
+    $xml = is_string($body) && (int) curl_getinfo($ch, CURLINFO_HTTP_CODE) === 200 ? $body : '';
+  }
+  $rate = static function (string $currency) use ($xml): float {
+    return preg_match("/currency=['\"]" . $currency . "['\"]\s+rate=['\"]([0-9.]+)['\"]/", $xml, $m) === 1 ? (float) $m[1] : 0.0;
+  };
+  $sekPerEur = $rate('SEK');
+  $usdPerEur = $rate('USD');
+  if ($sekPerEur > 0 && $usdPerEur > 0) {
+    $date = preg_match("/time=['\"]([0-9-]{10})['\"]/", $xml, $m) === 1 ? $m[1] : date('Y-m-d');
+    $fresh = ['EUR' => round($sekPerEur, 4), 'USD' => round($sekPerEur / $usdPerEur, 4), 'date' => $date, 'retryAt' => time() + 12 * 3600];
+    if (!is_dir(dirname($file))) {
+      @mkdir(dirname($file), 0755, true);
+    }
+    @file_put_contents($file, json_encode($fresh), LOCK_EX);
+    return $rates = ['EUR' => $fresh['EUR'], 'USD' => $fresh['USD'], 'date' => $date];
+  }
+  if ($cached !== null) {
+    $cached['retryAt'] = time() + 3600;
+    @file_put_contents($file, json_encode($cached), LOCK_EX);
+    return $rates = ['EUR' => (float) $cached['EUR'], 'USD' => (float) $cached['USD'], 'date' => (string) ($cached['date'] ?? '')];
+  }
+  return $rates = [];
+}
+
+// Kurserna som JSON i sidan, för valutaväljaren i script.js. Tomt utan kurs.
+function seo_currency_rates_script(): string
+{
+  $rates = seo_currency_rates();
+  return $rates === [] ? '' : '<script type="application/json" id="currency-rates">' . json_encode($rates) . '</script>';
 }
 
 // "Betala med Swish till … eller till bankkonto …. Skriv ditt namn och {referens} som meddelande."
@@ -1648,9 +1719,10 @@ function seo_payment_note(array $payload, string $lang, string $reference = ''):
   }
   $joined = implode($lang === 'en' ? ' or ' : ' eller ', $ways);
   $ref = $reference !== '' ? $reference : ($lang === 'en' ? 'the title of the work' : 'verkets titel');
-  return $lang === 'en'
+  $abroad = seo_payment_abroad_note($payload, $lang);
+  return ($lang === 'en'
     ? sprintf('Pay by %s. Write your name and %s as the message.', $joined, $ref)
-    : sprintf('Betala med %s. Skriv ditt namn och %s som meddelande.', $joined, $ref);
+    : sprintf('Betala med %s. Skriv ditt namn och %s som meddelande.', $joined, $ref)) . ($abroad !== '' ? ' ' . $abroad : '');
 }
 
 // Ångerrätt vid distansköp (konsument): 14 dagar från mottagandet.

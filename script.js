@@ -1067,6 +1067,177 @@ const initLanguageSwitcher = () => {
   });
 };
 
+// Valuta (beslut 2026-11-02): bara visning. Kronbelopp på sidan får ett ungefärligt belopp i
+// € eller $ efter sig ("9 500 kr ≈ 830 €"); kassan och betalningen är alltid i kronor. Kurserna
+// (kronor per enhet, ECB) kommer från seo_currency_rates() i seo.php via #currency-rates.
+// Standard: kronor på svenska, euro på engelska; besökarens val sparas.
+const CURRENCY_STORAGE_KEY = 'olaSiteCurrencyV1';
+const SUPPORTED_CURRENCIES = ['SEK', 'EUR', 'USD'];
+const currencyRates = (() => {
+  try {
+    const node = document.getElementById('currency-rates');
+    const rates = node ? JSON.parse(node.textContent || '{}') : {};
+    return Number(rates.EUR) > 0 && Number(rates.USD) > 0 ? rates : null;
+  } catch (error) {
+    return null;
+  }
+})();
+let activeCurrency = (() => {
+  if (!currencyRates) {
+    return 'SEK';
+  }
+  let stored = '';
+  try {
+    stored = String(window.localStorage.getItem(CURRENCY_STORAGE_KEY) || '').toUpperCase();
+  } catch (error) {
+    stored = '';
+  }
+  return SUPPORTED_CURRENCIES.includes(stored) ? stored : activeLanguage === 'en' ? 'EUR' : 'SEK';
+})();
+// shop.js läser valet för kassans upplysning om ungefärliga belopp.
+window.olaCurrency = { code: activeCurrency, rates: currencyRates };
+
+// "9 500 kr", "1 800 SEK", "+600 kr" (siffergrupper med mellanslag, hårt eller smalt). Inte
+// decimaldelen av ett tal ("10,98 kr" i en kursangivelse).
+const SEK_AMOUNT_PATTERN = /(?<![\d.,])(\d{1,3}(?:[ \u00a0\u202f]\d{3})+|\d+)[ \u00a0\u202f]?(?:kr|SEK)(?![\p{L}\d])/gu;
+const CURRENCY_SKIP_SELECTOR = 'script, style, textarea, code, [data-currency-skip], .currency-switch';
+const currencyTextNodes = new Map();
+
+const formatApproxCurrency = (sek) => {
+  const value = sek / Number(currencyRates[activeCurrency]);
+  const step = value < 100 ? 1 : value < 1000 ? 5 : 10;
+  const digits = Math.max(1, Math.round(value / step) * step).toLocaleString(activeLanguage === 'en' ? 'en-GB' : 'sv-SE');
+  if (activeCurrency === 'EUR') {
+    return activeLanguage === 'en' ? `€${digits}` : `${digits} €`;
+  }
+  return `$${digits}`;
+};
+
+const convertCurrencyTextNode = (node) => {
+  let entry = currencyTextNodes.get(node);
+  if (entry && node.nodeValue !== entry.output) {
+    // Texten har ändrats av annan kod: räkna från den nya texten.
+    entry = null;
+  }
+  if (!entry) {
+    const original = node.nodeValue || '';
+    SEK_AMOUNT_PATTERN.lastIndex = 0;
+    if (!SEK_AMOUNT_PATTERN.test(original)) {
+      currencyTextNodes.delete(node);
+      return;
+    }
+    entry = { original, output: original };
+    currencyTextNodes.set(node, entry);
+  }
+  const output =
+    activeCurrency === 'SEK'
+      ? entry.original
+      : entry.original.replace(SEK_AMOUNT_PATTERN, (match, digits) => `${match} ≈ ${formatApproxCurrency(Number(digits.replace(/\D/g, '')))}`);
+  entry.output = output;
+  if (node.nodeValue !== output) {
+    node.nodeValue = output;
+  }
+};
+
+const convertCurrencyWithin = (root) => {
+  if (!currencyRates || !root) {
+    return;
+  }
+  if (root.nodeType === Node.TEXT_NODE) {
+    if (root.parentElement && !root.parentElement.closest(CURRENCY_SKIP_SELECTOR)) {
+      convertCurrencyTextNode(root);
+    }
+    return;
+  }
+  if (!(root instanceof Element) || root.closest(CURRENCY_SKIP_SELECTOR)) {
+    return;
+  }
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode: (node) =>
+      node.parentElement && !node.parentElement.closest(CURRENCY_SKIP_SELECTOR) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
+  });
+  const nodes = [];
+  while (walker.nextNode()) {
+    nodes.push(walker.currentNode);
+  }
+  nodes.forEach(convertCurrencyTextNode);
+};
+
+const setActiveCurrency = (code) => {
+  if (!SUPPORTED_CURRENCIES.includes(code) || code === activeCurrency) {
+    return;
+  }
+  activeCurrency = code;
+  window.olaCurrency.code = code;
+  try {
+    window.localStorage.setItem(CURRENCY_STORAGE_KEY, code);
+  } catch (error) {
+    // Utan lagring gäller valet bara den här sidan.
+  }
+  currencyTextNodes.forEach((_, node) => {
+    if (node.isConnected) {
+      convertCurrencyTextNode(node);
+    } else {
+      currencyTextNodes.delete(node);
+    }
+  });
+  document.querySelectorAll('[data-currency-option]').forEach((button) => {
+    const isActive = button.dataset.currencyOption === code;
+    button.classList.toggle('is-active', isActive);
+    button.setAttribute('aria-pressed', String(isActive));
+  });
+  document.dispatchEvent(new CustomEvent('ola:currency-change', { detail: { code } }));
+};
+
+// "kr · € · $" direkt efter språkväljaren; omräkningen följer med när sidan ritar om innehåll.
+const initCurrencySwitcher = () => {
+  if (!currencyRates) {
+    return;
+  }
+  const en = activeLanguage === 'en';
+  const rateDate = typeof currencyRates.date === 'string' ? currencyRates.date : '';
+  const rateText = (value) => Number(value).toLocaleString(en ? 'en-GB' : 'sv-SE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const titles = {
+    SEK: en ? 'Swedish kronor' : 'Kronor',
+    EUR: `${en ? 'Approximate amounts in euro' : 'Ungefärliga belopp i euro'}: 1 € = ${rateText(currencyRates.EUR)} kr (ECB ${rateDate})`,
+    USD: `${en ? 'Approximate amounts in US dollars' : 'Ungefärliga belopp i dollar'}: 1 $ = ${rateText(currencyRates.USD)} kr (ECB ${rateDate})`
+  };
+  document.querySelectorAll('.lang-switch:not(.currency-switch)').forEach((langSwitch) => {
+    const group = document.createElement('div');
+    group.className = 'lang-switch currency-switch';
+    group.setAttribute('role', 'group');
+    group.setAttribute('aria-label', en ? 'Choose currency' : 'Välj valuta');
+    [['SEK', 'kr'], ['EUR', '€'], ['USD', '$']].forEach(([code, label]) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = `lang-switch-btn${code === activeCurrency ? ' is-active' : ''}`;
+      button.dataset.currencyOption = code;
+      button.textContent = label;
+      button.title = titles[code];
+      button.setAttribute('aria-label', titles[code]);
+      button.setAttribute('aria-pressed', String(code === activeCurrency));
+      button.addEventListener('click', () => setActiveCurrency(code));
+      group.appendChild(button);
+    });
+    langSwitch.insertAdjacentElement('afterend', group);
+  });
+
+  convertCurrencyWithin(document.body);
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'characterData') {
+        const entry = currencyTextNodes.get(mutation.target);
+        if (!entry || mutation.target.nodeValue !== entry.output) {
+          convertCurrencyWithin(mutation.target);
+        }
+        return;
+      }
+      mutation.addedNodes.forEach((node) => convertCurrencyWithin(node));
+    });
+  });
+  observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+};
+
 let themeToggleButton = null;
 const THEME_ICON_MOON =
   '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M20.2 14.6A8.5 8.5 0 0 1 9.4 3.8a8.5 8.5 0 1 0 10.8 10.8Z"/></svg>';
@@ -4498,13 +4669,14 @@ const initMenu = () => {
   });
 };
 
-// Smala skärmar: språk- och ljus/mörk-väljarna flyttas in i menyn så att sidhuvudet
+// Smala skärmar: språk-, valuta- och ljus/mörk-väljarna flyttas in i menyn så att sidhuvudet
 // blir en rad. Breda skärmar: ljus/mörk bor i sidfoten, språket i sidhuvudet.
 const initCompactHeaderSettings = () => {
   if (!nav || pageType === 'studio') {
     return;
   }
-  const langSwitch = document.querySelector('.site-header .lang-switch');
+  const langSwitch = document.querySelector('.site-header .lang-switch:not(.currency-switch)');
+  const currencySwitch = document.querySelector('.site-header .currency-switch');
   const themeSwitch = document.querySelector('.site-header .theme-switch');
   if (!langSwitch || !themeSwitch || typeof window.matchMedia !== 'function') {
     return;
@@ -4533,7 +4705,7 @@ const initCompactHeaderSettings = () => {
 
   const place = () => {
     if (query.matches) {
-      holder.append(langSwitch, themeSwitch);
+      holder.append(...[langSwitch, currencySwitch, themeSwitch].filter(Boolean));
       if (!holder.isConnected) {
         nav.appendChild(holder);
       }
@@ -4543,6 +4715,10 @@ const initCompactHeaderSettings = () => {
     if (holder.isConnected || langSwitch.parentElement !== home) {
       home.insertBefore(langSwitch, anchor);
       holder.remove();
+    }
+    // Valutan står direkt efter språket.
+    if (currencySwitch && langSwitch.nextElementSibling !== currencySwitch) {
+      langSwitch.after(currencySwitch);
     }
     if (themeSwitch.parentElement !== home) {
       home.insertBefore(themeSwitch, anchor);
@@ -5470,6 +5646,7 @@ const bootstrap = async () => {
   applyTheme();
   applyColorMode();
   initLanguageSwitcher();
+  initCurrencySwitcher();
   initColorModeSwitcher();
   initSystemColorModeObserver();
   void renderHeroImage();

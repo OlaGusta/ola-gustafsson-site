@@ -55,8 +55,9 @@ $status = $order ? (string) $order['status'] : '';
     <link rel="stylesheet" href="styles.css?v=20261026-02" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
-    <script src="script.js?v=20261026-04" defer></script>
-    <script src="shop.js?v=20261026-05" defer></script>
+    <?= seo_currency_rates_script() ?>
+    <script src="script.js?v=20261102-01" defer></script>
+    <script src="shop.js?v=20261102-01" defer></script>
   </head>
   <body id="page-top" data-page="order">
     <header class="site-header" id="top">
@@ -123,12 +124,15 @@ $status = $order ? (string) $order['status'] : '';
                       <div class="order-pay-bank">
                         <?php if ($showBank): ?>
                           <p><strong><?= $h($t('Bankkonto', 'Bank account')) ?></strong><br /><?= $h($paymentDetails['bank']) ?></p>
+                          <?php if ($paymentDetails['iban'] !== ''): ?>
+                            <p><strong><?= $h($t('Från utlandet', 'From abroad')) ?></strong><br />IBAN <?= $h($paymentDetails['iban']) ?><br />BIC <?= $h($paymentDetails['bic']) ?></p>
+                          <?php endif; ?>
                           <p><strong><?= $h($t('Belopp', 'Amount')) ?></strong><br /><?= $h(shop_money((int) $order['total_sek'], $lang)) ?></p>
                         <?php endif; ?>
                         <p><strong><?= $h($t('Meddelande', 'Message')) ?></strong><br /><?= $h($order['order_no']) ?></p>
                         <p class="field-hint"><?= $h($t('Beställningen bekräftas så snart betalningen kommit in. Du får ett mejl när den är registrerad.', 'The order is confirmed as soon as the payment has arrived. You will get an email when it is registered.')) ?></p>
                         <?php if ($showSwish && $paymentDetails['bank'] !== ''): ?>
-                          <p class="field-hint"><?= $h($t('Vill du hellre betala via bankkonto: ', 'Prefer a bank transfer: ') . $paymentDetails['bank'] . $t(', med ordernumret som meddelande.', ', with the order number as the message.')) ?></p>
+                          <p class="field-hint"><?= $h($t('Vill du hellre betala via bankkonto: ', 'Prefer a bank transfer: ') . $paymentDetails['bank'] . $t(', med ordernumret som meddelande.', ', with the order number as the message.') . ($paymentDetails['iban'] !== '' ? ' ' . seo_payment_abroad_note($payload, $lang) : '')) ?></p>
                         <?php elseif ($showBank && $swishQrUrl !== ''): ?>
                           <p class="field-hint"><?= $h($t('Vill du hellre swisha: ', 'Prefer Swish: ') . $paymentDetails['swish'] . $t(', samma belopp och meddelande.', ', same amount and message.')) ?></p>
                         <?php endif; ?>

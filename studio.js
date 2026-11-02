@@ -2724,6 +2724,8 @@ const el = {
   contactEmailPublic: document.getElementById('contact-email-public'),
   contactSwish: document.getElementById('contact-swish'),
   contactBank: document.getElementById('contact-bank'),
+  contactIban: document.getElementById('contact-iban'),
+  contactBic: document.getElementById('contact-bic'),
   contactSocialEditor: document.getElementById('contact-social-editor'),
   addContactSocial: document.getElementById('add-contact-social'),
   galleryUpload: document.getElementById('gallery-upload'),
@@ -5963,6 +5965,12 @@ const syncFormFromState = () => {
   if (el.contactBank) {
     el.contactBank.value = typeof contact.bankAccount === 'string' ? contact.bankAccount : '';
   }
+  if (el.contactIban) {
+    el.contactIban.value = typeof contact.iban === 'string' ? contact.iban : '';
+  }
+  if (el.contactBic) {
+    el.contactBic.value = typeof contact.bic === 'string' ? contact.bic : '';
+  }
 
   refreshStudioLanguageUi();
   renderContactSocialEditor();
@@ -7980,6 +7988,12 @@ const pullFormToState = () => {
   }
   if (el.contactBank) {
     state.content.contact.bankAccount = el.contactBank.value.trim();
+  }
+  if (el.contactIban) {
+    state.content.contact.iban = el.contactIban.value.trim().toUpperCase();
+  }
+  if (el.contactBic) {
+    state.content.contact.bic = el.contactBic.value.trim().toUpperCase();
   }
 
   const socialLinksSource =

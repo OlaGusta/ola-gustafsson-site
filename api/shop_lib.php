@@ -701,7 +701,8 @@ function shop_customer_order_mail(array $order, string $lang, string $intro = ''
     $pay[] = 'Swish ' . $details['swish'];
   }
   if ($details['bank'] !== '' && ($choice === 'bank' || $details['swish'] === '')) {
-    $pay[] = ($lang === 'en' ? 'bank transfer to ' : 'bankkonto ') . $details['bank'];
+    $pay[] = ($lang === 'en' ? 'bank transfer to ' : 'bankkonto ') . $details['bank']
+      . ($details['iban'] !== '' ? sprintf($lang === 'en' ? ' (from abroad: IBAN %s, BIC %s)' : ' (från utlandet: IBAN %s, BIC %s)', $details['iban'], $details['bic']) : '');
   }
   $payText = $pay !== [] ? implode($lang === 'en' ? ' or ' : ' eller ', $pay) : '';
   // Börjar inledningen med en egen hälsning ("Hej Kerstin!") används ingen automatisk.

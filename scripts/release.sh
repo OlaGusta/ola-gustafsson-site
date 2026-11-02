@@ -22,6 +22,7 @@ readonly EXCLUDED_NAMES=(
   ".release.env"
   ".release.env.example"
   "overrides.js"
+  "currency-rates.json"
   ".DS_Store"
   ".gitignore"
 )

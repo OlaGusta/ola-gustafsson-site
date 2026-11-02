@@ -286,6 +286,22 @@
       return { subtotal, shipping, total: subtotal + shipping, vat };
     };
 
+    // Visar besökaren € eller $ (script.js) är beloppen ungefärliga; betalningen sker i kronor.
+    const currencyNote = () => {
+      const currency = window.olaCurrency || {};
+      const rates = currency.rates || {};
+      if (!currency.code || currency.code === 'SEK' || !(Number(rates[currency.code]) > 0)) {
+        return '';
+      }
+      const symbol = currency.code === 'EUR' ? '€' : '$';
+      const rate = Number(rates[currency.code]).toLocaleString(lang === 'en' ? 'en-GB' : 'sv-SE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return `<p class="field-hint checkout-currency-note" data-currency-skip>${esc(T(
+        `Beloppen i ${symbol} är ungefärliga (1 ${symbol} = ${rate} kr, ECB ${rates.date || ''}). Du betalar i kronor.`,
+        `Amounts in ${symbol} are approximate (1 ${symbol} = ${rate} SEK, ECB ${rates.date || ''}). You pay in Swedish kronor.`
+      ))}</p>`;
+    };
+    document.addEventListener('ola:currency-change', () => render());
+
     const render = () => {
       const { lines, problems } = resolveLines();
       const sums = totals(lines);
@@ -324,6 +340,7 @@
               <div class="checkout-sum-total"><dt>${esc(T('Att betala', 'To pay'))}</dt><dd>${esc(money(sums.total))}</dd></div>
               <div class="checkout-sum-vat"><dt>${esc(T('Varav moms', 'Of which VAT'))}</dt><dd>${esc(money(sums.vat))}</dd></div>
             </dl>
+            ${currencyNote()}
             <p class="field-hint">${esc(T(`Original är momsfria konstverk. Print, ram, passepartout och frakt har 25 % moms. Frakten är ${money(catalog.shippingFramed)} när en ram ingår. Vill du ha en annan ram, skriv det i meddelandet. Ram till original, hämtning och leverans utanför Sverige ordnas på förfrågan: mejla ola@olagustafsson.com.`, `Originals are VAT-exempt works of art. Prints, frames, mats and shipping carry 25% VAT. Shipping is ${money(catalog.shippingFramed)} when a frame is included. Want a different frame? Write it in the message. Frames for originals, pickup and delivery outside Sweden are arranged on request: email ola@olagustafsson.com.`))}</p>
           </section>
           <form class="checkout-form contact-form surface-soft" id="checkout-form" novalidate ${canOrder ? '' : 'hidden'}>
@@ -340,7 +357,7 @@
             <fieldset class="checkout-payment">
               <legend>${esc(T('Betalsätt', 'Payment method'))}</legend>
               ${app.dataset.swish ? `<label class="checkout-payment-option"><input type="radio" name="payment" value="swish" checked /> <span><strong>Swish</strong><small>${esc(T('Du får en Swish-kod med belopp och ordernummer ifyllda.', 'You get a Swish code with the amount and order number filled in.'))}</small></span></label>` : ''}
-              ${app.dataset.bank ? `<label class="checkout-payment-option"><input type="radio" name="payment" value="bank" ${app.dataset.swish ? '' : 'checked'} /> <span><strong>${esc(T('Bankkonto', 'Bank transfer'))}</strong><small>${esc(T('Överföring till', 'Transfer to'))} ${esc(app.dataset.bank)}. ${esc(T('Ordernumret som meddelande.', 'Order number as the message.'))}</small></span></label>` : ''}
+              ${app.dataset.bank ? `<label class="checkout-payment-option"><input type="radio" name="payment" value="bank" ${app.dataset.swish ? '' : 'checked'} /> <span><strong>${esc(T('Bankkonto', 'Bank transfer'))}</strong><small>${esc(T('Överföring till', 'Transfer to'))} ${esc(app.dataset.bank)}. ${esc(T('Ordernumret som meddelande.', 'Order number as the message.'))}${app.dataset.iban ? ` ${esc(T('Från utlandet', 'From abroad'))}: IBAN ${esc(app.dataset.iban)}, BIC ${esc(app.dataset.bic)}.` : ''}</small></span></label>` : ''}
             </fieldset>
             <label class="contact-honeypot" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
             <label class="checkout-terms"><input type="checkbox" name="terms" required /> <span>${esc(T('Jag godkänner köpvillkoren: betalning med Swish eller bankgiro inom 7 dagar, leverans inom Sverige, 14 dagars ångerrätt från mottagandet.', 'I accept the terms: payment by Swish or bank transfer within 7 days, delivery within Sweden, 14-day right of withdrawal from receipt.'))} <a href="${esc(app.dataset.termsUrl || '/#faq')}" target="_blank" rel="noopener">${esc(T('Läs mer', 'Read more'))}</a></span></label>

@@ -6,4 +6,5 @@ skills/
 .release.env
 *.log
 cache/swish-qr/*.png
+cache/currency-rates.json
 .gstack/
