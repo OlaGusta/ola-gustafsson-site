@@ -434,7 +434,9 @@ window.PORTFOLIO_OVERRIDES = {
         "instagramUrl": "",
         "facebookUrl": "",
         "swishNumber": "123 704 88 20",
-        "bankAccount": "Swedbank 8327-9, 903 671 334-6"
+        "bankAccount": "Swedbank 8327-9, 903 671 334-6",
+        "iban": "SE28 8000 0832 7990 3671 3346",
+        "bic": "SWEDSESS"
     },
     "gallery": {
         "heading": "Akvareller",
