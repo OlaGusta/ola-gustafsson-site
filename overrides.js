@@ -100,7 +100,7 @@ window.PORTFOLIO_OVERRIDES = {
         "imageAlt": "Akvarell i blå toner med stadsvy och långa skuggor.",
         "ctaPrimaryLabel": "Se målningar",
         "ctaSecondaryLabel": "100 dagar av sol",
-        "modeUpdatedAt": 1793022172029,
+        "modeUpdatedAt": 1793626555979,
         "ctaPrimaryHref": "gallery.html",
         "ctaSecondaryHref": "100-dagar-av-sol",
         "slideFocus": {
@@ -470,36 +470,34 @@ window.PORTFOLIO_OVERRIDES = {
         ],
         "artworks": [
             {
-                "src": "images/f-r-flera-solar-sedan-1.webp",
-                "title": "För flera solar sedan I",
-                "format": "56 x 76 cm",
+                "src": "images/img-4691.webp",
+                "title": "Vårdag i Bologna",
+                "format": "38 x 56",
                 "medium": "Akvarell på papper",
-                "alt": "för flera solar sedan 1",
+                "alt": "Stadscen från smågator i Bologna i varmt gul-orange och blå-violetta skuggor",
                 "seoTitle": "",
                 "seoDescription": "",
                 "shareImage": "",
-                "category": "nature",
+                "category": "city",
                 "categories": [
-                    "nature",
-                    "sea"
+                    "city"
                 ],
                 "featured": true,
                 "heroExclude": false,
                 "year": 2026,
                 "order": 1,
-                "addedAt": 1793008808674,
+                "addedAt": 1793626322228,
                 "zoom": 1,
                 "objectPosition": "center center",
-                "priceLabel": "9 500 kr",
-                "slug": "for-flera-solar-sedan-i",
-                "availability": "available"
+                "priceLabel": "4500 kr",
+                "slug": "vardag-i-bologna"
             },
             {
-                "src": "images/f-r-flera-solar-sedan-2.webp",
-                "title": "För flera solar sedan II",
-                "format": "76 x 56 cm",
+                "src": "images/f-r-flera-solar-sedan-1.webp",
+                "title": "För flera solar sedan I",
+                "format": "56 x 76 cm",
                 "medium": "Akvarell på papper",
-                "alt": "för flera solar sedan 2",
+                "alt": "För flera solar sedan I",
                 "seoTitle": "",
                 "seoDescription": "",
                 "shareImage": "",
@@ -512,6 +510,31 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "year": 2026,
                 "order": 2,
+                "addedAt": 1793008808674,
+                "zoom": 1,
+                "objectPosition": "center center",
+                "priceLabel": "9 500 kr",
+                "slug": "for-flera-solar-sedan-i",
+                "availability": "available"
+            },
+            {
+                "src": "images/f-r-flera-solar-sedan-2.webp",
+                "title": "För flera solar sedan II",
+                "format": "76 x 56 cm",
+                "medium": "Akvarell på papper",
+                "alt": "För flera solar sedan II",
+                "seoTitle": "",
+                "seoDescription": "",
+                "shareImage": "",
+                "category": "nature",
+                "categories": [
+                    "nature",
+                    "sea"
+                ],
+                "featured": true,
+                "heroExclude": false,
+                "year": 2026,
+                "order": 3,
                 "addedAt": 1793008809873,
                 "zoom": 1,
                 "objectPosition": "center center",
@@ -524,7 +547,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "title": "För flera solar sedan III",
                 "format": "56 x 76 cm",
                 "medium": "Akvarell på papper",
-                "alt": "för flera solar sedan 3",
+                "alt": "För flera solar sedan III",
                 "seoTitle": "",
                 "seoDescription": "",
                 "shareImage": "",
@@ -536,7 +559,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": false,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 3,
+                "order": 4,
                 "addedAt": 1793008811159,
                 "zoom": 1,
                 "objectPosition": "center center",
@@ -549,32 +572,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "title": "Timmarna däremellan III",
                 "format": "76 x 56 cm",
                 "medium": "Akvarell på papper",
-                "alt": "timmarna däremellan 3",
-                "seoTitle": "",
-                "seoDescription": "",
-                "shareImage": "",
-                "category": "nature",
-                "categories": [
-                    "nature",
-                    "sea"
-                ],
-                "featured": true,
-                "heroExclude": false,
-                "year": 2026,
-                "order": 4,
-                "addedAt": 1793008812359,
-                "zoom": 1,
-                "objectPosition": "center center",
-                "priceLabel": "9 500 kr",
-                "slug": "timmarna-daremellan-iii",
-                "availability": "available"
-            },
-            {
-                "src": "images/timmarna-d-rmellan-2.webp",
-                "title": "Timmarna däremellan II",
-                "format": "76 x 56 cm",
-                "medium": "Akvarell på papper",
-                "alt": "timmarna däremellan 2",
+                "alt": "Timmarna däremellan III",
                 "seoTitle": "",
                 "seoDescription": "",
                 "shareImage": "",
@@ -587,6 +585,31 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "year": 2026,
                 "order": 5,
+                "addedAt": 1793008812359,
+                "zoom": 1,
+                "objectPosition": "center center",
+                "priceLabel": "9 500 kr",
+                "slug": "timmarna-daremellan-iii",
+                "availability": "available"
+            },
+            {
+                "src": "images/timmarna-d-rmellan-2.webp",
+                "title": "Timmarna däremellan II",
+                "format": "76 x 56 cm",
+                "medium": "Akvarell på papper",
+                "alt": "Timmarna däremellan II",
+                "seoTitle": "",
+                "seoDescription": "",
+                "shareImage": "",
+                "category": "nature",
+                "categories": [
+                    "nature",
+                    "sea"
+                ],
+                "featured": true,
+                "heroExclude": false,
+                "year": 2026,
+                "order": 6,
                 "addedAt": 1793008813376,
                 "zoom": 1,
                 "objectPosition": "center center",
@@ -599,7 +622,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "title": "Timmarna däremellan I",
                 "format": "76 x 56 cm",
                 "medium": "Akvarell på papper",
-                "alt": "timmarna däremellan 1",
+                "alt": "Timmarna däremellan I",
                 "seoTitle": "",
                 "seoDescription": "",
                 "shareImage": "",
@@ -610,7 +633,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": false,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 6,
+                "order": 7,
                 "addedAt": 1793008814414,
                 "zoom": 1,
                 "objectPosition": "center center",
@@ -623,32 +646,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "title": "Tid i vila III",
                 "format": "76 x 56 cm",
                 "medium": "Akvarell på papper",
-                "alt": "tid i vila 3",
-                "seoTitle": "",
-                "seoDescription": "",
-                "shareImage": "",
-                "category": "nature",
-                "categories": [
-                    "nature",
-                    "sea"
-                ],
-                "featured": true,
-                "heroExclude": false,
-                "year": 2026,
-                "order": 7,
-                "addedAt": 1793008815634,
-                "zoom": 1,
-                "objectPosition": "center center",
-                "priceLabel": "9 500 kr",
-                "slug": "tid-i-vila-iii",
-                "availability": "available"
-            },
-            {
-                "src": "images/tid-i-vila-2.webp",
-                "title": "Tid i vila II",
-                "format": "76 x 56 cm",
-                "medium": "Akvarell på papper",
-                "alt": "tid i vila 2",
+                "alt": "Tid i vila III",
                 "seoTitle": "",
                 "seoDescription": "",
                 "shareImage": "",
@@ -661,19 +659,19 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "year": 2026,
                 "order": 8,
-                "addedAt": 1793008816965,
+                "addedAt": 1793008815634,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "priceLabel": "9 500 kr",
-                "slug": "tid-i-vila-ii",
+                "slug": "tid-i-vila-iii",
                 "availability": "available"
             },
             {
-                "src": "images/tid-i-vila-1.webp",
-                "title": "Tid i vila I",
+                "src": "images/tid-i-vila-2.webp",
+                "title": "Tid i vila II",
                 "format": "76 x 56 cm",
                 "medium": "Akvarell på papper",
-                "alt": "tid i vila 1",
+                "alt": "Tid i vila II",
                 "seoTitle": "",
                 "seoDescription": "",
                 "shareImage": "",
@@ -686,19 +684,19 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "year": 2026,
                 "order": 9,
-                "addedAt": 1793008818299,
+                "addedAt": 1793008816965,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "priceLabel": "9 500 kr",
-                "slug": "tid-i-vila-i",
+                "slug": "tid-i-vila-ii",
                 "availability": "available"
             },
             {
-                "src": "images/det-l-nga-nuet.webp",
-                "title": "Det långa nuet",
-                "format": "56 x 76 cm",
+                "src": "images/tid-i-vila-1.webp",
+                "title": "Tid i vila I",
+                "format": "76 x 56 cm",
                 "medium": "Akvarell på papper",
-                "alt": "det långa nuet",
+                "alt": "Tid i vila I",
                 "seoTitle": "",
                 "seoDescription": "",
                 "shareImage": "",
@@ -711,6 +709,31 @@ window.PORTFOLIO_OVERRIDES = {
                 "heroExclude": false,
                 "year": 2026,
                 "order": 10,
+                "addedAt": 1793008818299,
+                "zoom": 1,
+                "objectPosition": "center center",
+                "priceLabel": "9 500 kr",
+                "slug": "tid-i-vila-i",
+                "availability": "available"
+            },
+            {
+                "src": "images/det-l-nga-nuet.webp",
+                "title": "Det långa nuet",
+                "format": "56 x 76 cm",
+                "medium": "Akvarell på papper",
+                "alt": "Det långa nuet",
+                "seoTitle": "",
+                "seoDescription": "",
+                "shareImage": "",
+                "category": "nature",
+                "categories": [
+                    "nature",
+                    "sea"
+                ],
+                "featured": true,
+                "heroExclude": false,
+                "year": 2026,
+                "order": 11,
                 "addedAt": 1793008819974,
                 "zoom": 1,
                 "objectPosition": "center center",
@@ -723,7 +746,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "title": "Storm över Mariaberget",
                 "format": "56 x 38 cm",
                 "medium": "Akvarell på papper",
-                "alt": "storm över mariaberget",
+                "alt": "Storm över Mariaberget",
                 "seoTitle": "",
                 "seoDescription": "",
                 "shareImage": "",
@@ -735,7 +758,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": false,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 11,
+                "order": 12,
                 "addedAt": 1793008821167,
                 "zoom": 1,
                 "objectPosition": "center center",
@@ -747,7 +770,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "title": "Solnedgång, augusti",
                 "format": "56 x 38 cm",
                 "medium": "Akvarell på papper",
-                "alt": "solnedgång, augusti",
+                "alt": "Solnedgång, augusti",
                 "seoTitle": "",
                 "seoDescription": "",
                 "shareImage": "",
@@ -759,7 +782,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": false,
                 "heroExclude": true,
                 "year": 2026,
-                "order": 12,
+                "order": 13,
                 "addedAt": 1793008822396,
                 "zoom": 1,
                 "objectPosition": "center center",
@@ -783,7 +806,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": false,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 13,
+                "order": 14,
                 "addedAt": 1793008823520,
                 "zoom": 1,
                 "objectPosition": "center center",
@@ -807,7 +830,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": false,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 14,
+                "order": 15,
                 "addedAt": 1793008824487,
                 "zoom": 1,
                 "objectPosition": "center center",
@@ -832,7 +855,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": false,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 15,
+                "order": 16,
                 "addedAt": 1793008825462,
                 "zoom": 1,
                 "objectPosition": "center center",
@@ -857,7 +880,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": true,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 16,
+                "order": 17,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "collectorNote": "Minnesbild från en varm, lång dag i Karlskrona för ett par år sedan. Jag har fokuserat en enkel kontrasterande färgställning i ett försök att framhäva detta orörliga stenblocks väsen. ",
@@ -883,7 +906,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": false,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 17,
+                "order": 18,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "collectorNote": "Förstudie till ett helark 56 x 76 cm",
@@ -908,7 +931,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": false,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 18,
+                "order": 19,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "under-ytan-forstudie",
@@ -932,7 +955,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": false,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 19,
+                "order": 20,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "majdag-i-gammelstrom",
@@ -958,7 +981,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": true,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 20,
+                "order": 21,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "var-i-nyfors",
@@ -983,7 +1006,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": false,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 21,
+                "order": 22,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "innan-dagen-2",
@@ -1009,7 +1032,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": false,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 22,
+                "order": 23,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "innan-dagen-1",
@@ -1035,7 +1058,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": false,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 23,
+                "order": 24,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "stenen-i-sollenkroka",
@@ -1061,7 +1084,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": false,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 24,
+                "order": 25,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "tidig-februarimorgon-i-heestrand",
@@ -1086,7 +1109,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": false,
                 "heroExclude": false,
                 "year": 2026,
-                "order": 25,
+                "order": 26,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "bortom-klippan",
@@ -1110,7 +1133,7 @@ window.PORTFOLIO_OVERRIDES = {
                 ],
                 "featured": false,
                 "year": 2023,
-                "order": 26,
+                "order": 27,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "februarisol",
@@ -1132,7 +1155,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2023,
-                "order": 27,
+                "order": 28,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "marinmuseet-i-juli-karlskrona",
@@ -1158,7 +1181,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2024,
-                "order": 28,
+                "order": 29,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "johanna-i-skymningen",
@@ -1184,7 +1207,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "himlar",
                 "featured": false,
                 "year": 2025,
-                "order": 29,
+                "order": 30,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "vinterskymning-2",
@@ -1209,7 +1232,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2022,
-                "order": 30,
+                "order": 31,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "sommarskymning-i-skogstjarnen",
@@ -1234,7 +1257,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2023,
-                "order": 31,
+                "order": 32,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "strandfaglar",
@@ -1260,7 +1283,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "city",
                 "featured": false,
                 "year": 2024,
-                "order": 32,
+                "order": 33,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "pa-promenad-med-sotis",
@@ -1286,7 +1309,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "djur",
                 "featured": false,
                 "year": 2023,
-                "order": 33,
+                "order": 34,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "humla",
@@ -1311,7 +1334,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "djur",
                 "featured": false,
                 "year": 2022,
-                "order": 34,
+                "order": 35,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "sashastudie",
@@ -1336,7 +1359,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "djur",
                 "featured": false,
                 "year": 2022,
-                "order": 35,
+                "order": 36,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "sashastudie2",
@@ -1361,7 +1384,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2024,
-                "order": 36,
+                "order": 37,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "januarihimmel",
@@ -1387,7 +1410,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "hus",
                 "featured": false,
                 "year": 2023,
-                "order": 37,
+                "order": 38,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "varvinterhus",
@@ -1413,7 +1436,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2023,
-                "order": 38,
+                "order": 39,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "bergsvag",
@@ -1438,7 +1461,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2023,
-                "order": 39,
+                "order": 40,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "vid-stranden",
@@ -1463,7 +1486,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2024,
-                "order": 40,
+                "order": 41,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "under-berget",
@@ -1488,7 +1511,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2026,
-                "order": 41,
+                "order": 42,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "den-sista-skymningen",
@@ -1513,7 +1536,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "himlar",
                 "featured": false,
                 "year": 2025,
-                "order": 42,
+                "order": 43,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "moln",
@@ -1543,7 +1566,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": false,
                 "heroExclude": false,
                 "year": 2025,
-                "order": 43,
+                "order": 44,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "collectorNote": "Flygvy på väg hem en försommardag för något år sedan. ",
@@ -1564,7 +1587,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2023,
-                "order": 44,
+                "order": 45,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "getostbonden",
@@ -1590,7 +1613,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "himlar",
                 "featured": false,
                 "year": 2025,
-                "order": 45,
+                "order": 46,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "vinterskymning",
@@ -1615,7 +1638,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2025,
-                "order": 46,
+                "order": 47,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "danviken-stockholm",
@@ -1642,7 +1665,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "hus",
                 "featured": false,
                 "year": 2023,
-                "order": 47,
+                "order": 48,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "prastgarden-i-blomskog",
@@ -1663,12 +1686,12 @@ window.PORTFOLIO_OVERRIDES = {
                 "medium": "Akvarell på papper",
                 "alt": "Mörka trädstammar i gyllene höstljus och dimma.",
                 "seoTitle": "Höstskymning i Humlan 2 | Höstträd i dimma i akvarell",
-                "seoDescription": "Originalmålning i akvarell med mörka trädstammar, gyllene höstljus och lätt dimma i Humlegården. 56 x 38 cm, 2024, av Ola Gustafsson.",
+                "seoDescription": "Originalmålning i akvarell med mörka trädstammar, gyllene höstljus och lätt dimma i Humlan. 56 x 38 cm, 2024, av Ola Gustafsson.",
                 "shareImage": "",
                 "category": "nature",
                 "featured": false,
                 "year": 2024,
-                "order": 48,
+                "order": 49,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "hostskymning-i-humlan-2",
@@ -1687,13 +1710,13 @@ window.PORTFOLIO_OVERRIDES = {
                 "format": "56 x 38 cm",
                 "medium": "Akvarell på papper",
                 "alt": "Höstträd i glödande kvällsljus med mörka stammar.",
-                "seoTitle": "Höstskymning i Humlan | Park i höstljus i akvarell",
-                "seoDescription": "Akvarell från Humlegården med höstträd i glödande kvällsljus och mörka stammar. 56 x 38 cm, 2024. Originalmålning av Ola Gustafsson.",
+                "seoTitle": "Höstskymning i Humlan | Höstträd i kvällsljus i akvarell",
+                "seoDescription": "Akvarell från Humlan med höstträd i glödande kvällsljus och mörka stammar. 56 x 38 cm, 2024. Originalmålning av Ola Gustafsson.",
                 "shareImage": "",
                 "category": "nature",
                 "featured": false,
                 "year": 2024,
-                "order": 49,
+                "order": 50,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "hostskymning-i-humlan",
@@ -1718,7 +1741,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2022,
-                "order": 50,
+                "order": 51,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "pa-vag-till-karlskrona",
@@ -1743,7 +1766,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "djur",
                 "featured": false,
                 "year": 2022,
-                "order": 51,
+                "order": 52,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "lilla-katten-drommer-2",
@@ -1768,7 +1791,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "djur",
                 "featured": false,
                 "year": 2022,
-                "order": 52,
+                "order": 53,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "lilla-katten-drommer",
@@ -1793,7 +1816,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "hus",
                 "featured": false,
                 "year": 2023,
-                "order": 53,
+                "order": 54,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "skymningslador",
@@ -1819,7 +1842,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "himlar",
                 "featured": false,
                 "year": 2025,
-                "order": 54,
+                "order": 55,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "vintermoln",
@@ -1844,7 +1867,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "himlar",
                 "featured": false,
                 "year": 2025,
-                "order": 55,
+                "order": 56,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "skymningsmoln",
@@ -1869,7 +1892,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2024,
-                "order": 56,
+                "order": 57,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "dimma-over-stadsgarden",
@@ -1895,7 +1918,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2024,
-                "order": 57,
+                "order": 58,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "johanna-pa-ven",
@@ -1921,7 +1944,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "djur",
                 "featured": false,
                 "year": 2022,
-                "order": 58,
+                "order": 59,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "ugglan",
@@ -1946,7 +1969,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 59,
+                "order": 60,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "state-of-mind",
@@ -1971,7 +1994,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 60,
+                "order": 61,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "state-of-mind-2",
@@ -1990,13 +2013,13 @@ window.PORTFOLIO_OVERRIDES = {
                 "format": "56 x 38 cm",
                 "medium": "Akvarell på papper",
                 "alt": "Kvällsljus i skogsbacke i kontrastrika färger",
-                "seoTitle": "Vår i Humlan | Parkmotiv i akvarell",
-                "seoDescription": "Originalmålning i akvarell från Humlegården med sluttning, vårgrönska och kontrastrikt kvällsljus. 56 x 38 cm, 2024, av Ola Gustafsson.",
+                "seoTitle": "Vår i Humlan | Vårgrönska i akvarell",
+                "seoDescription": "Originalmålning i akvarell från Humlan med sluttning, vårgrönska och kontrastrikt kvällsljus. 56 x 38 cm, 2024, av Ola Gustafsson.",
                 "shareImage": "",
                 "category": "nature",
                 "featured": false,
                 "year": 2024,
-                "order": 61,
+                "order": 62,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "var-i-humlan",
@@ -2021,7 +2044,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "hus",
                 "featured": false,
                 "year": 2026,
-                "order": 62,
+                "order": 63,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "previewSrc": "",
@@ -2047,7 +2070,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 63,
+                "order": 64,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "previewSrc": "",
@@ -2073,7 +2096,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 64,
+                "order": 65,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "previewSrc": "",
@@ -2099,7 +2122,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "hus",
                 "featured": false,
                 "year": 2026,
-                "order": 65,
+                "order": 66,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "decemberskymning-pa-tjurko",
@@ -2124,7 +2147,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "city",
                 "featured": false,
                 "year": 2026,
-                "order": 66,
+                "order": 67,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "stadshotellet-i-karlskrona",
@@ -2149,7 +2172,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2025,
-                "order": 67,
+                "order": 68,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "himmel-over-skagen",
@@ -2175,7 +2198,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "city",
                 "featured": false,
                 "year": 2026,
-                "order": 68,
+                "order": 69,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "skymning-i-gamla-stan",
@@ -2200,7 +2223,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2026,
-                "order": 69,
+                "order": 70,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "kustvy-i-heestrand",
@@ -2225,7 +2248,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2026,
-                "order": 70,
+                "order": 71,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "vinterstudie-av-heestrand",
@@ -2251,7 +2274,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "hus",
                 "featured": false,
                 "year": 2026,
-                "order": 71,
+                "order": 72,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "vykort-till-budapest",
@@ -2275,7 +2298,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": true,
                 "year": 2026,
-                "order": 72,
+                "order": 73,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "johanna-och-berget",
@@ -2296,7 +2319,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2026,
-                "order": 73,
+                "order": 74,
                 "zoom": 1,
                 "objectPosition": "center center",
                 "slug": "utsikt-fran-bryggareberget",
@@ -2320,7 +2343,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2024,
-                "order": 74,
+                "order": 75,
                 "format": "38 x 56 cm",
                 "slug": "skymningstallar",
                 "seoTitle": "Skymningstallar | Tallar i kvällsljus i akvarell",
@@ -2342,7 +2365,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 75,
+                "order": 76,
                 "slug": "hammarbybacken-februari",
                 "seoTitle": "Hammarbybacken, februari | Snölandskap i akvarell",
                 "seoDescription": "Akvarell med vinterstig, kala träd och långa blå skuggor vid Hammarbybacken i februari. 2025. Originalmålning av Ola Gustafsson.",
@@ -2364,11 +2387,11 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 76,
+                "order": 77,
                 "format": "56 x 38 cm",
                 "slug": "vinter-i-humlan",
-                "seoTitle": "Vinter i Humlan | Vinterpark i akvarell",
-                "seoDescription": "Originalmålning i akvarell från Humlegården med snö, kala träd och stilla vinterljus. 56 x 38 cm, 2025, av Ola Gustafsson.",
+                "seoTitle": "Vinter i Humlan | Vinterlandskap i akvarell",
+                "seoDescription": "Originalmålning i akvarell från Humlan med snö, kala träd och stilla vinterljus. 56 x 38 cm, 2025, av Ola Gustafsson.",
                 "categories": [
                     "nature"
                 ],
@@ -2386,7 +2409,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2024,
-                "order": 77,
+                "order": 78,
                 "format": "38 x 56 cm",
                 "slug": "pappa-i-sandemar",
                 "seoTitle": "Pappa i Sandemar | Figur i landskap i akvarell",
@@ -2408,7 +2431,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2024,
-                "order": 78,
+                "order": 79,
                 "format": "56 x 38 cm",
                 "slug": "sommarkvall-pa-salto",
                 "seoTitle": "Sommarkväll på Saltö | Kustmotiv i akvarell",
@@ -2430,7 +2453,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2024,
-                "order": 79,
+                "order": 80,
                 "format": "56 x 38 cm",
                 "slug": "glittret",
                 "seoTitle": "Glittret | Solglitter över hav i akvarell",
@@ -2451,7 +2474,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2025,
-                "order": 80,
+                "order": 81,
                 "format": "38 x 56 cm",
                 "slug": "glittret-2",
                 "seoTitle": "Glittret 2 | Båt på glittrande vatten i akvarell",
@@ -2472,7 +2495,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2024,
-                "order": 81,
+                "order": 82,
                 "format": "56 x 38",
                 "slug": "utklippan-karlskrona",
                 "seoTitle": "Utklippan, Karlskrona | Hav och klippor i akvarell",
@@ -2494,7 +2517,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2024,
-                "order": 82,
+                "order": 83,
                 "format": "38 x 56 cm",
                 "slug": "mot-skymningen",
                 "seoTitle": "Mot skymningen | Skymningslandskap i akvarell",
@@ -2517,7 +2540,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2024,
-                "order": 83,
+                "order": 84,
                 "format": "38 x 56 cm",
                 "slug": "molnet",
                 "seoTitle": "Molnet | Molnstudie i akvarell",
@@ -2540,7 +2563,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "city",
                 "featured": false,
                 "year": 2024,
-                "order": 84,
+                "order": 85,
                 "format": "56 x 38 cm",
                 "slug": "vinter-i-stockholm",
                 "seoTitle": "Vinter i Stockholm | Stadshuset i akvarell",
@@ -2562,7 +2585,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 85,
+                "order": 86,
                 "format": "56 x 38 cm",
                 "slug": "kall-februaridag-i-nacka",
                 "seoTitle": "Kall februaridag i Nacka | Vintermotiv i akvarell",
@@ -2585,7 +2608,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "city",
                 "featured": false,
                 "year": 2025,
-                "order": 86,
+                "order": 87,
                 "format": "56 x 38 cm",
                 "slug": "sommarnatt-i-stockholm",
                 "seoTitle": "Sommarnatt i Stockholm | Stadsmotiv i akvarell",
@@ -2607,7 +2630,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2025,
-                "order": 87,
+                "order": 88,
                 "format": "56 x 38 cm",
                 "slug": "tva-karlskronaekor",
                 "seoTitle": "Två Karlskronaekor | Båtmotiv i akvarell",
@@ -2629,7 +2652,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2025,
-                "order": 88,
+                "order": 89,
                 "format": "38 x 56 cm",
                 "slug": "tva-klippor",
                 "seoTitle": "Två klippor | Havsklippor i akvarell",
@@ -2651,7 +2674,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2025,
-                "order": 89,
+                "order": 90,
                 "format": "38 x 56 cm",
                 "slug": "une-barque-sur-l-ocean",
                 "seoTitle": "Une barque sur l'océan | Havsmotiv i akvarell",
@@ -2673,7 +2696,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 90,
+                "order": 91,
                 "format": "56 x 38 cm",
                 "slug": "var-utanfor-mitt-fonster",
                 "seoTitle": "Vår utanför mitt fönster | Vårgrönska i akvarell",
@@ -2695,7 +2718,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 91,
+                "order": 92,
                 "format": "56 x 38 cm",
                 "slug": "lusthuset-vid-sickla",
                 "seoTitle": "Lusthuset vid Sickla | Trädgårdsmotiv i akvarell",
@@ -2717,7 +2740,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 92,
+                "order": 93,
                 "format": "56 x 38 cm",
                 "slug": "giardino-di-boboli",
                 "seoTitle": "Giardino di Boboli | Trädgårdsmotiv i akvarell",
@@ -2739,7 +2762,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2025,
-                "order": 93,
+                "order": 94,
                 "format": "56 x 38 cm",
                 "slug": "pa-stranden-i-pietrasanta",
                 "seoTitle": "På stranden i Pietrasanta | Strandmotiv i akvarell",
@@ -2761,7 +2784,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 94,
+                "order": 95,
                 "format": "38 x 24,5 cm",
                 "slug": "eftermiddag-pa-notholmen",
                 "seoTitle": "Eftermiddag på Notholmen | Skärgårdsmotiv i akvarell",
@@ -2784,7 +2807,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 95,
+                "order": 96,
                 "format": "38 x 24,5 cm",
                 "slug": "morgon-over-viken",
                 "seoTitle": "Morgon över viken | Kustlandskap i akvarell",
@@ -2807,7 +2830,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "portrait",
                 "featured": false,
                 "year": 2025,
-                "order": 96,
+                "order": 97,
                 "format": "15 x 15 cm",
                 "slug": "johanna-i-koket",
                 "seoTitle": "Johanna i köket | Interiörporträtt i akvarell",
@@ -2829,7 +2852,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 97,
+                "order": 98,
                 "format": "56 x 38 cm",
                 "slug": "dolt-i-skuggan",
                 "seoTitle": "Dolt i skuggan | Landskap i motljus i akvarell",
@@ -2850,7 +2873,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "nature",
                 "featured": false,
                 "year": 2025,
-                "order": 98,
+                "order": 99,
                 "objectPosition": "center 100%",
                 "zoom": 1.45,
                 "format": "56 x 38 cm",
@@ -2875,7 +2898,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "city",
                 "featured": false,
                 "year": 2025,
-                "order": 99,
+                "order": 100,
                 "format": "56 x 38 cm",
                 "slug": "slussen-eftermiddag-i-september",
                 "seoTitle": "Slussen, eftermiddag i September | Stockholmsmotiv i akvarell",
@@ -2897,7 +2920,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "category": "sea",
                 "featured": false,
                 "year": 2025,
-                "order": 100,
+                "order": 101,
                 "format": "56 x 38 cm",
                 "seoTitle": "Varm sommarkväll på Borrby Strand | Svensk kustakvarell",
                 "seoDescription": "Originalmålning i akvarell från Borrby Strand med sommarkvällsljus, hav och stilla kuststämning. 56 x 38 cm, 2025, av Ola Gustafsson.",
@@ -3093,9 +3116,9 @@ window.PORTFOLIO_OVERRIDES = {
                         "alt": "Wavy sea with dark rocks and flying seagulls in grey light.",
                         "format": "56 x 38",
                         "medium": "Watercolor on paper",
-                        "seoTitle": "Utklippan, Karlskrona | Sea and cliffs in watercolor",
-                        "seoDescription": "Watercolor of Utklippan outside Karlskrona with dark cliffs, sea, and grey light. 56 x 38 cm, 2024. Original painting by Ola Gustafsson.",
-                        "collectorNote": "Utklippan, Karlskrona is an original watercolor from 2024 with a coastal and seascape motif where light, water, and the horizon take center stage. For collectors, the work fits as a quiet part of the series about place, light, and presence.",
+                        "seoTitle": "Utklippan, Karlskrona | Sea and Cliffs in Watercolor",
+                        "seoDescription": "Watercolor of Utklippan off Karlskrona with dark rocks, sea, and grey light. 56 x 38 cm, 2024. Original painting by Ola Gustafsson.",
+                        "collectorNote": "Utklippan, Karlskrona is an original watercolor from 2024 with a coastal and seascape motif where light, water, and the horizon take center stage. For collectors, the work suits as a quiet part of the series about place, light, and presence.",
                         "_manual": {
                             "collectorNote": true
                         },
@@ -3133,9 +3156,9 @@ window.PORTFOLIO_OVERRIDES = {
                         "alt": "Sunlit rocks by a calm sea in blue and golden tones.",
                         "format": "56 x 38 cm",
                         "medium": "Watercolor on paper",
-                        "seoTitle": "Summer Evening on Saltö | Coastal watercolor motif",
+                        "seoTitle": "Summer Evening on Saltö | Coastal Watercolor Scene",
                         "seoDescription": "Original watercolor painting from Saltö with a summer evening, sea, and calm coastal light. 56 x 38 cm, 2024, by Ola Gustafsson.",
-                        "collectorNote": "Summer Evening on Saltö is an original watercolor from 2024 with a coastal and seascape motif where light, water, and the horizon take center stage. Feel free to get in touch with questions about size, framing, or availability.",
+                        "collectorNote": "Summer Evening on Saltö is an original watercolor from 2024 with a coastal and seascape motif where light, water and the horizon take center stage. Feel free to get in touch with questions about size, framing or availability.",
                         "_manual": {
                             "collectorNote": true
                         },
@@ -3159,11 +3182,13 @@ window.PORTFOLIO_OVERRIDES = {
                         "alt": "Winter landscape on the hill at home with snow and bare trees.",
                         "format": "56 x 38 cm",
                         "medium": "Watercolor on paper",
-                        "seoTitle": "Winter in Humlan | Winter Park in Watercolour",
-                        "seoDescription": "Original watercolor painting from Humlegården with snow, bare trees, and quiet winter light. 56 x 38 cm, 2025, by Ola Gustafsson.",
+                        "seoTitle": "Winter in Humlan | Winter landscape in watercolour",
+                        "seoDescription": "Original watercolor painting from Humlan with snow, bare trees and calm winter light. 56 x 38 cm, 2025, by Ola Gustafsson.",
                         "collectorNote": "Winter in Humlan is an original watercolour from 2025, a nature motif where light, tonal values and the shift between form and dissolution are central. Please get in touch for current availability, price or additional images of the work.",
                         "_manual": {
-                            "collectorNote": true
+                            "collectorNote": true,
+                            "seoDescription": true,
+                            "seoTitle": true
                         },
                         "priceLabel": "5 400 SEK"
                     },
@@ -3230,13 +3255,13 @@ window.PORTFOLIO_OVERRIDES = {
                         "alt": "Sunset over water with trees and a figure in the foreground.",
                         "format": "56 x 38 cm",
                         "seoTitle": "Slussen, afternoon in September | Stockholm motif in watercolor",
-                        "seoDescription": "Watercolor of Slussen in warm September light with water, city life and long shadows. 56 × 38 cm, 2025. Original painting by Ola Gustafsson.",
+                        "seoDescription": "Watercolor of Slussen in warm September light with water, city life, and long shadows. 56 x 38 cm, 2025. Original painting by Ola Gustafsson.",
                         "_manual": {
                             "seoTitle": true,
                             "seoDescription": true,
                             "collectorNote": true
                         },
-                        "collectorNote": "Slussen, afternoon in September is an original watercolor from 2025 with an urban motif where light, architecture, and movement take center stage. Feel free to write if you’d like to see more details, reserve the piece, or learn more about availability.",
+                        "collectorNote": "Slussen, afternoon in September is an original watercolor from 2025 with a city motif where light, architecture, and movement take center stage. Feel free to write if you’d like to see more details, reserve the piece, or learn more about availability.",
                         "priceLabel": "5 400 SEK"
                     },
                     "images/ola-04.jpg": {
@@ -3426,11 +3451,13 @@ window.PORTFOLIO_OVERRIDES = {
                         "alt": "Evening light on a forest slope in high-contrast colours",
                         "format": "56 x 38 cm",
                         "medium": "Watercolor on paper",
-                        "seoTitle": "Spring in Humlan | Park motif in watercolour",
-                        "seoDescription": "Original watercolor painting from Humlegården with a slope, spring greenery and contrasting evening light. 56 x 38 cm, 2024, by Ola Gustafsson.",
+                        "seoTitle": "Spring in Humlan | Spring greenery in watercolour",
+                        "seoDescription": "Original watercolor painting from Humlan with a slope, spring greenery, and high-contrast evening light. 56 x 38 cm, 2024, by Ola Gustafsson.",
                         "collectorNote": "Spring in Humlan is an original watercolour from 2024, a nature motif where light, tonal values and the shift between form and dissolution are central. For collectors, the work sits quietly within the ongoing series around place, light and presence.",
                         "_manual": {
-                            "collectorNote": true
+                            "collectorNote": true,
+                            "seoDescription": true,
+                            "seoTitle": true
                         },
                         "priceLabel": "5 400 SEK"
                     },
@@ -3580,13 +3607,13 @@ window.PORTFOLIO_OVERRIDES = {
                         "priceLabel": "5 400 SEK"
                     },
                     "images/img-1589.jpg": {
-                        "title": "Fog over Stadsgården",
-                        "alt": "Fog-shrouded view over Stadsgården and the water.",
+                        "title": "Mist Over Stadsgården",
+                        "alt": "Misty view over Stadsgården and the water.",
                         "format": "56 x 38 cm",
                         "medium": "Watercolor on paper",
-                        "seoTitle": "Fog over Stadsgården | Stockholm view in watercolor",
-                        "seoDescription": "Watercolor with a fog-shrouded view over Stadsgården, water, and softened city lights. 56 x 38 cm, 2024. Original painting by Ola Gustafsson.",
-                        "collectorNote": "Fog over Stadsgården is an original watercolor from 2024 with a coastal and water motif where light, water, and the horizon take center stage. Feel free to contact me for current availability, price, or more images of the work.",
+                        "seoTitle": "Mist over Stadsgården | Stockholm view in watercolor",
+                        "seoDescription": "Watercolor with a misty view over Stadsgården, water, and diffused city lights. 56 x 38 cm, 2024. Original painting by Ola Gustafsson.",
+                        "collectorNote": "Mist over Stadsgården is an original watercolor from 2024 with a coastal and water motif where light, water, and the horizon take center stage. Feel free to contact me for current availability, price, or more images of the artwork.",
                         "_manual": {
                             "collectorNote": true
                         },
@@ -3636,11 +3663,13 @@ window.PORTFOLIO_OVERRIDES = {
                         "alt": "Autumn trees in glowing evening light with dark trunks.",
                         "format": "56 x 38 cm",
                         "medium": "Watercolor on paper",
-                        "seoTitle": "Autumn Dusk in Humlan | Park in autumn light in watercolor",
-                        "seoDescription": "Watercolor from Humlegården with autumn trees in glowing evening light and dark trunks. 56 x 38 cm, 2024. Original painting by Ola Gustafsson.",
+                        "seoTitle": "Autumn Dusk in Humlan | Autumn trees in evening light in watercolor",
+                        "seoDescription": "Watercolor from Humlan with autumn trees in glowing evening light and dark trunks. 56 x 38 cm, 2024. Original painting by Ola Gustafsson.",
                         "collectorNote": "Autumn Dusk in Humlan is an original watercolour from 2024, a nature motif where light, tonal values and the shift between form and dissolution are central. For collectors, the work sits quietly within the ongoing series around place, light and presence.",
                         "_manual": {
-                            "collectorNote": true
+                            "collectorNote": true,
+                            "seoDescription": true,
+                            "seoTitle": true
                         },
                         "priceLabel": "5 400 SEK"
                     },
@@ -3650,10 +3679,11 @@ window.PORTFOLIO_OVERRIDES = {
                         "format": "56 x 38 cm",
                         "medium": "Watercolor on paper",
                         "seoTitle": "Autumn Dusk in Humlan 2 | Autumn trees in mist in watercolor",
-                        "seoDescription": "Original watercolor painting with dark tree trunks, golden autumn light and light mist in Humlegården. 56 x 38 cm, 2024, by Ola Gustafsson.",
+                        "seoDescription": "Original watercolor painting with dark tree trunks, golden autumn light and a light mist in Humlan. 56 x 38 cm, 2024, by Ola Gustafsson.",
                         "collectorNote": "Autumn Dusk in Humlan 2 is an original watercolour from 2024, a nature motif where light, tonal values and the shift between form and dissolution are central. Please get in touch for current availability, price or additional images of the work.",
                         "_manual": {
-                            "collectorNote": true
+                            "collectorNote": true,
+                            "seoDescription": true
                         },
                         "priceLabel": "5 400 SEK"
                     },
@@ -3769,9 +3799,9 @@ window.PORTFOLIO_OVERRIDES = {
                         "title": "December Twilight on Tjurkö",
                         "medium": "Watercolor on paper",
                         "alt": "Red house and road in low winter sun with bare trees.",
-                        "seoTitle": "December Dusk on Tjurkö | House in winter light in watercolor",
+                        "seoTitle": "December Twilight on Tjurkö | House in winter light in watercolor",
                         "seoDescription": "Original watercolor painting with a red house, road, and low December light on Tjurkö. 2026, by Ola Gustafsson.",
-                        "collectorNote": "December Dusk on Tjurkö is an original watercolor from 2026 featuring a place and building motif, with light, facades, and the surrounding landscape at the center.",
+                        "collectorNote": "December Twilight on Tjurkö is an original watercolor from 2026 featuring place and architectural motifs, with light, facades, and the surrounding landscape at the center.",
                         "_manual": {
                             "collectorNote": true
                         },
@@ -4076,7 +4106,7 @@ window.PORTFOLIO_OVERRIDES = {
                     "images/img-2128-2.jpg": {
                         "title": "May Day in Gammelström",
                         "format": "56 x 38 cm",
-                        "alt": "red-orange riverbank against fresh green spruce in a forest view from Gammelström, Nyfors. Two small boys play in the spring sun.",
+                        "alt": "reddish-orange riverbank against bright spring-green spruce in a forest view from Gammelström, Nyfors. Two small boys play in the spring sun.",
                         "collectorNote": "Shown/published at NAS.",
                         "priceLabel": "5 400 SEK"
                     },
@@ -4098,7 +4128,7 @@ window.PORTFOLIO_OVERRIDES = {
                         "priceLabel": "5 400 SEK"
                     },
                     "images/img-2702.webp": {
-                        "title": "Below the Surface (study)",
+                        "title": "Beneath the Surface",
                         "alt": "Study of the water surface and stones at the ship graveyard in Karlskrona.",
                         "format": "19 x 28 cm",
                         "_manual": {
@@ -4111,99 +4141,130 @@ window.PORTFOLIO_OVERRIDES = {
                     "images/img-2729.webp": {
                         "title": "The Soul of Saltö",
                         "format": "38 x 56 cm",
-                        "alt": "rock formations in warm, sunlit colors and contrasting cool shadows from Saltö, Karlskrona",
+                        "alt": "cliff face in warm, sunlit colors and contrasting cool shadows from Saltö, Karlskrona",
                         "collectorNote": "A memory from a warm, long day in Karlskrona a couple of years ago. I focused on a simple, contrasting palette in an attempt to bring out the essence of this unmoving block of stone.",
-                        "priceLabel": "5 400 SEK"
+                        "priceLabel": "5 400 SEK",
+                        "_manual": {
+                            "title": true
+                        }
                     },
                     "images/f-r-flera-solar-sedan-1.webp": {
                         "title": "Several Suns Ago I",
                         "format": "56 x 76 cm",
                         "priceLabel": "9 500 SEK",
                         "_manual": {
-                            "title": true
-                        }
+                            "title": true,
+                            "alt": true
+                        },
+                        "alt": "Several Suns Ago I"
                     },
                     "images/f-r-flera-solar-sedan-2.webp": {
                         "title": "Several Suns Ago II",
                         "format": "76 x 56 cm",
                         "priceLabel": "9 500 SEK",
                         "_manual": {
-                            "title": true
-                        }
+                            "title": true,
+                            "alt": true
+                        },
+                        "alt": "Several Suns Ago II"
                     },
                     "images/f-r-flera-solar-sedan-3.webp": {
                         "title": "Several Suns Ago III",
                         "format": "56 x 76 cm",
                         "priceLabel": "9 500 SEK",
                         "_manual": {
-                            "title": true
-                        }
+                            "title": true,
+                            "alt": true
+                        },
+                        "alt": "Several Suns Ago III"
                     },
                     "images/timmarna-d-rmellan-3.webp": {
                         "title": "The Hours Between III",
                         "format": "76 x 56 cm",
                         "priceLabel": "9 500 SEK",
                         "_manual": {
-                            "title": true
-                        }
+                            "title": true,
+                            "alt": true
+                        },
+                        "alt": "The Hours Between III"
                     },
                     "images/timmarna-d-rmellan-2.webp": {
                         "title": "The Hours Between II",
                         "format": "76 x 56 cm",
                         "priceLabel": "9 500 SEK",
                         "_manual": {
-                            "title": true
-                        }
+                            "title": true,
+                            "alt": true
+                        },
+                        "alt": "The Hours Between II"
                     },
                     "images/timmarna-d-rmellan-1.webp": {
                         "title": "The Hours Between I",
                         "format": "76 x 56 cm",
                         "priceLabel": "9 500 SEK",
                         "_manual": {
-                            "title": true
-                        }
+                            "title": true,
+                            "alt": true
+                        },
+                        "alt": "The Hours Between I"
                     },
                     "images/tid-i-vila-3.webp": {
                         "title": "Time, Suspended III",
                         "format": "76 x 56 cm",
                         "priceLabel": "9 500 SEK",
                         "_manual": {
-                            "title": true
-                        }
+                            "title": true,
+                            "alt": true
+                        },
+                        "alt": "Time, Suspended III"
                     },
                     "images/tid-i-vila-2.webp": {
                         "title": "Time, Suspended II",
                         "format": "76 x 56 cm",
                         "priceLabel": "9 500 SEK",
                         "_manual": {
-                            "title": true
-                        }
+                            "title": true,
+                            "alt": true
+                        },
+                        "alt": "Time, Suspended II"
                     },
                     "images/tid-i-vila-1.webp": {
                         "title": "Time, Suspended I",
                         "format": "76 x 56 cm",
                         "priceLabel": "9 500 SEK",
                         "_manual": {
-                            "title": true
-                        }
+                            "title": true,
+                            "alt": true
+                        },
+                        "alt": "Time, Suspended I"
                     },
                     "images/det-l-nga-nuet.webp": {
                         "title": "The Long Now",
                         "format": "56 x 76 cm",
                         "priceLabel": "9 500 SEK",
                         "_manual": {
-                            "title": true
-                        }
+                            "title": true,
+                            "alt": true
+                        },
+                        "alt": "The Long Now"
                     },
                     "images/storm-ver-mariaberget.webp": {
-                        "title": "Storm över Mariaberget",
+                        "title": "Storm over Mariaberget",
                         "format": "56 x 38 cm",
-                        "priceLabel": "4 500 SEK"
+                        "priceLabel": "4 500 SEK",
+                        "alt": "Storm over Mariaberget",
+                        "_manual": {
+                            "alt": true
+                        }
                     },
                     "images/solnedg-ng-augusti.webp": {
-                        "title": "Solnedgång, August",
+                        "title": "Sunset, August",
                         "format": "56 x 38 cm",
-                        "priceLabel": "4 500 SEK"
+                        "priceLabel": "4 500 SEK",
+                        "alt": "Sunset, August",
+                        "_manual": {
+                            "alt": true
+                        }
                     },
                     "images/soluppg-ng-fine-art-print-50x70.webp": {
                         "title": "Sunrise",
@@ -4211,7 +4272,9 @@ window.PORTFOLIO_OVERRIDES = {
                         "_manual": {
                             "title": true,
                             "alt": true
-                        }
+                        },
+                        "format": "70 x 50 cm",
+                        "priceLabel": "3 800 SEK"
                     },
                     "images/solnedg-ng-finer-art-print-50-x-70.webp": {
                         "title": "Sunset",
@@ -4219,7 +4282,9 @@ window.PORTFOLIO_OVERRIDES = {
                         "_manual": {
                             "title": true,
                             "alt": true
-                        }
+                        },
+                        "format": "70 x 50 cm",
+                        "priceLabel": "3 800 SEK"
                     },
                     "images/himmel-fine-art-print-50x-70.webp": {
                         "title": "Sky",
@@ -4227,7 +4292,15 @@ window.PORTFOLIO_OVERRIDES = {
                         "_manual": {
                             "title": true,
                             "alt": true
-                        }
+                        },
+                        "format": "70 x 50 cm",
+                        "priceLabel": "3 800 SEK"
+                    },
+                    "images/img-4691.webp": {
+                        "title": "Spring Day in Bologna",
+                        "format": "38 x 56",
+                        "priceLabel": "4500 kr",
+                        "alt": "City scene from small streets in Bologna in warm yellow-orange tones and blue-violet shadows"
                     }
                 },
                 "pageHeading": "Watercolor Paintings",
@@ -4239,7 +4312,7 @@ window.PORTFOLIO_OVERRIDES = {
                     "nature": "Nature",
                     "sea": "Seascapes",
                     "portrait": "Portraits",
-                    "city": "City views",
+                    "city": "Cityscapes",
                     "hus": "Houses",
                     "djur": "Animals",
                     "himlar": "Skies"
@@ -4373,82 +4446,82 @@ window.PORTFOLIO_OVERRIDES = {
                     "string:about.inspirationHeading": {
                         "sourceHash": "75661fd3",
                         "translatedValue": "Inspiration",
-                        "updatedAt": "2026-08-01T12:18:35.855Z"
+                        "updatedAt": "2026-10-31T21:48:44.433Z"
                     },
                     "category:nature": {
                         "sourceHash": "d95b428b",
                         "translatedValue": "Nature",
-                        "updatedAt": "2026-08-01T12:18:35.855Z"
+                        "updatedAt": "2026-10-31T21:48:44.433Z"
                     },
                     "category:sea": {
                         "sourceHash": "1033fcbb",
                         "translatedValue": "Seascapes",
-                        "updatedAt": "2026-08-01T12:18:35.855Z"
+                        "updatedAt": "2026-10-31T21:48:44.433Z"
                     },
                     "category:portrait": {
                         "sourceHash": "67624e60",
                         "translatedValue": "Portraits",
-                        "updatedAt": "2026-08-01T12:18:35.855Z"
+                        "updatedAt": "2026-10-31T21:48:44.433Z"
                     },
                     "category:city": {
                         "sourceHash": "828a8dd6",
-                        "translatedValue": "City views",
-                        "updatedAt": "2026-08-01T12:18:35.855Z"
+                        "translatedValue": "Cityscapes",
+                        "updatedAt": "2026-10-31T21:48:44.433Z"
                     },
                     "category:hus": {
                         "sourceHash": "5818174f",
                         "translatedValue": "Houses",
-                        "updatedAt": "2026-08-01T12:18:35.855Z"
+                        "updatedAt": "2026-10-31T21:48:44.433Z"
                     },
                     "category:djur": {
                         "sourceHash": "4eb332e8",
                         "translatedValue": "Animals",
-                        "updatedAt": "2026-08-01T12:18:35.855Z"
+                        "updatedAt": "2026-10-31T21:48:44.433Z"
                     },
                     "category:himlar": {
                         "sourceHash": "3e4a2874",
                         "translatedValue": "Skies",
-                        "updatedAt": "2026-08-01T12:18:35.855Z"
+                        "updatedAt": "2026-10-31T21:48:44.433Z"
                     },
                     "artwork:images/ola-01.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:19:02.011Z"
+                        "updatedAt": "2026-10-31T21:49:11.349Z"
                     },
                     "artwork:images/ola-02.jpg::title": {
                         "sourceHash": "96448aa8",
                         "translatedValue": "Slussen, afternoon in September",
-                        "updatedAt": "2026-08-01T12:19:00.270Z"
+                        "updatedAt": "2026-10-31T21:49:11.349Z"
                     },
                     "artwork:images/ola-02.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:19:00.270Z"
+                        "updatedAt": "2026-10-31T21:49:11.349Z"
                     },
                     "artwork:images/ola-02.jpg::seoTitle": {
                         "sourceHash": "2e5dfea1",
                         "translatedValue": "Slussen, afternoon in September | Stockholm motif in watercolor",
-                        "updatedAt": "2026-08-01T12:19:02.011Z"
+                        "updatedAt": "2026-10-31T21:49:11.349Z"
                     },
                     "artwork:images/ola-02.jpg::seoDescription": {
                         "sourceHash": "be45afaa",
-                        "translatedValue": "Watercolor of Slussen in warm September light with water, city life and long shadows. 56 × 38 cm, 2025. Original painting by Ola Gustafsson.",
-                        "updatedAt": "2026-08-01T12:19:02.011Z"
+                        "translatedValue": "Watercolor of Slussen in warm September light with water, city life, and long shadows. 56 x 38 cm, 2025. Original painting by Ola Gustafsson.",
+                        "updatedAt": "2026-10-31T21:49:11.349Z"
                     },
                     "artwork:images/ola-03.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:19:00.270Z"
+                        "updatedAt": "2026-10-31T21:49:11.349Z"
                     },
                     "artwork:images/ola-04.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:19:00.270Z"
+                        "updatedAt": "2026-10-31T21:49:11.349Z"
                     },
                     "artwork:images/ola-05.jpg::format": {
                         "sourceHash": "4d651c35",
                         "translatedValue": "15 x 15 cm",
-                        "updatedAt": "2026-08-01T12:19:00.270Z"
+                        "updatedAt": "2026-10-31T21:49:11.349Z"
                     },
                     "artwork:images/ola-06.jpg::format": {
                         "sourceHash": "1c84aa15",
@@ -4463,137 +4536,137 @@ window.PORTFOLIO_OVERRIDES = {
                     "artwork:images/ola-08.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:19:00.270Z"
+                        "updatedAt": "2026-10-31T21:49:09.377Z"
                     },
                     "artwork:images/ola-09.jpg::title": {
                         "sourceHash": "8830758",
                         "translatedValue": "Giardino di Boboli",
-                        "updatedAt": "2026-08-01T12:19:00.270Z"
+                        "updatedAt": "2026-10-31T21:49:09.377Z"
                     },
                     "artwork:images/ola-09.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:19:00.270Z"
+                        "updatedAt": "2026-10-31T21:49:09.377Z"
                     },
                     "artwork:images/ola-10.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:19:00.270Z"
+                        "updatedAt": "2026-10-31T21:49:09.376Z"
                     },
                     "artwork:images/ola-11.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:19:00.270Z"
+                        "updatedAt": "2026-10-31T21:49:09.376Z"
                     },
                     "artwork:images/ola-12.jpg::format": {
                         "sourceHash": "bdb268bf",
                         "translatedValue": "38 x 56 cm",
-                        "updatedAt": "2026-08-01T12:19:00.270Z"
+                        "updatedAt": "2026-10-31T21:49:09.376Z"
                     },
                     "artwork:images/ola-13.jpg::format": {
                         "sourceHash": "bdb268bf",
                         "translatedValue": "38 x 56 cm",
-                        "updatedAt": "2026-08-01T12:18:57.710Z"
+                        "updatedAt": "2026-10-31T21:49:09.376Z"
                     },
                     "artwork:images/ola-14.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:57.710Z"
+                        "updatedAt": "2026-10-31T21:49:09.376Z"
                     },
                     "artwork:images/ola-15.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:57.710Z"
+                        "updatedAt": "2026-10-31T21:49:09.376Z"
                     },
                     "artwork:images/ola-16.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:57.710Z"
+                        "updatedAt": "2026-10-31T21:49:09.376Z"
                     },
                     "artwork:images/ola-17.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:57.710Z"
+                        "updatedAt": "2026-10-31T21:49:07.289Z"
                     },
                     "artwork:images/ola-17.jpg::alt": {
                         "sourceHash": "9f0ffabd",
                         "translatedValue": "Stockholm City Hall in December",
-                        "updatedAt": "2026-08-01T12:18:57.710Z"
+                        "updatedAt": "2026-10-31T21:49:09.376Z"
                     },
                     "artwork:images/ola-17.jpg::seoDescription": {
                         "sourceHash": "d6946ca5",
                         "translatedValue": "Original watercolor painting of Stockholm City Hall in December light and winter air. 56 x 38 cm, 2024, by Ola Gustafsson.",
-                        "updatedAt": "2026-08-01T12:18:57.710Z"
+                        "updatedAt": "2026-10-31T21:49:09.376Z"
                     },
                     "artwork:images/ola-18.jpg::format": {
                         "sourceHash": "bdb268bf",
                         "translatedValue": "38 x 56 cm",
-                        "updatedAt": "2026-08-01T12:18:57.710Z"
+                        "updatedAt": "2026-10-31T21:49:07.289Z"
                     },
                     "artwork:images/ola-19.jpg::format": {
                         "sourceHash": "bdb268bf",
                         "translatedValue": "38 x 56 cm",
-                        "updatedAt": "2026-08-01T12:18:57.710Z"
+                        "updatedAt": "2026-10-31T21:49:07.289Z"
                     },
                     "artwork:images/ola-20.jpg::title": {
                         "sourceHash": "b8ac2f4b",
                         "translatedValue": "Utklippan, Karlskrona",
-                        "updatedAt": "2026-08-01T12:18:54.252Z"
+                        "updatedAt": "2026-10-31T21:49:07.289Z"
                     },
                     "artwork:images/ola-20.jpg::format": {
                         "sourceHash": "47ef06fd",
                         "translatedValue": "56 x 38",
-                        "updatedAt": "2026-08-01T12:18:54.252Z"
+                        "updatedAt": "2026-10-31T21:49:07.289Z"
                     },
                     "artwork:images/ola-20.jpg::seoTitle": {
                         "sourceHash": "60396d5e",
-                        "translatedValue": "Utklippan, Karlskrona | Sea and cliffs in watercolor",
-                        "updatedAt": "2026-08-01T12:18:57.710Z"
+                        "translatedValue": "Utklippan, Karlskrona | Sea and Cliffs in Watercolor",
+                        "updatedAt": "2026-10-31T21:49:07.289Z"
                     },
                     "artwork:images/ola-20.jpg::seoDescription": {
                         "sourceHash": "a7675598",
-                        "translatedValue": "Watercolor of Utklippan outside Karlskrona with dark cliffs, sea, and grey light. 56 x 38 cm, 2024. Original painting by Ola Gustafsson.",
-                        "updatedAt": "2026-08-01T12:18:57.710Z"
+                        "translatedValue": "Watercolor of Utklippan off Karlskrona with dark rocks, sea, and grey light. 56 x 38 cm, 2024. Original painting by Ola Gustafsson.",
+                        "updatedAt": "2026-10-31T21:49:07.289Z"
                     },
                     "artwork:images/ola-21.jpg::format": {
                         "sourceHash": "bdb268bf",
                         "translatedValue": "38 x 56 cm",
-                        "updatedAt": "2026-08-01T12:18:54.252Z"
+                        "updatedAt": "2026-10-31T21:49:07.288Z"
                     },
                     "artwork:images/ola-22.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:54.252Z"
+                        "updatedAt": "2026-10-31T21:49:07.288Z"
                     },
                     "artwork:images/ola-23.jpg::title": {
                         "sourceHash": "4af7055a",
                         "translatedValue": "Summer Evening on Saltö",
-                        "updatedAt": "2026-08-01T12:18:54.252Z"
+                        "updatedAt": "2026-10-31T21:49:03.246Z"
                     },
                     "artwork:images/ola-23.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:54.252Z"
+                        "updatedAt": "2026-10-31T21:49:03.246Z"
                     },
                     "artwork:images/ola-23.jpg::seoTitle": {
                         "sourceHash": "5171bb4d",
-                        "translatedValue": "Summer Evening on Saltö | Coastal watercolor motif",
-                        "updatedAt": "2026-08-01T12:18:54.252Z"
+                        "translatedValue": "Summer Evening on Saltö | Coastal Watercolor Scene",
+                        "updatedAt": "2026-10-31T21:49:07.288Z"
                     },
                     "artwork:images/ola-23.jpg::seoDescription": {
                         "sourceHash": "547b45d2",
                         "translatedValue": "Original watercolor painting from Saltö with a summer evening, sea, and calm coastal light. 56 x 38 cm, 2024, by Ola Gustafsson.",
-                        "updatedAt": "2026-08-01T12:18:54.252Z"
+                        "updatedAt": "2026-10-31T21:49:07.288Z"
                     },
                     "artwork:images/ola-24.jpg::format": {
                         "sourceHash": "bdb268bf",
                         "translatedValue": "38 x 56 cm",
-                        "updatedAt": "2026-08-01T12:18:54.252Z"
+                        "updatedAt": "2026-10-31T21:49:03.246Z"
                     },
                     "artwork:images/ola-25.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:54.252Z"
+                        "updatedAt": "2026-10-31T21:49:03.246Z"
                     },
                     "artwork:images/ola-25.jpg::alt": {
                         "sourceHash": "42d6b7d4",
@@ -4601,94 +4674,94 @@ window.PORTFOLIO_OVERRIDES = {
                         "updatedAt": "2026-03-21T09:01:31.772Z"
                     },
                     "artwork:images/ola-25.jpg::seoDescription": {
-                        "sourceHash": "30e6105e",
-                        "translatedValue": "Original watercolor painting from Humlegården with snow, bare trees, and quiet winter light. 56 x 38 cm, 2025, by Ola Gustafsson.",
-                        "updatedAt": "2026-08-01T12:18:54.252Z"
+                        "sourceHash": "340f2ed",
+                        "translatedValue": "Original watercolor painting from Humlan with snow, bare trees and calm winter light. 56 x 38 cm, 2025, by Ola Gustafsson.",
+                        "updatedAt": "2026-11-02T13:39:31.403Z"
                     },
                     "artwork:images/ola-27.jpg::format": {
                         "sourceHash": "bdb268bf",
                         "translatedValue": "38 x 56 cm",
-                        "updatedAt": "2026-08-01T12:18:51.145Z"
+                        "updatedAt": "2026-10-31T21:49:03.246Z"
                     },
                     "artwork:images/utsikt-fr-n-bryggareberget.jpg::format": {
                         "sourceHash": "bc41b38d",
                         "translatedValue": "56 x 76 cm",
-                        "updatedAt": "2026-08-01T12:18:51.145Z"
+                        "updatedAt": "2026-10-31T21:49:03.246Z"
                     },
                     "artwork:images/johanna-och-berget.jpg::format": {
                         "sourceHash": "bc41b38d",
                         "translatedValue": "56 x 76 cm",
-                        "updatedAt": "2026-08-01T12:18:51.145Z"
+                        "updatedAt": "2026-10-31T21:49:03.246Z"
                     },
                     "artwork:images/vykort-till-budapest.jpg::format": {
                         "sourceHash": "1adb9c25",
                         "translatedValue": "19 x 28 cm",
-                        "updatedAt": "2026-08-01T12:18:51.145Z"
+                        "updatedAt": "2026-10-31T21:49:03.246Z"
                     },
                     "artwork:images/vinterstudie-av-heestrand.jpg::format": {
                         "sourceHash": "24aa4562",
                         "translatedValue": "28 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:51.145Z"
+                        "updatedAt": "2026-10-31T21:49:03.246Z"
                     },
                     "artwork:images/kustvy-i-heestrand-2.jpg::format": {
                         "sourceHash": "e9db09d4",
                         "translatedValue": "38 x 28 cm",
-                        "updatedAt": "2026-08-01T12:18:51.145Z"
+                        "updatedAt": "2026-10-31T21:49:00.924Z"
                     },
                     "artwork:images/skymning-i-gamla-stan-2.jpg::format": {
                         "sourceHash": "bdb268bf",
                         "translatedValue": "38 x 56 cm",
-                        "updatedAt": "2026-08-01T12:18:51.145Z"
+                        "updatedAt": "2026-10-31T21:49:00.924Z"
                     },
                     "artwork:images/img-0874-2.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:51.145Z"
+                        "updatedAt": "2026-10-31T21:49:00.924Z"
                     },
                     "artwork:images/stadshotellet-i-karlskrona-2.jpg::format": {
                         "sourceHash": "e9db09d4",
                         "translatedValue": "38 x 28 cm",
-                        "updatedAt": "2026-08-01T12:18:51.144Z"
+                        "updatedAt": "2026-10-31T21:49:00.924Z"
                     },
                     "artwork:images/decemberskymning-p-tjurk-2.jpg::title": {
                         "sourceHash": "470ebead",
                         "translatedValue": "December Twilight on Tjurkö",
-                        "updatedAt": "2026-08-01T12:18:48.664Z"
+                        "updatedAt": "2026-10-31T21:49:00.924Z"
                     },
                     "artwork:images/decemberskymning-p-tjurk-2.jpg::seoTitle": {
                         "sourceHash": "2a71fce9",
-                        "translatedValue": "December Dusk on Tjurkö | House in winter light in watercolor",
-                        "updatedAt": "2026-08-01T12:18:51.144Z"
+                        "translatedValue": "December Twilight on Tjurkö | House in winter light in watercolor",
+                        "updatedAt": "2026-10-31T21:49:00.924Z"
                     },
                     "artwork:images/decemberskymning-p-tjurk-2.jpg::seoDescription": {
                         "sourceHash": "358e7d02",
                         "translatedValue": "Original watercolor painting with a red house, road, and low December light on Tjurkö. 2026, by Ola Gustafsson.",
-                        "updatedAt": "2026-08-01T12:18:51.144Z"
+                        "updatedAt": "2026-10-31T21:49:00.924Z"
                     },
                     "artwork:images/img-0346-2.jpg::format": {
                         "sourceHash": "21ce68d",
                         "translatedValue": "40 x 40 cm",
-                        "updatedAt": "2026-08-01T12:18:48.663Z"
+                        "updatedAt": "2026-10-31T21:49:00.924Z"
                     },
                     "artwork:images/img-0344-2.jpg::format": {
                         "sourceHash": "21ce68d",
                         "translatedValue": "40 x 40 cm",
-                        "updatedAt": "2026-08-01T12:18:48.663Z"
+                        "updatedAt": "2026-10-31T21:49:00.924Z"
                     },
                     "artwork:images/img-0889.jpg::format": {
                         "sourceHash": "bdb268bf",
                         "translatedValue": "38 x 56 cm",
-                        "updatedAt": "2026-08-01T12:18:48.663Z"
+                        "updatedAt": "2026-10-31T21:49:00.924Z"
                     },
                     "artwork:images/34f609a7-8a7c-4710-b083-574927e4d7ec.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:48.663Z"
+                        "updatedAt": "2026-10-31T21:48:58.788Z"
                     },
                     "artwork:images/34f609a7-8a7c-4710-b083-574927e4d7ec.jpg::seoDescription": {
-                        "sourceHash": "5ab2351b",
-                        "translatedValue": "Original watercolor painting from Humlegården with a slope, spring greenery and contrasting evening light. 56 x 38 cm, 2024, by Ola Gustafsson.",
-                        "updatedAt": "2026-08-01T12:18:48.663Z"
+                        "sourceHash": "13c5488e",
+                        "translatedValue": "Original watercolor painting from Humlan with a slope, spring greenery, and high-contrast evening light. 56 x 38 cm, 2024, by Ola Gustafsson.",
+                        "updatedAt": "2026-11-02T13:39:31.403Z"
                     },
                     "artwork:images/img-9904.jpg::title": {
                         "sourceHash": "3deb61c7",
@@ -4698,192 +4771,192 @@ window.PORTFOLIO_OVERRIDES = {
                     "artwork:images/img-9904.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:48.663Z"
+                        "updatedAt": "2026-10-31T21:48:58.788Z"
                     },
                     "artwork:images/img-9924.jpg::title": {
                         "sourceHash": "d2728bd5",
                         "translatedValue": "State of Mind",
-                        "updatedAt": "2026-08-01T12:18:48.663Z"
+                        "updatedAt": "2026-10-31T21:48:58.788Z"
                     },
                     "artwork:images/img-9924.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:48.663Z"
+                        "updatedAt": "2026-10-31T21:48:58.788Z"
                     },
                     "artwork:images/apc-0018-hdr.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:48.663Z"
+                        "updatedAt": "2026-10-31T21:48:58.788Z"
                     },
                     "artwork:images/img-8290.jpg::format": {
                         "sourceHash": "e9db09d4",
                         "translatedValue": "38 x 28 cm",
-                        "updatedAt": "2026-08-01T12:18:48.663Z"
+                        "updatedAt": "2026-10-31T21:48:58.788Z"
                     },
                     "artwork:images/img-1589.jpg::title": {
                         "sourceHash": "62c7727c",
-                        "translatedValue": "Fog over Stadsgården",
-                        "updatedAt": "2026-08-01T12:18:46.280Z"
+                        "translatedValue": "Mist Over Stadsgården",
+                        "updatedAt": "2026-10-31T21:48:55.768Z"
                     },
                     "artwork:images/img-1589.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:46.280Z"
+                        "updatedAt": "2026-10-31T21:48:58.788Z"
                     },
                     "artwork:images/img-1589.jpg::alt": {
                         "sourceHash": "589d5d8b",
-                        "translatedValue": "Fog-shrouded view over Stadsgården and the water.",
-                        "updatedAt": "2026-08-01T12:18:46.280Z"
+                        "translatedValue": "Misty view over Stadsgården and the water.",
+                        "updatedAt": "2026-10-31T21:48:58.788Z"
                     },
                     "artwork:images/img-1589.jpg::seoTitle": {
                         "sourceHash": "4656e2a5",
-                        "translatedValue": "Fog over Stadsgården | Stockholm view in watercolor",
-                        "updatedAt": "2026-08-01T12:18:46.280Z"
+                        "translatedValue": "Mist over Stadsgården | Stockholm view in watercolor",
+                        "updatedAt": "2026-10-31T21:48:58.788Z"
                     },
                     "artwork:images/img-1589.jpg::seoDescription": {
                         "sourceHash": "5f90625d",
-                        "translatedValue": "Watercolor with a fog-shrouded view over Stadsgården, water, and softened city lights. 56 x 38 cm, 2024. Original painting by Ola Gustafsson.",
-                        "updatedAt": "2026-08-01T12:18:46.280Z"
+                        "translatedValue": "Watercolor with a misty view over Stadsgården, water, and diffused city lights. 56 x 38 cm, 2024. Original painting by Ola Gustafsson.",
+                        "updatedAt": "2026-10-31T21:48:58.788Z"
                     },
                     "artwork:images/img-2812-jpg.jpg::format": {
                         "sourceHash": "e9db09d4",
                         "translatedValue": "38 x 28 cm",
-                        "updatedAt": "2026-08-01T12:18:46.280Z"
+                        "updatedAt": "2026-10-31T21:48:55.767Z"
                     },
                     "artwork:images/img-2802-jpg.jpg::format": {
                         "sourceHash": "e9db09d4",
                         "translatedValue": "38 x 28 cm",
-                        "updatedAt": "2026-08-01T12:18:46.280Z"
+                        "updatedAt": "2026-10-31T21:48:55.767Z"
                     },
                     "artwork:images/img-2515-jpg.jpg::format": {
                         "sourceHash": "22285c53",
                         "translatedValue": "10 x 10 cm",
-                        "updatedAt": "2026-08-01T12:18:46.280Z"
+                        "updatedAt": "2026-10-31T21:48:55.767Z"
                     },
                     "artwork:images/img-2516-jpg.jpg::format": {
                         "sourceHash": "22285c53",
                         "translatedValue": "10 x 10 cm",
-                        "updatedAt": "2026-08-01T12:18:46.280Z"
+                        "updatedAt": "2026-10-31T21:48:55.767Z"
                     },
                     "artwork:images/img-4667.jpg::format": {
                         "sourceHash": "e9db09d4",
                         "translatedValue": "38 x 28 cm",
-                        "updatedAt": "2026-08-01T12:18:46.280Z"
+                        "updatedAt": "2026-10-31T21:48:55.767Z"
                     },
                     "artwork:images/img-2033.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:42.993Z"
+                        "updatedAt": "2026-10-31T21:48:55.767Z"
                     },
                     "artwork:images/img-2033.jpg::seoDescription": {
-                        "sourceHash": "4ad5f60a",
-                        "translatedValue": "Watercolor from Humlegården with autumn trees in glowing evening light and dark trunks. 56 x 38 cm, 2024. Original painting by Ola Gustafsson.",
-                        "updatedAt": "2026-08-01T12:18:46.280Z"
+                        "sourceHash": "25dd685",
+                        "translatedValue": "Watercolor from Humlan with autumn trees in glowing evening light and dark trunks. 56 x 38 cm, 2024. Original painting by Ola Gustafsson.",
+                        "updatedAt": "2026-11-02T13:39:31.403Z"
                     },
                     "artwork:images/img-2051-jpg.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:42.993Z"
+                        "updatedAt": "2026-10-31T21:48:55.767Z"
                     },
                     "artwork:images/img-2051-jpg.jpg::seoDescription": {
-                        "sourceHash": "71fdf131",
-                        "translatedValue": "Original watercolor painting with dark tree trunks, golden autumn light and light mist in Humlegården. 56 x 38 cm, 2024, by Ola Gustafsson.",
-                        "updatedAt": "2026-08-01T12:18:42.993Z"
+                        "sourceHash": "e0bdaa56",
+                        "translatedValue": "Original watercolor painting with dark tree trunks, golden autumn light and a light mist in Humlan. 56 x 38 cm, 2024, by Ola Gustafsson.",
+                        "updatedAt": "2026-11-02T13:39:31.403Z"
                     },
                     "artwork:images/img-3843-jpg.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:42.993Z"
+                        "updatedAt": "2026-10-31T21:48:55.767Z"
                     },
                     "artwork:images/img-2444.jpg::title": {
                         "sourceHash": "af30bf7f",
                         "translatedValue": "Danviken, Stockholm",
-                        "updatedAt": "2026-08-01T12:18:42.993Z"
+                        "updatedAt": "2026-10-31T21:48:53.578Z"
                     },
                     "artwork:images/img-2444.jpg::format": {
                         "sourceHash": "e9db09d4",
                         "translatedValue": "38 x 28 cm",
-                        "updatedAt": "2026-08-01T12:18:42.993Z"
+                        "updatedAt": "2026-10-31T21:48:53.578Z"
                     },
                     "artwork:images/img-2822.jpg::format": {
                         "sourceHash": "e9db09d4",
                         "translatedValue": "38 x 28 cm",
-                        "updatedAt": "2026-08-01T12:18:42.993Z"
+                        "updatedAt": "2026-10-31T21:48:53.578Z"
                     },
                     "artwork:images/img-2463.jpg::format": {
                         "sourceHash": "e9db09d4",
                         "translatedValue": "38 x 28 cm",
-                        "updatedAt": "2026-08-01T12:18:42.993Z"
+                        "updatedAt": "2026-10-31T21:48:53.578Z"
                     },
                     "artwork:images/img-1310-2.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:42.993Z"
+                        "updatedAt": "2026-10-31T21:48:53.578Z"
                     },
                     "artwork:images/under-berget.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:42.993Z"
+                        "updatedAt": "2026-10-31T21:48:53.578Z"
                     },
                     "artwork:images/vid-stranden.jpg::format": {
                         "sourceHash": "c659a485",
                         "translatedValue": "56 x 32 cm",
-                        "updatedAt": "2026-08-01T12:18:42.993Z"
+                        "updatedAt": "2026-10-31T21:48:53.578Z"
                     },
                     "artwork:images/bergsva-g.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:40.346Z"
+                        "updatedAt": "2026-10-31T21:48:53.578Z"
                     },
                     "artwork:images/va-rvinterhus.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:40.346Z"
+                        "updatedAt": "2026-10-31T21:48:53.578Z"
                     },
                     "artwork:images/januarihimmel.jpg::format": {
                         "sourceHash": "bdb268bf",
                         "translatedValue": "38 x 56 cm",
-                        "updatedAt": "2026-08-01T12:18:40.346Z"
+                        "updatedAt": "2026-10-31T21:48:53.578Z"
                     },
                     "artwork:images/sashastudie2.jpg::format": {
                         "sourceHash": "83ef98b9",
                         "translatedValue": "20 x 15 cm",
-                        "updatedAt": "2026-08-01T12:18:40.346Z"
+                        "updatedAt": "2026-10-31T21:48:53.578Z"
                     },
                     "artwork:images/sashastudie.jpg::format": {
                         "sourceHash": "4d651c35",
                         "translatedValue": "15 x 15 cm",
-                        "updatedAt": "2026-08-01T12:18:40.346Z"
+                        "updatedAt": "2026-10-31T21:48:52.188Z"
                     },
                     "artwork:images/humla.jpg::format": {
                         "sourceHash": "1adb9c25",
                         "translatedValue": "19 x 28 cm",
-                        "updatedAt": "2026-08-01T12:18:40.346Z"
+                        "updatedAt": "2026-10-31T21:48:52.188Z"
                     },
                     "artwork:images/pa-promenad-med-sotis.webp::format": {
                         "sourceHash": "bdb268bf",
                         "translatedValue": "38 x 56 cm",
-                        "updatedAt": "2026-08-01T12:18:40.346Z"
+                        "updatedAt": "2026-10-31T21:48:52.188Z"
                     },
                     "artwork:images/pa-promenad-med-sotis.webp::alt": {
                         "sourceHash": "bd73ddd2",
                         "translatedValue": "Cat in the shade of a tree next to a residential building in Skärmarbrink.",
-                        "updatedAt": "2026-08-01T12:18:40.346Z"
+                        "updatedAt": "2026-10-31T21:48:52.188Z"
                     },
                     "artwork:images/strandfa-glar.webp::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:40.346Z"
+                        "updatedAt": "2026-10-31T21:48:52.188Z"
                     },
                     "artwork:images/vinterskymning.webp::format": {
                         "sourceHash": "e9db09d4",
                         "translatedValue": "38 x 28 cm",
-                        "updatedAt": "2026-08-01T12:18:40.346Z"
+                        "updatedAt": "2026-10-31T21:48:52.188Z"
                     },
                     "artwork:images/johanna-i-skymningen.webp::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:40.346Z"
+                        "updatedAt": "2026-10-31T21:48:52.188Z"
                     },
                     "string:about.inspirationBody": {
                         "sourceHash": "bfca122c",
@@ -4898,17 +4971,17 @@ window.PORTFOLIO_OVERRIDES = {
                     "artwork:images/img-2128-2.jpg::title": {
                         "sourceHash": "24325191",
                         "translatedValue": "May Day in Gammelström",
-                        "updatedAt": "2026-08-01T12:18:38.299Z"
+                        "updatedAt": "2026-10-31T21:48:50.273Z"
                     },
                     "artwork:images/img-2128-2.jpg::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:38.299Z"
+                        "updatedAt": "2026-10-31T21:48:50.273Z"
                     },
                     "artwork:images/img-2128-2.jpg::alt": {
                         "sourceHash": "f801de39",
-                        "translatedValue": "red-orange riverbank against fresh green spruce in a forest view from Gammelström, Nyfors. Two small boys play in the spring sun.",
-                        "updatedAt": "2026-08-01T12:18:38.299Z"
+                        "translatedValue": "reddish-orange riverbank against bright spring-green spruce in a forest view from Gammelström, Nyfors. Two small boys play in the spring sun.",
+                        "updatedAt": "2026-10-31T21:48:50.273Z"
                     },
                     "artwork:images/img-2115.webp::title": {
                         "sourceHash": "32de46d1",
@@ -4918,37 +4991,37 @@ window.PORTFOLIO_OVERRIDES = {
                     "artwork:images/img-1703.webp::format": {
                         "sourceHash": "44826a89",
                         "translatedValue": "76 x 56 cm",
-                        "updatedAt": "2026-08-01T12:18:38.299Z"
+                        "updatedAt": "2026-10-31T21:48:50.273Z"
                     },
                     "artwork:images/img-1808-3.webp::format": {
                         "sourceHash": "bc41b38d",
                         "translatedValue": "56 x 76 cm",
-                        "updatedAt": "2026-08-01T12:18:38.299Z"
+                        "updatedAt": "2026-10-31T21:48:50.273Z"
                     },
                     "artwork:images/img-1620.webp::format": {
                         "sourceHash": "bdb268bf",
                         "translatedValue": "38 x 56 cm",
-                        "updatedAt": "2026-08-01T12:18:38.299Z"
+                        "updatedAt": "2026-10-31T21:48:50.273Z"
                     },
                     "artwork:images/img-1529.webp::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:38.299Z"
+                        "updatedAt": "2026-10-31T21:48:52.188Z"
                     },
                     "artwork:images/img-1530.webp::format": {
                         "sourceHash": "76bef73",
                         "translatedValue": "56 x 38 cm",
-                        "updatedAt": "2026-08-01T12:18:40.346Z"
+                        "updatedAt": "2026-10-31T21:48:52.188Z"
                     },
                     "artwork:images/img-2707.webp::format": {
                         "sourceHash": "bdb268bf",
                         "translatedValue": "38 x 56 cm",
-                        "updatedAt": "2026-08-01T12:18:38.299Z"
+                        "updatedAt": "2026-10-31T21:48:50.272Z"
                     },
                     "artwork:images/img-2702.webp::title": {
-                        "sourceHash": "1887f118",
-                        "translatedValue": "Below the Surface (study)",
-                        "updatedAt": "2026-07-02T12:55:59.893Z"
+                        "sourceHash": "48157fdd",
+                        "translatedValue": "Beneath the Surface",
+                        "updatedAt": "2026-11-02T13:39:31.403Z"
                     },
                     "artwork:images/img-2702.webp::alt": {
                         "sourceHash": "330aa822",
@@ -4958,7 +5031,7 @@ window.PORTFOLIO_OVERRIDES = {
                     "artwork:images/ola-gustafsson-arrival.webp::format": {
                         "sourceHash": "bdb268bf",
                         "translatedValue": "38 x 56 cm",
-                        "updatedAt": "2026-08-01T12:18:42.993Z"
+                        "updatedAt": "2026-10-31T21:48:53.578Z"
                     },
                     "artwork:images/ola-gustafsson-arrival.webp::alt": {
                         "sourceHash": "418a9e13",
@@ -4972,38 +5045,38 @@ window.PORTFOLIO_OVERRIDES = {
                     },
                     "artwork:images/img-1589.jpg::collectorNote": {
                         "sourceHash": "c9392450",
-                        "translatedValue": "Fog over Stadsgården is an original watercolor from 2024 with a coastal and water motif where light, water, and the horizon take center stage. Feel free to contact me for current availability, price, or more images of the work.",
-                        "updatedAt": "2026-08-01T12:18:46.280Z"
+                        "translatedValue": "Mist over Stadsgården is an original watercolor from 2024 with a coastal and water motif where light, water, and the horizon take center stage. Feel free to contact me for current availability, price, or more images of the artwork.",
+                        "updatedAt": "2026-10-31T21:48:58.788Z"
                     },
                     "artwork:images/decemberskymning-p-tjurk-2.jpg::format": {
                         "sourceHash": "8a26b4dd",
                         "translatedValue": "31 x 26 cm",
-                        "updatedAt": "2026-08-01T12:18:48.664Z"
+                        "updatedAt": "2026-10-31T21:49:00.924Z"
                     },
                     "artwork:images/decemberskymning-p-tjurk-2.jpg::collectorNote": {
                         "sourceHash": "9c41a89e",
-                        "translatedValue": "December Dusk on Tjurkö is an original watercolor from 2026 featuring a place and building motif, with light, facades, and the surrounding landscape at the center.",
-                        "updatedAt": "2026-08-01T12:18:51.144Z"
+                        "translatedValue": "December Twilight on Tjurkö is an original watercolor from 2026 featuring place and architectural motifs, with light, facades, and the surrounding landscape at the center.",
+                        "updatedAt": "2026-10-31T21:49:00.924Z"
                     },
                     "artwork:images/ola-23.jpg::collectorNote": {
                         "sourceHash": "beb01161",
-                        "translatedValue": "Summer Evening on Saltö is an original watercolor from 2024 with a coastal and seascape motif where light, water, and the horizon take center stage. Feel free to get in touch with questions about size, framing, or availability.",
-                        "updatedAt": "2026-08-01T12:18:54.252Z"
+                        "translatedValue": "Summer Evening on Saltö is an original watercolor from 2024 with a coastal and seascape motif where light, water and the horizon take center stage. Feel free to get in touch with questions about size, framing or availability.",
+                        "updatedAt": "2026-10-31T21:49:03.246Z"
                     },
                     "artwork:images/ola-20.jpg::collectorNote": {
                         "sourceHash": "2650711c",
-                        "translatedValue": "Utklippan, Karlskrona is an original watercolor from 2024 with a coastal and seascape motif where light, water, and the horizon take center stage. For collectors, the work fits as a quiet part of the series about place, light, and presence.",
-                        "updatedAt": "2026-08-01T12:18:57.710Z"
+                        "translatedValue": "Utklippan, Karlskrona is an original watercolor from 2024 with a coastal and seascape motif where light, water, and the horizon take center stage. For collectors, the work suits as a quiet part of the series about place, light, and presence.",
+                        "updatedAt": "2026-10-31T21:49:07.289Z"
                     },
                     "artwork:images/ola-02.jpg::collectorNote": {
                         "sourceHash": "df075347",
-                        "translatedValue": "Slussen, afternoon in September is an original watercolor from 2025 with an urban motif where light, architecture, and movement take center stage. Feel free to write if you’d like to see more details, reserve the piece, or learn more about availability.",
-                        "updatedAt": "2026-08-01T12:19:00.270Z"
+                        "translatedValue": "Slussen, afternoon in September is an original watercolor from 2025 with a city motif where light, architecture, and movement take center stage. Feel free to write if you’d like to see more details, reserve the piece, or learn more about availability.",
+                        "updatedAt": "2026-10-31T21:49:11.349Z"
                     },
                     "artwork:images/img-2702.webp::format": {
                         "sourceHash": "1adb9c25",
                         "translatedValue": "19 x 28 cm",
-                        "updatedAt": "2026-08-01T12:18:38.299Z"
+                        "updatedAt": "2026-10-31T21:48:50.272Z"
                     },
                     "string:about.recognitionHeading": {
                         "sourceHash": "f9a56f10",
@@ -5023,17 +5096,17 @@ window.PORTFOLIO_OVERRIDES = {
                     "artwork:images/img-2729.webp::title": {
                         "sourceHash": "c1255527",
                         "translatedValue": "The Soul of Saltö",
-                        "updatedAt": "2026-08-01T12:18:38.299Z"
+                        "updatedAt": "2026-11-02T13:39:31.403Z"
                     },
                     "artwork:images/img-2729.webp::format": {
                         "sourceHash": "bdb268bf",
                         "translatedValue": "38 x 56 cm",
-                        "updatedAt": "2026-08-01T12:18:38.299Z"
+                        "updatedAt": "2026-10-31T21:48:50.272Z"
                     },
                     "artwork:images/img-2729.webp::alt": {
                         "sourceHash": "744f7fe6",
-                        "translatedValue": "rock formations in warm, sunlit colors and contrasting cool shadows from Saltö, Karlskrona",
-                        "updatedAt": "2026-08-01T12:18:38.299Z"
+                        "translatedValue": "cliff face in warm, sunlit colors and contrasting cool shadows from Saltö, Karlskrona",
+                        "updatedAt": "2026-10-31T21:48:50.272Z"
                     },
                     "string:about.faqHeading": {
                         "sourceHash": "1840e052",
@@ -5099,6 +5172,191 @@ window.PORTFOLIO_OVERRIDES = {
                         "sourceHash": "e5622f3e",
                         "translatedValue": "How do I get in touch? Email ola@olagustafsson.com or write on Instagram, @holagustafsson. For questions about a specific work there is a form on its page.",
                         "updatedAt": "2026-10-04T07:40:14.514Z"
+                    },
+                    "array:about.ambitions[1]": {
+                        "sourceHash": "af3f134a",
+                        "translatedValue": "Exhibition 17 October – 1 November with Le Venezie Watercolour 2026 in Treviso, Italy.",
+                        "updatedAt": "2026-10-31T21:48:44.433Z"
+                    },
+                    "array:about.recognitionItems[5]": {
+                        "sourceHash": "29b380ce",
+                        "translatedValue": "[The Return of Light (Ljusets återkomst)](https://olagustafsson.com/ljusets-aterkomst?lang=en) – two-person exhibition with Jenny Övrebö at Husby konsthall, 3–25 October 2026",
+                        "updatedAt": "2026-11-02T13:39:31.403Z"
+                    },
+                    "artwork:images/f-r-flera-solar-sedan-1.webp::format": {
+                        "sourceHash": "bc41b38d",
+                        "translatedValue": "56 x 76 cm",
+                        "updatedAt": "2026-10-31T21:48:44.433Z"
+                    },
+                    "artwork:images/f-r-flera-solar-sedan-2.webp::format": {
+                        "sourceHash": "44826a89",
+                        "translatedValue": "76 x 56 cm",
+                        "updatedAt": "2026-10-31T21:48:44.433Z"
+                    },
+                    "artwork:images/f-r-flera-solar-sedan-2.webp::alt": {
+                        "sourceHash": "f2f7c69f",
+                        "translatedValue": "Several Suns Ago II",
+                        "updatedAt": "2026-11-02T13:39:31.403Z"
+                    },
+                    "artwork:images/f-r-flera-solar-sedan-3.webp::format": {
+                        "sourceHash": "bc41b38d",
+                        "translatedValue": "56 x 76 cm",
+                        "updatedAt": "2026-10-31T21:48:46.415Z"
+                    },
+                    "artwork:images/f-r-flera-solar-sedan-3.webp::alt": {
+                        "sourceHash": "520e02e2",
+                        "translatedValue": "Several Suns Ago III",
+                        "updatedAt": "2026-11-02T13:39:31.403Z"
+                    },
+                    "artwork:images/timmarna-d-rmellan-3.webp::format": {
+                        "sourceHash": "44826a89",
+                        "translatedValue": "76 x 56 cm",
+                        "updatedAt": "2026-10-31T21:48:46.415Z"
+                    },
+                    "artwork:images/timmarna-d-rmellan-3.webp::alt": {
+                        "sourceHash": "f6c9186f",
+                        "translatedValue": "The Hours Between III",
+                        "updatedAt": "2026-11-02T13:39:31.403Z"
+                    },
+                    "artwork:images/timmarna-d-rmellan-2.webp::format": {
+                        "sourceHash": "44826a89",
+                        "translatedValue": "76 x 56 cm",
+                        "updatedAt": "2026-10-31T21:48:46.415Z"
+                    },
+                    "artwork:images/timmarna-d-rmellan-2.webp::alt": {
+                        "sourceHash": "b4e3477c",
+                        "translatedValue": "The Hours Between II",
+                        "updatedAt": "2026-11-02T13:39:31.403Z"
+                    },
+                    "artwork:images/timmarna-d-rmellan-1.webp::format": {
+                        "sourceHash": "44826a89",
+                        "translatedValue": "76 x 56 cm",
+                        "updatedAt": "2026-10-31T21:48:46.415Z"
+                    },
+                    "artwork:images/timmarna-d-rmellan-1.webp::alt": {
+                        "sourceHash": "2029385d",
+                        "translatedValue": "The Hours Between I",
+                        "updatedAt": "2026-11-02T13:39:31.403Z"
+                    },
+                    "artwork:images/tid-i-vila-3.webp::format": {
+                        "sourceHash": "44826a89",
+                        "translatedValue": "76 x 56 cm",
+                        "updatedAt": "2026-10-31T21:48:46.415Z"
+                    },
+                    "artwork:images/tid-i-vila-3.webp::alt": {
+                        "sourceHash": "c405b9ec",
+                        "translatedValue": "Time, Suspended III",
+                        "updatedAt": "2026-11-02T13:39:31.403Z"
+                    },
+                    "artwork:images/tid-i-vila-2.webp::format": {
+                        "sourceHash": "44826a89",
+                        "translatedValue": "76 x 56 cm",
+                        "updatedAt": "2026-10-31T21:48:46.415Z"
+                    },
+                    "artwork:images/tid-i-vila-2.webp::alt": {
+                        "sourceHash": "5caa41ad",
+                        "translatedValue": "Time, Suspended II",
+                        "updatedAt": "2026-11-02T13:39:31.403Z"
+                    },
+                    "artwork:images/tid-i-vila-1.webp::format": {
+                        "sourceHash": "44826a89",
+                        "translatedValue": "76 x 56 cm",
+                        "updatedAt": "2026-10-31T21:48:48.197Z"
+                    },
+                    "artwork:images/tid-i-vila-1.webp::alt": {
+                        "sourceHash": "2af3b7f6",
+                        "translatedValue": "Time, Suspended I",
+                        "updatedAt": "2026-11-02T13:39:31.403Z"
+                    },
+                    "artwork:images/det-l-nga-nuet.webp::format": {
+                        "sourceHash": "bc41b38d",
+                        "translatedValue": "56 x 76 cm",
+                        "updatedAt": "2026-10-31T21:48:48.197Z"
+                    },
+                    "artwork:images/det-l-nga-nuet.webp::alt": {
+                        "sourceHash": "d91e237b",
+                        "translatedValue": "The Long Now",
+                        "updatedAt": "2026-11-02T13:39:31.403Z"
+                    },
+                    "artwork:images/storm-ver-mariaberget.webp::title": {
+                        "sourceHash": "f35ece84",
+                        "translatedValue": "Storm over Mariaberget",
+                        "updatedAt": "2026-10-31T21:48:48.197Z"
+                    },
+                    "artwork:images/storm-ver-mariaberget.webp::format": {
+                        "sourceHash": "76bef73",
+                        "translatedValue": "56 x 38 cm",
+                        "updatedAt": "2026-10-31T21:48:48.197Z"
+                    },
+                    "artwork:images/storm-ver-mariaberget.webp::alt": {
+                        "sourceHash": "f35ece84",
+                        "translatedValue": "Storm over Mariaberget",
+                        "updatedAt": "2026-11-02T13:39:31.403Z"
+                    },
+                    "artwork:images/solnedg-ng-augusti.webp::title": {
+                        "sourceHash": "f491913d",
+                        "translatedValue": "Sunset, August",
+                        "updatedAt": "2026-10-31T21:48:48.197Z"
+                    },
+                    "artwork:images/solnedg-ng-augusti.webp::format": {
+                        "sourceHash": "76bef73",
+                        "translatedValue": "56 x 38 cm",
+                        "updatedAt": "2026-10-31T21:48:48.197Z"
+                    },
+                    "artwork:images/solnedg-ng-augusti.webp::alt": {
+                        "sourceHash": "f491913d",
+                        "translatedValue": "Sunset, August",
+                        "updatedAt": "2026-11-02T13:39:31.403Z"
+                    },
+                    "artwork:images/img-2707.webp::title": {
+                        "sourceHash": "742d0215",
+                        "translatedValue": "Reflected sun",
+                        "updatedAt": "2026-10-31T21:48:50.272Z"
+                    },
+                    "artwork:images/februarisol.webp::format": {
+                        "sourceHash": "76bef73",
+                        "translatedValue": "56 x 38 cm",
+                        "updatedAt": "2026-10-31T21:48:52.188Z"
+                    },
+                    "artwork:images/marinmuseet-i-juli-karlskrona.webp::format": {
+                        "sourceHash": "76bef73",
+                        "translatedValue": "56 x 38 cm",
+                        "updatedAt": "2026-10-31T21:48:52.188Z"
+                    },
+                    "artwork:images/sommarskymning-i-skogen.webp::format": {
+                        "sourceHash": "bdb268bf",
+                        "translatedValue": "38 x 56 cm",
+                        "updatedAt": "2026-10-31T21:48:52.188Z"
+                    },
+                    "artwork:images/img-7804.jpg::format": {
+                        "sourceHash": "76bef73",
+                        "translatedValue": "56 x 38 cm",
+                        "updatedAt": "2026-10-31T21:48:55.767Z"
+                    },
+                    "artwork:images/ola-26.jpg::format": {
+                        "sourceHash": "7d45f1a",
+                        "translatedValue": "56 x 26 cm",
+                        "updatedAt": "2026-10-31T21:49:03.246Z"
+                    },
+                    "artwork:images/f-r-flera-solar-sedan-1.webp::alt": {
+                        "sourceHash": "e0ab7e0c",
+                        "translatedValue": "Several Suns Ago I",
+                        "updatedAt": "2026-11-02T13:39:31.403Z"
+                    },
+                    "artwork:images/img-2033.jpg::seoTitle": {
+                        "sourceHash": "e3d6a915",
+                        "translatedValue": "Autumn Dusk in Humlan | Autumn trees in evening light in watercolor",
+                        "updatedAt": "2026-11-02T13:39:31.403Z"
+                    },
+                    "artwork:images/34f609a7-8a7c-4710-b083-574927e4d7ec.jpg::seoTitle": {
+                        "sourceHash": "ba0f9110",
+                        "translatedValue": "Spring in Humlan | Spring greenery in watercolour",
+                        "updatedAt": "2026-11-02T13:39:31.403Z"
+                    },
+                    "artwork:images/ola-25.jpg::seoTitle": {
+                        "sourceHash": "b96271c",
+                        "translatedValue": "Winter in Humlan | Winter landscape in watercolour",
+                        "updatedAt": "2026-11-02T13:39:31.403Z"
                     }
                 }
             },
