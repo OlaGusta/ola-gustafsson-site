@@ -62,12 +62,12 @@ if ($order && in_array($status, ['paid', 'shipped', 'completed'], true)) {
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
       <link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" />
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20261116-01" />
+    <link rel="stylesheet" href="styles.css?v=20261116-02" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <?= seo_currency_rates_script() ?>
     <script src="script.js?v=20261102-02" defer></script>
-    <script src="shop.js?v=20261116-01" defer></script>
+    <script src="shop.js?v=20261116-02" defer></script>
   </head>
   <body id="page-top" data-page="order">
     <header class="site-header" id="top">

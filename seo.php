@@ -1312,6 +1312,42 @@ function seo_receipt_sender(): array
 // Postern "100 dagar av sol": tryckt upplaga som säljs från lager (inte print on demand).
 // Innehållet ligger i project.poster (Studio → Projekt). Antal kvar räknas i shop_lib
 // som lager minus sålda i ordrar som inte avbrutits.
+// Julsektionen på startsidan: syns till och med julafton. Sista beställningsdag per
+// vara för leverans före jul inom Sverige (beställt och betalt senast den dagen).
+// Datumen är uppskattningar mot PostNords julschema; ändra här vid behov.
+function seo_christmas_config(): array
+{
+  $year = (int) date('Y');
+  return [
+    'showUntil' => "{$year}-12-24",
+    'deadlines' => [
+      'printFramed' => "{$year}-12-10",
+      'print' => "{$year}-12-15",
+      'original' => "{$year}-12-16",
+      'poster' => "{$year}-12-16",
+      'giftcard' => "{$year}-12-23"
+    ]
+  ];
+}
+
+function seo_christmas_active(): bool
+{
+  $cfg = seo_christmas_config();
+  $today = (new DateTimeImmutable('now', new DateTimeZone('Europe/Stockholm')))->format('Y-m-d');
+  return $today >= date('Y') . '-11-01' && $today <= $cfg['showUntil'];
+}
+
+// "15 december" / "15 December", eller '' om dagen passerat.
+function seo_christmas_deadline_label(string $date, string $lang): string
+{
+  $today = (new DateTimeImmutable('now', new DateTimeZone('Europe/Stockholm')))->format('Y-m-d');
+  if ($date < $today) {
+    return '';
+  }
+  $day = (int) substr($date, 8, 2);
+  return $lang === 'en' ? $day . ' December' : $day . ' december';
+}
+
 function seo_poster_config(array $payload, string $lang = 'sv'): array
 {
   $raw = isset($payload['project']['poster']) && is_array($payload['project']['poster']) ? $payload['project']['poster'] : [];

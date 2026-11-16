@@ -215,6 +215,80 @@ if (is_array($projectCardsBase)) {
   }
 }
 $sunPoster = seo_poster_config($payload, $lang);
+// Julsektionen: poster, print, original och presentkort med sista beställningsdag.
+$christmas = null;
+if (seo_christmas_active()) {
+  $xmasCatalog = seo_shop_catalog($payload);
+  $xmasDeadlines = seo_christmas_config()['deadlines'];
+  $xmasOriginal = null;
+  $xmasPrint = null;
+  $xmasOriginalPrices = [];
+  $xmasPrintPrices = [];
+  foreach ($xmasCatalog['artworks'] as $xmasArt) {
+    if (!empty($xmasArt['originalForSale']) && (int) $xmasArt['price'] > 0) {
+      $xmasOriginalPrices[] = (int) $xmasArt['price'];
+      if ($xmasOriginal === null && ($xmasArt['availability'] ?? '') !== 'reserved') {
+        $xmasOriginal = $xmasArt;
+      }
+    }
+    foreach ($xmasArt['prints'] ?? [] as $xmasSize) {
+      if ((int) $xmasSize['price'] > 0) {
+        $xmasPrintPrices[] = (int) $xmasSize['price'];
+      }
+    }
+    if ($xmasPrint === null && ($xmasArt['prints'] ?? []) !== [] && empty($xmasArt['originalForSale'])) {
+      $xmasPrint = $xmasArt;
+    }
+  }
+  foreach ($xmasCatalog['sunPrints'] as $xmasSize) {
+    if ((int) ($xmasSize['price'] ?? 0) > 0) {
+      $xmasPrintPrices[] = (int) $xmasSize['price'];
+    }
+  }
+  $xmasT = static fn (string $sv, string $en): string => $lang === 'en' ? $en : $sv;
+  $xmasDeadline = static function (string $key, string $prefixSv, string $prefixEn) use ($xmasDeadlines, $lang, $xmasT): string {
+    $label = seo_christmas_deadline_label((string) ($xmasDeadlines[$key] ?? ''), $lang);
+    return $label !== ''
+      ? ($lang === 'en' ? $prefixEn : $prefixSv) . $label
+      : $xmasT('Hinner inte fram före jul längre', 'Too late for Christmas delivery');
+  };
+  $christmasCards = [];
+  if (!empty($sunPoster['enabled']) && (int) $sunPoster['price'] > 0) {
+    $christmasCards[] = [
+      'title' => $xmasT('Poster: 100 dagar av sol', 'Poster: 100 days of sun'),
+      'price' => shop_money_label((int) $sunPoster['price'], $lang),
+      'image' => (string) $sunPoster['src'],
+      'href' => '100-dagar-av-sol#poster',
+      'deadline' => $xmasDeadline('poster', 'Beställ senast ', 'Order by '),
+    ];
+  }
+  if ($xmasPrintPrices !== []) {
+    $christmasCards[] = [
+      'title' => 'Fine Art Print',
+      'price' => $xmasT('från ', 'from ') . shop_money_label(min($xmasPrintPrices), $lang),
+      'image' => $xmasPrint ? (string) $xmasPrint['src'] : 'images/sol/thumb/dag-001.jpg',
+      'href' => 'gallery.html?filter=fine-art-print',
+      'deadline' => $xmasDeadline('print', 'Beställ senast ', 'Order by ') . $xmasT(', med ram ', ', framed ') . (seo_christmas_deadline_label((string) $xmasDeadlines['printFramed'], $lang) ?: $xmasT('för sent', 'too late')),
+    ];
+  }
+  if ($xmasOriginalPrices !== []) {
+    $christmasCards[] = [
+      'title' => $xmasT('Original', 'Originals'),
+      'price' => preg_replace('/[\s\x{00a0}]*(kr|SEK)$/u', '', shop_money_label(min($xmasOriginalPrices), $lang)) . '–' . shop_money_label(max($xmasOriginalPrices), $lang),
+      'image' => $xmasOriginal ? (string) $xmasOriginal['src'] : '',
+      'href' => 'gallery.html',
+      'deadline' => $xmasDeadline('original', 'Beställ senast ', 'Order by '),
+    ];
+  }
+  $christmasCards[] = [
+    'title' => $xmasT('Presentkort', 'Gift card'),
+    'price' => '300–' . shop_money_label(20000, $lang),
+    'image' => '',
+    'href' => 'presentkort',
+    'deadline' => $xmasDeadline('giftcard', 'Skickas med e-post, beställ senast ', 'Sent by email, order by '),
+  ];
+  $christmas = ['cards' => $christmasCards];
+}
 $hasProjectContent = $projectCards !== [] || trim($projectHeading) !== '' || trim($projectDescription) !== '' || trim($projectCollageImageValue) !== '' || $projectSamples !== [];
 $contactEyebrow = seo_localized_payload_string($payload, $lang, ['contact', 'eyebrow']);
 if ($contactEyebrow === '') {
@@ -403,11 +477,11 @@ if (!is_string($structuredJson)) {
       fetchpriority="high"
     />
     	    <script src="overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>" defer></script>
-	    <link rel="stylesheet" href="styles.css?v=20261116-01" />
+	    <link rel="stylesheet" href="styles.css?v=20261116-02" />
 	    <script src="content.js?v=20260928-01" defer></script>
 		    <?= seo_currency_rates_script() ?>
 		    <script src="script.js?v=20261102-02" defer></script>
-    <script src="shop.js?v=20261116-01" defer></script>
+    <script src="shop.js?v=20261116-02" defer></script>
 	  </head>
   <body id="page-top" data-page="home">
     <header class="site-header" id="top">
@@ -480,6 +554,38 @@ if (!is_string($structuredJson)) {
           </div>
         </div>
       </section>
+
+      <?php if ($christmas !== null): ?>
+      <section id="jul" class="section reveal christmas-section">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow"><?= seo_escape_html($lang === 'en' ? 'Christmas' : 'Jul') ?></p>
+              <h2><?= seo_escape_html($lang === 'en' ? 'Christmas gifts in watercolour' : 'Julklappar i akvarell') ?></h2>
+              <p class="section-lead"><?= seo_escape_html($lang === 'en'
+                ? 'Order and pay by the date on each card for delivery within Sweden before Christmas.'
+                : 'Beställ och betala senast datumet på kortet för leverans inom Sverige före jul.') ?></p>
+            </div>
+          </div>
+          <div class="christmas-grid">
+            <?php foreach ($christmas['cards'] as $xmasCard): ?>
+              <a class="christmas-card" href="<?= seo_escape_html($xmasCard['href']) ?>" data-lang-link>
+                <?php if ($xmasCard['image'] !== ''): ?>
+                  <span class="christmas-card-media"><img src="<?= seo_escape_html(seo_image_variant_src($xmasCard['image'], true)) ?>" alt="" loading="lazy" decoding="async" /></span>
+                <?php else: ?>
+                  <span class="christmas-card-media christmas-card-giftcard" aria-hidden="true"><span><?= seo_escape_html($lang === 'en' ? 'Any amount' : 'Valfritt belopp') ?></span></span>
+                <?php endif; ?>
+                <span class="christmas-card-body">
+                  <strong><?= seo_escape_html($xmasCard['title']) ?></strong>
+                  <span class="christmas-card-price"><?= seo_escape_html($xmasCard['price']) ?></span>
+                  <span class="christmas-card-deadline"><?= seo_escape_html($xmasCard['deadline']) ?></span>
+                </span>
+              </a>
+            <?php endforeach; ?>
+          </div>
+        </div>
+      </section>
+      <?php endif; ?>
 
       <section id="galleri" class="section reveal">
         <div class="container">

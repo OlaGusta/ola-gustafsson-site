@@ -8178,3 +8178,77 @@ body:not([data-page='studio']) .contact-social-links {
     color: #111;
   }
 }
+
+/* Julsektionen på startsidan (syns till och med julafton) */
+.christmas-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+.christmas-card {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  transition: border-color var(--duration-fast, 150ms) var(--ease-standard, ease), transform var(--duration-fast, 150ms) var(--ease-standard, ease);
+}
+.christmas-card:hover,
+.christmas-card:focus-visible {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}
+.christmas-card-media {
+  display: block;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+.christmas-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.christmas-card-giftcard {
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+}
+.christmas-card-giftcard span {
+  font-family: var(--font-display);
+  font-weight: var(--font-display-weight);
+  font-size: clamp(1.4rem, 2.4vw, 2rem);
+  color: var(--color-primary);
+  border: 1px dashed var(--color-primary);
+  padding: var(--space-4) var(--space-5);
+}
+.christmas-card-body {
+  display: grid;
+  gap: 0.2rem;
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  align-content: start;
+}
+.christmas-card-body strong {
+  font-family: var(--font-display);
+  font-weight: var(--font-display-weight);
+  font-size: 1.15rem;
+}
+.christmas-card-price {
+  color: var(--color-ink);
+}
+.christmas-card-deadline {
+  color: var(--color-soft-ink);
+  font-size: 0.86rem;
+}
+@media (max-width: 900px) {
+  .christmas-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 420px) {
+  .christmas-card-body {
+    padding: var(--space-2) var(--space-3) var(--space-3);
+  }
+}

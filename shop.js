@@ -458,7 +458,7 @@
               ${app.dataset.bank ? `<label class="checkout-payment-option"><input type="radio" name="payment" value="bank" ${app.dataset.swish ? '' : 'checked'} /> <span><strong>${esc(T('Bankkonto', 'Bank transfer'))}</strong><small>${esc(T('Överföring till', 'Transfer to'))} ${esc(app.dataset.bank)}. ${esc(T('Ordernumret som meddelande.', 'Order number as the message.'))}${app.dataset.iban ? ` ${esc(T('Från utlandet', 'From abroad'))}: IBAN ${esc(app.dataset.iban)}, BIC ${esc(app.dataset.bic)}.` : ''}</small></span></label>` : ''}
             </fieldset>
             <label class="contact-honeypot" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
-            <label class="checkout-terms"><input type="checkbox" name="newsletter" /> <span>${esc(T('Skicka mig ateljébrevet om nya målningar och utställningar, några gånger om året.', 'Send me the studio letter about new paintings and exhibitions, a few times a year.'))}</span></label>
+            <label class="checkout-terms"><input type="checkbox" name="newsletter" /> <span>${esc(T('Skicka mig ateljébrevet om utställningar och nya målningar. Det kommer sällan.', 'Send me the studio letter about exhibitions and new paintings. It comes rarely.'))}</span></label>
             <label class="checkout-terms"><input type="checkbox" name="terms" required /> <span>${esc(T('Jag godkänner köpvillkoren: betalning med Swish eller bankgiro inom 7 dagar, leverans inom Sverige, 14 dagars ångerrätt från mottagandet.', 'I accept the terms: payment by Swish or bank transfer within 7 days, delivery within Sweden, 14-day right of withdrawal from receipt.'))} <a href="${esc(app.dataset.termsUrl || '/#faq')}" target="_blank" rel="noopener">${esc(T('Läs mer', 'Read more'))}</a></span></label>
             <div id="checkout-turnstile" class="contact-turnstile" hidden></div>
             <p class="field-hint">${esc(T('När du skickat beställningen får du betalningsuppgifter med Swish-kod direkt på skärmen och i ett mejl. Ordern bekräftas när betalningen kommit in.', 'After sending the order you get payment details with a Swish code on screen and by email. The order is confirmed when the payment has arrived.'))}</p>
@@ -676,15 +676,15 @@
   // Anmälningsrutor: i sidfoten på publika sidor och i [data-newsletter-slot]
   // (sålda verk, /ateljebrev). Dubbel bekräftelse sköts av api/newsletter.php.
   const NEWSLETTER_PITCH = T(
-    'Några gånger om året skickar jag ett brev om nya målningar och utställningar. Nya original visar jag i brevet innan de kommer ut på sajten.',
-    'A few times a year I send a letter about new paintings and exhibitions. New originals are shown in the letter before they appear on the site.'
+    'Ett brev när det händer något: en utställning, en ny serie eller nya printar. Det kommer sällan.',
+    'A letter when something happens: an exhibition, a new series or new prints. It comes rarely.'
   );
   const newsletterForm = (variant, source) => {
     const unsubscribe = variant === 'unsubscribe';
     const heading = variant === 'footer'
       ? `<h2 class="newsletter-heading">${esc(T('Ateljébrev', 'Studio letter'))}</h2><p class="newsletter-pitch">${esc(NEWSLETTER_PITCH)}</p>`
       : variant === 'sold'
-        ? `<p class="newsletter-pitch">${esc(T('Vill du veta när jag målar något liknande? Anmäl dig till ateljébrevet. Nya original visar jag där innan de kommer ut på sajten.', 'Want to know when I paint something similar? Sign up for the studio letter. New originals are shown there before they appear on the site.'))}</p>`
+        ? `<p class="newsletter-pitch">${esc(T('Vill du få ett brev när jag ställer ut eller har nya målningar? Anmäl dig till ateljébrevet. Det kommer sällan.', 'Want a letter when I exhibit or have new paintings? Sign up for the studio letter. It comes rarely.'))}</p>`
         : '';
     return `<form class="newsletter-form newsletter-form-${esc(variant)}" novalidate data-newsletter-form data-action="${unsubscribe ? 'unsubscribe_request' : 'subscribe'}" data-source="${esc(source)}">
       ${heading}
