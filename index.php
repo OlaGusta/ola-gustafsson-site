@@ -468,7 +468,7 @@ if (!is_string($structuredJson)) {
 
         <div class="container hero-content">
           <div id="hero-copy-panel" class="hero-copy surface-glass">
-            <p class="eyebrow" data-bind="hero.eyebrow"><?= seo_escape_html($heroEyebrow) ?></p>
+            <p class="eyebrow" data-bind="hero.eyebrow"><?= seo_inline_html($heroEyebrow) ?></p>
             <h1 data-bind="hero.title"><?= seo_escape_html(str_replace('Ola Gustafsson', "Ola\u{00a0}Gustafsson", $heroTitle)) ?></h1>
             <p class="hero-subtitle" data-bind="hero.subtitle"><?= seo_render_inline_formatted_html($heroSubtitle) ?></p>
             <p data-bind="hero.intro"><?= seo_render_multiline_html($heroIntro) ?></p>
@@ -485,8 +485,8 @@ if (!is_string($structuredJson)) {
         <div class="container">
           <div class="section-head">
             <div>
-              <p class="eyebrow" data-bind="gallery.eyebrow"><?= seo_escape_html($galleryEyebrow) ?></p>
-              <h2 data-bind="gallery.heading"><?= seo_escape_html($galleryHeading) ?></h2>
+              <p class="eyebrow" data-bind="gallery.eyebrow"><?= seo_inline_html($galleryEyebrow) ?></p>
+              <h2 data-bind="gallery.heading"><?= seo_inline_html($galleryHeading) ?></h2>
             </div>
             <div class="work-strip-nav" id="work-strip-nav" hidden>
               <button type="button" class="work-strip-btn" data-strip-step="-1" aria-label="<?= seo_escape_html($lang === 'en' ? 'Previous works' : 'Föregående verk') ?>">←</button>
@@ -520,8 +520,8 @@ if (!is_string($structuredJson)) {
 	      <section id="om" class="section reveal">
 	        <div class="container about-grid">
 	          <article class="about-text">
-	            <p class="eyebrow" data-bind="about.eyebrow"><?= seo_escape_html($aboutEyebrow) ?></p>
-	            <h2 data-bind="about.heading"><?= seo_escape_html($aboutHeading) ?></h2>
+	            <p class="eyebrow" data-bind="about.eyebrow"><?= seo_inline_html($aboutEyebrow) ?></p>
+	            <h2 data-bind="about.heading"><?= seo_inline_html($aboutHeading) ?></h2>
 	            <div id="about-main-paragraphs" class="about-main-paragraphs">
                 <?php foreach ($aboutParagraphs as $aboutParagraph): ?>
                   <p><?= seo_render_multiline_html($aboutParagraph) ?></p>
@@ -586,10 +586,10 @@ if (!is_string($structuredJson)) {
             </div>
 
 	            <article class="sun-project surface-soft">
-	              <p class="eyebrow" data-bind="project.eyebrow"><?= seo_escape_html($projectEyebrow) ?></p>
+	              <p class="eyebrow" data-bind="project.eyebrow"><?= seo_inline_html($projectEyebrow) ?></p>
 	              <div class="sun-project-layout">
 	                <div class="sun-project-copy">
-	                  <h2 data-bind="project.heading"><?= seo_escape_html($projectHeading) ?></h2>
+	                  <h2 data-bind="project.heading"><?= seo_inline_html($projectHeading) ?></h2>
 	                  <p data-bind="project.description"><?= seo_render_multiline_html($projectDescription) ?></p>
 	                </div>
 	                <figure
@@ -607,7 +607,7 @@ if (!is_string($structuredJson)) {
 	                  />
 	                </figure>
 	              </div>
-	              <h3 class="sun-project-subheading" data-bind="project.sampleHeading"><?= seo_escape_html($projectSampleHeading) ?></h3>
+	              <h3 class="sun-project-subheading" data-bind="project.sampleHeading"><?= seo_inline_html($projectSampleHeading) ?></h3>
 	              <div id="sun-project-samples" class="sun-project-samples">
                   <?php foreach ($projectSamples as $sample): ?>
                     <figure class="sun-project-sample surface-soft">
@@ -650,18 +650,18 @@ if (!is_string($structuredJson)) {
 	              />
 	            </figure>
 	            <div class="about-material-copy">
-	              <h3 data-bind="about.materialsHeading"><?= seo_escape_html($materialsHeading) ?></h3>
+	              <h3 data-bind="about.materialsHeading"><?= seo_inline_html($materialsHeading) ?></h3>
 	              <p data-bind="about.materialsBody"><?= seo_render_multiline_html($materialsBody) ?></p>
 	            </div>
 	          </article>
 
 	          <article class="about-inspiration-card surface-soft">
-	            <h3 data-bind="about.inspirationHeading"><?= seo_escape_html($inspirationHeading) ?></h3>
+	            <h3 data-bind="about.inspirationHeading"><?= seo_inline_html($inspirationHeading) ?></h3>
 	            <p id="about-inspiration-body" data-bind="about.inspirationBody"><?= seo_render_linkified_html($inspirationBody) ?></p>
 	          </article>
 
 	          <aside class="ambition-card surface-soft">
-	            <h3 data-bind="about.ambitionsHeading"><?= seo_escape_html($ambitionsHeading) ?></h3>
+	            <h3 data-bind="about.ambitionsHeading"><?= seo_inline_html($ambitionsHeading) ?></h3>
 	            <ul id="about-ambitions" class="ambitions-list">
                 <?php foreach ($ambitions as $ambition): ?>
                   <li><?= seo_render_linkified_html($ambition) ?></li>
@@ -675,7 +675,7 @@ if (!is_string($structuredJson)) {
 	      <section class="section reveal about-recognition-section">
 	        <div class="container about-recognition-row">
 	          <aside class="recognition-card surface-soft">
-	            <h3 data-bind="about.recognitionHeading"><?= seo_escape_html($recognitionHeading) ?></h3>
+	            <h3 data-bind="about.recognitionHeading"><?= seo_inline_html($recognitionHeading) ?></h3>
 	            <ul id="about-recognition" class="recognition-list">
                 <?php foreach ($recognitionItems as $recognitionItem): ?>
                   <li><?= seo_render_linkified_html($recognitionItem) ?></li>
@@ -687,7 +687,7 @@ if (!is_string($structuredJson)) {
 
 	      <section id="faq" class="section reveal faq-section"<?= $faqItems === [] ? ' hidden' : '' ?>>
 	        <div class="container faq">
-	          <h2 data-bind="about.faqHeading"><?= seo_escape_html($faqHeading) ?></h2>
+	          <h2 data-bind="about.faqHeading"><?= seo_inline_html($faqHeading) ?></h2>
 	          <div id="faq-list" class="faq-list">
 	            <?php foreach ($faqItems as $faqItem): ?>
 	              <details class="faq-item">
@@ -702,8 +702,8 @@ if (!is_string($structuredJson)) {
 	      <section id="kontakt" class="section reveal">
 	        <div class="container contact surface-soft">
 	          <div class="contact-copy">
-	            <p class="eyebrow" data-bind="contact.eyebrow"><?= seo_escape_html($contactEyebrow) ?></p>
-	            <h2 data-bind="contact.heading"><?= seo_escape_html($contactHeading) ?></h2>
+	            <p class="eyebrow" data-bind="contact.eyebrow"><?= seo_inline_html($contactEyebrow) ?></p>
+	            <h2 data-bind="contact.heading"><?= seo_inline_html($contactHeading) ?></h2>
 	            <p data-bind="contact.body"><?= seo_render_multiline_html($contactBody) ?></p>
 	          </div>
 	          <div class="contact-links-panel">

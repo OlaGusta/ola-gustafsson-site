@@ -99,11 +99,11 @@ if ($forSalePrices !== []) {
 $out[] = '- Fine Art Print: tryck på ' . seo_print_paper_label('sv') . ', signerade och numrerade, upplaga om ' . SEO_PRINT_EDITION_SIZE . ' exemplar per bild. Format (ramens yttermått) och pris inklusive moms: ' . $printList . '. ' . seo_print_mount_note('sv');
 $out[] = '- Frakt och inramning: original: ' . lcfirst(seo_order_extras_note('sv')) . ' ' . seo_framing_service_note('sv') . ' Print: ' . lcfirst(seo_print_extras_note('sv')) . ' ' . seo_print_frame_offer_note($payload, seo_print_sizes($payload, 'sv'), 'sv');
 $out[] = '- Leveranstid: ' . seo_print_delivery_note('sv');
-if (($paymentNote = seo_payment_note($payload, 'sv', 'verkets titel eller solens nummer')) !== '') {
+if (($paymentNote = seo_payment_note($payload, 'sv', 'ordernumret')) !== '') {
   $out[] = '- Betalning: ' . $paymentNote;
 }
 $out[] = '- Ångerrätt: ' . seo_withdrawal_note('sv');
-$out[] = '- Köp: via intresseanmälan på verkets sida. Anmälan är inte bindande; konstnären svarar med totalpris och betalningsuppgifter.';
+$out[] = '- Köp: på verkets sida väljer du original eller printformat och lägger det i kundvagnen. I kassan anger du leveransadress och väljer Swish eller bankkonto. Du får en ordersida med betalningsuppgifter och ordernummer, och ett original reserveras åt dig direkt. Frågor om ett verk kan ställas i formuläret på verkets sida.';
 if ($email !== '') {
   $out[] = '- Kontakt: ' . $email;
 }

@@ -178,6 +178,25 @@ function seo_escape_html(string $value): string
   return htmlspecialchars($value, ENT_QUOTES);
 }
 
+// Rubriker och etiketter får markeringarna <i>, <em>, <n> och <normal> i Studio (samma som
+// appendInlineFormattedText i script.js). Utan detta ser sökmotorer och AI-läsare, som inte
+// kör JavaScript, taggarna som bokstavlig text.
+function seo_inline_html(string $value): string
+{
+  $escaped = seo_escape_html($value);
+  return preg_replace_callback(
+    '/&lt;(i|em|n|normal)&gt;([\s\S]*?)&lt;\/\1&gt;/i',
+    static function (array $m): string {
+      $tag = strtolower($m[1]);
+      if ($tag === 'i' || $tag === 'em') {
+        return '<' . $tag . ' class="inline-italic">' . $m[2] . '</' . $tag . '>';
+      }
+      return '<span class="inline-normal">' . $m[2] . '</span>';
+    },
+    $escaped
+  ) ?? $escaped;
+}
+
 function seo_image_dimensions(string $imageValue): array
 {
   $normalized = seo_normalize_image_value($imageValue);
