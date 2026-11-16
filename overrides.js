@@ -766,7 +766,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "addedAt": 1793008821167,
                 "zoom": 1,
                 "objectPosition": "center center",
-                "priceLabel": "4 500 kr",
+                "priceLabel": "5 400 kr",
                 "slug": "storm-over-mariaberget"
             },
             {
@@ -790,7 +790,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "addedAt": 1793008822396,
                 "zoom": 1,
                 "objectPosition": "center center",
-                "priceLabel": "4 500 kr",
+                "priceLabel": "5 400 kr",
                 "slug": "solnedgang-augusti"
             },
             {
@@ -4255,7 +4255,7 @@ window.PORTFOLIO_OVERRIDES = {
                     "images/storm-ver-mariaberget.webp": {
                         "title": "Storm over Mariaberget",
                         "format": "56 x 38 cm",
-                        "priceLabel": "4 500 SEK",
+                        "priceLabel": "5 400 SEK",
                         "alt": "Storm over Mariaberget",
                         "_manual": {
                             "alt": true
@@ -4264,7 +4264,7 @@ window.PORTFOLIO_OVERRIDES = {
                     "images/solnedg-ng-augusti.webp": {
                         "title": "Sunset, August",
                         "format": "56 x 38 cm",
-                        "priceLabel": "4 500 SEK",
+                        "priceLabel": "5 400 SEK",
                         "alt": "Sunset, August",
                         "_manual": {
                             "alt": true
