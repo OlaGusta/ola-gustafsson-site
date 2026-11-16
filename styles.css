@@ -8211,18 +8211,40 @@ body:not([data-page='studio']) .contact-social-links {
   object-fit: cover;
   display: block;
 }
-.christmas-card-giftcard {
-  display: grid;
-  place-items: center;
-  padding: var(--space-4);
+.christmas-section .section-head {
+  grid-template-columns: minmax(0, 1fr);
 }
-.christmas-card-giftcard span {
+.christmas-section .section-lead {
+  justify-self: start;
+  max-width: 62ch;
+}
+.christmas-card-giftcard {
+  position: relative;
+}
+.christmas-card-badge {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  gap: 0.25rem;
+  text-align: center;
+  padding: var(--space-3) var(--space-5);
+  background: rgba(255, 255, 255, 0.92);
+  color: #10131b;
   font-family: var(--font-display);
   font-weight: var(--font-display-weight);
-  font-size: clamp(1.4rem, 2.4vw, 2rem);
-  color: var(--color-primary);
-  border: 1px dashed var(--color-primary);
-  padding: var(--space-4) var(--space-5);
+  font-size: clamp(1.15rem, 2vw, 1.6rem);
+  line-height: 1.1;
+  white-space: nowrap;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+}
+.christmas-card-badge small {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #2c585e;
 }
 .christmas-card-body {
   display: grid;

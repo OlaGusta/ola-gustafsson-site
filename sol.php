@@ -125,7 +125,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
       <link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" media="print" data-deferred-stylesheet="fonts" />
       <noscript><link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" /></noscript>
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20261116-02" />
+    <link rel="stylesheet" href="styles.css?v=20261116-03" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <?= seo_currency_rates_script() ?>

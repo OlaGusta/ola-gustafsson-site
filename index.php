@@ -283,7 +283,8 @@ if (seo_christmas_active()) {
   $christmasCards[] = [
     'title' => $xmasT('Presentkort', 'Gift card'),
     'price' => '300–' . shop_money_label(20000, $lang),
-    'image' => '',
+    'image' => 'images/web/sol4.jpg',
+    'badge' => $xmasT('Presentkort', 'Gift card'),
     'href' => 'presentkort',
     'deadline' => $xmasDeadline('giftcard', 'Skickas med e-post, beställ senast ', 'Sent by email, order by '),
   ];
@@ -477,7 +478,7 @@ if (!is_string($structuredJson)) {
       fetchpriority="high"
     />
     	    <script src="overrides.js?v=<?= htmlspecialchars($overridesRevParam, ENT_QUOTES) ?>" defer></script>
-	    <link rel="stylesheet" href="styles.css?v=20261116-02" />
+	    <link rel="stylesheet" href="styles.css?v=20261116-03" />
 	    <script src="content.js?v=20260928-01" defer></script>
 		    <?= seo_currency_rates_script() ?>
 		    <script src="script.js?v=20261102-02" defer></script>
@@ -570,10 +571,10 @@ if (!is_string($structuredJson)) {
           <div class="christmas-grid">
             <?php foreach ($christmas['cards'] as $xmasCard): ?>
               <a class="christmas-card" href="<?= seo_escape_html($xmasCard['href']) ?>" data-lang-link>
-                <?php if ($xmasCard['image'] !== ''): ?>
+                <?php if (!empty($xmasCard['badge'])): ?>
+                  <span class="christmas-card-media christmas-card-giftcard"><img src="<?= seo_escape_html($xmasCard['image']) ?>" alt="" loading="lazy" decoding="async" /><span class="christmas-card-badge" aria-hidden="true"><?= seo_escape_html($xmasCard['badge']) ?><small><?= seo_escape_html($lang === 'en' ? 'Any amount' : 'Valfritt belopp') ?></small></span></span>
+                <?php elseif ($xmasCard['image'] !== ''): ?>
                   <span class="christmas-card-media"><img src="<?= seo_escape_html(seo_image_variant_src($xmasCard['image'], true)) ?>" alt="" loading="lazy" decoding="async" /></span>
-                <?php else: ?>
-                  <span class="christmas-card-media christmas-card-giftcard" aria-hidden="true"><span><?= seo_escape_html($lang === 'en' ? 'Any amount' : 'Valfritt belopp') ?></span></span>
                 <?php endif; ?>
                 <span class="christmas-card-body">
                   <strong><?= seo_escape_html($xmasCard['title']) ?></strong>
