@@ -69,6 +69,8 @@ function api_security_config(): array
     'resetBaseUrl' => $resetBaseUrl,
     'mailerFrom' => (isset($security['mailerFrom']) && is_string($security['mailerFrom'])) ? trim($security['mailerFrom']) : '',
     'mailerReplyTo' => (isset($security['mailerReplyTo']) && is_string($security['mailerReplyTo'])) ? trim($security['mailerReplyTo']) : '',
+    // Visningsnamn i From-raden ("Ola Gustafsson" <noreply@…>). Tom sträng = bara adressen.
+    'mailerFromName' => (isset($security['mailerFromName']) && is_string($security['mailerFromName'])) ? trim($security['mailerFromName']) : 'Ola Gustafsson',
     'contactRecipient' => (isset($security['contactRecipient']) && is_string($security['contactRecipient']))
       ? trim($security['contactRecipient'])
       : '',
@@ -810,6 +812,19 @@ function api_security_mail_sender(): string
   return 'noreply@' . $domain;
 }
 
+// "Ola Gustafsson" <noreply@…>; namn med å/ä/ö MIME-kodas.
+function api_security_mail_from_header(string $from): string
+{
+  $name = trim(preg_replace('/[\r\n"<>]+/', '', (string) (api_security_config()['mailerFromName'] ?? '')) ?? '');
+  if ($name === '') {
+    return $from;
+  }
+  $encoded = preg_match('/[^\x20-\x7e]/', $name) === 1 && function_exists('mb_encode_mimeheader')
+    ? mb_encode_mimeheader($name, 'UTF-8', 'B', "\r\n")
+    : '"' . $name . '"';
+  return $encoded . ' <' . $from . '>';
+}
+
 function api_security_send_mail(string $to, string $subject, string $body, string $replyTo = ''): bool
 {
   $to = trim($to);
@@ -828,7 +843,7 @@ function api_security_send_mail(string $to, string $subject, string $body, strin
   $headers = [
     'MIME-Version: 1.0',
     'Content-Type: text/plain; charset=UTF-8',
-    'From: ' . $from,
+    'From: ' . api_security_mail_from_header($from),
     'Reply-To: ' . $replyTo,
     'X-Content-Type-Options: nosniff'
   ];
