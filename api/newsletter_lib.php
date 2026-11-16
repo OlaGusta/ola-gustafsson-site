@@ -38,6 +38,51 @@ SQL
   );
   api_schema_add_column_if_missing($pdo, 'newsletter_subscribers', 'mailchimp_synced_at', 'DATETIME NULL');
   api_schema_add_column_if_missing($pdo, 'newsletter_subscribers', 'mailchimp_error', 'VARCHAR(255) NULL');
+  api_schema_add_column_if_missing($pdo, 'newsletter_subscribers', 'welcome_sent_at', 'DATETIME NULL');
+}
+
+// Välkomstmejlet som [subject, body]. Texten är Olas (godkänd 2026-11-16).
+function newsletter_welcome_mail(array $row): array
+{
+  $lang = (string) $row['language'] === 'en' ? 'en' : 'sv';
+  $unsubscribe = newsletter_url('/ateljebrev/avsluta/' . $row['token'], $lang);
+  if ($lang === 'en') {
+    return [
+      'subject' => 'Welcome to the studio letter',
+      'body' => "Hi,\n\nThank you for following my painting.\n\n"
+        . "In the studio letter I write about exhibitions and what I learn while painting. Sometimes I recommend a good course, an exciting artist who inspires me or a demonstration I'm giving myself. New series and new prints end up here too. The letters come at regular intervals.\n\n"
+        . "If you want to look around in the meantime:\n"
+        . "Gallery: https://olagustafsson.com/gallery.html?lang=en\n"
+        . "100 days of sun: https://olagustafsson.com/100-dagar-av-sol?lang=en\n"
+        . "Gift cards: https://olagustafsson.com/presentkort?lang=en\n\n"
+        . "Ola Gustafsson\nola@olagustafsson.com\n\n"
+        . "No longer want the letter: {$unsubscribe}\n"
+    ];
+  }
+  return [
+    'subject' => 'Välkommen till ateljébrevet',
+    'body' => "Hej,\n\nTack för att du vill följa mitt måleri.\n\n"
+      . "I ateljébrevet berättar jag om utställningar och om vad jag lär mig när jag målar. Ibland tipsar jag om en bra kurs, en spännande konstnär som inspirerar mig eller en demonstration jag själv håller. Nya serier och nya printar hamnar här också. Breven kommer med jämna mellanrum.\n\n"
+      . "Vill du titta runt under tiden:\n"
+      . "Galleriet: https://olagustafsson.com/gallery.html\n"
+      . "100 dagar av sol: https://olagustafsson.com/100-dagar-av-sol\n"
+      . "Presentkort: https://olagustafsson.com/presentkort\n\n"
+      . "Ola Gustafsson\nola@olagustafsson.com\n\n"
+      . "Vill du inte längre ha brevet: {$unsubscribe}\n"
+  ];
+}
+
+// Skickas en gång per adress, när den blir bekräftad (länk eller kryss i kassan).
+function newsletter_send_welcome(PDO $pdo, string $email): void
+{
+  $row = newsletter_find_by_email($pdo, strtolower(trim($email)));
+  if (!$row || $row['status'] !== 'confirmed' || !empty($row['welcome_sent_at'])) {
+    return;
+  }
+  $mail = newsletter_welcome_mail($row);
+  if (api_security_send_mail((string) $row['email'], $mail['subject'], $mail['body'], api_security_contact_recipient())) {
+    $pdo->prepare('UPDATE newsletter_subscribers SET welcome_sent_at = UTC_TIMESTAMP() WHERE id = :id')->execute([':id' => (int) $row['id']]);
+  }
 }
 
 // ---- Mailchimp ---------------------------------------------------------------
@@ -209,6 +254,7 @@ function newsletter_subscribe(PDO $pdo, string $email, string $lang, string $sou
   if ($confirmed) {
     $pdo->prepare('UPDATE newsletter_subscribers SET status = \'confirmed\', confirmed_at = UTC_TIMESTAMP() WHERE id = :id')->execute([':id' => (int) $row['id']]);
     newsletter_mailchimp_sync_email($pdo, $email);
+    newsletter_send_welcome($pdo, $email);
     return 'confirmed';
   }
   // Högst ett bekräftelsemejl per adress och 10 minuter.
@@ -232,6 +278,7 @@ function newsletter_confirm(PDO $pdo, array $row): void
     $pdo->prepare('UPDATE newsletter_subscribers SET status = \'confirmed\', confirmed_at = UTC_TIMESTAMP(), unsubscribed_at = NULL WHERE id = :id')
       ->execute([':id' => (int) $row['id']]);
     newsletter_mailchimp_sync_email($pdo, (string) $row['email']);
+    newsletter_send_welcome($pdo, (string) $row['email']);
     api_security_send_mail(api_security_contact_recipient(), 'Ny läsare av ateljébrevet', "{$row['email']} bekräftade ateljébrevet (källa: " . ($row['source'] !== '' ? $row['source'] : 'okänd') . ").\n");
   }
 }
