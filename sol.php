@@ -130,7 +130,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
     <script src="content.js?v=20260928-01" defer></script>
     <?= seo_currency_rates_script() ?>
     <script src="script.js?v=20261102-02" defer></script>
-    <script src="shop.js?v=20261116-02" defer></script>
+    <script src="shop.js?v=20261116-03" defer></script>
     <script src="sol.js?v=20261026-02" defer></script>
   </head>
   <body id="page-top" data-page="sun" data-day-label="<?= $h($dayLabel) ?>" data-remove-label="<?= $h($lang === 'en' ? 'Remove day' : 'Ta bort dag') ?>">

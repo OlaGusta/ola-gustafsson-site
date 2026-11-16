@@ -128,7 +128,7 @@ $out[] = '- [Startsida](' . seo_canonical_url('home', 'sv') . '): presentation, 
 $out[] = '- [Galleri](' . seo_canonical_url('gallery', 'sv') . '): alla målningar, filtrerbara på motiv och år.';
 $out[] = '- [100 dagar av sol](' . seo_canonical_url('sun', 'sv') . '): projekt med hundra solakvareller från sommaren 2025. Varje sol kan beställas som Fine Art Print.';
 $out[] = '- [Presentkort](' . seo_canonical_url('giftcard', 'sv') . '): presentkort på valfritt belopp (' . SHOP_GIFTCARD_MIN . '–' . number_format(SHOP_GIFTCARD_MAX, 0, ',', ' ') . ' kr), gäller två år till original, Fine Art Prints och postrar. Skickas med e-post.';
-$out[] = '- [Ateljébrev](' . seo_canonical_url('newsletter', 'sv') . '): e-postbrev om utställningar och nya målningar, skickas sällan.';
+$out[] = '- [Ateljébrev](' . seo_canonical_url('newsletter', 'sv') . '): e-postbrev om utställningar och nya målningar med jämna mellanrum.';
 foreach (seo_exhibitions($payload) as $exhibitionIndex => $exhibition) {
   if (!empty($exhibition['enabled'])) {
     $local = seo_exhibition_localized($payload, (int) $exhibitionIndex, $exhibition, 'sv');

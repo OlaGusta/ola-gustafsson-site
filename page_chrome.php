@@ -39,7 +39,7 @@ function page_chrome_open(string $lang, string $title, array $options = []): voi
     <script src="content.js?v=20260928-01" defer></script>
     <?= seo_currency_rates_script() ?>
     <script src="script.js?v=20261102-02" defer></script>
-    <script src="shop.js?v=20261116-02" defer></script>
+    <script src="shop.js?v=20261116-03" defer></script>
   </head>
   <body id="page-top" data-page="<?= $h($page) ?>">
     <header class="site-header" id="top">
