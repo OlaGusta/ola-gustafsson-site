@@ -51,8 +51,8 @@ function newsletter_welcome_mail(array $row): array
   if ($lang === 'en') {
     return [
       'subject' => 'Welcome to the studio letter',
-      'body' => "Hi,\n\nThank you for following my painting.\n\n"
-        . "In the studio letter I write about exhibitions and what I learn while painting. Sometimes I recommend a good course, an exciting artist who inspires me or a demonstration I'm giving myself. New series and new prints end up here too. The letters come at regular intervals.\n\n"
+      'body' => "Hi,\n\nThank you for following my work as a painter.\n\n"
+        . "In the studio letter I write about exhibitions and what I learn while painting. Sometimes I recommend a good course, an exciting artist who inspires me or a demonstration I'm giving. New series and new prints end up here too. The letters come at regular intervals.\n\n"
         . "If you want to look around in the meantime:\n"
         . "Gallery: https://olagustafsson.com/gallery.html?lang=en\n"
         . "100 days of sun: https://olagustafsson.com/100-dagar-av-sol?lang=en\n"
