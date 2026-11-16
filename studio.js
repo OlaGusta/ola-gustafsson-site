@@ -39,6 +39,10 @@ const STUDIO_VIEW_META = {
     title: 'Förfrågningar',
     subtitle: 'Inkomna meddelanden och intresseanmälningar.'
   },
+  newsletter: {
+    title: 'Ateljébrev',
+    subtitle: 'Läsare av ateljébrevet: lista, kopiera adresser, CSV.'
+  },
   seo: {
     title: 'SEO & sida',
     subtitle: 'Metadata, delningsbild och mätning.'
@@ -3968,7 +3972,7 @@ const renderOrdersPanel = (orders) => {
       if (status === 'pending') {
         actions = `
           <div class="order-action-row">
-            <label>Mottaget belopp <input type="number" min="0" step="1" value="${Number(order.total_sek) || 0}" data-order-field="paidAmount" /></label>
+            <label>Mottaget belopp <input type="number" min="0" step="1" value="${Number(order.amount_due ?? order.total_sek) || 0}" data-order-field="paidAmount" /></label>
             <label>Betalsätt
               <select data-order-field="method"><option value="swish" ${order.payment_choice !== 'bank' ? 'selected' : ''}>Swish</option><option value="bank" ${order.payment_choice === 'bank' ? 'selected' : ''}>Bankkonto</option><option value="other">Annat</option></select>
             </label>
@@ -4002,9 +4006,11 @@ const renderOrdersPanel = (orders) => {
         </div>
         <ul class="order-card-items">${rows}
           <li><span>Frakt</span><span>${formatOrderAmount(order.shipping_sek)}</span></li>
-          <li class="order-card-total"><span>Att betala<small>varav moms ${formatOrderAmount(order.vat_sek)}</small></span><span>${formatOrderAmount(order.total_sek)}</span></li>
+          ${Number(order.giftcard_sek) > 0 ? `<li><span>Presentkort<small>${escapeHtml(order.giftcard_code || '')}</small></span><span>−${formatOrderAmount(order.giftcard_sek)}</span></li>` : ''}
+          <li class="order-card-total"><span>Att betala<small>varav moms ${formatOrderAmount(order.vat_sek)}</small></span><span>${formatOrderAmount(order.amount_due ?? order.total_sek)}</span></li>
         </ul>
-        <p class="inquiry-message"><strong>Leverans:</strong> ${escapeHtml(`${order.customer_name}, ${order.address_line}, ${order.postal_code} ${order.city}`)}${order.note ? `<br /><strong>Kundens meddelande:</strong> ${escapeHtml(order.note)}` : ''}</p>
+        ${Array.isArray(order.giftcards) && order.giftcards.length ? `<p class="inquiry-message"><strong>Utfärdade presentkort:</strong> ${order.giftcards.map((card) => `<a href="${escapeHtml(card.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(card.code)}</a> (${formatOrderAmount(card.amount)}, t.o.m. ${escapeHtml(card.expires)})`).join(', ')}</p>` : ''}
+        <p class="inquiry-message"><strong>Leverans:</strong> ${escapeHtml(String(order.address_line || '').trim() ? `${order.customer_name}, ${order.address_line}, ${order.postal_code} ${order.city}` : `${order.customer_name} (e-post, ingen adress)`)}${order.note ? `<br /><strong>Kundens meddelande:</strong> ${escapeHtml(order.note)}` : ''}</p>
         <div class="inquiry-badges"><span class="inquiry-chip">Vill betala med ${order.payment_choice === 'bank' ? 'bankkonto' : 'Swish'}</span>${paidInfo}${receiptLink}${shippedInfo}<span class="inquiry-chip">${Number(order.mail_delivered) === 1 ? 'Bekräftelse mejlad' : 'Mejl ej levererat'}</span></div>
         ${actions}
         <div class="order-action-row order-note-row">
@@ -4084,6 +4090,96 @@ const initOrdersPanel = () => {
   fetchOrdersPanel();
 };
 window.olaRenderOrdersPanel = renderOrdersPanel;
+
+// ---- Ateljébrev ------------------------------------------------------------
+const NEWSLETTER_STATUS_LABELS = { confirmed: 'Bekräftad', pending: 'Väntar på bekräftelse', unsubscribed: 'Avregistrerad' };
+const NEWSLETTER_STATUS_TONE = { confirmed: 'available', pending: 'reserved', unsubscribed: 'sold' };
+const newsletterEl = () => ({
+  list: document.getElementById('newsletter-panel-list'),
+  status: document.getElementById('newsletter-panel-status'),
+  refresh: document.getElementById('newsletter-panel-refresh'),
+  csv: document.getElementById('newsletter-panel-csv'),
+  copy: document.getElementById('newsletter-panel-copy')
+});
+const setNewsletterStatus = (text, kind = 'info') => {
+  const { status } = newsletterEl();
+  if (!status) return;
+  status.textContent = text;
+  status.dataset.kind = kind;
+};
+const confirmedSubscribers = () => (Array.isArray(uiState.newsletterData) ? uiState.newsletterData : []).filter((row) => row.status === 'confirmed');
+const renderNewsletterPanel = (rows) => {
+  const { list } = newsletterEl();
+  if (!list) return;
+  uiState.newsletterData = Array.isArray(rows) ? rows : [];
+  if (uiState.newsletterData.length === 0) {
+    list.innerHTML = '<p class="gallery-empty">Inga anmälningar än.</p>';
+    return;
+  }
+  list.innerHTML = `<table class="newsletter-table"><thead><tr><th>E-post</th><th>Status</th><th>Källa</th><th>Språk</th><th>Anmäld</th><th></th></tr></thead><tbody>${uiState.newsletterData
+    .map((row) => `<tr data-id="${Number(row.id)}"><td>${escapeHtml(row.email)}</td><td><span class="artwork-status-badge is-${NEWSLETTER_STATUS_TONE[row.status] || 'available'}">${escapeHtml(NEWSLETTER_STATUS_LABELS[row.status] || row.status)}</span></td><td>${escapeHtml(row.source || '')}</td><td>${escapeHtml(row.language || '')}</td><td>${escapeHtml(formatOrderTimestamp(row.created_at))}</td><td><button type="button" class="btn btn-ghost" data-newsletter-delete>Ta bort</button></td></tr>`)
+    .join('')}</tbody></table>`;
+  list.querySelectorAll('[data-newsletter-delete]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const row = button.closest('tr');
+      const id = Number(row && row.getAttribute('data-id'));
+      if (!id || !window.confirm('Ta bort adressen från listan helt? (Avregistrering behåller raden; det här raderar den.)')) return;
+      try {
+        await apiJson('api/newsletter.php', { method: 'POST', withCsrf: isSecureAuthStudio(), body: { action: 'delete', id } });
+        fetchNewsletterPanel();
+      } catch (error) {
+        setNewsletterStatus(error instanceof Error && error.message ? error.message : 'Kunde inte ta bort.', 'error');
+      }
+    });
+  });
+};
+const fetchNewsletterPanel = async () => {
+  setNewsletterStatus('Hämtar listan...', 'info');
+  try {
+    const response = await apiJson('api/newsletter.php', { method: 'GET', withCsrf: isSecureAuthStudio() });
+    renderNewsletterPanel(response.subscribers);
+    const rows = uiState.newsletterData;
+    setNewsletterStatus(`${confirmedSubscribers().length} bekräftade · ${rows.filter((r) => r.status === 'pending').length} väntar · ${rows.filter((r) => r.status === 'unsubscribed').length} avregistrerade`, 'success');
+  } catch (error) {
+    setNewsletterStatus(error instanceof Error && error.message ? error.message : 'Kunde inte hämta listan.', 'error');
+  }
+};
+const initNewsletterPanel = () => {
+  const { list, refresh, csv, copy } = newsletterEl();
+  if (!list || !refresh) return;
+  refresh.addEventListener('click', () => fetchNewsletterPanel());
+  if (csv) {
+    csv.addEventListener('click', () => {
+      const quote = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`;
+      const lines = [['Email Address', 'Language', 'Source', 'Confirmed', 'Unsubscribe URL'].map(quote).join(',')]
+        .concat(confirmedSubscribers().map((row) => [row.email, row.language, row.source, row.confirmed_at, row.unsubscribe_url].map(quote).join(',')));
+      const blob = new Blob([`\ufeff${lines.join('\r\n')}\r\n`], { type: 'text/csv;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `ateljebrev-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    });
+  }
+  if (copy) {
+    copy.addEventListener('click', async () => {
+      const text = confirmedSubscribers().map((row) => row.email).join(', ');
+      if (!text) {
+        setNewsletterStatus('Inga bekräftade adresser att kopiera.', 'info');
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(text);
+        setNewsletterStatus(`${confirmedSubscribers().length} adresser kopierade. Klistra in som dold kopia (Bcc).`, 'success');
+      } catch (error) {
+        window.prompt('Kopiera adresserna:', text);
+      }
+    });
+  }
+  fetchNewsletterPanel();
+};
 
 const initInquiriesPanel = () => {
   if (!el.inquiriesPanelRefresh || !el.inquiriesPanelFilter || !el.inquiriesPanelList) {
@@ -10237,6 +10333,7 @@ const init = async () => {
     initAnalyticsDashboard();
     initInquiriesPanel();
     initOrdersPanel();
+    initNewsletterPanel();
   } else {
     if (typeof setAnalyticsPanelStatus === 'function') {
       setAnalyticsPanelStatus('Lokalt previewläge: analytics kräver PHP-backend.', 'info');

@@ -7,6 +7,7 @@ declare(strict_types=1);
 require __DIR__ . '/seo.php';
 require_once __DIR__ . '/portfolio_core.php';
 require_once __DIR__ . '/exhibition_core.php';
+require_once __DIR__ . '/api/shop_lib.php';
 
 header('Content-Type: text/plain; charset=utf-8');
 header('Cache-Control: no-cache, no-store, must-revalidate');
@@ -103,6 +104,8 @@ if (($paymentNote = seo_payment_note($payload, 'sv', 'ordernumret')) !== '') {
   $out[] = '- Betalning: ' . $paymentNote;
 }
 $out[] = '- Ångerrätt: ' . seo_withdrawal_note('sv');
+$out[] = '- Presentkort: ' . SHOP_GIFTCARD_MIN . '–' . number_format(SHOP_GIFTCARD_MAX, 0, ',', ' ') . ' kr, gäller två år, skickas med e-post efter betalning. Koden skrivs i kassan; det som inte används sparas på kortet.';
+$out[] = '- Beställningsuppdrag: tas inte emot.';
 $out[] = '- Köp: på verkets sida väljer du original eller printformat och lägger det i kundvagnen. I kassan anger du leveransadress och väljer Swish eller bankkonto. Du får en ordersida med betalningsuppgifter och ordernummer, och ett original reserveras åt dig direkt. Frågor om ett verk kan ställas i formuläret på verkets sida.';
 if ($email !== '') {
   $out[] = '- Kontakt: ' . $email;
@@ -124,6 +127,8 @@ $out[] = '';
 $out[] = '- [Startsida](' . seo_canonical_url('home', 'sv') . '): presentation, artist statement, utställningar och kontakt.';
 $out[] = '- [Galleri](' . seo_canonical_url('gallery', 'sv') . '): alla målningar, filtrerbara på motiv och år.';
 $out[] = '- [100 dagar av sol](' . seo_canonical_url('sun', 'sv') . '): projekt med hundra solakvareller från sommaren 2025. Varje sol kan beställas som Fine Art Print.';
+$out[] = '- [Presentkort](' . seo_canonical_url('giftcard', 'sv') . '): presentkort på valfritt belopp (' . SHOP_GIFTCARD_MIN . '–' . number_format(SHOP_GIFTCARD_MAX, 0, ',', ' ') . ' kr), gäller två år till original, Fine Art Prints och postrar. Skickas med e-post.';
+$out[] = '- [Ateljébrev](' . seo_canonical_url('newsletter', 'sv') . '): e-postbrev om nya målningar och utställningar, några gånger om året.';
 foreach (seo_exhibitions($payload) as $exhibitionIndex => $exhibition) {
   if (!empty($exhibition['enabled'])) {
     $local = seo_exhibition_localized($payload, (int) $exhibitionIndex, $exhibition, 'sv');
@@ -155,6 +160,7 @@ $out[] = '';
 $out[] = '- [Home](' . seo_canonical_url('home', 'en') . '): Ola Gustafsson is a Swedish watercolour artist based in Stockholm, painting landscapes, nature and city views.';
 $out[] = '- [Gallery](' . seo_canonical_url('gallery', 'en') . '): all paintings with size, year, availability and price in SEK.';
 $out[] = '- [100 days of sun](' . seo_canonical_url('sun', 'en') . '): one hundred sun watercolours, each available as a signed fine art print in an edition of ' . SEO_PRINT_EDITION_SIZE . '.';
+$out[] = '- [Gift card](' . seo_canonical_url('giftcard', 'en') . '): gift cards for any amount (' . SHOP_GIFTCARD_MIN . '–' . number_format(SHOP_GIFTCARD_MAX, 0, '.', ',') . ' SEK), valid for two years for originals, fine art prints and posters. Sent by email.';
 foreach (seo_exhibitions($payload) as $exhibitionIndex => $exhibition) {
   if (!empty($exhibition['enabled'])) {
     $local = seo_exhibition_localized($payload, (int) $exhibitionIndex, $exhibition, 'en');

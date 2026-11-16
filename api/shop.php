@@ -6,6 +6,7 @@ declare(strict_types=1);
 // med Swish eller bankgiro utanför sajten; Ola markerar betald i Studio.
 
 require __DIR__ . '/shop_lib.php';
+require_once __DIR__ . '/newsletter_lib.php';
 
 api_require_method('POST');
 
@@ -55,8 +56,17 @@ $customer = [
   'payment' => ($customerRaw['payment'] ?? '') === 'bank' ? 'bank' : 'swish'
 ];
 
+$cartItems = isset($body['items']) && is_array($body['items']) ? array_slice($body['items'], 0, 60) : [];
+try {
+  $lines = shop_resolve_items($pdo, $cartItems, $lang);
+} catch (InvalidArgumentException $error) {
+  api_respond_json(422, ['ok' => false, 'error' => 'invalid_cart', 'message' => $error->getMessage()]);
+}
+// Bara presentkort: inget att skicka, ingen adress behövs.
+$needsAddress = array_filter($lines, static fn (array $line): bool => $line['kind'] !== 'giftcard') !== [];
+
 $missing = [];
-foreach (['name', 'address', 'postal', 'city'] as $field) {
+foreach ($needsAddress ? ['name', 'address', 'postal', 'city'] : ['name'] as $field) {
   if ($customer[$field] === '') {
     $missing[] = $field;
   }
@@ -71,15 +81,11 @@ if ($missing !== []) {
   api_respond_json(422, ['ok' => false, 'error' => 'missing_fields', 'fields' => $missing, 'message' => $t('Fyll i alla uppgifter och godkänn köpvillkoren.', 'Fill in all details and accept the terms.')]);
 }
 
-$cartItems = isset($body['items']) && is_array($body['items']) ? array_slice($body['items'], 0, 60) : [];
+$giftcardCode = isset($body['giftcardCode']) && is_string($body['giftcardCode']) ? trim($body['giftcardCode']) : '';
 try {
-  $lines = shop_resolve_items($pdo, $cartItems, $lang);
+  $order = shop_create_order($pdo, $lines, $customer, $lang, null, $giftcardCode);
 } catch (InvalidArgumentException $error) {
-  api_respond_json(422, ['ok' => false, 'error' => 'invalid_cart', 'message' => $error->getMessage()]);
-}
-
-try {
-  $order = shop_create_order($pdo, $lines, $customer, $lang);
+  api_respond_json(422, ['ok' => false, 'error' => 'invalid_giftcard', 'message' => $error->getMessage()]);
 } catch (Throwable $error) {
   api_respond_json(500, ['ok' => false, 'error' => 'order_failed', 'message' => $t('Beställningen kunde inte sparas. Försök igen om en stund.', 'The order could not be saved. Please try again shortly.')]);
 }
@@ -94,6 +100,23 @@ if ($inquiryIds !== []) {
   $pdo->prepare('UPDATE shop_orders SET admin_note = :note WHERE id = :id')->execute([':note' => $note, ':id' => (int) $order['id']]);
   foreach ($inquiryIds as $inquiryId) {
     $pdo->prepare("UPDATE contact_messages SET follow_up_status = 'replied' WHERE id = :id AND follow_up_status = 'new'")->execute([':id' => $inquiryId]);
+  }
+}
+
+// Presentkortet täcker allt: ordern är betald direkt.
+if (shop_amount_due($order) === 0 && (int) $order['giftcard_sek'] > 0) {
+  try {
+    $order = shop_mark_paid($pdo, $order, 0, 'presentkort', false);
+  } catch (Throwable $error) {
+    // Ordern finns; Ola markerar betald i Studio om det misslyckas.
+  }
+}
+
+if (!empty($body['newsletter']) && filter_var($customer['email'], FILTER_VALIDATE_EMAIL)) {
+  try {
+    newsletter_subscribe($pdo, $customer['email'], $lang, 'kassa', true);
+  } catch (Throwable $error) {
+    // Anmälan till ateljébrevet får inte stoppa beställningen.
   }
 }
 

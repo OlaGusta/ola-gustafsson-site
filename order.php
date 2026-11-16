@@ -35,6 +35,16 @@ $paymentChoice = $order ? shop_payment_choice($order) : 'swish';
 $showSwish = $swishQrUrl !== '' && ($paymentChoice === 'swish' || $paymentDetails['bank'] === '');
 $showBank = $paymentDetails['bank'] !== '' && ($paymentChoice === 'bank' || $swishQrUrl === '');
 $status = $order ? (string) $order['status'] : '';
+$amountDue = $order ? shop_amount_due($order) : 0;
+$giftcardOnly = $order ? shop_order_is_giftcard_only($order) : false;
+$issuedCards = [];
+if ($order && in_array($status, ['paid', 'shipped', 'completed'], true)) {
+  try {
+    $issuedCards = shop_order_giftcards($pdo, (int) $order['id']);
+  } catch (Throwable $error) {
+    $issuedCards = [];
+  }
+}
 ?>
 <!DOCTYPE html>
 <html lang="<?= $h($lang) ?>">
@@ -52,12 +62,12 @@ $status = $order ? (string) $order['status'] : '';
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
       <link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" />
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20261102-01" />
+    <link rel="stylesheet" href="styles.css?v=20261116-01" />
     <script src="overrides.js?v=<?= $h($overridesRevParam) ?>"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <?= seo_currency_rates_script() ?>
     <script src="script.js?v=20261102-02" defer></script>
-    <script src="shop.js?v=20261102-02" defer></script>
+    <script src="shop.js?v=20261116-01" defer></script>
   </head>
   <body id="page-top" data-page="order">
     <header class="site-header" id="top">
@@ -113,7 +123,7 @@ $status = $order ? (string) $order['status'] : '';
                 <?php if ($status === 'pending'): ?>
                   <section class="surface-soft order-pay">
                     <h2><?= $h($t('Så betalar du', 'How to pay')) ?></h2>
-                    <p class="order-pay-amount"><span><?= $h($t('Att betala', 'To pay')) ?></span><strong><?= $h(shop_money((int) $order['total_sek'], $lang)) ?></strong></p>
+                    <p class="order-pay-amount"><span><?= $h($t('Att betala', 'To pay')) ?></span><strong><?= $h(shop_money($amountDue, $lang)) ?></strong></p>
                     <div class="order-pay-grid<?= $showSwish ? '' : ' is-bank-only' ?>">
                       <?php if ($showSwish): ?>
                         <div class="order-pay-swish">
@@ -127,7 +137,7 @@ $status = $order ? (string) $order['status'] : '';
                           <?php if ($paymentDetails['iban'] !== ''): ?>
                             <p><strong><?= $h($t('Från utlandet', 'From abroad')) ?></strong><br />IBAN <?= $h($paymentDetails['iban']) ?><br />BIC <?= $h($paymentDetails['bic']) ?></p>
                           <?php endif; ?>
-                          <p><strong><?= $h($t('Belopp', 'Amount')) ?></strong><br /><?= $h(shop_money((int) $order['total_sek'], $lang)) ?></p>
+                          <p><strong><?= $h($t('Belopp', 'Amount')) ?></strong><br /><?= $h(shop_money($amountDue, $lang)) ?></p>
                         <?php endif; ?>
                         <p><strong><?= $h($t('Meddelande', 'Message')) ?></strong><br /><?= $h($order['order_no']) ?></p>
                         <p class="field-hint"><?= $h($t('Beställningen bekräftas så snart betalningen kommit in. Du får ett mejl när den är registrerad.', 'The order is confirmed as soon as the payment has arrived. You will get an email when it is registered.')) ?></p>
@@ -140,6 +150,18 @@ $status = $order ? (string) $order['status'] : '';
                     </div>
                     <p class="order-cancel-row"><button type="button" class="checkout-remove" data-order-cancel="<?= $h((string) $order['token']) ?>"><?= $h($t('Avbryt beställningen', 'Cancel the order')) ?></button> <span class="field-hint"><?= $h($t('Går så länge den inte är betald. Efter betalning: mejla ola@olagustafsson.com, ångerrätten är 14 dagar från leverans.', 'Possible until it is paid. After payment: email ola@olagustafsson.com; the right of withdrawal is 14 days from delivery.')) ?></span></p>
                   </section>
+                <?php endif; ?>
+                <?php if ($issuedCards !== []): ?>
+                  <section class="surface-soft order-pay">
+                    <h2><?= $h(count($issuedCards) > 1 ? $t('Dina presentkort', 'Your gift cards') : $t('Ditt presentkort', 'Your gift card')) ?></h2>
+                    <ul class="order-giftcards">
+                      <?php foreach ($issuedCards as $card): ?>
+                        <li><a class="btn btn-primary" href="<?= $h('/presentkort/' . $card['token'] . ($lang === 'en' ? '?lang=en' : '')) ?>"><?= $h($t('Öppna presentkortet', 'Open the gift card')) ?> · <?= $h(shop_money((int) $card['amount_sek'], $lang)) ?></a> <span class="field-hint"><?= $h($t('Kod', 'Code')) ?> <?= $h((string) $card['code']) ?>, <?= $h($t('gäller till och med', 'valid until')) ?> <?= $h((string) $card['expires_at']) ?></span></li>
+                      <?php endforeach; ?>
+                    </ul>
+                  </section>
+                <?php endif; ?>
+                <?php if ($status === 'pending' || $giftcardOnly): ?>
                 <?php elseif ($status === 'paid'): ?>
                   <section class="surface-soft order-pay">
                     <h2><?= $h($t('Betalningen är mottagen', 'Payment received')) ?></h2>
@@ -176,8 +198,12 @@ $status = $order ? (string) $order['status'] : '';
                           <td class="order-amount"><?= $h(shop_money((int) $item['unit_sek'] * (int) $item['qty'], $lang)) ?></td>
                         </tr>
                       <?php endforeach; ?>
-                      <tr><td><?= $h($t('Frakt', 'Shipping')) ?></td><td class="order-amount"><?= $h(shop_money((int) $order['shipping_sek'], $lang)) ?></td></tr>
-                      <tr class="order-total"><td><?= $h($t('Att betala', 'Total')) ?></td><td class="order-amount"><?= $h(shop_money((int) $order['total_sek'], $lang)) ?></td></tr>
+                      <?php if (!$giftcardOnly): ?><tr><td><?= $h($t('Frakt', 'Shipping')) ?></td><td class="order-amount"><?= $h(shop_money((int) $order['shipping_sek'], $lang)) ?></td></tr><?php endif; ?>
+                      <?php if ((int) $order['giftcard_sek'] > 0): ?>
+                        <tr><td><?= $h($t('Summa', 'Total')) ?></td><td class="order-amount"><?= $h(shop_money((int) $order['total_sek'], $lang)) ?></td></tr>
+                        <tr><td><?= $h($t('Presentkort', 'Gift card')) ?> <?= $h((string) $order['giftcard_code']) ?></td><td class="order-amount">−<?= $h(shop_money((int) $order['giftcard_sek'], $lang)) ?></td></tr>
+                      <?php endif; ?>
+                      <tr class="order-total"><td><?= $h($t('Att betala', 'To pay')) ?></td><td class="order-amount"><?= $h(shop_money($amountDue, $lang)) ?></td></tr>
                       <tr><td class="order-detail"><?= $h($t('Varav moms', 'Of which VAT')) ?></td><td class="order-amount order-detail"><?= $h(shop_money((int) $order['vat_sek'], $lang)) ?></td></tr>
                     </tbody>
                   </table>
@@ -186,8 +212,11 @@ $status = $order ? (string) $order['status'] : '';
 
               <aside class="order-side">
                 <section class="surface-soft order-address">
-                  <h3><?= $h($t('Levereras till', 'Delivery to')) ?></h3>
-                  <?php if (trim((string) $order['address_line']) !== ''): ?>
+                  <h3><?= $h($giftcardOnly ? $t('Skickas till', 'Sent to') : $t('Levereras till', 'Delivery to')) ?></h3>
+                  <?php if ($giftcardOnly): ?>
+                    <p><?= $h((string) $order['customer_name']) ?></p>
+                    <p class="field-hint"><?= $h($t('Presentkortet skickas med e-post när betalningen kommit in.', 'The gift card is sent by email when the payment has arrived.')) ?></p>
+                  <?php elseif (trim((string) $order['address_line']) !== ''): ?>
                     <p><?= $h((string) $order['customer_name']) ?><br /><?= $h((string) $order['address_line']) ?><br /><?= $h((string) $order['postal_code']) ?> <?= $h((string) $order['city']) ?></p>
                   <?php else: ?>
                     <p><?= $h((string) $order['customer_name']) ?></p>

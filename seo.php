@@ -1167,6 +1167,10 @@ function seo_canonical_url(string $pageType, string $lang): string
     $path = '/100-dagar-av-sol';
   } elseif (strtolower(trim($pageType)) === 'checkout') {
     $path = '/kassa';
+  } elseif (strtolower(trim($pageType)) === 'giftcard') {
+    $path = '/presentkort';
+  } elseif (strtolower(trim($pageType)) === 'newsletter') {
+    $path = '/ateljebrev';
   }
 
   // Keep Swedish/default canonical URLs clean (no lang query) for better social share consistency.

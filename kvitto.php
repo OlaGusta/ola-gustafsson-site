@@ -42,7 +42,14 @@ $fmtDate = static function (?string $value): string {
   }
 };
 $paidMethod = (string) ($order['paid_method'] ?? '');
-$paidMethodLabel = $paidMethod === 'bank' ? $t('bankgiro/bankkonto', 'bank transfer') : ($paidMethod === 'swish' ? 'Swish' : $t('annat sätt', 'other'));
+$paidMethodLabel = $paidMethod === 'bank' ? $t('bankgiro/bankkonto', 'bank transfer') : ($paidMethod === 'swish' ? 'Swish' : ($paidMethod === 'presentkort' ? $t('presentkort', 'gift card') : $t('annat sätt', 'other')));
+$giftcardPaid = (int) ($order['giftcard_sek'] ?? 0);
+$hasGiftcardItem = false;
+foreach ($order['items'] as $item) {
+  if ($item['kind'] === 'giftcard') {
+    $hasGiftcardItem = true;
+  }
+}
 
 // Momsrader per sats.
 $vatByRate = [];
@@ -82,7 +89,7 @@ $pageTitle = sprintf($t('Kvitto %s – Ola Gustafsson', 'Receipt %s – Ola Gust
     <?php if ($fontStylesheetHref !== ''): ?>
       <link href="<?= $h($fontStylesheetHref) ?>" rel="stylesheet" />
     <?php endif; ?>
-    <link rel="stylesheet" href="styles.css?v=20261026-02" />
+    <link rel="stylesheet" href="styles.css?v=20261116-01" />
   </head>
   <body class="receipt-body">
     <main class="receipt">
@@ -132,12 +139,21 @@ $pageTitle = sprintf($t('Kvitto %s – Ola Gustafsson', 'Receipt %s – Ola Gust
         </tbody>
         <tfoot>
           <tr class="receipt-total"><td colspan="3"><?= $h($t('Summa betald, inkl. moms', 'Total paid, incl. VAT')) ?></td><td class="num"><?= $h(shop_money((int) $order['total_sek'], $lang)) ?></td></tr>
+          <?php if ($giftcardPaid > 0): ?>
+            <tr class="receipt-vat"><td colspan="3"><?= $h($t('Varav betalt med presentkort', 'Of which paid with gift card')) ?> <?= $h((string) $order['giftcard_code']) ?></td><td class="num"><?= $h(shop_money($giftcardPaid, $lang)) ?></td></tr>
+            <?php if (shop_amount_due($order) > 0): ?>
+              <tr class="receipt-vat"><td colspan="3"><?= $h($t('Varav betalt via', 'Of which paid by')) ?> <?= $h($paidMethodLabel) ?></td><td class="num"><?= $h(shop_money(shop_amount_due($order), $lang)) ?></td></tr>
+            <?php endif; ?>
+          <?php endif; ?>
           <?php foreach ($vatByRate as $rate => $vat): ?>
             <tr class="receipt-vat"><td colspan="3"><?= $h($t('Varav moms', 'Of which VAT')) ?> <?= (int) $rate ?> % (<?= $h($t('underlag', 'on')) ?> <?= $h(shop_money((int) $netByRate[$rate], $lang)) ?>)</td><td class="num"><?= $h(shop_money((int) $vat, $lang)) ?></td></tr>
           <?php endforeach; ?>
         </tfoot>
       </table>
 
+      <?php if ($hasGiftcardItem): ?>
+        <p class="receipt-note"><?= $h($t('Presentkortet kan lösas in mot både original och print (flerfunktionsvoucher). Därför tas ingen moms ut vid köpet; momsen redovisas på varorna när kortet används.', 'The gift card can be redeemed for both originals and prints (multi-purpose voucher). No VAT is charged on the purchase; VAT is accounted for on the goods when the card is used.')) ?></p>
+      <?php endif; ?>
       <?php if ($hasOriginal): ?>
         <p class="receipt-note"><?= $h($t('Originalverk säljs av upphovsmannen och är undantagna från moms (0 %).', 'Original works are sold by the artist and are exempt from VAT (0 %).')) ?></p>
       <?php endif; ?>

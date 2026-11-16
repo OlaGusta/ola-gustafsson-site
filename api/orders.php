@@ -18,12 +18,17 @@ $pdo = api_get_pdo();
 api_ensure_schema($pdo);
 shop_ensure_schema($pdo);
 
-$present = static function (array $order): array {
+$present = static function (array $order) use ($pdo): array {
   $order['items'] = array_map(static function (array $item): array {
     $item['edition_label'] = shop_edition_label($item);
     return $item;
   }, $order['items']);
   $order['status_label'] = shop_status_label((string) $order['status'], 'sv');
+  $order['amount_due'] = shop_amount_due($order);
+  $order['giftcards'] = array_map(static fn (array $card): array => [
+    'code' => $card['code'], 'amount' => (int) $card['amount_sek'], 'expires' => $card['expires_at'],
+    'url' => shop_giftcard_url($card, (string) $order['language'] === 'en' ? 'en' : 'sv')
+  ], shop_order_giftcards($pdo, (int) $order['id']));
   $order['order_url'] = shop_order_url($order, 'sv');
   return $order;
 };
@@ -108,7 +113,7 @@ if (!$order) {
 try {
   switch ($action) {
     case 'mark_paid':
-      $amount = isset($request['paidAmount']) && is_numeric($request['paidAmount']) ? (int) $request['paidAmount'] : (int) $order['total_sek'];
+      $amount = isset($request['paidAmount']) && is_numeric($request['paidAmount']) ? (int) $request['paidAmount'] : shop_amount_due($order);
       $paymentMethod = isset($request['method']) && is_string($request['method']) ? trim($request['method']) : 'swish';
       $notify = !isset($request['notify']) || (bool) $request['notify'];
       $order = shop_mark_paid($pdo, $order, $amount, in_array($paymentMethod, ['swish', 'bank', 'other'], true) ? $paymentMethod : 'swish', $notify);

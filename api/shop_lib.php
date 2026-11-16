@@ -12,6 +12,12 @@ require_once dirname(__DIR__) . '/portfolio_core.php';
 const SHOP_VAT_RATE_PRINT = 25;
 const SHOP_VAT_RATE_ORIGINAL = 0;
 const SHOP_STATUSES = ['pending', 'paid', 'shipped', 'completed', 'cancelled'];
+// Presentkort: flerfunktionsvoucher (kan lösas in mot original utan moms och print med 25 %),
+// så ingen moms vid försäljningen; momsen redovisas på varorna vid inlösen.
+const SHOP_GIFTCARD_AMOUNTS = [500, 1000, 2000, 3000, 5000];
+const SHOP_GIFTCARD_MIN = 300;
+const SHOP_GIFTCARD_MAX = 20000;
+const SHOP_GIFTCARD_VALID_YEARS = 2;
 
 function shop_ensure_schema(PDO $pdo): void
 {
@@ -74,6 +80,32 @@ CREATE TABLE IF NOT EXISTS shop_order_items (
 SQL
   );
   api_schema_add_column_if_missing($pdo, 'shop_orders', 'payment_choice', "VARCHAR(16) NOT NULL DEFAULT 'swish'");
+  // Presentkort som betalning: koden och hur mycket av ordern det täcker.
+  api_schema_add_column_if_missing($pdo, 'shop_orders', 'giftcard_code', 'VARCHAR(24) NULL');
+  api_schema_add_column_if_missing($pdo, 'shop_orders', 'giftcard_sek', 'INT UNSIGNED NOT NULL DEFAULT 0');
+  // Fria uppgifter per rad (presentkortets mottagare, avsändare, hälsning), som JSON.
+  api_schema_add_column_if_missing($pdo, 'shop_order_items', 'meta', 'TEXT NULL');
+  $pdo->exec(
+    <<<SQL
+CREATE TABLE IF NOT EXISTS shop_giftcards (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  code VARCHAR(24) NOT NULL,
+  token CHAR(40) NOT NULL,
+  amount_sek INT UNSIGNED NOT NULL,
+  order_id BIGINT UNSIGNED NOT NULL,
+  order_item_id BIGINT UNSIGNED NOT NULL,
+  recipient VARCHAR(120) NULL,
+  sender VARCHAR(120) NULL,
+  message VARCHAR(400) NULL,
+  issued_at DATETIME NOT NULL,
+  expires_at DATE NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY shop_giftcards_code_unique (code),
+  UNIQUE KEY shop_giftcards_token_unique (token),
+  INDEX shop_giftcards_order_idx (order_id)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+SQL
+  );
   // Personlig köplänk från en förfrågan: låter just den kunden köpa ett reserverat verk.
   api_schema_add_column_if_missing($pdo, 'contact_messages', 'buy_token', 'VARCHAR(40) NULL');
   api_schema_add_column_if_missing($pdo, 'contact_messages', 'buy_token_expires_at', 'DATETIME NULL');
@@ -104,6 +136,11 @@ function shop_buy_link_url(array $inquiry, string $token): string
 // Leveransblock för mejl. Ordrar som skapas i Studio kan sakna adress.
 function shop_address_text(array $order, string $lang): string
 {
+  if (shop_order_is_giftcard_only($order)) {
+    return $lang === 'en'
+      ? 'The gift card is sent to this email address as soon as the payment has arrived.'
+      : 'Presentkortet skickas till den här e-postadressen så snart betalningen kommit in.';
+  }
   $address = trim((string) ($order['address_line'] ?? ''));
   if ($address === '') {
     return $lang === 'en'
@@ -259,6 +296,20 @@ function shop_resolve_items(PDO $pdo, array $cartItems, string $lang, bool $allo
       continue;
     }
 
+    if ($kind === 'giftcard') {
+      $amount = isset($raw['amount']) && is_numeric($raw['amount']) ? (int) round((float) $raw['amount']) : 0;
+      if ($amount < SHOP_GIFTCARD_MIN || $amount > SHOP_GIFTCARD_MAX) {
+        throw new InvalidArgumentException(sprintf($lang === 'en' ? 'A gift card must be between %s and %s.' : 'Ett presentkort ska vara på mellan %s och %s.', shop_money(SHOP_GIFTCARD_MIN, $lang), shop_money(SHOP_GIFTCARD_MAX, $lang)));
+      }
+      $meta = shop_giftcard_meta($raw);
+      $lines[] = [
+        'kind' => 'giftcard', 'ref' => (string) $amount, 'title' => ($lang === 'en' ? 'Gift card ' : 'Presentkort ') . shop_money($amount, $lang),
+        'detail' => shop_giftcard_detail($meta, $lang),
+        'qty' => min($qty, 10), 'unit' => $amount, 'vat' => 0, 'edition' => null, 'sort' => $sort++, 'meta' => $meta
+      ];
+      continue;
+    }
+
     if ($kind === 'extra' && $allowReserved) {
       // Fri rad från Studio: ram, montering, serviceavgift. Pris inkl. 25 % moms.
       $title = isset($raw['title']) && is_string($raw['title']) ? trim($raw['title']) : '';
@@ -369,7 +420,8 @@ function shop_resolve_items(PDO $pdo, array $cartItems, string $lang, bool $allo
   return $lines;
 }
 
-// Summor: frakt 150 kr per beställning, 250 kr om en ram ingår, 99 kr om ordern bara innehåller postrar.
+// Summor: frakt 150 kr per beställning, 250 kr om en ram ingår, 99 kr om ordern bara innehåller postrar,
+// ingen frakt om ordern bara innehåller presentkort.
 // Frakten följer momsen på varorna: 25 % om något i ordern är momspliktigt, annars
 // momsfri (bara original).
 function shop_totals(array $lines, ?int $shippingOverride = null): array
@@ -387,8 +439,10 @@ function shop_totals(array $lines, ?int $shippingOverride = null): array
       $taxable = true;
     }
   }
-  $posterOnly = $lines !== [] && array_reduce($lines, static fn (bool $carry, array $line): bool => $carry && $line['kind'] === 'poster', true);
-  $shipping = (int) ($posterOnly ? $cfg['shippingPoster'] : $cfg['shippingPrint']);
+  // Presentkort skickas med e-post och påverkar inte frakten.
+  $physical = array_values(array_filter($lines, static fn (array $line): bool => $line['kind'] !== 'giftcard'));
+  $posterOnly = $physical !== [] && array_reduce($physical, static fn (bool $carry, array $line): bool => $carry && $line['kind'] === 'poster', true);
+  $shipping = $physical === [] ? 0 : (int) ($posterOnly ? $cfg['shippingPoster'] : $cfg['shippingPrint']);
   foreach ($lines as $line) {
     if ($line['kind'] === 'original') {
       $shipping = max($shipping, (int) $cfg['shippingOriginalSmall']);
@@ -409,6 +463,184 @@ function shop_totals(array $lines, ?int $shippingOverride = null): array
     'total' => $subtotal + $shipping,
     'vat' => $vat
   ];
+}
+
+// ---- Presentkort ---------------------------------------------------------
+
+function shop_giftcard_meta(array $raw): array
+{
+  $clean = static function ($value, int $max): string {
+    $value = is_string($value) ? trim(preg_replace('/[ \t]+/u', ' ', $value) ?? '') : '';
+    return function_exists('mb_substr') ? (string) mb_substr($value, 0, $max) : substr($value, 0, $max);
+  };
+  return [
+    'to' => $clean($raw['to'] ?? '', 120),
+    'from' => $clean($raw['from'] ?? '', 120),
+    'message' => $clean($raw['message'] ?? '', 400)
+  ];
+}
+
+function shop_giftcard_detail(array $meta, string $lang): string
+{
+  $parts = [$lang === 'en' ? 'Sent by email' : 'Skickas med e-post'];
+  if (($meta['to'] ?? '') !== '') {
+    $parts[] = ($lang === 'en' ? 'to ' : 'till ') . $meta['to'];
+  }
+  return implode(', ', $parts);
+}
+
+// "ab12 cd34-ef56" -> "AB12-CD34-EF56". Tom sträng om formatet inte stämmer.
+function shop_normalize_giftcard_code(string $code): string
+{
+  $plain = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $code) ?? '');
+  if (strlen($plain) !== 12) {
+    return '';
+  }
+  return implode('-', str_split($plain, 4));
+}
+
+function shop_generate_giftcard_code(): string
+{
+  $alphabet = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+  $out = '';
+  for ($i = 0; $i < 12; $i++) {
+    $out .= $alphabet[random_int(0, strlen($alphabet) - 1)];
+  }
+  return implode('-', str_split($out, 4));
+}
+
+function shop_giftcard_url(array $card, string $lang = 'sv'): string
+{
+  $url = seo_base_url() . '/presentkort/' . $card['token'];
+  return $lang === 'en' ? $url . '?lang=en' : $url;
+}
+
+// Använt belopp: summan av presentkortsdelen i alla ordrar som inte är avbrutna.
+function shop_giftcard_used(PDO $pdo, string $code, int $exceptOrderId = 0): int
+{
+  $stmt = $pdo->prepare("SELECT COALESCE(SUM(giftcard_sek), 0) FROM shop_orders WHERE giftcard_code = :code AND status <> 'cancelled' AND id <> :id");
+  $stmt->execute([':code' => $code, ':id' => $exceptOrderId]);
+  return (int) $stmt->fetchColumn();
+}
+
+// Kortet med saldo, eller null. $lock låser raden (inom en transaktion) mot dubbelinlösen.
+function shop_giftcard_find(PDO $pdo, string $code, bool $lock = false): ?array
+{
+  $code = shop_normalize_giftcard_code($code);
+  if ($code === '') {
+    return null;
+  }
+  $stmt = $pdo->prepare('SELECT * FROM shop_giftcards WHERE code = :code LIMIT 1' . ($lock ? ' FOR UPDATE' : ''));
+  $stmt->execute([':code' => $code]);
+  $card = $stmt->fetch();
+  if (!is_array($card)) {
+    return null;
+  }
+  $card['balance'] = max(0, (int) $card['amount_sek'] - shop_giftcard_used($pdo, $code));
+  $card['expired'] = strtotime((string) $card['expires_at'] . ' 23:59:59') < time();
+  return $card;
+}
+
+function shop_find_giftcard_by_token(PDO $pdo, string $token): ?array
+{
+  if (preg_match('/^[a-f0-9]{40}$/', $token) !== 1) {
+    return null;
+  }
+  $stmt = $pdo->prepare('SELECT code FROM shop_giftcards WHERE token = :token LIMIT 1');
+  $stmt->execute([':token' => $token]);
+  $code = $stmt->fetchColumn();
+  return is_string($code) ? shop_giftcard_find($pdo, $code) : null;
+}
+
+function shop_order_giftcards(PDO $pdo, int $orderId): array
+{
+  $stmt = $pdo->prepare('SELECT * FROM shop_giftcards WHERE order_id = :id ORDER BY id ASC');
+  $stmt->execute([':id' => $orderId]);
+  $rows = $stmt->fetchAll();
+  return is_array($rows) ? $rows : [];
+}
+
+// Det kunden ska betala: ordersumman minus presentkortet.
+function shop_amount_due(array $order): int
+{
+  return max(0, (int) $order['total_sek'] - (int) ($order['giftcard_sek'] ?? 0));
+}
+
+function shop_order_is_giftcard_only(array $order): bool
+{
+  $items = $order['items'] ?? [];
+  return $items !== [] && array_reduce($items, static fn (bool $carry, array $item): bool => $carry && $item['kind'] === 'giftcard', true);
+}
+
+// Vid betalning: ett kort per köpt exemplar, giltigt SHOP_GIFTCARD_VALID_YEARS år.
+function shop_issue_giftcards(PDO $pdo, array $order): array
+{
+  $existing = shop_order_giftcards($pdo, (int) $order['id']);
+  if ($existing !== []) {
+    return $existing;
+  }
+  $insert = $pdo->prepare(
+    'INSERT INTO shop_giftcards (code, token, amount_sek, order_id, order_item_id, recipient, sender, message, issued_at, expires_at)
+     VALUES (:code, :token, :amount, :order_id, :item_id, :recipient, :sender, :message, UTC_TIMESTAMP(), :expires)'
+  );
+  $expires = date('Y-m-d', strtotime('+' . SHOP_GIFTCARD_VALID_YEARS . ' years'));
+  foreach ($order['items'] as $item) {
+    if ($item['kind'] !== 'giftcard') {
+      continue;
+    }
+    $meta = json_decode((string) ($item['meta'] ?? ''), true);
+    $meta = is_array($meta) ? $meta : [];
+    for ($n = 0; $n < max(1, (int) $item['qty']); $n++) {
+      for ($attempt = 0; $attempt < 5; $attempt++) {
+        try {
+          $insert->execute([
+            ':code' => shop_generate_giftcard_code(),
+            ':token' => bin2hex(random_bytes(20)),
+            ':amount' => (int) $item['unit_sek'],
+            ':order_id' => (int) $order['id'],
+            ':item_id' => (int) $item['id'],
+            ':recipient' => ($meta['to'] ?? '') !== '' ? $meta['to'] : null,
+            ':sender' => ($meta['from'] ?? '') !== '' ? $meta['from'] : null,
+            ':message' => ($meta['message'] ?? '') !== '' ? $meta['message'] : null,
+            ':expires' => $expires
+          ]);
+          break;
+        } catch (PDOException $error) {
+          if ($attempt === 4) {
+            throw $error;
+          }
+        }
+      }
+    }
+  }
+  return shop_order_giftcards($pdo, (int) $order['id']);
+}
+
+// Ångra betald eller avbryt: korten dras tillbaka, men inte om något redan använts.
+function shop_revoke_giftcards(PDO $pdo, array $order): void
+{
+  $cards = shop_order_giftcards($pdo, (int) $order['id']);
+  foreach ($cards as $card) {
+    if (shop_giftcard_used($pdo, (string) $card['code']) > 0) {
+      throw new InvalidArgumentException('Presentkortet ' . $card['code'] . ' har redan använts och kan inte dras tillbaka.');
+    }
+  }
+  $pdo->prepare('DELETE FROM shop_giftcards WHERE order_id = :id')->execute([':id' => (int) $order['id']]);
+}
+
+function shop_giftcards_mail_text(array $cards, string $lang): string
+{
+  $out = [];
+  foreach ($cards as $card) {
+    $out[] = sprintf(
+      $lang === 'en' ? "Gift card %s, code %s, valid until %s:\n%s" : "Presentkort på %s, kod %s, gäller till och med %s:\n%s",
+      shop_money((int) $card['amount_sek'], $lang),
+      $card['code'],
+      $card['expires_at'],
+      shop_giftcard_url($card, $lang)
+    );
+  }
+  return implode("\n\n", $out);
 }
 
 function shop_next_order_no(PDO $pdo): string
@@ -559,6 +791,11 @@ function shop_mark_paid(PDO $pdo, array $order, int $paidAmount, string $method,
       }
     }
   }
+  $cards = shop_issue_giftcards($pdo, shop_find_order_by_id($pdo, (int) $order['id']) ?? $order);
+  // Bara presentkort: inget att packa, ordern är klar när korten är utfärdade.
+  if (shop_order_is_giftcard_only($order)) {
+    $pdo->prepare('UPDATE shop_orders SET status = \'completed\' WHERE id = :id')->execute([':id' => (int) $order['id']]);
+  }
   $updated = shop_find_order_by_id($pdo, (int) $order['id']) ?? $order;
   $lang = $updated['language'] === 'en' ? 'en' : 'sv';
   $url = shop_order_url($updated, $lang);
@@ -566,10 +803,24 @@ function shop_mark_paid(PDO $pdo, array $order, int $paidAmount, string $method,
   if (!$notify) {
     return $updated;
   }
+  $cardsText = $cards !== []
+    ? ($lang === 'en'
+      ? "Your gift card" . (count($cards) > 1 ? 's are' : ' is') . " ready. Open the link to print it or forward it to the recipient:\n\n"
+      : "Ditt presentkort är klart" . (count($cards) > 1 ? ' (' . count($cards) . ' st)' : '') . ". Öppna länken för att skriva ut det eller skicka det vidare till mottagaren:\n\n")
+      . shop_giftcards_mail_text($cards, $lang) . "\n\n"
+    : '';
+  if (shop_order_is_giftcard_only($updated)) {
+    $body = $lang === 'en'
+      ? "Hi {$updated['customer_name']},\n\nThank you, your payment for order {$updated['order_no']} has arrived.\n\n{$cardsText}The code is used in the checkout at olagustafsson.com.\n\nOla Gustafsson\nola@olagustafsson.com"
+      : "Hej {$updated['customer_name']},\n\nTack, din betalning för beställning {$updated['order_no']} har kommit in.\n\n{$cardsText}Koden används i kassan på olagustafsson.com.\n\nOla Gustafsson\nola@olagustafsson.com";
+    $subject = $lang === 'en' ? "Your gift card – order {$updated['order_no']}" : "Ditt presentkort – beställning {$updated['order_no']}";
+    api_security_send_mail($updated['customer_email'], $subject, $body, api_security_contact_recipient());
+    return $updated;
+  }
   $addressText = shop_address_text($updated, $lang);
-  $body = $lang === 'en'
-    ? "Hi {$updated['customer_name']},\n\nThank you, your payment for order {$updated['order_no']} has arrived.\n\n{$summary}\n\nThe order is now being prepared.\n{$addressText}\n\nYou will get another email with the tracking number when it is on its way. Order page: {$url}\n\nOla Gustafsson\nola@olagustafsson.com"
-    : "Hej {$updated['customer_name']},\n\nTack, din betalning för beställning {$updated['order_no']} har kommit in.\n\n{$summary}\n\nBeställningen görs nu i ordning.\n{$addressText}\n\nDu får ett nytt mejl med spårningsnummer när den är på väg. Ordersida: {$url}\n\nOla Gustafsson\nola@olagustafsson.com";
+  $body = ($lang === 'en'
+    ? "Hi {$updated['customer_name']},\n\nThank you, your payment for order {$updated['order_no']} has arrived.\n\n{$summary}\n\n{$cardsText}The order is now being prepared.\n{$addressText}\n\nYou will get another email with the tracking number when it is on its way. Order page: {$url}\n\nOla Gustafsson\nola@olagustafsson.com"
+    : "Hej {$updated['customer_name']},\n\nTack, din betalning för beställning {$updated['order_no']} har kommit in.\n\n{$summary}\n\n{$cardsText}Beställningen görs nu i ordning.\n{$addressText}\n\nDu får ett nytt mejl med spårningsnummer när den är på väg. Ordersida: {$url}\n\nOla Gustafsson\nola@olagustafsson.com");
   $subject = $lang === 'en' ? "Payment received – order {$updated['order_no']}" : "Betalning mottagen – beställning {$updated['order_no']}";
   api_security_send_mail($updated['customer_email'], $subject, $body, api_security_contact_recipient());
   return $updated;
@@ -582,6 +833,7 @@ function shop_unmark_paid(PDO $pdo, array $order): array
   if ($order['status'] !== 'paid') {
     throw new InvalidArgumentException('Bara betalda, ännu inte skickade, ordrar kan ångras.');
   }
+  shop_revoke_giftcards($pdo, $order);
   $pdo->prepare('UPDATE shop_orders SET status = \'pending\', paid_sek = NULL, paid_method = NULL, paid_at = NULL WHERE id = :id')
     ->execute([':id' => (int) $order['id']]);
   foreach ($order['items'] as $item) {
@@ -623,6 +875,7 @@ function shop_cancel_order(PDO $pdo, array $order): array
   if (in_array($order['status'], ['cancelled', 'completed'], true)) {
     throw new InvalidArgumentException('Ordern kan inte avbrytas.');
   }
+  shop_revoke_giftcards($pdo, $order);
   $pdo->prepare('UPDATE shop_orders SET status = \'cancelled\', cancelled_at = UTC_TIMESTAMP() WHERE id = :id')
     ->execute([':id' => (int) $order['id']]);
   foreach ($order['items'] as $item) {
@@ -684,8 +937,14 @@ function shop_order_summary_text(array $order, string $lang): string
     $label = (int) $item['qty'] > 1 ? sprintf('%d × %s', (int) $item['qty'], $item['title']) : $item['title'];
     $out[] = sprintf('%s%s – %s', $label, $item['detail'] ? ' (' . $item['detail'] . ')' : '', shop_money($amount, $lang));
   }
-  $out[] = sprintf('%s – %s', $lang === 'en' ? 'Shipping' : 'Frakt', shop_money((int) $order['shipping_sek'], $lang));
-  $out[] = sprintf('%s: %s', $lang === 'en' ? 'Total' : 'Att betala', shop_money((int) $order['total_sek'], $lang));
+  if (!shop_order_is_giftcard_only($order)) {
+    $out[] = sprintf('%s – %s', $lang === 'en' ? 'Shipping' : 'Frakt', shop_money((int) $order['shipping_sek'], $lang));
+  }
+  if ((int) ($order['giftcard_sek'] ?? 0) > 0) {
+    $out[] = sprintf('%s: %s', $lang === 'en' ? 'Total' : 'Summa', shop_money((int) $order['total_sek'], $lang));
+    $out[] = sprintf('%s %s – −%s', $lang === 'en' ? 'Gift card' : 'Presentkort', $order['giftcard_code'], shop_money((int) $order['giftcard_sek'], $lang));
+  }
+  $out[] = sprintf('%s: %s', $lang === 'en' ? 'To pay' : 'Att betala', shop_money(shop_amount_due($order), $lang));
   $out[] = sprintf('%s: %s', $lang === 'en' ? 'Of which VAT' : 'Varav moms', shop_money((int) $order['vat_sek'], $lang));
   return implode("\n", $out);
 }
@@ -707,6 +966,7 @@ function shop_customer_order_mail(array $order, string $lang, string $intro = ''
       . ($details['iban'] !== '' ? sprintf($lang === 'en' ? ' (from abroad: IBAN %s, BIC %s)' : ' (från utlandet: IBAN %s, BIC %s)', $details['iban'], $details['bic']) : '');
   }
   $payText = $pay !== [] ? implode($lang === 'en' ? ' or ' : ' eller ', $pay) : '';
+  $due = shop_amount_due($order);
   // Börjar inledningen med en egen hälsning ("Hej Kerstin!") används ingen automatisk.
   $hasOwnGreeting = preg_match('/^\s*(hej|hejsan|hallå|tjena|hi|hello|dear|god\s+(morgon|dag|kväll))\b/iu', $intro) === 1;
   $greeting = $hasOwnGreeting ? '' : ($lang === 'en' ? "Hi {$order['customer_name']},\n\n" : "Hej {$order['customer_name']},\n\n");
@@ -714,8 +974,10 @@ function shop_customer_order_mail(array $order, string $lang, string $intro = ''
   if ($lang === 'en') {
     $customerSubject = sprintf('Order %s – Ola Gustafsson', $order['order_no']);
     $customerBody = $greeting . ($intro !== '' ? $intro : 'Thank you for your order.') . "\n\n{$summary}\n\n"
-      . "Pay by {$payText}. Write {$order['order_no']} as the message, and the order is confirmed as soon as the payment has arrived.\n"
-      . ($choice === 'swish' ? "On the order page there is a Swish code with the amount and order number filled in.\n\n" : "\n")
+      . ($due > 0
+        ? "Pay " . shop_money($due, 'en') . " by {$payText}. Write {$order['order_no']} as the message, and the order is confirmed as soon as the payment has arrived.\n"
+          . ($choice === 'swish' ? "On the order page there is a Swish code with the amount and order number filled in.\n\n" : "\n")
+        : "The gift card covers the whole amount, so there is nothing more to pay.\n\n")
       . "Order page with status and payment details: {$url}\n\n"
       . shop_address_text($order, 'en') . "\n\n"
       . "As a private customer you have a 14-day right of withdrawal from the day you receive the work.\n\nOla Gustafsson\nola@olagustafsson.com";
@@ -723,8 +985,10 @@ function shop_customer_order_mail(array $order, string $lang, string $intro = ''
   }
     $customerSubject = sprintf('Beställning %s – Ola Gustafsson', $order['order_no']);
     $customerBody = $greeting . ($intro !== '' ? $intro : 'Tack för din beställning.') . "\n\n{$summary}\n\n"
-      . "Betala med {$payText}. Skriv {$order['order_no']} som meddelande, så bekräftas beställningen så snart betalningen kommit in.\n"
-      . ($choice === 'swish' ? "På ordersidan finns en Swish-kod med belopp och ordernummer ifyllda.\n\n" : "\n")
+      . ($due > 0
+        ? "Betala " . shop_money($due, 'sv') . " med {$payText}. Skriv {$order['order_no']} som meddelande, så bekräftas beställningen så snart betalningen kommit in.\n"
+          . ($choice === 'swish' ? "På ordersidan finns en Swish-kod med belopp och ordernummer ifyllda.\n\n" : "\n")
+        : "Presentkortet täcker hela beloppet, så det finns inget mer att betala.\n\n")
       . "Ordersidan med status och betalningsuppgifter: {$url}\n\n"
       . shop_address_text($order, 'sv') . "\n\n"
       . "Som privatperson har du 14 dagars ångerrätt från att du tagit emot verket.\n\nOla Gustafsson\nola@olagustafsson.com";
@@ -746,7 +1010,10 @@ function shop_send_order_mails(array $order, string $lang, bool $notifyCustomer 
     . "Kund: {$order['customer_name']} <{$order['customer_email']}>" . ($order['customer_phone'] ? ", {$order['customer_phone']}" : '') . "\n"
     . "Adress: " . (trim((string) $order['address_line']) !== '' ? "{$order['address_line']}, {$order['postal_code']} {$order['city']}" : 'saknas, kunden ombeds svara med adress') . "\n"
     . ($order['note'] ? "Meddelande: {$order['note']}\n" : '')
-    . "\nStatus: väntar på betalning. Markera betald i Studio när pengarna kommit in.\n"
+    . ((int) ($order['giftcard_sek'] ?? 0) > 0 ? "Presentkort {$order['giftcard_code']}: " . shop_money((int) $order['giftcard_sek']) . "\n" : '')
+    . (shop_amount_due($order) === 0 && (int) ($order['giftcard_sek'] ?? 0) > 0
+      ? "\nStatus: betald med presentkort. Packa och skicka.\n"
+      : "\nStatus: väntar på betalning (" . shop_money(shop_amount_due($order)) . "). Markera betald i Studio när pengarna kommit in.\n")
     . "Ordersida: " . shop_order_url($order, 'sv') . "\n";
   api_security_send_mail(api_security_contact_recipient(), "Ny beställning {$order['order_no']} – " . shop_money((int) $order['total_sek']), $adminBody, $order['customer_email']);
 
@@ -772,19 +1039,34 @@ function shop_preview_order(array $lines, array $customer, string $lang, ?int $s
 }
 
 // Skapar ordern i en transaktion, reserverar original, tilldelar upplagenummer.
-function shop_create_order(PDO $pdo, array $lines, array $customer, string $lang, ?int $shippingOverride = null): array
+function shop_create_order(PDO $pdo, array $lines, array $customer, string $lang, ?int $shippingOverride = null, string $giftcardCode = ''): array
 {
   $totals = shop_totals($lines, $shippingOverride);
   $token = bin2hex(random_bytes(20));
 
   $pdo->beginTransaction();
   try {
+    $giftcardApplied = 0;
+    $giftcardNormalized = '';
+    if (trim($giftcardCode) !== '') {
+      $card = shop_giftcard_find($pdo, $giftcardCode, true);
+      if (!$card || $card['expired'] || $card['balance'] <= 0) {
+        throw new InvalidArgumentException($lang === 'en' ? 'The gift card is not valid or has no balance left.' : 'Presentkortet är inte giltigt eller har inget saldo kvar.');
+      }
+      foreach ($lines as $line) {
+        if ($line['kind'] === 'giftcard') {
+          throw new InvalidArgumentException($lang === 'en' ? 'A gift card cannot be paid with a gift card.' : 'Ett presentkort kan inte betalas med ett presentkort.');
+        }
+      }
+      $giftcardNormalized = (string) $card['code'];
+      $giftcardApplied = min((int) $card['balance'], (int) $totals['total']);
+    }
     $orderNo = shop_next_order_no($pdo);
     $stmt = $pdo->prepare(
       'INSERT INTO shop_orders (order_no, token, status, language, customer_name, customer_email, customer_phone, address_line, postal_code, city, country, note,
-        subtotal_sek, shipping_sek, shipping_vat_rate, total_sek, vat_sek, ip_hash, payment_choice)
+        subtotal_sek, shipping_sek, shipping_vat_rate, total_sek, vat_sek, ip_hash, payment_choice, giftcard_code, giftcard_sek)
        VALUES (:order_no, :token, \'pending\', :language, :name, :email, :phone, :address, :postal, :city, \'SE\', :note,
-        :subtotal, :shipping, :shipping_vat_rate, :total, :vat, :ip_hash, :payment_choice)'
+        :subtotal, :shipping, :shipping_vat_rate, :total, :vat, :ip_hash, :payment_choice, :giftcard_code, :giftcard_sek)'
     );
     $stmt->execute([
       ':order_no' => $orderNo,
@@ -803,13 +1085,15 @@ function shop_create_order(PDO $pdo, array $lines, array $customer, string $lang
       ':total' => $totals['total'],
       ':vat' => $totals['vat'],
       ':ip_hash' => api_security_hash('ip:' . api_security_client_ip()),
-      ':payment_choice' => ($customer['payment'] ?? '') === 'bank' ? 'bank' : 'swish'
+      ':payment_choice' => ($customer['payment'] ?? '') === 'bank' ? 'bank' : 'swish',
+      ':giftcard_code' => $giftcardNormalized !== '' ? $giftcardNormalized : null,
+      ':giftcard_sek' => $giftcardApplied
     ]);
     $orderId = (int) $pdo->lastInsertId();
 
     $itemStmt = $pdo->prepare(
-      'INSERT INTO shop_order_items (order_id, kind, ref, title, detail, qty, unit_sek, vat_rate, edition_no, sort)
-       VALUES (:order_id, :kind, :ref, :title, :detail, :qty, :unit, :vat, :edition, :sort)'
+      'INSERT INTO shop_order_items (order_id, kind, ref, title, detail, qty, unit_sek, vat_rate, edition_no, sort, meta)
+       VALUES (:order_id, :kind, :ref, :title, :detail, :qty, :unit, :vat, :edition, :sort, :meta)'
     );
     foreach ($lines as $line) {
       $edition = null;
@@ -826,7 +1110,8 @@ function shop_create_order(PDO $pdo, array $lines, array $customer, string $lang
         ':unit' => $line['unit'],
         ':vat' => $line['vat'],
         ':edition' => $edition,
-        ':sort' => $line['sort']
+        ':sort' => $line['sort'],
+        ':meta' => isset($line['meta']) && is_array($line['meta']) ? json_encode($line['meta'], JSON_UNESCAPED_UNICODE) : null
       ]);
     }
     $pdo->commit();

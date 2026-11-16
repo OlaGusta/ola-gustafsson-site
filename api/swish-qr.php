@@ -30,12 +30,12 @@ if (!is_string($payee) || $payee === '') {
 }
 
 $cacheDir = dirname(__DIR__) . '/cache/swish-qr';
-$cacheFile = $cacheDir . '/' . $order['order_no'] . '-' . (int) $order['total_sek'] . '.png';
+$cacheFile = $cacheDir . '/' . $order['order_no'] . '-' . shop_amount_due($order) . '.png';
 if (!is_file($cacheFile)) {
   if (!is_dir($cacheDir)) {
     @mkdir($cacheDir, 0755, true);
   }
-  $png = shop_fetch_swish_qr($payee, (int) $order['total_sek'], (string) $order['order_no']);
+  $png = shop_fetch_swish_qr($payee, shop_amount_due($order), (string) $order['order_no']);
   if ($png === '') {
     http_response_code(503);
     exit;

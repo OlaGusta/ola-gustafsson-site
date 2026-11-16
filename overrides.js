@@ -174,6 +174,8 @@ window.PORTFOLIO_OVERRIDES = {
             "Hur lång är leveranstiden? Print görs på beställning och skickas normalt inom några dagar. Beställer du ram tar det cirka en vecka till. Original skickas när betalningen kommit in.",
             "Har jag ångerrätt? Ja. Som privatperson har du 14 dagars ångerrätt från att du tagit emot verket. Meddela mig inom den tiden och skicka tillbaka verket oskadat; returfrakten betalar du själv. Jag betalar tillbaka när verket kommit fram.",
             "Går solarna i 100 dagar av sol att köpa? Ja, som Fine Art Print. Alla hundra solar kan beställas var för sig, i olika format, på sidan 100 dagar av sol. Originalen är inte till salu.",
+            "Tar du beställningsuppdrag? Nej, jag tar inte beställningar. Det som finns att köpa är originalen i galleriet och printarna. Vill du veta när det kommer nya målningar kan du anmäla dig till ateljébrevet.",
+            "Finns det presentkort? Ja. Du väljer belopp på sidan Presentkort och betalar med Swish eller bankkonto. När betalningen kommit in får du presentkortet med e-post, med en kod som mottagaren skriver i kassan. Det gäller i två år och kan användas till original, Fine Art Prints och postrar. Det som inte används sparas på kortet.",
             "Hur kommer jag i kontakt med dig? Mejla ola@olagustafsson.com eller skriv på Instagram, @holagustafsson. För frågor om ett visst verk finns ett formulär på verkets sida."
         ],
         "sideNote": "",
@@ -474,7 +476,7 @@ window.PORTFOLIO_OVERRIDES = {
             {
                 "src": "images/img-4691.webp",
                 "title": "Vårdag i Bologna",
-                "format": "38 x 56",
+                "format": "38 x 56 cm",
                 "medium": "Akvarell på papper",
                 "alt": "Stadscen från smågator i Bologna i varmt gul-orange och blå-violetta skuggor",
                 "seoTitle": "",
@@ -491,7 +493,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "addedAt": 1793626322228,
                 "zoom": 1,
                 "objectPosition": "center center",
-                "priceLabel": "4500 kr",
+                "priceLabel": "5 400 kr",
                 "slug": "vardag-i-bologna"
             },
             {
@@ -2498,7 +2500,7 @@ window.PORTFOLIO_OVERRIDES = {
                 "featured": false,
                 "year": 2024,
                 "order": 82,
-                "format": "56 x 38",
+                "format": "56 x 38 cm",
                 "slug": "utklippan-karlskrona",
                 "seoTitle": "Utklippan, Karlskrona | Hav och klippor i akvarell",
                 "seoDescription": "Akvarell av Utklippan utanför Karlskrona med mörka klippor, hav och grått ljus. 56 x 38 cm, 2024. Originalmålning av Ola Gustafsson.",
@@ -3116,7 +3118,7 @@ window.PORTFOLIO_OVERRIDES = {
                     "images/ola-20.jpg": {
                         "title": "Utklippan, Karlskrona",
                         "alt": "Wavy sea with dark rocks and flying seagulls in grey light.",
-                        "format": "56 x 38",
+                        "format": "56 x 38 cm",
                         "medium": "Watercolor on paper",
                         "seoTitle": "Utklippan, Karlskrona | Sea and Cliffs in Watercolor",
                         "seoDescription": "Watercolor of Utklippan off Karlskrona with dark rocks, sea, and grey light. 56 x 38 cm, 2024. Original painting by Ola Gustafsson.",
@@ -4300,8 +4302,8 @@ window.PORTFOLIO_OVERRIDES = {
                     },
                     "images/img-4691.webp": {
                         "title": "Spring Day in Bologna",
-                        "format": "38 x 56",
-                        "priceLabel": "4500 kr",
+                        "format": "38 x 56 cm",
+                        "priceLabel": "5 400 SEK",
                         "alt": "City scene from small streets in Bologna in warm yellow-orange tones and blue-violet shadows"
                     }
                 },
@@ -4369,6 +4371,8 @@ window.PORTFOLIO_OVERRIDES = {
                     "How long is the delivery time? Prints are made to order and usually ship within a few days. If you order a frame, add about a week. Originals ship once payment has arrived.",
                     "Do I have a right of withdrawal? Yes. As a private customer you have 14 days from the day you receive the work. Let me know within that time and return the work undamaged; you pay the return shipping. I refund when the work has arrived.",
                     "Can I buy the suns from 100 days of sun? Yes, as fine art prints. All one hundred suns can be ordered individually, in different sizes, on the 100 days of sun page. The originals are not for sale.",
+                    "Do you take commissions? No, I do not take commissions. What is for sale are the originals in the gallery and the prints. To hear about new paintings, sign up for the studio letter.",
+                    "Do you sell gift cards? Yes. Choose an amount on the Gift card page and pay by Swish or bank transfer. When the payment has arrived you get the gift card by email, with a code the recipient enters at checkout. It is valid for two years and can be used for originals, fine art prints and posters. Any unused amount stays on the card.",
                     "How do I get in touch? Email ola@olagustafsson.com or write on Instagram, @holagustafsson. For questions about a specific work there is a form on its page."
                 ]
             },
@@ -5170,11 +5174,6 @@ window.PORTFOLIO_OVERRIDES = {
                         "translatedValue": "Can I buy the suns from 100 days of sun? Yes, as fine art prints. All one hundred suns can be ordered individually, in different sizes, on the 100 days of sun page. The originals are not for sale.",
                         "updatedAt": "2026-10-04T07:40:14.514Z"
                     },
-                    "array:about.faqItems[11]": {
-                        "sourceHash": "e5622f3e",
-                        "translatedValue": "How do I get in touch? Email ola@olagustafsson.com or write on Instagram, @holagustafsson. For questions about a specific work there is a form on its page.",
-                        "updatedAt": "2026-10-04T07:40:14.514Z"
-                    },
                     "array:about.ambitions[1]": {
                         "sourceHash": "af3f134a",
                         "translatedValue": "Exhibition 17 October – 1 November with Le Venezie Watercolour 2026 in Treviso, Italy.",
@@ -5359,6 +5358,21 @@ window.PORTFOLIO_OVERRIDES = {
                         "sourceHash": "b96271c",
                         "translatedValue": "Winter in Humlan | Winter landscape in watercolour",
                         "updatedAt": "2026-11-02T13:39:31.403Z"
+                    },
+                    "array:about.faqItems[13]": {
+                        "sourceHash": "e5622f3e",
+                        "translatedValue": "How do I get in touch? Email ola@olagustafsson.com or write on Instagram, @holagustafsson. For questions about a specific work there is a form on its page.",
+                        "updatedAt": "2026-10-04T07:40:14.514Z"
+                    },
+                    "array:about.faqItems[11]": {
+                        "sourceHash": "c2eee59a",
+                        "translatedValue": "Do you take commissions? No, I do not take commissions. What is for sale are the originals in the gallery and the prints. To hear about new paintings, sign up for the studio letter.",
+                        "updatedAt": "2026-11-16T13:50:24.000Z"
+                    },
+                    "array:about.faqItems[12]": {
+                        "sourceHash": "6f50df5e",
+                        "translatedValue": "Do you sell gift cards? Yes. Choose an amount on the Gift card page and pay by Swish or bank transfer. When the payment has arrived you get the gift card by email, with a code the recipient enters at checkout. It is valid for two years and can be used for originals, fine art prints and posters. Any unused amount stays on the card.",
+                        "updatedAt": "2026-11-16T13:50:24.000Z"
                     }
                 }
             },

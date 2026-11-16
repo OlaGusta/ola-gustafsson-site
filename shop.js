@@ -35,12 +35,12 @@
     // Ett original kan bara ligga en gång; prints och solar slås ihop per format och ram.
     add: (newItems) => {
       const items = memoryCart.slice();
-      const itemKey = (item) => `${item.kind}:${item.ref}:${item.size || ''}:${item.frame || ''}`;
+      const itemKey = (item) => `${item.kind}:${item.ref}:${item.size || ''}:${item.frame || ''}:${item.id || ''}`;
       newItems.forEach((entry) => {
         const key = itemKey(entry);
         const existing = items.find((item) => itemKey(item) === key);
         if (existing) {
-          if (entry.kind === 'original') {
+          if (entry.kind === 'original' || entry.kind === 'giftcard') {
             existing.mat = Boolean(entry.mat);
           } else {
             existing.qty = Math.min(20, (Number(existing.qty) || 1) + (Number(entry.qty) || 1));
@@ -142,6 +142,43 @@
       });
     });
 
+    // Presentkortssidan: belopp, mottagare, avsändare och hälsning.
+    const giftForm = document.getElementById('giftcard-form');
+    if (giftForm) {
+      giftForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const data = new FormData(giftForm);
+        const choice = String(data.get('amount') || '');
+        const amount = choice === 'custom' ? Math.round(Number(data.get('customAmount')) || 0) : Number(choice);
+        const status = document.getElementById('giftcard-status');
+        if (!(amount >= 300 && amount <= 20000)) {
+          if (status) {
+            status.textContent = T('Välj ett belopp mellan 300 och 20 000 kr.', 'Choose an amount between 300 and 20,000 SEK.');
+            status.dataset.kind = 'error';
+          }
+          return;
+        }
+        cart.add([{
+          kind: 'giftcard',
+          ref: String(amount),
+          amount,
+          to: String(data.get('to') || '').trim().slice(0, 120),
+          from: String(data.get('from') || '').trim().slice(0, 120),
+          message: String(data.get('message') || '').trim().slice(0, 400),
+          id: Date.now().toString(36),
+          qty: 1
+        }]);
+        window.location.href = withLang('/kassa');
+      });
+      const custom = giftForm.querySelector('input[name="customAmount"]');
+      if (custom) {
+        custom.addEventListener('focus', () => {
+          const radio = giftForm.querySelector('input[name="amount"][value="custom"]');
+          if (radio) radio.checked = true;
+        });
+      }
+    }
+
     // Solsidan: formuläret "Till kassan" läser de markerade solarna från sol.js.
     const sunForm = document.getElementById('sun-order-form');
     if (sunForm) {
@@ -229,6 +266,16 @@
           }
           return;
         }
+        if (item.kind === 'giftcard') {
+          const amount = Math.round(Number(item.amount || item.ref) || 0);
+          if (!(amount >= 300 && amount <= 20000)) {
+            problems.push({ index, text: T('Presentkortets belopp är ogiltigt.', 'The gift card amount is not valid.') });
+            return;
+          }
+          const detail = [T('Skickas med e-post', 'Sent by email'), item.to ? `${T('till', 'to')} ${item.to}` : ''].filter(Boolean).join(', ');
+          lines.push({ index, kind: 'giftcard', title: `${T('Presentkort', 'Gift card')} ${money(amount)}`, detail, qty: Math.max(1, Number(item.qty) || 1), unit: amount, vat: 0 });
+          return;
+        }
         if (item.kind === 'poster') {
           const poster = catalog.poster || {};
           if (!poster.enabled || !(Number(poster.available) > 0)) {
@@ -276,15 +323,60 @@
           vat += Math.round(amount - amount / 1.25);
         }
       });
-      const posterOnly = lines.length > 0 && lines.every((line) => line.kind === 'poster');
-      let shipping = lines.length ? (posterOnly ? catalog.shippingPoster : catalog.shippingPrint) : 0;
+      const physical = lines.filter((line) => line.kind !== 'giftcard');
+      const posterOnly = physical.length > 0 && physical.every((line) => line.kind === 'poster');
+      let shipping = physical.length ? (posterOnly ? catalog.shippingPoster : catalog.shippingPrint) : 0;
       if (lines.some((line) => line.kind === 'frame')) {
         shipping = Math.max(shipping, Number(catalog.shippingFramed) || 0);
       }
       if (taxable) {
         vat += Math.round(shipping - shipping / 1.25);
       }
-      return { subtotal, shipping, total: subtotal + shipping, vat };
+      const total = subtotal + shipping;
+      const giftcardUsed = appliedGiftcard && !lines.some((line) => line.kind === 'giftcard') ? Math.min(appliedGiftcard.balance, total) : 0;
+      return { subtotal, shipping, total, vat, giftcardUsed, due: total - giftcardUsed, physical: physical.length > 0 };
+    };
+
+    // Inlöst presentkort i kassan: {code, balance}. Sparas för sessionen.
+    const GIFTCARD_STORE = 'ola-checkout-giftcard';
+    let appliedGiftcard = null;
+    try {
+      const stored = JSON.parse(window.sessionStorage.getItem(GIFTCARD_STORE) || 'null');
+      if (stored && typeof stored.code === 'string' && Number(stored.balance) > 0) {
+        appliedGiftcard = { code: stored.code, balance: Number(stored.balance) };
+      }
+    } catch (error) { /* ingen lagring */ }
+    const setGiftcard = (value) => {
+      appliedGiftcard = value;
+      try {
+        if (value) window.sessionStorage.setItem(GIFTCARD_STORE, JSON.stringify(value));
+        else window.sessionStorage.removeItem(GIFTCARD_STORE);
+      } catch (error) { /* ingen lagring */ }
+    };
+    const checkGiftcard = async (code, statusNode) => {
+      try {
+        const response = await fetch('api/giftcard.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ code, language: lang })
+        });
+        const payload = await response.json().catch(() => null);
+        if (!response.ok || !payload || payload.ok !== true) {
+          if (statusNode) {
+            statusNode.textContent = payload && payload.message ? payload.message : T('Koden kunde inte kontrolleras.', 'The code could not be checked.');
+            statusNode.dataset.kind = 'error';
+          }
+          return;
+        }
+        setGiftcard({ code: payload.code, balance: Number(payload.balance) || 0 });
+        render();
+      } catch (error) {
+        if (statusNode) {
+          statusNode.textContent = T('Nätverksfel. Försök igen.', 'Network error. Please try again.');
+          statusNode.dataset.kind = 'error';
+        }
+      }
     };
 
     // Kassan visar kronor (det som betalas). Har besökaren valt € eller $ (script.js) visas
@@ -305,7 +397,7 @@
       const { lines, problems } = resolveLines();
       const sums = totals(lines);
       if (lines.length === 0 && problems.length === 0) {
-        app.innerHTML = `<div class="checkout-empty surface-soft"><p>${esc(T('Kundvagnen är tom.', 'Your cart is empty.'))}</p><p><a class="btn btn-primary" href="${esc(withLang('/gallery.html'))}">${esc(T('Till galleriet', 'To the gallery'))}</a> <a class="btn btn-ghost" href="${esc(withLang('/100-dagar-av-sol'))}">${esc(T('100 dagar av sol', '100 days of sun'))}</a></p></div>`;
+        app.innerHTML = `<div class="checkout-empty surface-soft"><p>${esc(T('Kundvagnen är tom.', 'Your cart is empty.'))}</p><p><a class="btn btn-primary" href="${esc(withLang('/gallery.html'))}">${esc(T('Till galleriet', 'To the gallery'))}</a> <a class="btn btn-ghost" href="${esc(withLang('/100-dagar-av-sol'))}">${esc(T('100 dagar av sol', '100 days of sun'))}</a> <a class="btn btn-ghost" href="${esc(withLang('/presentkort'))}">${esc(T('Presentkort', 'Gift card'))}</a></p></div>`;
         return;
       }
       const rows = lines
@@ -328,6 +420,10 @@
         .map((problem) => `<li class="checkout-line is-problem"><div class="checkout-line-body"><strong>${esc(problem.text)}</strong></div><button type="button" class="checkout-remove" data-remove-index="${problem.index}">${esc(T('Ta bort', 'Remove'))}</button></li>`)
         .join('');
       const canOrder = lines.length > 0 && problems.length === 0;
+      const hasGiftcardLines = lines.some((line) => line.kind === 'giftcard');
+      if (hasGiftcardLines && appliedGiftcard) {
+        setGiftcard(null);
+      }
       app.innerHTML = `
         <div class="checkout-layout">
           <section class="checkout-cart">
@@ -335,30 +431,34 @@
             <ul class="checkout-lines">${rows}${problemRows}</ul>
             <dl class="checkout-sums">
               <div><dt>${esc(T('Varor', 'Items'))}</dt><dd>${esc(money(sums.subtotal))}</dd></div>
-              <div><dt>${esc(T('Frakt inom Sverige', 'Shipping within Sweden'))}</dt><dd>${esc(money(sums.shipping))}</dd></div>
-              <div class="checkout-sum-total"><dt>${esc(T('Att betala', 'To pay'))}</dt><dd>${esc(money(sums.total))}</dd></div>
+              ${sums.physical ? `<div><dt>${esc(T('Frakt inom Sverige', 'Shipping within Sweden'))}</dt><dd>${esc(money(sums.shipping))}</dd></div>` : ''}
+              ${sums.giftcardUsed > 0 ? `<div><dt>${esc(T('Summa', 'Total'))}</dt><dd>${esc(money(sums.total))}</dd></div><div class="checkout-sum-giftcard"><dt>${esc(T('Presentkort', 'Gift card'))} ${esc(appliedGiftcard.code)} <button type="button" class="checkout-remove" data-giftcard-remove>${esc(T('Ta bort', 'Remove'))}</button></dt><dd>−${esc(money(sums.giftcardUsed))}</dd></div>` : ''}
+              <div class="checkout-sum-total"><dt>${esc(T('Att betala', 'To pay'))}</dt><dd>${esc(money(sums.due))}</dd></div>
               <div class="checkout-sum-vat"><dt>${esc(T('Varav moms', 'Of which VAT'))}</dt><dd>${esc(money(sums.vat))}</dd></div>
             </dl>
-            ${currencyNote(sums.total)}
-            <p class="field-hint">${esc(T(`Original är momsfria konstverk. Print, ram, passepartout och frakt har 25 % moms. Frakten är ${money(catalog.shippingFramed)} när en ram ingår. Vill du ha en annan ram, skriv det i meddelandet. Ram till original, hämtning och leverans utanför Sverige ordnas på förfrågan: mejla ola@olagustafsson.com.`, `Originals are VAT-exempt works of art. Prints, frames, mats and shipping carry 25% VAT. Shipping is ${money(catalog.shippingFramed)} when a frame is included. Want a different frame? Write it in the message. Frames for originals, pickup and delivery outside Sweden are arranged on request: email ola@olagustafsson.com.`))}</p>
+            ${sums.giftcardUsed > 0 && appliedGiftcard.balance > sums.giftcardUsed ? `<p class="field-hint">${esc(T(`Kvar på presentkortet efter köpet: ${money(appliedGiftcard.balance - sums.giftcardUsed)}.`, `Left on the gift card after this purchase: ${money(appliedGiftcard.balance - sums.giftcardUsed)}.`))}</p>` : ''}
+            ${!hasGiftcardLines && !appliedGiftcard ? `<details class="checkout-giftcard"><summary>${esc(T('Har du ett presentkort?', 'Have a gift card?'))}</summary><div class="checkout-giftcard-row"><input type="text" id="checkout-giftcard-code" placeholder="XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" aria-label="${esc(T('Presentkortets kod', 'Gift card code'))}" /><button type="button" class="btn btn-ghost" data-giftcard-apply>${esc(T('Använd', 'Apply'))}</button></div><p id="checkout-giftcard-status" class="contact-form-status" data-kind="info" aria-live="polite"></p></details>` : ''}
+            ${currencyNote(sums.due)}
+            <p class="field-hint" ${sums.physical ? '' : 'hidden'}>${esc(T(`Original är momsfria konstverk. Print, ram, passepartout och frakt har 25 % moms. Frakten är ${money(catalog.shippingFramed)} när en ram ingår. Vill du ha en annan ram, skriv det i meddelandet. Ram till original, hämtning och leverans utanför Sverige ordnas på förfrågan: mejla ola@olagustafsson.com.`, `Originals are VAT-exempt works of art. Prints, frames, mats and shipping carry 25% VAT. Shipping is ${money(catalog.shippingFramed)} when a frame is included. Want a different frame? Write it in the message. Frames for originals, pickup and delivery outside Sweden are arranged on request: email ola@olagustafsson.com.`))}</p>
           </section>
           <form class="checkout-form contact-form surface-soft" id="checkout-form" novalidate ${canOrder ? '' : 'hidden'}>
             <h2>${esc(T('Dina uppgifter', 'Your details'))}</h2>
             <label>${esc(T('Namn', 'Name'))}<input type="text" name="name" autocomplete="name" required /></label>
             <label>${esc(T('E-post', 'Email'))}<input type="email" name="email" autocomplete="email" required /></label>
-            <label>${esc(T('Telefon', 'Phone'))} <small>${esc(T('(för aviseringen)', '(for delivery notice)'))}</small><input type="tel" name="phone" autocomplete="tel" /></label>
-            <label>${esc(T('Gatuadress', 'Street address'))}<input type="text" name="address" autocomplete="street-address" required /></label>
+            ${sums.physical ? `<label>${esc(T('Telefon', 'Phone'))} <small>${esc(T('(för aviseringen)', '(for delivery notice)'))}</small><input type="tel" name="phone" autocomplete="tel" /></label>` : ''}
+            ${sums.physical ? `<label>${esc(T('Gatuadress', 'Street address'))}<input type="text" name="address" autocomplete="street-address" required /></label>
             <div class="checkout-form-row">
               <label>${esc(T('Postnummer', 'Postal code'))}<input type="text" name="postal" autocomplete="postal-code" inputmode="numeric" required /></label>
               <label>${esc(T('Ort', 'City'))}<input type="text" name="city" autocomplete="address-level2" required /></label>
-            </div>
+            </div>` : `<p class="field-hint">${esc(T('Presentkortet skickas till din e-postadress när betalningen kommit in. Ingen adress behövs.', 'The gift card is sent to your email address when the payment has arrived. No address needed.'))}</p>`}
             <label>${esc(T('Meddelande', 'Message'))} <small>${esc(T('(valfritt)', '(optional)'))}</small><textarea name="note" rows="3"></textarea></label>
-            <fieldset class="checkout-payment">
+            <fieldset class="checkout-payment" ${sums.due > 0 ? '' : 'hidden'}>
               <legend>${esc(T('Betalsätt', 'Payment method'))}</legend>
               ${app.dataset.swish ? `<label class="checkout-payment-option"><input type="radio" name="payment" value="swish" checked /> <span><strong>Swish</strong><small>${esc(T('Du får en Swish-kod med belopp och ordernummer ifyllda.', 'You get a Swish code with the amount and order number filled in.'))}</small></span></label>` : ''}
               ${app.dataset.bank ? `<label class="checkout-payment-option"><input type="radio" name="payment" value="bank" ${app.dataset.swish ? '' : 'checked'} /> <span><strong>${esc(T('Bankkonto', 'Bank transfer'))}</strong><small>${esc(T('Överföring till', 'Transfer to'))} ${esc(app.dataset.bank)}. ${esc(T('Ordernumret som meddelande.', 'Order number as the message.'))}${app.dataset.iban ? ` ${esc(T('Från utlandet', 'From abroad'))}: IBAN ${esc(app.dataset.iban)}, BIC ${esc(app.dataset.bic)}.` : ''}</small></span></label>` : ''}
             </fieldset>
             <label class="contact-honeypot" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+            <label class="checkout-terms"><input type="checkbox" name="newsletter" /> <span>${esc(T('Skicka mig ateljébrevet om nya målningar och utställningar, några gånger om året.', 'Send me the studio letter about new paintings and exhibitions, a few times a year.'))}</span></label>
             <label class="checkout-terms"><input type="checkbox" name="terms" required /> <span>${esc(T('Jag godkänner köpvillkoren: betalning med Swish eller bankgiro inom 7 dagar, leverans inom Sverige, 14 dagars ångerrätt från mottagandet.', 'I accept the terms: payment by Swish or bank transfer within 7 days, delivery within Sweden, 14-day right of withdrawal from receipt.'))} <a href="${esc(app.dataset.termsUrl || '/#faq')}" target="_blank" rel="noopener">${esc(T('Läs mer', 'Read more'))}</a></span></label>
             <div id="checkout-turnstile" class="contact-turnstile" hidden></div>
             <p class="field-hint">${esc(T('När du skickat beställningen får du betalningsuppgifter med Swish-kod direkt på skärmen och i ett mejl. Ordern bekräftas när betalningen kommit in.', 'After sending the order you get payment details with a Swish code on screen and by email. The order is confirmed when the payment has arrived.'))}</p>
@@ -366,6 +466,19 @@
             <p id="checkout-status" class="contact-form-status" data-kind="info" aria-live="polite"></p>
           </form>
         </div>`;
+
+      const giftApply = app.querySelector('[data-giftcard-apply]');
+      if (giftApply) {
+        const input = document.getElementById('checkout-giftcard-code');
+        const go = () => {
+          const code = String(input && input.value || '').trim();
+          if (code) checkGiftcard(code, document.getElementById('checkout-giftcard-status'));
+        };
+        giftApply.addEventListener('click', go);
+        if (input) input.addEventListener('keydown', (event) => { if (event.key === 'Enter') { event.preventDefault(); go(); } });
+      }
+      const giftRemove = app.querySelector('[data-giftcard-remove]');
+      if (giftRemove) giftRemove.addEventListener('click', () => { setGiftcard(null); render(); });
 
       app.querySelectorAll('[data-remove-index]').forEach((button) => button.addEventListener('click', () => { cart.remove(Number(button.dataset.removeIndex)); render(); }));
       app.querySelectorAll('[data-qty-index]').forEach((input) => input.addEventListener('change', () => { cart.update(Number(input.dataset.qtyIndex), { qty: Math.max(1, Math.min(20, Number(input.value) || 1)) }); render(); }));
@@ -376,7 +489,7 @@
       if (form && canOrder) {
         restoreCustomer(form);
         form.addEventListener('input', () => saveCustomer(form));
-        form.addEventListener('submit', (event) => submitOrder(event, form, lines));
+        form.addEventListener('submit', (event) => submitOrder(event, form, sums));
         mountTurnstile();
       }
     };
@@ -459,15 +572,15 @@
       document.head.appendChild(script);
     };
 
-    const submitOrder = async (event, form, lines) => {
+    const submitOrder = async (event, form, sums) => {
       event.preventDefault();
       if (submitting) {
         return;
       }
       const data = new FormData(form);
       const customer = Object.fromEntries(['name', 'email', 'phone', 'address', 'postal', 'city', 'note', 'payment'].map((key) => [key, String(data.get(key) || '').trim()]));
-      if (!customer.name || !customer.email || !customer.address || !customer.postal || !customer.city) {
-        setStatus(T('Fyll i namn, e-post och leveransadress.', 'Fill in name, email and delivery address.'), 'error');
+      if (!customer.name || !customer.email || (sums.physical && (!customer.address || !customer.postal || !customer.city))) {
+        setStatus(sums.physical ? T('Fyll i namn, e-post och leveransadress.', 'Fill in name, email and delivery address.') : T('Fyll i namn och e-post.', 'Fill in name and email.'), 'error');
         return;
       }
       if (!data.get('terms')) {
@@ -492,6 +605,8 @@
             items: cart.items(),
             customer,
             acceptTerms: true,
+            newsletter: Boolean(data.get('newsletter')),
+            giftcardCode: sums.giftcardUsed > 0 && appliedGiftcard ? appliedGiftcard.code : '',
             website: String(data.get('website') || ''),
             elapsedMs: Date.now() - mountedAt,
             turnstileToken
@@ -507,10 +622,12 @@
             try { window.turnstile.reset(); } catch (error) { /* ignorera */ }
             turnstileToken = '';
           }
+          if (payload && payload.error === 'invalid_giftcard') { setGiftcard(null); render(); setStatus(message, 'error'); }
           if (payload && payload.error === 'invalid_cart') render();
           return;
         }
         cart.clear();
+        setGiftcard(null);
         try { window.sessionStorage.removeItem(CUSTOMER_STORE); } catch (error) { /* ignorera */ }
         window.location.href = payload.path || payload.url;
       } catch (error) {
@@ -555,8 +672,79 @@
     });
   };
 
+  // ---- Ateljébrevet ---------------------------------------------------------
+  // Anmälningsrutor: i sidfoten på publika sidor och i [data-newsletter-slot]
+  // (sålda verk, /ateljebrev). Dubbel bekräftelse sköts av api/newsletter.php.
+  const NEWSLETTER_PITCH = T(
+    'Några gånger om året skickar jag ett brev om nya målningar och utställningar. Nya original visar jag i brevet innan de kommer ut på sajten.',
+    'A few times a year I send a letter about new paintings and exhibitions. New originals are shown in the letter before they appear on the site.'
+  );
+  const newsletterForm = (variant, source) => {
+    const unsubscribe = variant === 'unsubscribe';
+    const heading = variant === 'footer'
+      ? `<h2 class="newsletter-heading">${esc(T('Ateljébrev', 'Studio letter'))}</h2><p class="newsletter-pitch">${esc(NEWSLETTER_PITCH)}</p>`
+      : variant === 'sold'
+        ? `<p class="newsletter-pitch">${esc(T('Vill du veta när jag målar något liknande? Anmäl dig till ateljébrevet. Nya original visar jag där innan de kommer ut på sajten.', 'Want to know when I paint something similar? Sign up for the studio letter. New originals are shown there before they appear on the site.'))}</p>`
+        : '';
+    return `<form class="newsletter-form newsletter-form-${esc(variant)}" novalidate data-newsletter-form data-action="${unsubscribe ? 'unsubscribe_request' : 'subscribe'}" data-source="${esc(source)}">
+      ${heading}
+      <div class="newsletter-row">
+        <input type="email" name="email" required autocomplete="email" placeholder="${esc(T('Din e-postadress', 'Your email address'))}" aria-label="${esc(T('E-postadress', 'Email address'))}" />
+        <button type="submit" class="btn btn-primary">${esc(unsubscribe ? T('Skicka länk', 'Send link') : T('Anmäl mig', 'Sign me up'))}</button>
+      </div>
+      <label class="contact-honeypot" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+      <p class="contact-form-status newsletter-status" data-kind="info" aria-live="polite"></p>
+    </form>`;
+  };
+  const bindNewsletterForm = (form) => {
+    const mountedAt = Date.now();
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const status = form.querySelector('.newsletter-status');
+      const setNote = (text, kind) => { if (status) { status.textContent = text; status.dataset.kind = kind; } };
+      const data = new FormData(form);
+      const email = String(data.get('email') || '').trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        setNote(T('Skriv en giltig e-postadress.', 'Enter a valid email address.'), 'error');
+        return;
+      }
+      const button = form.querySelector('button[type="submit"]');
+      if (button) button.disabled = true;
+      try {
+        const response = await fetch('api/newsletter.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ action: form.dataset.action, email, language: lang, source: form.dataset.source || '', website: String(data.get('website') || ''), elapsedMs: Date.now() - mountedAt })
+        });
+        const payload = await response.json().catch(() => null);
+        setNote(payload && payload.message ? payload.message : T('Något gick fel. Försök igen.', 'Something went wrong. Please try again.'), response.ok && payload && payload.ok ? 'success' : 'error');
+        if (response.ok && payload && payload.ok) form.reset();
+      } catch (error) {
+        setNote(T('Nätverksfel. Försök igen.', 'Network error. Please try again.'), 'error');
+      }
+      if (button) button.disabled = false;
+    });
+  };
+  const initNewsletter = () => {
+    document.querySelectorAll('[data-newsletter-pitch]').forEach((node) => { node.textContent = NEWSLETTER_PITCH; });
+    document.querySelectorAll('[data-newsletter-slot]').forEach((slot) => {
+      slot.innerHTML = newsletterForm(slot.dataset.newsletterSlot || 'page', slot.dataset.newsletterSource || '');
+    });
+    const page = document.body.dataset.page || '';
+    const footer = document.querySelector('.site-footer');
+    if (footer && !['checkout', 'order', 'giftcard-card', 'newsletter'].includes(page) && !document.querySelector('[data-newsletter-slot="sold"]')) {
+      const block = document.createElement('div');
+      block.className = 'container footer-newsletter';
+      block.innerHTML = newsletterForm('footer', `sidfot:${page || 'sida'}`);
+      footer.prepend(block);
+    }
+    document.querySelectorAll('[data-newsletter-form]').forEach(bindNewsletterForm);
+  };
+
   const start = () => {
     renderCartLink();
+    initNewsletter();
     bindAddButtons();
     initCheckout();
     initOrderCancel();
