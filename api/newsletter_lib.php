@@ -4,7 +4,9 @@ declare(strict_types=1);
 // Ateljébrevet: e-postlista med dubbel bekräftelse. Anmälan från sajten blir
 // 'pending' tills mottagaren klickat på länken i bekräftelsemejlet. Kryss i kassan
 // räknas som bekräftat (adressen är redan använd för beställningen).
-// Utskick görs utanför sajten; Studio → Ateljébrev listar och exporterar adresserna.
+// Utskick görs i Mailchimp. Bekräftade adresser förs över direkt (newsletter_mailchimp_*),
+// avregistreringar går åt båda hållen (api/mailchimp-webhook.php tar emot Mailchimps).
+// Studio → Ateljébrev listar, synkar om och exporterar CSV som reserv.
 
 require_once __DIR__ . '/bootstrap.php';
 require_once dirname(__DIR__) . '/seo.php';
@@ -26,12 +28,131 @@ CREATE TABLE IF NOT EXISTS newsletter_subscribers (
   ip_hash CHAR(64) NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  mailchimp_synced_at DATETIME NULL,
+  mailchimp_error VARCHAR(255) NULL,
   UNIQUE KEY newsletter_email_unique (email),
   UNIQUE KEY newsletter_token_unique (token),
   INDEX newsletter_status_idx (status, created_at)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 SQL
   );
+  api_schema_add_column_if_missing($pdo, 'newsletter_subscribers', 'mailchimp_synced_at', 'DATETIME NULL');
+  api_schema_add_column_if_missing($pdo, 'newsletter_subscribers', 'mailchimp_error', 'VARCHAR(255) NULL');
+}
+
+// ---- Mailchimp ---------------------------------------------------------------
+// Konfiguration i .db-config.php: 'mailchimp' => ['apiKey' => '…-us18', 'listId' => '…', 'webhookSecret' => '…'].
+function newsletter_mailchimp_config(): array
+{
+  $db = api_load_db_config();
+  $cfg = isset($db['mailchimp']) && is_array($db['mailchimp']) ? $db['mailchimp'] : [];
+  $apiKey = trim((string) ($cfg['apiKey'] ?? getenv('MAILCHIMP_API_KEY') ?: ''));
+  $dc = str_contains($apiKey, '-') ? substr($apiKey, strrpos($apiKey, '-') + 1) : '';
+  return [
+    'apiKey' => $apiKey,
+    'listId' => trim((string) ($cfg['listId'] ?? '')),
+    'webhookSecret' => trim((string) ($cfg['webhookSecret'] ?? '')),
+    'base' => $dc !== '' ? "https://{$dc}.api.mailchimp.com/3.0" : '',
+    'enabled' => $apiKey !== '' && $dc !== '' && trim((string) ($cfg['listId'] ?? '')) !== ''
+  ];
+}
+
+// Anrop mot Mailchimp. Returnerar [httpStatus, svar som array]. Status 0 = nätverksfel.
+function newsletter_mailchimp_request(string $method, string $path, ?array $body = null): array
+{
+  $cfg = newsletter_mailchimp_config();
+  if (!$cfg['enabled'] || !function_exists('curl_init')) {
+    return [0, ['detail' => 'Mailchimp är inte konfigurerat.']];
+  }
+  $ch = curl_init($cfg['base'] . $path);
+  if ($ch === false) {
+    return [0, ['detail' => 'curl kunde inte starta.']];
+  }
+  $options = [
+    CURLOPT_CUSTOMREQUEST => $method,
+    CURLOPT_USERPWD => 'ola-site:' . $cfg['apiKey'],
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_CONNECTTIMEOUT => 5,
+    CURLOPT_TIMEOUT => 12,
+    CURLOPT_HTTPHEADER => ['Content-Type: application/json']
+  ];
+  if ($body !== null) {
+    $options[CURLOPT_POSTFIELDS] = json_encode($body, JSON_UNESCAPED_UNICODE);
+  }
+  curl_setopt_array($ch, $options);
+  $raw = curl_exec($ch);
+  $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+  $decoded = is_string($raw) ? json_decode($raw, true) : null;
+  return [$status, is_array($decoded) ? $decoded : []];
+}
+
+function newsletter_mailchimp_member_path(string $email): string
+{
+  $cfg = newsletter_mailchimp_config();
+  return '/lists/' . rawurlencode($cfg['listId']) . '/members/' . md5(strtolower(trim($email)));
+}
+
+// För över en rad till Mailchimp enligt sajtens status och sparar resultatet på raden.
+// Bekräftad = subscribed (redan dubbelt bekräftad på sajten, så inget nytt mejl från Mailchimp).
+// Avregistrerad = unsubscribed om personen finns där. Väntande skickas inte.
+function newsletter_mailchimp_sync(PDO $pdo, array $row): bool
+{
+  if (!newsletter_mailchimp_config()['enabled']) {
+    return false;
+  }
+  $email = (string) $row['email'];
+  $status = (string) $row['status'];
+  if ($status === 'confirmed') {
+    [$code, $response] = newsletter_mailchimp_request('PUT', newsletter_mailchimp_member_path($email), [
+      'email_address' => $email,
+      'status_if_new' => 'subscribed',
+      'status' => 'subscribed',
+      'language' => (string) $row['language'] === 'en' ? 'en' : 'sv',
+      'merge_fields' => ['LANG' => (string) $row['language'], 'SOURCE' => (string) $row['source']]
+    ]);
+  } elseif ($status === 'unsubscribed') {
+    [$code, $response] = newsletter_mailchimp_request('PATCH', newsletter_mailchimp_member_path($email), ['status' => 'unsubscribed']);
+    if ($code === 404) {
+      $code = 200;
+    }
+  } else {
+    return false;
+  }
+  $ok = $code >= 200 && $code < 300;
+  $error = $ok ? null : substr(trim((string) ($response['title'] ?? 'Fel') . ': ' . (string) ($response['detail'] ?? "HTTP {$code}")), 0, 250);
+  $pdo->prepare('UPDATE newsletter_subscribers SET mailchimp_synced_at = ' . ($ok ? 'UTC_TIMESTAMP()' : 'mailchimp_synced_at') . ', mailchimp_error = :error WHERE id = :id')
+    ->execute([':error' => $error, ':id' => (int) $row['id']]);
+  return $ok;
+}
+
+function newsletter_mailchimp_sync_email(PDO $pdo, string $email): bool
+{
+  $row = newsletter_find_by_email($pdo, strtolower(trim($email)));
+  if (!$row) {
+    return false;
+  }
+  try {
+    return newsletter_mailchimp_sync($pdo, $row);
+  } catch (Throwable $error) {
+    return false;
+  }
+}
+
+// Alla bekräftade och avregistrerade, t.ex. första gången eller efter ett avbrott.
+function newsletter_mailchimp_sync_all(PDO $pdo): array
+{
+  newsletter_ensure_schema($pdo);
+  $rows = $pdo->query("SELECT * FROM newsletter_subscribers WHERE status IN ('confirmed', 'unsubscribed') ORDER BY id")->fetchAll() ?: [];
+  $result = ['ok' => 0, 'failed' => 0, 'errors' => []];
+  foreach ($rows as $row) {
+    if (newsletter_mailchimp_sync($pdo, $row)) {
+      $result['ok']++;
+    } else {
+      $result['failed']++;
+      $result['errors'][] = $row['email'];
+    }
+  }
+  return $result;
 }
 
 function newsletter_url(string $path, string $lang): string
@@ -87,6 +208,7 @@ function newsletter_subscribe(PDO $pdo, string $email, string $lang, string $sou
   }
   if ($confirmed) {
     $pdo->prepare('UPDATE newsletter_subscribers SET status = \'confirmed\', confirmed_at = UTC_TIMESTAMP() WHERE id = :id')->execute([':id' => (int) $row['id']]);
+    newsletter_mailchimp_sync_email($pdo, $email);
     return 'confirmed';
   }
   // Högst ett bekräftelsemejl per adress och 10 minuter.
@@ -109,14 +231,19 @@ function newsletter_confirm(PDO $pdo, array $row): void
   if ($row['status'] !== 'confirmed') {
     $pdo->prepare('UPDATE newsletter_subscribers SET status = \'confirmed\', confirmed_at = UTC_TIMESTAMP(), unsubscribed_at = NULL WHERE id = :id')
       ->execute([':id' => (int) $row['id']]);
+    newsletter_mailchimp_sync_email($pdo, (string) $row['email']);
     api_security_send_mail(api_security_contact_recipient(), 'Ny läsare av ateljébrevet', "{$row['email']} bekräftade ateljébrevet (källa: " . ($row['source'] !== '' ? $row['source'] : 'okänd') . ").\n");
   }
 }
 
-function newsletter_unsubscribe(PDO $pdo, array $row): void
+// $fromMailchimp: avregistreringen kom från Mailchimp (webhook), skicka den inte tillbaka.
+function newsletter_unsubscribe(PDO $pdo, array $row, bool $fromMailchimp = false): void
 {
-  $pdo->prepare('UPDATE newsletter_subscribers SET status = \'unsubscribed\', unsubscribed_at = UTC_TIMESTAMP() WHERE id = :id')
+  $pdo->prepare('UPDATE newsletter_subscribers SET status = \'unsubscribed\', unsubscribed_at = UTC_TIMESTAMP()' . ($fromMailchimp ? ', mailchimp_synced_at = UTC_TIMESTAMP(), mailchimp_error = NULL' : '') . ' WHERE id = :id')
     ->execute([':id' => (int) $row['id']]);
+  if (!$fromMailchimp) {
+    newsletter_mailchimp_sync_email($pdo, (string) $row['email']);
+  }
 }
 
 // Avregistrering utan token (t.ex. utskick med dold kopia): mejlar en avregistreringslänk.
@@ -138,6 +265,6 @@ function newsletter_send_unsubscribe_link(PDO $pdo, string $email, string $lang)
 function newsletter_list(PDO $pdo): array
 {
   newsletter_ensure_schema($pdo);
-  $rows = $pdo->query('SELECT id, email, language, source, status, confirmed_at, unsubscribed_at, created_at, token FROM newsletter_subscribers ORDER BY created_at DESC')->fetchAll();
+  $rows = $pdo->query('SELECT id, email, language, source, status, confirmed_at, unsubscribed_at, created_at, token, mailchimp_synced_at, mailchimp_error FROM newsletter_subscribers ORDER BY created_at DESC')->fetchAll();
   return is_array($rows) ? $rows : [];
 }

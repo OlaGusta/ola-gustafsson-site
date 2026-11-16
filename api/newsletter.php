@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 // Ateljébrevet.
 // Publikt: POST {action: subscribe|unsubscribe_request, email, language, source, website, elapsedMs}.
-// Studio (inloggad): GET listar (CSV byggs i Studio), POST {action: delete, id}.
+// Studio (inloggad): GET listar (CSV byggs i Studio), POST {action: delete, id} och {action: sync_all}.
 
 require __DIR__ . '/newsletter_lib.php';
 
@@ -20,7 +20,7 @@ if ($method === 'GET') {
     unset($row['token']);
     return $row;
   }, $rows);
-  api_respond_json(200, ['ok' => true, 'subscribers' => $list]);
+  api_respond_json(200, ['ok' => true, 'subscribers' => $list, 'mailchimp' => newsletter_mailchimp_config()['enabled']]);
 }
 
 api_require_method('POST');
@@ -30,8 +30,24 @@ $action = isset($body['action']) && is_string($body['action']) ? $body['action']
 if ($action === 'delete') {
   api_require_authenticated_user();
   $id = isset($body['id']) ? (int) $body['id'] : 0;
+  $stmt = $pdo->prepare('SELECT email FROM newsletter_subscribers WHERE id = :id');
+  $stmt->execute([':id' => $id]);
+  $email = $stmt->fetchColumn();
   $pdo->prepare('DELETE FROM newsletter_subscribers WHERE id = :id')->execute([':id' => $id]);
+  if (is_string($email) && newsletter_mailchimp_config()['enabled']) {
+    // Arkiveras i Mailchimp (finns kvar i historiken men får inga brev).
+    newsletter_mailchimp_request('DELETE', newsletter_mailchimp_member_path($email));
+  }
   api_respond_json(200, ['ok' => true]);
+}
+
+if ($action === 'sync_all') {
+  api_require_authenticated_user();
+  if (!newsletter_mailchimp_config()['enabled']) {
+    api_respond_json(422, ['ok' => false, 'error' => 'not_configured', 'message' => 'Mailchimp är inte konfigurerat på servern.']);
+  }
+  $result = newsletter_mailchimp_sync_all($pdo);
+  api_respond_json(200, ['ok' => true, 'synced' => $result['ok'], 'failed' => $result['failed'], 'errors' => $result['errors']]);
 }
 
 $lang = ($body['language'] ?? '') === 'en' ? 'en' : 'sv';

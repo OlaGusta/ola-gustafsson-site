@@ -22,7 +22,7 @@
     <script src="overrides.js?v=20260323-04"></script>
     <script src="content.js?v=20260928-01" defer></script>
     <script src="vendor/qrcode.min.js?v=20260216-01" defer></script>
-    <script src="studio.js?v=20261116-01" defer></script>
+    <script src="studio.js?v=20261116-02" defer></script>
   </head>
   <body id="page-top" data-page="studio">
     <header class="site-header" id="top">
@@ -1042,12 +1042,13 @@
             <div class="studio-row">
               <h2>Ateljébrev</h2>
               <div class="analytics-toolbar">
+                <button type="button" class="btn btn-ghost" id="newsletter-panel-sync">Synka med Mailchimp</button>
                 <button type="button" class="btn btn-ghost" id="newsletter-panel-copy">Kopiera adresser</button>
                 <button type="button" class="btn btn-ghost" id="newsletter-panel-csv">Ladda ner CSV</button>
                 <button type="button" class="btn btn-ghost" id="newsletter-panel-refresh">Uppdatera</button>
               </div>
             </div>
-            <p class="studio-note">Anmälningar från sidfoten, sålda verk, /ateljebrev och kryssrutan i kassan. Från sajten räknas en adress först när mottagaren klickat på länken i bekräftelsemejlet; kryss i kassan räknas direkt. Utskicket gör du själv: Kopiera adresser (bekräftade) och klistra in som dold kopia, eller importera CSV:n i Mailchimp. Länka till olagustafsson.com/ateljebrev/avsluta i brevet; den som vill sluta får där en avregistreringslänk. CSV:n har också en personlig avregistreringslänk per adress.</p>
+            <p class="studio-note">Anmälningar från sidfoten, sålda verk, /ateljebrev och kryssrutan i kassan. Från sajten räknas en adress först när mottagaren klickat på länken i bekräftelsemejlet; kryss i kassan räknas direkt. Bekräftade adresser förs över till Mailchimp automatiskt (målgruppen Ola Gustafsson Akvarell), och den som avslutar i ett Mailchimp-brev blir avregistrerad här också. Utskicket gör du i Mailchimp. Synka med Mailchimp skickar om alla, t.ex. om kolumnen Mailchimp visar fel. Kopiera adresser och CSV finns kvar som reserv.</p>
             <div id="newsletter-panel-status" class="analytics-panel-status" data-kind="info" aria-live="polite">Väntar på uppdatering...</div>
             <div id="newsletter-panel-list" class="inquiries-panel-list"></div>
           </section>

@@ -4099,7 +4099,8 @@ const newsletterEl = () => ({
   status: document.getElementById('newsletter-panel-status'),
   refresh: document.getElementById('newsletter-panel-refresh'),
   csv: document.getElementById('newsletter-panel-csv'),
-  copy: document.getElementById('newsletter-panel-copy')
+  copy: document.getElementById('newsletter-panel-copy'),
+  sync: document.getElementById('newsletter-panel-sync')
 });
 const setNewsletterStatus = (text, kind = 'info') => {
   const { status } = newsletterEl();
@@ -4116,8 +4117,8 @@ const renderNewsletterPanel = (rows) => {
     list.innerHTML = '<p class="gallery-empty">Inga anmälningar än.</p>';
     return;
   }
-  list.innerHTML = `<table class="newsletter-table"><thead><tr><th>E-post</th><th>Status</th><th>Källa</th><th>Språk</th><th>Anmäld</th><th></th></tr></thead><tbody>${uiState.newsletterData
-    .map((row) => `<tr data-id="${Number(row.id)}"><td>${escapeHtml(row.email)}</td><td><span class="artwork-status-badge is-${NEWSLETTER_STATUS_TONE[row.status] || 'available'}">${escapeHtml(NEWSLETTER_STATUS_LABELS[row.status] || row.status)}</span></td><td>${escapeHtml(row.source || '')}</td><td>${escapeHtml(row.language || '')}</td><td>${escapeHtml(formatOrderTimestamp(row.created_at))}</td><td><button type="button" class="btn btn-ghost" data-newsletter-delete>Ta bort</button></td></tr>`)
+  list.innerHTML = `<table class="newsletter-table"><thead><tr><th>E-post</th><th>Status</th><th>Källa</th><th>Språk</th><th>Anmäld</th><th>Mailchimp</th><th></th></tr></thead><tbody>${uiState.newsletterData
+    .map((row) => `<tr data-id="${Number(row.id)}"><td>${escapeHtml(row.email)}</td><td><span class="artwork-status-badge is-${NEWSLETTER_STATUS_TONE[row.status] || 'available'}">${escapeHtml(NEWSLETTER_STATUS_LABELS[row.status] || row.status)}</span></td><td>${escapeHtml(row.source || '')}</td><td>${escapeHtml(row.language || '')}</td><td>${escapeHtml(formatOrderTimestamp(row.created_at))}</td><td>${row.mailchimp_error ? `<span title="${escapeHtml(row.mailchimp_error)}">Fel</span>` : row.mailchimp_synced_at ? 'Synkad' : (row.status === 'pending' ? '–' : 'Ej synkad')}</td><td><button type="button" class="btn btn-ghost" data-newsletter-delete>Ta bort</button></td></tr>`)
     .join('')}</tbody></table>`;
   list.querySelectorAll('[data-newsletter-delete]').forEach((button) => {
     button.addEventListener('click', async () => {
@@ -4145,9 +4146,23 @@ const fetchNewsletterPanel = async () => {
   }
 };
 const initNewsletterPanel = () => {
-  const { list, refresh, csv, copy } = newsletterEl();
+  const { list, refresh, csv, copy, sync } = newsletterEl();
   if (!list || !refresh) return;
   refresh.addEventListener('click', () => fetchNewsletterPanel());
+  if (sync) {
+    sync.addEventListener('click', async () => {
+      sync.disabled = true;
+      setNewsletterStatus('Synkar med Mailchimp...', 'info');
+      try {
+        const response = await apiJson('api/newsletter.php', { method: 'POST', withCsrf: isSecureAuthStudio(), body: { action: 'sync_all' } });
+        await fetchNewsletterPanel();
+        setNewsletterStatus(`Mailchimp: ${response.synced} synkade${response.failed ? `, ${response.failed} misslyckades (${response.errors.join(', ')})` : ''}.`, response.failed ? 'error' : 'success');
+      } catch (error) {
+        setNewsletterStatus(error instanceof Error && error.message ? error.message : 'Synken misslyckades.', 'error');
+      }
+      sync.disabled = false;
+    });
+  }
   if (csv) {
     csv.addEventListener('click', () => {
       const quote = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`;
