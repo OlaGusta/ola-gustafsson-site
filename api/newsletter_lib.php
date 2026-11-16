@@ -45,7 +45,9 @@ SQL
 function newsletter_welcome_mail(array $row): array
 {
   $lang = (string) $row['language'] === 'en' ? 'en' : 'sv';
-  $unsubscribe = newsletter_url('/ateljebrev/avsluta/' . $row['token'], $lang);
+  // Kort, allmän länk i stället för den personliga token-länken (som såg rörig ut i texten).
+  // Sidan ber om e-postadressen och mejlar en avregistreringslänk.
+  $unsubscribe = newsletter_url('/ateljebrev/avsluta', $lang);
   if ($lang === 'en') {
     return [
       'subject' => 'Welcome to the studio letter',
@@ -56,7 +58,7 @@ function newsletter_welcome_mail(array $row): array
         . "100 days of sun: https://olagustafsson.com/100-dagar-av-sol?lang=en\n"
         . "Gift cards: https://olagustafsson.com/presentkort?lang=en\n\n"
         . "Ola Gustafsson\nola@olagustafsson.com\n\n"
-        . "No longer want the letter: {$unsubscribe}\n"
+        . "To stop receiving the letter: {$unsubscribe}\n"
     ];
   }
   return [
@@ -68,7 +70,7 @@ function newsletter_welcome_mail(array $row): array
       . "100 dagar av sol: https://olagustafsson.com/100-dagar-av-sol\n"
       . "Presentkort: https://olagustafsson.com/presentkort\n\n"
       . "Ola Gustafsson\nola@olagustafsson.com\n\n"
-      . "Vill du inte längre ha brevet: {$unsubscribe}\n"
+      . "Vill du sluta få brevet kan du avsluta här: {$unsubscribe}\n"
   ];
 }
 
