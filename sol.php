@@ -238,7 +238,7 @@ $h = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES);
                 <p class="eyebrow"><?= $h($lang === 'en' ? 'Poster' : 'Poster') ?></p>
                 <h2><?= $h($poster['title']) ?></h2>
                 <?php if ($poster['description'] !== ''): ?><p><?= seo_render_multiline_html($poster['description']) ?></p><?php endif; ?>
-                <p class="sun-poster-price"><strong><?= $h(shop_money_label($poster['price'], $lang)) ?></strong> <span class="field-hint"><?= $h($lang === 'en' ? 'incl. VAT. Shipping within Sweden 150 SEK per order.' : 'inkl. moms. Frakt inom Sverige 150 kr per beställning.') ?></span></p>
+                <p class="sun-poster-price"><strong><?= $h(shop_money_label($poster['price'], $lang)) ?></strong> <span class="field-hint"><?= $h(sprintf($lang === 'en' ? 'incl. VAT. Shipping within Sweden %d SEK per order.' : 'inkl. moms. Frakt inom Sverige %d kr per beställning.', seo_shop_config($payload)['shippingPoster'])) ?></span></p>
                 <?php if ($posterAvailable > 0): ?>
                   <div class="sun-poster-buy">
                     <label><?= $h($lang === 'en' ? 'Quantity' : 'Antal') ?>

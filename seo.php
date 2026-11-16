@@ -1336,6 +1336,7 @@ function seo_shop_config(array $payload): array
     'shippingOriginalSmall' => 150,
     'shippingOriginalLarge' => 150,
     'shippingPrint' => SEO_PRINT_SHIPPING_SEK,
+    'shippingPoster' => SEO_POSTER_SHIPPING_SEK,
     'editionSize' => SEO_PRINT_EDITION_SIZE,
     'largeSideCm' => 60,
     'reservationDays' => 7,
@@ -1350,7 +1351,7 @@ function seo_shop_config(array $payload): array
     'shippingFramed' => 250,
   ];
   $shop = isset($payload['shop']) && is_array($payload['shop']) ? $payload['shop'] : [];
-  foreach (['shippingOriginalSmall', 'shippingOriginalLarge', 'shippingPrint', 'shippingFramed', 'editionSize', 'largeSideCm', 'reservationDays'] as $key) {
+  foreach (['shippingOriginalSmall', 'shippingOriginalLarge', 'shippingPrint', 'shippingPoster', 'shippingFramed', 'editionSize', 'largeSideCm', 'reservationDays'] as $key) {
     if (isset($shop[$key]) && is_numeric($shop[$key]) && (int) $shop[$key] >= 0) {
       $defaults[$key] = (int) $shop[$key];
     }
@@ -1535,6 +1536,7 @@ function seo_shop_catalog(array $payload): array
     'frames' => array_map(static fn (string $key): array => ['key' => $key, 'sv' => seo_frame_option_label($key, 'sv'), 'en' => seo_frame_option_label($key, 'en'), 'titleSv' => seo_frame_line_title($cfg, $key, 'sv'), 'titleEn' => seo_frame_line_title($cfg, $key, 'en')], array_keys(SEO_FRAME_COLORS)),
     'shippingFramed' => $cfg['shippingFramed'],
     'shippingPrint' => $cfg['shippingPrint'],
+    'shippingPoster' => $cfg['shippingPoster'],
     'editionSize' => $cfg['editionSize'],
     'poster' => seo_poster_config($payload, 'sv'),
   ];
@@ -1625,6 +1627,9 @@ function seo_print_mount_note(string $lang): string
 // Fast frakt för print (beslut 2026-10-04): ett belopp per beställning inom Sverige,
 // så att kunden kan betala direkt. Original har rörlig frakt (seo_order_extras_note).
 const SEO_PRINT_SHIPPING_SEK = 150;
+// Ordrar med bara postrar (beslut 2026-10-26): en tub går som brev, porto 66–88 kr
+// plus tub. 99 kr ger 79 kr efter moms, alltså något under självkostnad, medvetet.
+const SEO_POSTER_SHIPPING_SEK = 99;
 
 function seo_print_extras_note(string $lang): string
 {

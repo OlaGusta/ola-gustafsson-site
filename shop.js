@@ -170,7 +170,7 @@
     if (!app || !catalogNode) {
       return;
     }
-    let catalog = { artworks: {}, sunPrints: [], frames: [], shippingPrint: 150, shippingFramed: 250, editionSize: 20, poster: { enabled: false, available: 0 } };
+    let catalog = { artworks: {}, sunPrints: [], frames: [], shippingPrint: 150, shippingPoster: 99, shippingFramed: 250, editionSize: 20, poster: { enabled: false, available: 0 } };
     try {
       catalog = { ...catalog, ...JSON.parse(catalogNode.textContent || '{}') };
     } catch (error) {
@@ -276,7 +276,8 @@
           vat += Math.round(amount - amount / 1.25);
         }
       });
-      let shipping = lines.length ? catalog.shippingPrint : 0;
+      const posterOnly = lines.length > 0 && lines.every((line) => line.kind === 'poster');
+      let shipping = lines.length ? (posterOnly ? catalog.shippingPoster : catalog.shippingPrint) : 0;
       if (lines.some((line) => line.kind === 'frame')) {
         shipping = Math.max(shipping, Number(catalog.shippingFramed) || 0);
       }

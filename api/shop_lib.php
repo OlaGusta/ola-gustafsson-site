@@ -369,8 +369,9 @@ function shop_resolve_items(PDO $pdo, array $cartItems, string $lang, bool $allo
   return $lines;
 }
 
-// Summor: frakt 150 kr per beställning, 250 kr om en ram ingår. Frakten följer momsen på
-// varorna: 25 % om något i ordern är momspliktigt, annars momsfri (bara original).
+// Summor: frakt 150 kr per beställning, 250 kr om en ram ingår, 99 kr om ordern bara innehåller postrar.
+// Frakten följer momsen på varorna: 25 % om något i ordern är momspliktigt, annars
+// momsfri (bara original).
 function shop_totals(array $lines, ?int $shippingOverride = null): array
 {
   $payload = shop_payload();
@@ -386,7 +387,8 @@ function shop_totals(array $lines, ?int $shippingOverride = null): array
       $taxable = true;
     }
   }
-  $shipping = (int) $cfg['shippingPrint'];
+  $posterOnly = $lines !== [] && array_reduce($lines, static fn (bool $carry, array $line): bool => $carry && $line['kind'] === 'poster', true);
+  $shipping = (int) ($posterOnly ? $cfg['shippingPoster'] : $cfg['shippingPrint']);
   foreach ($lines as $line) {
     if ($line['kind'] === 'original') {
       $shipping = max($shipping, (int) $cfg['shippingOriginalSmall']);
